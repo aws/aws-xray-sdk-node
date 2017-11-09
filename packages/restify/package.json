@@ -1,0 +1,40 @@
+{
+  "name": "aws-xray-sdk-restify",
+  "version": "1.0.1-beta",
+  "description": "Enables AWS X-Ray for Restify (Javascript)",
+  "author": "Amazon Web Services",
+  "contributors": [
+    "Sandra McMullen <mcmuls@amazon.com>"
+  ],
+  "main": "lib/index.js",
+  "engines": {
+    "node": ">= 4.3"
+  },
+  "directories": {
+    "test": "test"
+  },
+  "peerDependencies": {
+    "aws-xray-sdk-core": "^1.1.0"
+  },
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "eslint": "^3.10.2",
+    "mocha": "^3.0.2",
+    "sinon": "^1.17.5",
+    "sinon-chai": "^2.8.0"
+  },
+  "scripts": {
+    "test": "./node_modules/.bin/mocha --recursive ./test/ -R spec"
+  },
+  "keywords": [
+    "amazon",
+    "api",
+    "aws",
+    "restify",
+    "xray",
+    "x-ray",
+    "x ray"
+  ],
+  "license": "Apache-2.0",
+  "repository": "https://github.com/aws/aws-xray-sdk-node/tree/master/packages/restify"
+}

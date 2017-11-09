@@ -1,0 +1,11 @@
+.npmignore
+node_modules
+npm-debug.log
+docs
+AWSXRay.log
+Config
+fat_sdk
+core
+express
+mysql
+postgres

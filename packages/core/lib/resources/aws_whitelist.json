@@ -1,0 +1,335 @@
+{
+  "services": {
+    "dynamodb": {
+      "operations": {
+        "batchGetItem": {
+          "request_descriptors": {
+            "RequestItems": {
+              "get_keys": true,
+              "rename_to": "table_names"
+            }
+          },
+          "response_parameters": [
+            "ConsumedCapacity"
+          ]
+        },
+        "batchWriteItem": {
+          "request_descriptors": {
+            "RequestItems": {
+              "get_keys": true,
+              "rename_to": "table_names"
+            }
+          },
+          "response_parameters": [
+            "ConsumedCapacity",
+            "ItemCollectionMetrics"
+          ]
+        },
+        "createTable": {
+          "request_parameters": [
+            "GlobalSecondaryIndexes",
+            "LocalSecondaryIndexes",
+            "ProvisionedThroughput",
+            "TableName"
+          ]
+        },
+        "deleteItem": {
+          "request_parameters": [
+            "TableName"
+          ],
+          "response_parameters": [
+            "ConsumedCapacity",
+            "ItemCollectionMetrics"
+          ]
+        },
+        "deleteTable": {
+          "request_parameters": [
+            "TableName"
+          ]
+        },
+        "describeTable": {
+          "request_parameters": [
+            "TableName"
+          ]
+        },
+        "getItem": {
+          "request_parameters": [
+            "ConsistentRead",
+            "ProjectionExpression",
+            "TableName"
+          ],
+          "response_parameters": [
+            "ConsumedCapacity"
+          ]
+        },
+        "listTables": {
+          "request_parameters": [
+            "ExclusiveStartTableName",
+            "Limit"
+          ],
+          "response_descriptors": {
+            "TableNames": {
+              "list": true,
+              "get_count": true,
+              "rename_to": "table_count"
+            }
+          }
+        },
+        "putItem": {
+          "request_parameters": [
+            "TableName"
+          ],
+          "response_parameters": [
+            "ConsumedCapacity",
+            "ItemCollectionMetrics"
+          ]
+        },
+        "query": {
+          "request_parameters": [
+            "AttributesToGet",
+            "ConsistentRead",
+            "IndexName",
+            "Limit",
+            "ProjectionExpression",
+            "ScanIndexForward",
+            "Select",
+            "TableName"
+          ],
+          "response_parameters": [
+            "ConsumedCapacity"
+          ]
+        },
+        "scan": {
+          "request_parameters": [
+            "AttributesToGet",
+            "ConsistentRead",
+            "IndexName",
+            "Limit",
+            "ProjectionExpression",
+            "Segment",
+            "Select",
+            "TableName",
+            "TotalSegments"
+          ],
+          "response_parameters": [
+            "ConsumedCapacity",
+            "Count",
+            "ScannedCount"
+          ]
+        },
+        "updateItem": {
+          "request_parameters": [
+            "TableName"
+          ],
+          "response_parameters": [
+            "ConsumedCapacity",
+            "ItemCollectionMetrics"
+          ]
+        },
+        "updateTable": {
+          "request_parameters": [
+            "AttributeDefinitions",
+            "GlobalSecondaryIndexUpdates",
+            "ProvisionedThroughput",
+            "TableName"
+          ]
+        }
+      }
+    },
+    "sqs": {
+      "operations": {
+        "addPermission": {
+          "request_parameters": [
+            "Label",
+            "QueueUrl"
+          ]
+        },
+        "changeMessageVisibility": {
+          "request_parameters": [
+            "QueueUrl",
+            "VisibilityTimeout"
+          ]
+        },
+        "changeMessageVisibilityBatch": {
+          "request_parameters": [
+            "QueueUrl"
+          ],
+          "response_parameters": [
+            "Failed"
+          ]
+        },
+        "createQueue": {
+          "request_parameters": [
+            "Attributes",
+            "QueueName"
+          ]
+        },
+        "deleteMessage": {
+          "request_parameters": [
+            "QueueUrl"
+          ]
+        },
+        "deleteMessageBatch": {
+          "request_parameters": [
+            "QueueUrl"
+          ],
+          "response_parameters": [
+            "Failed"
+          ]
+        },
+        "deleteQueue": {
+          "request_parameters": [
+            "QueueUrl"
+          ]
+        },
+        "getQueueAttributes": {
+          "request_parameters": [
+            "QueueUrl"
+          ],
+          "response_parameters": [
+            "Attributes"
+          ]
+        },
+        "getQueueUrl": {
+          "request_parameters": [
+            "QueueName",
+            "QueueOwnerAWSAccountId"
+          ],
+          "response_parameters": [
+            "QueueUrl"
+          ]
+        },
+        "listDeadLetterSourceQueues": {
+          "request_parameters": [
+            "QueueUrl"
+          ],
+          "response_parameters": [
+            "QueueUrls"
+          ]
+        },
+        "listQueues": {
+          "request_parameters": [
+            "QueueNamePrefix"
+          ],
+          "response_descriptors": {
+            "QueueUrls": {
+              "list": true,
+              "get_count": true,
+              "rename_to": "queue_count"
+            }
+          }
+        },
+        "purgeQueue": {
+          "request_parameters": [
+            "QueueUrl"
+          ]
+        },
+        "receiveMessage": {
+          "request_parameters": [
+            "AttributeNames",
+            "MaxNumberOfMessages",
+            "MessageAttributeNames",
+            "QueueUrl",
+            "VisibilityTimeout",
+            "WaitTimeSeconds"
+          ],
+          "response_descriptors": {
+            "Messages": {
+              "list": true,
+              "get_count": true,
+              "rename_to": "message_count"
+            }
+          }
+        },
+        "removePermission": {
+          "request_parameters": [
+            "QueueUrl"
+          ]
+        },
+        "sendMessage": {
+          "request_parameters": [
+            "DelaySeconds",
+            "QueueUrl"
+          ],
+          "request_descriptors": {
+            "MessageAttributes": {
+              "get_keys": true,
+              "rename_to": "message_attribute_names"
+            }
+          },
+          "response_parameters": [
+            "MessageId"
+          ]
+        },
+        "sendMessageBatch": {
+          "request_parameters": [
+            "QueueUrl"
+          ],
+          "request_descriptors": {
+            "Entries": {
+              "list": true,
+              "get_count": true,
+              "rename_to": "message_count"
+            }
+          },
+          "response_descriptors": {
+            "Failed": {
+              "list": true,
+              "get_count": true,
+              "rename_to": "failed_count"
+            },
+            "Successful": {
+              "list": true,
+              "get_count": true,
+              "rename_to": "successful_count"
+            }
+          }
+        },
+        "setQueueAttributes": {
+          "request_parameters": [
+            "QueueUrl"
+          ],
+          "request_descriptors": {
+            "Attributes": {
+              "get_keys": true,
+              "rename_to": "attribute_names"
+            }
+          }
+        }
+      }
+    },
+    "sns": {
+      "operations": {
+        "publish": {
+          "request_parameters": [
+            "TopicArn"
+          ]
+        }
+      }
+    },
+    "lambda": {
+      "operations": {
+        "invoke": {
+          "request_parameters": [
+            "FunctionName",
+            "InvocationType",
+            "LogType",
+            "Qualifier"
+          ],
+          "response_parameters": [
+            "FunctionError",
+            "StatusCode"
+          ]
+        },
+        "invokeAsync": {
+          "request_parameters": [
+            "FunctionName"
+          ],
+          "response_parameters": [
+            "Status"
+          ]
+        }
+      }
+    }
+  }
+}

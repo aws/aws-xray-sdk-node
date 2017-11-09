@@ -1,0 +1,31 @@
+{
+  "rules": [
+    {
+      "description": "Root",
+      "http_method": "GET",
+      "service_name": "localhost:*",
+      "url_path": "/",
+      "fixed_target": 0,
+      "rate": 0
+    },
+    {
+      "http_method": "GET",
+      "service_name": "*",
+      "url_path": "/getSQS",
+      "fixed_target": 10,
+      "rate": 0.05
+    },
+    {
+      "http_method": "GET",
+      "service_name": "*.foo.com",
+      "url_path": "/signin/*",
+      "fixed_target": 10,
+      "rate": 0.05
+    }
+  ],
+  "default": {
+    "fixed_target": 10,
+    "rate": 0.05
+  },
+  "version": 1
+}

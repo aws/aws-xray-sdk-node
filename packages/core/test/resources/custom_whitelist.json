@@ -1,0 +1,14 @@
+{
+  "services": {
+    "s3": {
+      "operations": {
+        "getObject": {
+          "request_parameters": [
+            "Bucket",
+            "Key"
+          ]
+        }
+      }
+    }
+  }
+}
