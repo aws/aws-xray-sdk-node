@@ -1,6 +1,6 @@
 {
   "name": "aws-xray-sdk-core",
-  "version": "1.1.5",
+  "version": "1.1.6",
   "description": "AWS X-Ray SDK for Javascript",
   "author": "Amazon Web Services",
   "contributors": [
@@ -13,7 +13,7 @@
   "directories": {
     "test": "test"
   },
-  "peerDependencies": {
+  "dependencies": {
     "continuation-local-storage": "^3.2.0",
     "moment": "^2.15.2",
     "pkginfo": "^0.4.0",
