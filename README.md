@@ -17,6 +17,8 @@ Use the --save option to save the SDK as a dependency in your application's pack
 ```
 npm install aws-xray-sdk --save
 ```
+Starting from npm 3.x `npm install` no longer installs peerDependencies. You will need to manually install them
+or checkout this open source tool [install-peers](https://github.com/alexindigo/install-peers).
 
 ## Getting Help
 
