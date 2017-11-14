@@ -48,12 +48,12 @@ For more information about naming modes, see the aws-xray-sdk-core [README](http
 
     app.use(xrayKoa.openSegment('defaultName'));
 
-    app.get('/', function (req, res) {
+    app.get('/', async function (ctx) {
       var segment = AWSXRay.getSegment();
 
       //...
 
-      res.render('index');
+      ctx.body = 'Hello world';
     });
 
     app.use(xrayKoa.closeSegment());
@@ -70,12 +70,12 @@ For more information about naming modes, see the aws-xray-sdk-core [README](http
 
     app.use(xrayKoa.openSegment('defaultName'));               //Required at the start of your routes
 
-    app.get('/', function (req, res) {
+    app.get('/', async function (ctx) {
       var segment = req.segment;
 
       //...
 
-      res.render('index');
+      ctx.body = 'Hello world';
     });
 
     app.use(xrayKoa.closeSegment());   //Required at the end of your routes / first in error handling routes
