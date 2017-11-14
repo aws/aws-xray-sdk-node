@@ -33,7 +33,7 @@ var koaMW = {
     mwUtils.setDefaultName(defaultName);
 
     return function open(ctx, next) {
-      var amznTraceHeader = mwUtils.processHeaders(ctx); // koa req headers is in ctx.headers
+      var amznTraceHeader = mwUtils.processHeaders(ctx);
       var name = mwUtils.resolveName(ctx.host);
       var segment = new Segment(name, amznTraceHeader.Root, amznTraceHeader.Parent);
 
@@ -58,7 +58,7 @@ var koaMW = {
 
       if (AWSXRay.isAutomaticMode()) {
         var ns = AWSXRay.getNamespace();
-        ns.bindEmitter(ctx.req); // not sure
+        ns.bindEmitter(ctx.req);
         ns.bindEmitter(ctx.res);
 
         ns.run(function () {
