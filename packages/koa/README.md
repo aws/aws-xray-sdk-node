@@ -2,11 +2,11 @@
 ## Requirements
 
   AWS X-Ray SDK Core (aws-xray-sdk-core)
-  Express 4.14.0 or greater
+  Koa
 
-## AWS X-Ray and Express
+## AWS X-Ray and Koa
 
-The AWS X-Ray Express package automatically records information for incoming and outgoing
+The AWS X-Ray Koa package automatically records information for incoming and outgoing
 requests and responses, via the middleware functions in this package.
 
 The AWS X-Ray SDK Core has two modes - `manual` and `automatic`.
@@ -32,7 +32,7 @@ The SDK requires that a default segment name is set when using middleware.
 If it isn't set, an error is thrown. You can override this value via the `AWS_XRAY_TRACING_NAME`
 environment variable.
 
-    app.use(xrayExpress.openSegment('defaultName'));
+    app.use(xrayKoa.openSegment('defaultName'));
 
 The AWS X-Ray SDK Core defaults to a fixed naming mode. This means that each time the middleware creates a new segment for an incoming request,
 the name of that segment is set to the default name. In dynamic mode, the segment name can vary between the host header of the request or the default name.
@@ -41,12 +41,12 @@ For more information about naming modes, see the aws-xray-sdk-core [README](http
 ## Automatic mode examples
 
     var AWSXRay = require('aws-xray-sdk-core');
-    var xrayExpress = require('aws-xray-sdk-express');
-    var app = express();
+    var xrayKoa = require('aws-xray-sdk-koa');
+    var app = new Koa();
 
     //...
 
-    app.use(xrayExpress.openSegment('defaultName'));
+    app.use(xrayKoa.openSegment('defaultName'));
 
     app.get('/', function (req, res) {
       var segment = AWSXRay.getSegment();
@@ -56,19 +56,19 @@ For more information about naming modes, see the aws-xray-sdk-core [README](http
       res.render('index');
     });
 
-    app.use(xrayExpress.closeSegment());
+    app.use(xrayKoa.closeSegment());
 
 ## Manual mode examples
 
     var AWSXRay = require('aws-xray-sdk-core');
-    var xrayExpress = require('aws-xray-sdk-express');
-    var app = express();
+    var xrayKoa = require('aws-xray-sdk-koa');
+    var app = new Koa();
 
     //...
 
     var AWSXRay = require('aws-xray-sdk');
 
-    app.use(xrayExpress.openSegment('defaultName'));               //Required at the start of your routes
+    app.use(xrayKoa.openSegment('defaultName'));               //Required at the start of your routes
 
     app.get('/', function (req, res) {
       var segment = req.segment;
@@ -78,4 +78,4 @@ For more information about naming modes, see the aws-xray-sdk-core [README](http
       res.render('index');
     });
 
-    app.use(xrayExpress.closeSegment());   //Required at the end of your routes / first in error handling routes
+    app.use(xrayKoa.closeSegment());   //Required at the end of your routes / first in error handling routes
