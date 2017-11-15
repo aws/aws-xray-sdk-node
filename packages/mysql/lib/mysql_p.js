@@ -35,7 +35,7 @@ function patchCreateConnection(mysql) {
   mysql[baseFcn] = mysql['createConnection'];
 
   mysql['createConnection'] = function patchedCreateConnection() {
-    var connection = mysql[baseFcn].apply(connection, arguments);
+    var connection = mysql[baseFcn].apply(this, arguments);
     connection.__query = connection.query;
     connection.query = captureQuery;
 
@@ -48,7 +48,7 @@ function patchCreatePool(mysql) {
   mysql[baseFcn] = mysql['createPool'];
 
   mysql['createPool'] = function patchedCreatePool() {
-    var pool = mysql[baseFcn].apply(pool, arguments);
+    var pool = mysql[baseFcn].apply(this, arguments);
     pool.__query = pool.query;
     pool.query = captureQuery;
 
