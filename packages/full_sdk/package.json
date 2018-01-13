@@ -1,6 +1,6 @@
 {
   "name": "aws-xray-sdk",
-  "version": "1.1.6",
+  "version": "1.1.7",
   "description": "AWS X-Ray SDK for Javascript",
   "author": "Amazon Web Services",
   "contributors": [
