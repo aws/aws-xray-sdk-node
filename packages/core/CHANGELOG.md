@@ -1,11 +1,14 @@
 # Changelog for AWS X-Ray Core SDK for JavaScript
-<!--LATEST=1.1.4-->
+<!--LATEST=1.1.7-->
 <!--ENTRYINSERT-->
+
+## 1.1.7
+* bugfix: Fixed issue where undefined host name would not match any path based sampling rule.
 
 ## 1.1.5
 * The X-Ray SDK for Node.js is now an open source project. You can follow the project and submit issues and pull requests on [GitHub](https://github.com/aws/aws-xray-sdk-node).
 
-## 1.14
+## 1.1.4
 * bugfix: Fixing issue where an unexpected segment on the CLS context would fail in Lambda 
 ## 1.1.3
 * bugfix: Resolving Lambda segment information on `getSegment` rather than on `addSubsegment`.

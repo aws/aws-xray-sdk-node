@@ -34,8 +34,10 @@ SamplingRules.prototype.shouldSample = function shouldSample(serviceName, httpMe
   var matched;
 
   this.rules.some(function(rule) {
-    if (rule.default || (Utils.wildcardMatch(rule.service_name, serviceName)
-      && Utils.wildcardMatch(rule.http_method, httpMethod) && Utils.wildcardMatch(rule.url_path, urlPath))) {
+    // Any null parameters provided will be considered an implicit match.
+    if (rule.default || (serviceName == null || (Utils.wildcardMatch(rule.service_name, serviceName))
+      && (httpMethod == null || Utils.wildcardMatch(rule.http_method, httpMethod))
+      && (urlPath == null || Utils.wildcardMatch(rule.url_path, urlPath)))) {
 
       matched = rule.sampler;
 

@@ -1,6 +1,12 @@
 # Changelog for AWS X-Ray SDK for JavaScript
-<!--LATEST=1.1.4-->
+<!--LATEST=1.1.7-->
 <!--ENTRYINSERT-->
+
+## 1.1.7
+* change: Updated aws-xray-sdk-core to 1.1.7. See aws-xray-sdk-core's CHANGELOG.md for package changes.
+* change: Updated aws-xray-sdk-express to 1.1.7. No further changes.
+* change: Updated aws-xray-sdk-mysql to 1.1.7. No further changes.
+* change: Updated aws-xray-sdk-postgres to 1.1.7. No further changes.
 
 ## 1.1.5
 * The X-Ray SDK for Node.js is now an open source project. You can follow the project and submit issues and pull requests on [GitHub](https://github.com/aws/aws-xray-sdk-node).

@@ -3,6 +3,7 @@ var sinon = require('sinon');
 
 var MWUtils = require('../../../lib/middleware/mw_utils');
 var SamplingRules = require('../../../lib/middleware/sampling/sampling_rules');
+var Segment = require('../../../lib/segments/segment');
 
 //headers are case-insensitive
 var XRAY_HEADER = 'x-amzn-trace-id';
@@ -206,6 +207,43 @@ describe('Middleware utils', function() {
       MWUtils.resolveSampling(headers, segment, res);
 
       assert.equal(segment.notTraced, true);
+    });
+  });
+
+  describe('#samplingWildcardMatch', function() {
+    var segment = new Segment('foo');
+    var headers = {};
+    var res = {
+      req: {
+        headers: {},
+        url: '/api/move/up',
+        method: 'GET',
+      },
+      header: {}
+    };
+
+    var customRules = {
+      version: 1,
+      rules: [
+        {
+          description: 'Player moves.',
+          service_name: '*',
+          http_method: '*',
+          url_path: '/api/move/*',
+          fixed_target: 0,
+          rate: 1
+        }
+      ],
+      default: {
+        fixed_target: 0,
+        rate: 0
+      }
+    };
+
+    it('should match path based sampling rule if host name is not present in the headerds', function() {
+      MWUtils.setSamplingRules(customRules);
+      MWUtils.resolveSampling(headers, segment, res);
+      assert.notProperty(segment, 'notTraced');
     });
   });
 
