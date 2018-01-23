@@ -7,6 +7,7 @@
  */
 
 var _ = require('underscore');
+var url = require('url');
 
 var contextUtils = require('../context_utils');
 var Utils = require('../utils');
@@ -57,6 +58,10 @@ function enableCapture(module, downstreamXRayEnabled) {
   function captureOutgoingHTTPs(baseFunc, options, callback) {
     if (!options || (options.headers && (options.headers['X-Amzn-Trace-Id']))) {
       return baseFunc(options, callback);
+    }
+
+    if (typeof options === 'string') {
+      options = url.parse(options);
     }
 
     var parent = contextUtils.resolveSegment(contextUtils.resolveManualSegmentParams(options));

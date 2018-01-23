@@ -2,6 +2,7 @@ var assert = require('chai').assert;
 var chai = require('chai');
 var sinon = require('sinon');
 var sinonChai = require('sinon-chai');
+const { URL } = require('url');
 
 var captureHTTPs = require('../../../lib/patchers/http_p').captureHTTPs;
 var captureHTTPsGlobal = require('../../../lib/patchers/http_p').captureHTTPsGlobal;
@@ -142,6 +143,19 @@ describe('HTTP/S', function() {
       it('should create a new subsegment with name as "Unknown host" when host and hostname is missing', function() {
         capturedHttp.request({path: '/'});
         newSubsegmentStub.should.have.been.calledWith('Unknown host');
+      });
+
+      it('should pass when a string is passed', function() {
+        capturedHttp.request('http://hostname/api');
+        newSubsegmentStub.should.have.been.calledWith('hostname');
+        capturedHttp.get('http://hostname/api');
+        newSubsegmentStub.should.have.been.calledWith('hostname');
+      });
+
+      it('should pass when a URL is passed', function() {
+        var options = new URL('http://hostname/api');
+        capturedHttp.request(options);
+        newSubsegmentStub.should.have.been.calledWith('hostname');
       });
 
       it('should call the base method', function() {
