@@ -330,6 +330,619 @@
           ]
         }
       }
+    },
+    "s3": {
+      "operations": {
+        "abortMultipartUpload": {
+          "request_parameters": [
+            "Key"
+          ],
+          "request_descriptors": {
+            "Bucket": {
+              "rename_to": "bucket_name"
+            }
+          }
+        },
+        "completeMultipartUpload": {
+          "request_parameters": [
+            "Key"
+          ],
+          "request_descriptors": {
+            "Bucket": {
+              "rename_to": "bucket_name"
+            }
+          }
+        },
+        "copyObject": {
+          "request_parameters": [
+            "CopySource",
+            "Key"
+          ],
+          "request_descriptors": {
+            "Bucket": {
+              "rename_to": "bucket_name"
+            }
+          }
+        },
+        "createBucket": {
+          "request_descriptors": {
+            "Bucket": {
+              "rename_to": "bucket_name"
+            }
+          }
+        },
+        "createMultipartUpload": {
+          "request_parameters": [
+            "Key"
+          ],
+          "request_descriptors": {
+            "Bucket": {
+              "rename_to": "bucket_name"
+            }
+          }
+        },
+        "deleteBucket": {
+          "request_descriptors": {
+            "Bucket": {
+              "rename_to": "bucket_name"
+            }
+          }
+        },
+        "deleteBucketAnalyticsConfiguration": {
+          "request_descriptors": {
+            "Bucket": {
+              "rename_to": "bucket_name"
+            }
+          }
+        },
+        "deleteBucketCors": {
+          "request_descriptors": {
+            "Bucket": {
+              "rename_to": "bucket_name"
+            }
+          }
+        },
+        "deleteBucketEncryption": {
+          "request_descriptors": {
+            "Bucket": {
+              "rename_to": "bucket_name"
+            }
+          }
+        },
+        "deleteBucketInventoryConfiguration": {
+          "request_descriptors": {
+            "Bucket": {
+              "rename_to": "bucket_name"
+            }
+          }
+        },
+        "deleteBucketLifecycle": {
+          "request_descriptors": {
+            "Bucket": {
+              "rename_to": "bucket_name"
+            }
+          }
+        },
+        "deleteBucketMetricsConfiguration": {
+          "request_descriptors": {
+            "Bucket": {
+              "rename_to": "bucket_name"
+            }
+          }
+        },
+        "deleteBucketPolicy": {
+          "request_descriptors": {
+            "Bucket": {
+              "rename_to": "bucket_name"
+            }
+          }
+        },
+        "deleteBucketReplication": {
+          "request_descriptors": {
+            "Bucket": {
+              "rename_to": "bucket_name"
+            }
+          }
+        },
+        "deleteBucketTagging": {
+          "request_descriptors": {
+            "Bucket": {
+              "rename_to": "bucket_name"
+            }
+          }
+        },
+        "deleteBucketWebsite": {
+          "request_descriptors": {
+            "Bucket": {
+              "rename_to": "bucket_name"
+            }
+          }
+        },
+        "deleteObject": {
+          "request_parameters": [
+            "Key",
+            "VersionId"
+          ],
+          "request_descriptors": {
+            "Bucket": {
+              "rename_to": "bucket_name"
+            }
+          }
+        },
+        "deleteObjectTagging": {
+          "request_parameters": [
+            "Key",
+            "VersionId"
+          ],
+          "request_descriptors": {
+            "Bucket": {
+              "rename_to": "bucket_name"
+            }
+          }
+        },
+        "deleteObjects": {
+          "request_descriptors": {
+            "Bucket": {
+              "rename_to": "bucket_name"
+            }
+          }
+        },
+        "getBucketAccelerateConfiguration": {
+          "request_descriptors": {
+            "Bucket": {
+              "rename_to": "bucket_name"
+            }
+          }
+        },
+        "getBucketAcl": {
+          "request_descriptors": {
+            "Bucket": {
+              "rename_to": "bucket_name"
+            }
+          }
+        },
+        "getBucketAnalyticsConfiguration": {
+          "request_descriptors": {
+            "Bucket": {
+              "rename_to": "bucket_name"
+            }
+          }
+        },
+        "getBucketCors": {
+          "request_descriptors": {
+            "Bucket": {
+              "rename_to": "bucket_name"
+            }
+          }
+        },
+        "getBucketEncryption": {
+          "request_descriptors": {
+            "Bucket": {
+              "rename_to": "bucket_name"
+            }
+          }
+        },
+        "getBucketInventoryConfiguration": {
+          "request_descriptors": {
+            "Bucket": {
+              "rename_to": "bucket_name"
+            }
+          }
+        },
+        "getBucketLifecycle": {
+          "request_descriptors": {
+            "Bucket": {
+              "rename_to": "bucket_name"
+            }
+          }
+        },
+        "getBucketLifecycleConfiguration": {
+          "request_descriptors": {
+            "Bucket": {
+              "rename_to": "bucket_name"
+            }
+          }
+        },
+        "getBucketLocation": {
+          "request_descriptors": {
+            "Bucket": {
+              "rename_to": "bucket_name"
+            }
+          }
+        },
+        "getBucketLogging": {
+          "request_descriptors": {
+            "Bucket": {
+              "rename_to": "bucket_name"
+            }
+          }
+        },
+        "getBucketMetricsConfiguration": {
+          "request_descriptors": {
+            "Bucket": {
+              "rename_to": "bucket_name"
+            }
+          }
+        },
+        "getBucketNotification": {
+          "request_descriptors": {
+            "Bucket": {
+              "rename_to": "bucket_name"
+            }
+          }
+        },
+        "getBucketNotificationConfiguration": {
+          "request_descriptors": {
+            "Bucket": {
+              "rename_to": "bucket_name"
+            }
+          }
+        },
+        "getBucketPolicy": {
+          "request_descriptors": {
+            "Bucket": {
+              "rename_to": "bucket_name"
+            }
+          }
+        },
+        "getBucketReplication": {
+          "request_descriptors": {
+            "Bucket": {
+              "rename_to": "bucket_name"
+            }
+          }
+        },
+        "getBucketRequestPayment": {
+          "request_descriptors": {
+            "Bucket": {
+              "rename_to": "bucket_name"
+            }
+          }
+        },
+        "getBucketTagging": {
+          "request_descriptors": {
+            "Bucket": {
+              "rename_to": "bucket_name"
+            }
+          }
+        },
+        "getBucketVersioning": {
+          "request_descriptors": {
+            "Bucket": {
+              "rename_to": "bucket_name"
+            }
+          }
+        },
+        "getBucketWebsite": {
+          "request_descriptors": {
+            "Bucket": {
+              "rename_to": "bucket_name"
+            }
+          }
+        },
+        "getObject": {
+          "request_parameters": [
+            "Key",
+            "VersionId"
+          ],
+          "request_descriptors": {
+            "Bucket": {
+              "rename_to": "bucket_name"
+            }
+          }
+        },
+        "getObjectAcl": {
+          "request_parameters": [
+            "Key",
+            "VersionId"
+          ],
+          "request_descriptors": {
+            "Bucket": {
+              "rename_to": "bucket_name"
+            }
+          }
+        },
+        "getObjectTagging": {
+          "request_parameters": [
+            "Key",
+            "VersionId"
+          ],
+          "request_descriptors": {
+            "Bucket": {
+              "rename_to": "bucket_name"
+            }
+          }
+        },
+        "getObjectTorrent": {
+          "request_parameters": [
+            "Key"
+          ],
+          "request_descriptors": {
+            "Bucket": {
+              "rename_to": "bucket_name"
+            }
+          }
+        },
+        "headBucket": {
+          "request_descriptors": {
+            "Bucket": {
+              "rename_to": "bucket_name"
+            }
+          }
+        },
+        "headObject": {
+          "request_parameters": [
+            "Key",
+            "VersionId"
+          ],
+          "request_descriptors": {
+            "Bucket": {
+              "rename_to": "bucket_name"
+            }
+          }
+        },
+        "listBucketAnalyticsConfigurations": {
+          "request_descriptors": {
+            "Bucket": {
+              "rename_to": "bucket_name"
+            }
+          }
+        },
+        "listBucketInventoryConfigurations": {
+          "request_descriptors": {
+            "Bucket": {
+              "rename_to": "bucket_name"
+            }
+          }
+        },
+        "listBucketMetricsConfigurations": {
+          "request_descriptors": {
+            "Bucket": {
+              "rename_to": "bucket_name"
+            }
+          }
+        },
+        "listMultipartUploads": {
+          "request_parameters": [
+            "Prefix"
+          ],
+          "request_descriptors": {
+            "Bucket": {
+              "rename_to": "bucket_name"
+            }
+          }
+        },
+        "listObjectVersions": {
+          "request_parameters": [
+            "Prefix"
+          ],
+          "request_descriptors": {
+            "Bucket": {
+              "rename_to": "bucket_name"
+            }
+          }
+        },
+        "listObjects": {
+          "request_parameters": [
+            "Prefix"
+          ],
+          "request_descriptors": {
+            "Bucket": {
+              "rename_to": "bucket_name"
+            }
+          }
+        },
+        "listObjectsV2": {
+          "request_parameters": [
+            "Prefix"
+          ],
+          "request_descriptors": {
+            "Bucket": {
+              "rename_to": "bucket_name"
+            }
+          }
+        },
+        "listParts": {
+          "request_parameters": [
+            "Key"
+          ],
+          "request_descriptors": {
+            "Bucket": {
+              "rename_to": "bucket_name"
+            }
+          }
+        },
+        "putBucketAccelerateConfiguration": {
+          "request_descriptors": {
+            "Bucket": {
+              "rename_to": "bucket_name"
+            }
+          }
+        },
+        "putBucketAcl": {
+          "request_descriptors": {
+            "Bucket": {
+              "rename_to": "bucket_name"
+            }
+          }
+        },
+        "putBucketAnalyticsConfiguration": {
+          "request_descriptors": {
+            "Bucket": {
+              "rename_to": "bucket_name"
+            }
+          }
+        },
+        "putBucketCors": {
+          "request_descriptors": {
+            "Bucket": {
+              "rename_to": "bucket_name"
+            }
+          }
+        },
+        "putBucketEncryption": {
+          "request_descriptors": {
+            "Bucket": {
+              "rename_to": "bucket_name"
+            }
+          }
+        },
+        "putBucketInventoryConfiguration": {
+          "request_descriptors": {
+            "Bucket": {
+              "rename_to": "bucket_name"
+            }
+          }
+        },
+        "putBucketLifecycle": {
+          "request_descriptors": {
+            "Bucket": {
+              "rename_to": "bucket_name"
+            }
+          }
+        },
+        "putBucketLifecycleConfiguration": {
+          "request_descriptors": {
+            "Bucket": {
+              "rename_to": "bucket_name"
+            }
+          }
+        },
+        "putBucketLogging": {
+          "request_descriptors": {
+            "Bucket": {
+              "rename_to": "bucket_name"
+            }
+          }
+        },
+        "putBucketMetricsConfiguration": {
+          "request_descriptors": {
+            "Bucket": {
+              "rename_to": "bucket_name"
+            }
+          }
+        },
+        "putBucketNotification": {
+          "request_descriptors": {
+            "Bucket": {
+              "rename_to": "bucket_name"
+            }
+          }
+        },
+        "putBucketNotificationConfiguration": {
+          "request_descriptors": {
+            "Bucket": {
+              "rename_to": "bucket_name"
+            }
+          }
+        },
+        "putBucketPolicy": {
+          "request_descriptors": {
+            "Bucket": {
+              "rename_to": "bucket_name"
+            }
+          }
+        },
+        "putBucketReplication": {
+          "request_descriptors": {
+            "Bucket": {
+              "rename_to": "bucket_name"
+            }
+          }
+        },
+        "putBucketRequestPayment": {
+          "request_descriptors": {
+            "Bucket": {
+              "rename_to": "bucket_name"
+            }
+          }
+        },
+        "putBucketTagging": {
+          "request_descriptors": {
+            "Bucket": {
+              "rename_to": "bucket_name"
+            }
+          }
+        },
+        "putBucketVersioning": {
+          "request_descriptors": {
+            "Bucket": {
+              "rename_to": "bucket_name"
+            }
+          }
+        },
+        "putBucketWebsite": {
+          "request_descriptors": {
+            "Bucket": {
+              "rename_to": "bucket_name"
+            }
+          }
+        },
+        "putObject": {
+          "request_parameters": [
+            "Key"
+          ],
+          "request_descriptors": {
+            "Bucket": {
+              "rename_to": "bucket_name"
+            }
+          }
+        },
+        "putObjectAcl": {
+          "request_parameters": [
+            "Key",
+            "VersionId"
+          ],
+          "request_descriptors": {
+            "Bucket": {
+              "rename_to": "bucket_name"
+            }
+          }
+        },
+        "putObjectTagging": {
+          "request_parameters": [
+            "Key",
+            "VersionId"
+          ],
+          "request_descriptors": {
+            "Bucket": {
+              "rename_to": "bucket_name"
+            }
+          }
+        },
+        "restoreObject": {
+          "request_parameters": [
+            "Key",
+            "VersionId"
+          ],
+          "request_descriptors": {
+            "Bucket": {
+              "rename_to": "bucket_name"
+            }
+          }
+        },
+        "uploadPart": {
+          "request_parameters": [
+            "Key"
+          ],
+          "request_descriptors": {
+            "Bucket": {
+              "rename_to": "bucket_name"
+            }
+          }
+        },
+        "uploadPartCopy": {
+          "request_parameters": [
+            "CopySource",
+            "Key"
+          ],
+          "request_descriptors": {
+            "Bucket": {
+              "rename_to": "bucket_name"
+            }
+          }
+        }
+      }
     }
   }
 }

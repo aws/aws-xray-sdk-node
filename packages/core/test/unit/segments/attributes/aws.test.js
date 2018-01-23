@@ -5,11 +5,17 @@ var sinon = require('sinon');
 
 describe('Aws', function() {
   var serviceName = 's3';
+  var bucketName = 'test-bucket';
+  var keyName = 'test-key';
   var req = {
     request: {
       operation: 'putObject',
       httpRequest: {
         region: 'us-east-1'
+      },
+      params: {
+        Bucket: bucketName,
+        Key: keyName
       }
     },
     requestId: 'C9336616C948DC3C',
@@ -17,11 +23,11 @@ describe('Aws', function() {
   };
 
   describe('#init', function() {
-    var sandbox;
+    var sandbox, addDataStub;
 
     beforeEach(function() {
       sandbox = sinon.sandbox.create();
-      sandbox.stub(Aws.prototype, 'addData');
+      addDataStub = sandbox.stub(Aws.prototype, 'addData');
     });
 
     afterEach(function() {
@@ -49,6 +55,14 @@ describe('Aws', function() {
     it('should format the operation name', function() {
       var aws = new Aws(req, serviceName);
       assert.propertyVal(aws, 'operation', 'PutObject');
+    });
+
+    it('should capture s3 params: bucket, key', function() {
+      var aws = new Aws(req, serviceName);
+      addDataStub.should.have.been.calledWith({
+        bucket_name: bucketName,
+        key: keyName
+      });
     });
   });
 
