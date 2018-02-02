@@ -287,11 +287,7 @@ a new context, see: https://github.com/othiym23/node-continuation-local-storage.
 
     var AWS = captureAWS(require('aws-sdk'));
 
-    //Create new clients as usual
-    //Be sure any outgoing calls that are dependent on another async
-    //function are wrapped with captureAsyncFunc, or duplicate segments might
-    leak
-    //See usages for clients in manual and automatic modes
+    // Create new AWS clients as usual.
 
 ### Configure AWSXRay to automatically capture EC2 instance data
 
