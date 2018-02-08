@@ -261,6 +261,14 @@ See the [aws-xray-sdk-express](https://github.com/aws/aws-xray-sdk-node/tree/mas
 For additional information about and examples for using the CLS namespace to create
 a new context, see: https://github.com/othiym23/node-continuation-local-storage.
 
+### Capture subsegmenets within chained native Promise using automatic mode
+
+If you have chained native Promise and you have subsegments generated within those promises, you should consider to run the following code to patch the behavior of CLS on binding X-Ray context to Promise.
+
+    AWSXRay.capturePromise();
+
+This will solve the issue where the subsegments within a Promise chain are attached to wrong segments or nested instead of being siblings. For more details on the discussion please see this [PR](https://github.com/aws/aws-xray-sdk-node/pull/11).
+
 ## Example code
 
 ### Version capturing

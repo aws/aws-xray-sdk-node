@@ -3,7 +3,8 @@
  */
 
 /**
- * This module patches Promise libraries to correct tracing attribution for http requests.
+ * This module patches native Promise libraries provided by V8 engine 
+ * so all subsegments generated within Promise are attached to the correct parent. 
  */
 
 var contextUtils = require('../context_utils');
@@ -32,4 +33,8 @@ function tryGetCurrentSegment() {
   return segment;
 }
 
-module.exports = patchPromise;
+function capturePromise() {
+  patchPromise(Promise);
+}
+
+module.exports.capturePromise = capturePromise;

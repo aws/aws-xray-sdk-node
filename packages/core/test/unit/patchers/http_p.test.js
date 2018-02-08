@@ -24,6 +24,9 @@ var buildFakeRequest = function() {
 
 var buildFakeResponse = function() {
   var response = new TestEmitter();
+  response.resume = function() {
+    response.emit('resume');
+  }
   return response;
 };
 
@@ -191,6 +194,11 @@ describe('HTTP/S', function() {
 
         fakeRequest = buildFakeRequest();
         fakeResponse = buildFakeResponse();
+        // We need to manually link resume and end to mimic the real response
+        // per https://nodejs.org/api/http.html#http_class_http_clientrequest
+        fakeResponse.resume = function() {
+          fakeResponse.emit('end');
+        };
 
         httpClient = { request: function(options, callback) {
           fakeResponse.req = fakeRequest;
@@ -209,7 +217,6 @@ describe('HTTP/S', function() {
       it('should not set "http.traced" if the enableXRayDownstream flag is not set', function(done) {
         fakeResponse.statusCode = 200;
         capturedHttp.request(httpOptions);
-        fakeResponse.emit('end');
 
         setTimeout(function() {
           addRemoteDataStub.should.have.been.calledWithExactly(fakeRequest, fakeResponse, false);
@@ -221,7 +228,6 @@ describe('HTTP/S', function() {
         capturedHttp = captureHTTPs(httpClient, true);
         fakeResponse.statusCode = 200;
         capturedHttp.request(httpOptions);
-        fakeResponse.emit('end');
 
         setTimeout(function() {
           addRemoteDataStub.should.have.been.calledWithExactly(fakeRequest, fakeResponse, true);
@@ -232,7 +238,6 @@ describe('HTTP/S', function() {
       it('should close the subsegment', function(done) {
         fakeResponse.statusCode = 200;
         capturedHttp.request(httpOptions);
-        fakeResponse.emit('end');
 
         setTimeout(function() {
           closeStub.should.have.been.calledWithExactly();
@@ -245,7 +250,6 @@ describe('HTTP/S', function() {
 
         fakeResponse.statusCode = 429;
         capturedHttp.request(httpOptions);
-        fakeResponse.emit('end');
 
         setTimeout(function() {
           addThrottleStub.should.have.been.calledOnce;
@@ -258,7 +262,6 @@ describe('HTTP/S', function() {
 
         fakeResponse.statusCode = 500;
         capturedHttp.request(httpOptions);
-        fakeResponse.emit('end');
 
         setTimeout(function() {
           utilsCodeStub.should.have.been.calledWith(fakeResponse.statusCode);

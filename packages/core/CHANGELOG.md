@@ -1,6 +1,12 @@
 # Changelog for AWS X-Ray Core SDK for JavaScript
-<!--LATEST=1.1.7-->
+<!--LATEST=1.2.0-->
 <!--ENTRYINSERT-->
+
+## 1.2.0
+* feature: All S3 operations are added to `aws_whitelist.json`. [#PR17](https://github.com/aws/aws-xray-sdk-node/pull/17)
+* feature: Opt-in patch on CLS so subsegments generated within V8 native Promise have correct hierarchy. [#PR11](https://github.com/aws/aws-xray-sdk-node/pull/11) 
+* bugfix: Fixed http client capture with a string passed in `get()` and `request()`. [#ISSUE16](https://github.com/aws/aws-xray-sdk-node/issues/16)
+* bugfix: Fixed http subsegment would be left unclosed if response is not consumed. [#ISSUE18](https://github.com/aws/aws-xray-sdk-node/issues/18)
 
 ## 1.1.7
 * bugfix: Fixed issue where undefined host name would not match any path based sampling rule.

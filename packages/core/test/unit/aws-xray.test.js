@@ -26,6 +26,15 @@ describe('AWSXRay', function() {
     });
 
     it('should set the segmentUtils version and SDK version', function() {
+      // This test requires both index.js and aws-xray.js are first time required.
+      // We should always clear the require cache for these two files so this test
+      // could run independently.
+      Object.keys(require.cache).forEach(function(key) { 
+        if(key.includes('core/lib/index.js') || key.includes('core/lib/aws-xray.js')) {
+          delete require.cache[key];
+        }
+      });
+
       AWSXRay = require('../../lib/index');
 
       setSDKDataStub.should.have.been.calledWithExactly(sinon.match.object);

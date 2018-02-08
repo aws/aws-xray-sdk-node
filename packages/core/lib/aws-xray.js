@@ -193,6 +193,14 @@ var AWSXRay = {
   captureHTTPsGlobal: require('./patchers/http_p').captureHTTPsGlobal,
 
   /**
+   * @memberof AWSXRay
+   * @function
+   * @see module:promise_p.capturePromise
+   */
+
+  capturePromise: require('./patchers/promise_p').capturePromise,
+
+  /**
    * Exposes various helper methods.
    * @memberof AWSXRay
    * @function

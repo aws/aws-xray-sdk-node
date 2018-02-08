@@ -10,8 +10,7 @@ var http = require('http');
 var AWSXRay = require('../../');
 var Segment = AWSXRay.Segment;
 
-require('../../lib/patchers/promise_p')(Promise);
-
+AWSXRay.capturePromise();
 AWSXRay.enableAutomaticMode();
 
 var sharedPromise = null;

@@ -137,6 +137,10 @@ function enableCapture(module, downstreamXRayEnabled) {
         } else {
           callback(res);
         }
+        // if no callback provided and there is only SDK added response listener,
+        // we consume the response so the actual end can fire.
+      } else if (res && res.listenerCount('end') === 1) {
+        res.resume();
       }
     }).on('error', errorCapturer);
 
