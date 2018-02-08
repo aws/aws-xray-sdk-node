@@ -1,6 +1,6 @@
 {
   "name": "aws-xray-sdk-restify",
-  "version": "1.0.3-beta",
+  "version": "1.0.4-beta",
   "description": "Enables AWS X-Ray for Restify (Javascript)",
   "author": "Amazon Web Services",
   "contributors": [

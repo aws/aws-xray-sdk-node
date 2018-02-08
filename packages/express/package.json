@@ -1,6 +1,6 @@
 {
   "name": "aws-xray-sdk-express",
-  "version": "1.1.7",
+  "version": "1.2.0",
   "description": "AWS X-Ray Middleware for Express (Javascript)",
   "author": "Amazon Web Services",
   "contributors": [
