@@ -9,13 +9,11 @@ node_js:
 sudo: false
 
 before_install:
-  - npm install --global npm@latest
+  - npm i
 
-env:
-  - TEST_DIR=packages/core
-  - TEST_DIR=packages/express
-  - TEST_DIR=packages/mysql
-  - TEST_DIR=packages/postgres
-  - TEST_DIR=packages/restify
+install:
+  - npm install lerna
 
-script: cd $TEST_DIR && npm install && npm test
+script:
+  - lerna bootstrap --hoist
+  - lerna run test

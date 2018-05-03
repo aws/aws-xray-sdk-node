@@ -40,7 +40,7 @@ var server = http
         });
       });
     });
-  }).listen(0, function() {
+  }).listen(8080, '0.0.0.0', function() {
     var address = server.address();
 
     var count = 0;
