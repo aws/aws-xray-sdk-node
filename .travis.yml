@@ -8,12 +8,6 @@ node_js:
 
 sudo: false
 
-before_install:
-  - npm i
-
-install:
-  - npm install lerna
-
 script:
   - lerna bootstrap --hoist
   - lerna run test
