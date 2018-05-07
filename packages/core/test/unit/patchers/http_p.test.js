@@ -2,7 +2,7 @@ var assert = require('chai').assert;
 var chai = require('chai');
 var sinon = require('sinon');
 var sinonChai = require('sinon-chai');
-const { URL } = require('url');
+var URL = require('url');
 
 var captureHTTPs = require('../../../lib/patchers/http_p').captureHTTPs;
 var captureHTTPsGlobal = require('../../../lib/patchers/http_p').captureHTTPsGlobal;
@@ -156,7 +156,7 @@ describe('HTTP/S', function() {
       });
 
       it('should pass when a URL is passed', function() {
-        var options = new URL('http://hostname/api');
+        var options = URL.parse('http://hostname/api');
         capturedHttp.request(options);
         newSubsegmentStub.should.have.been.calledWith('hostname');
       });

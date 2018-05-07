@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/aws/aws-xray-sdk-node.svg?branch=master)](https://travis-ci.org/aws/aws-xray-sdk-node)
+
 # AWS X-Ray SDK for Node.js
 
 ![Screenshot of the AWS X-Ray console](/images/example_servicemap.png?raw=true)
