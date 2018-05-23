@@ -3,9 +3,7 @@ var dgram = require('dgram');
 var batcher = require('atomic-batcher');
 var logger = require('./logger');
 
-var DEFAULT_ADDRESS = '127.0.0.1';
-var DEFAULT_PORT = 2000;
-var PROTOCOL_HEADER = '{"format": "json", "version": 1}';
+var PROTOCOL_HEADER = '{"format":"json","version":1}';
 var PROTOCOL_DELIMITER = '\n';
 
 /**
@@ -105,8 +103,7 @@ BatchingTemporarySocket.prototype.send = function (msg, offset, length, port, ad
 
 var SegmentEmitter = {
   socket: dgram.createSocket('udp4'),
-  daemonAddress: DEFAULT_ADDRESS,
-  daemonPort: DEFAULT_PORT,
+  daemonConfig: require('./daemon_config'),
 
   /**
    * Returns the formatted segment JSON string.
@@ -130,7 +127,7 @@ var SegmentEmitter = {
     var short = '{"trace_id:"' + segment.trace_id + '","id":"' + segment.id + '"}';
     var type = segment.type === 'subsegment' ? 'Subsegment' : 'Segment';
 
-    client.send(message, 0, message.length, this.daemonPort, this.daemonAddress, function(err) {
+    client.send(message, 0, message.length, this.daemonConfig.udp_port, this.daemonConfig.udp_ip, function(err) {
       if (err) {
         if (err.code === 'EMSGSIZE')
           logger.getLogger().error(type + ' too large to send: ' + short + ' (' + message.length + ' bytes).');
@@ -145,19 +142,33 @@ var SegmentEmitter = {
 
   /**
    * Configures the address and/or port the daemon is expected to be on.
-   * @param {string} address - Address of the daemon the segments should be sent to.  Should be formatted as an IPv4 address.
+   * @param {string} address - Address of the daemon the segments should be sent to. Should be formatted as an IPv4 address.
    * @module SegmentEmitter
    * @function setDaemonAddress
    */
 
   setDaemonAddress: function setDaemonAddress(address) {
-    if (!process.env.AWS_XRAY_DAEMON_ADDRESS) {
-      processAddress(address);
-      logger.getLogger().info('Configured daemon address to ' + SegmentEmitter.daemonAddress + ':' + SegmentEmitter.daemonPort + '.');
-    } else {
-      logger.getLogger().warn('Ignoring call to setDaemonAddress as AWS_XRAY_DAEMON_ADDRESS is set. '+
-        'The current daemon address will not be changed.');
-    }
+    this.daemonConfig.setDaemonAddress(address)
+  },
+
+  /**
+   * Get the UDP IP the emitter is configured to.
+   * @module SegmentEmitter
+   * @function getIp
+   */
+
+  getIp: function getIp() {
+    return this.daemonConfig.udp_ip;
+  },
+
+  /**
+   * Get the UDP port the emitter is configured to.
+   * @module SegmentEmitter
+   * @function getPort
+   */
+
+  getPort: function getPort() {
+    return this.daemonConfig.udp_port;
   },
 
   /**
@@ -170,24 +181,6 @@ var SegmentEmitter = {
     this.socket = new BatchingTemporarySocket();
   }
 };
-
-var processAddress = function processAddress(rawAddress) {
-  if (rawAddress.indexOf(':') === -1) {
-    SegmentEmitter.daemonAddress = rawAddress;
-  } else {
-    var splitAddress = rawAddress.split(':');
-    SegmentEmitter.daemonPort = parseInt(splitAddress[1]);
-
-    if (splitAddress[0])
-      SegmentEmitter.daemonAddress = splitAddress[0];
-  }
-};
-
-if (process.env.AWS_XRAY_DAEMON_ADDRESS) {
-  processAddress(process.env.AWS_XRAY_DAEMON_ADDRESS);
-  logger.getLogger().info('AWS_XRAY_DAEMON_ADDRESS is set. Configured daemon address to ' + SegmentEmitter.daemonAddress +
-    ':' + SegmentEmitter.daemonPort + '.');
-}
 
 if (SegmentEmitter.socket && (typeof SegmentEmitter.socket.unref === 'function'))
   SegmentEmitter.socket.unref();

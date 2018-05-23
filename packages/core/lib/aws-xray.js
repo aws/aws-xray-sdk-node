@@ -114,13 +114,13 @@ var AWSXRay = {
   /**
    * Configures the address and port the daemon is expected to be on.
    * @param {string} address - Address of the daemon the segments should be sent to.  Expects 'x.x.x.x', ':yyyy' or 'x.x.x.x:yyyy' IPv4 formats.
-   * @module SegmentEmitter
+   * @module DaemonConfig
    * @memberof AWSXRay
    * @function
-   * @see module:SegmentEmitter.setDaemonAddress
+   * @see module:DaemonConfig.setDaemonAddress
    */
 
-  setDaemonAddress: require('./segment_emitter').setDaemonAddress,
+  setDaemonAddress: require('./daemon_config').setDaemonAddress,
 
   /**
    * @param {string} name - The name of the new subsegment.

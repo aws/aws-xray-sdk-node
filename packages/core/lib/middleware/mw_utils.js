@@ -5,8 +5,6 @@
  * @module mw_utils
  */
 
-var SamplingRules = require('./sampling/sampling_rules');
-
 var wildcardMatch = require('../utils').wildcardMatch;
 var processTraceData = require('../utils').processTraceData;
 
@@ -18,7 +16,7 @@ var utils = {
   defaultName: process.env.AWS_XRAY_TRACING_NAME,
   dynamicNaming: false,
   hostPattern: null,
-  sampler: new SamplingRules(),
+  sampler: require('./sampling/default_sampler'),
 
   /**
    * Enables dynamic naming for segments via the middleware. Use 'AWSXRay.middleware.enableDynamicNaming()'.
@@ -86,8 +84,20 @@ var utils = {
       isSampled = true;
     else if (amznTraceHeader.Sampled === '0')
       isSampled = false;
-    else
-      isSampled = this.sampler.shouldSample(res.req.headers.host, res.req.method, res.req.url);
+    else {
+      var sampleRequest = {
+        host: res.req.headers.host,
+        httpMethod: res.req.method,
+        urlPath: res.req.url,
+        serviceName: segment.name
+      };
+
+      isSampled = this.sampler.shouldSample(sampleRequest);
+      if (isSampled instanceof String || typeof isSampled === 'string') {
+        segment.setMatchedSamplingRule(isSampled);
+        isSampled = true;
+      }
+    }
 
     if (amznTraceHeader.Sampled === '?')
       res.header[XRAY_HEADER] = 'Root=' + amznTraceHeader.Root + ';Sampled=' + (isSampled ? '1' : '0');
@@ -108,6 +118,10 @@ var utils = {
       this.defaultName = name;
   },
 
+  disableCentralizedSampling: function disableCentralizedSampling() {
+    this.sampler = require('./sampling/local_sampler');
+  },
+
   /**
    * Overrides the default sampling rules file to specify at what rate to sample at for specific routes.
    * The base sampling rules file can be found at /lib/resources/default_sampling_rules.json
@@ -119,7 +133,7 @@ var utils = {
     if (!source || source instanceof String || !(typeof source === 'string' || (source instanceof Object)))
       throw new Error('Please specify a path to the local sampling rules file, or supply an object containing the rules.');
 
-    this.sampler = new SamplingRules(source);
+    this.sampler.setLocalRules(source);
   }
 };
 

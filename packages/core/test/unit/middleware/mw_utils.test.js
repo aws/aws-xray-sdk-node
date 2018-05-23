@@ -2,7 +2,7 @@ var assert = require('chai').assert;
 var sinon = require('sinon');
 
 var MWUtils = require('../../../lib/middleware/mw_utils');
-var SamplingRules = require('../../../lib/middleware/sampling/sampling_rules');
+var localSampler = require('../../../lib/middleware/sampling/local_sampler');
 var Segment = require('../../../lib/segments/segment');
 
 //headers are case-insensitive
@@ -148,7 +148,7 @@ describe('Middleware utils', function() {
 
     beforeEach(function() {
       sandbox = sinon.sandbox.create();
-      MWUtils.sampler = { shouldSample: function() {}};
+      MWUtils.sampler = localSampler;
 
       shouldSampleStub = sandbox.stub(MWUtils.sampler, 'shouldSample').returns(true);
 
@@ -189,7 +189,14 @@ describe('Middleware utils', function() {
       var headers = { Root: traceId };
       MWUtils.resolveSampling(headers, segment, res);
 
-      shouldSampleStub.should.have.been.calledWithExactly(res.req.headers.host, res.req.method, res.req.url);
+      var sampleRequest = {
+        host: res.req.headers.host,
+        httpMethod: res.req.method,
+        serviceName: segment.name,
+        urlPath: res.req.url
+      };
+
+      shouldSampleStub.should.have.been.calledWithExactly(sampleRequest);
     });
 
     it('should set the response header with sampling result if header is "?"', function() {
@@ -223,11 +230,11 @@ describe('Middleware utils', function() {
     };
 
     var customRules = {
-      version: 1,
+      version: 2,
       rules: [
         {
           description: 'Player moves.',
-          service_name: '*',
+          host: '*',
           http_method: '*',
           url_path: '/api/move/*',
           fixed_target: 0,
@@ -240,7 +247,7 @@ describe('Middleware utils', function() {
       }
     };
 
-    it('should match path based sampling rule if host name is not present in the headerds', function() {
+    it('should match path based sampling rule if host name is not present in the headers', function() {
       MWUtils.setSamplingRules(customRules);
       MWUtils.resolveSampling(headers, segment, res);
       assert.notProperty(segment, 'notTraced');
@@ -264,11 +271,11 @@ describe('Middleware utils', function() {
   });
 
   describe('#setSamplingRules', function() {
-    var samplingRulesStub, sandbox;
+    var samplerStub, sandbox;
 
     beforeEach(function() {
       sandbox = sinon.sandbox.create();
-      samplingRulesStub = sandbox.stub(SamplingRules.prototype, 'init');
+      samplerStub = sandbox.stub(MWUtils.sampler, 'setLocalRules');
     });
 
     afterEach(function() {
@@ -278,13 +285,13 @@ describe('Middleware utils', function() {
     it('should accept a string for location', function() {
       var location = '/path/here';
       MWUtils.setSamplingRules(location);
-      samplingRulesStub.should.have.been.calledWith(location);
+      samplerStub.should.have.been.calledWith(location);
     });
 
     it('should accept a source object', function() {
       var source = {};
       MWUtils.setSamplingRules(source);
-      samplingRulesStub.should.have.been.calledWith(source);
+      samplerStub.should.have.been.calledWith(source);
     });
 
     it('should throw an error on bad values', function() {

@@ -77,19 +77,18 @@ below for the different usages.
     AWS_XRAY_DEBUG_MODE              Enables logging to console output. Logging to a file is no longer built in. See 'configure logging' below.
     AWS_XRAY_TRACING_NAME            For overriding the default segment name to use
     with the middleware. See 'dynamic and fixed naming modes'.
-    AWS_XRAY_DAEMON_ADDRESS          For setting the daemon address and port. Expects 'x.x.x.x', 'hostname', ':yyyy', 'x.x.x.x:yyyy' or 'hostname:yyyy' IPv4 formats.
+    AWS_XRAY_DAEMON_ADDRESS          For setting the daemon address and port.
     AWS_XRAY_CONTEXT_MISSING         For setting the SDK behavior when trace context is missing. Valid values are 'RUNTIME_ERROR' or 'LOG_ERROR'. The SDK's default behavior is 'RUNTIME_ERROR'.
 
 ### Daemon configuration
 
-By default, the SDK expects the daemon to be at 127.0.0.1 (localhost) on port 2000. You can override the address, port, or both.
-You can change this via the environment variables listed above, or through
-code. The same format applies to both.
+By default, the SDK expects the daemon to be at 127.0.0.1 (localhost) on port 2000. You can override the address for both UDP and TCP.
+You can change this via the environment variables listed above, or through code. The same format applies to both.
 
     AWSXRay.setDaemonAddress('hostname:8000');
     AWSXRay.setDaemonAddress('186.34.0.23:8082');
-    AWSXRay.setDaemonAddress(':8082');
-    AWSXRay.setDaemonAddress('186.34.0.23');
+    AWSXRay.setDaemonAddress('tcp:186.34.0.23:8082, udp:127.0.0.1:3000');
+    AWSXRay.setDaemonAddress('udp:186.34.0.23:8082, tcp:127.0.0.1:3000');
 
 ### Logging configuration
 
@@ -102,13 +101,17 @@ options.
 
 ### Sampling configuration
 
-When using our supported AWS X-Ray-enabled frameworks, you can configure the rates
-at which the SDK samples requests to capture.
+When using our supported AWS X-Ray-enabled frameworks, you can configure the rates at which the SDK samples requests to capture.
+By default the SDK fetches sampling rules from X-Ray service. You can disable it by calling
 
-A sampling rule defines the rate at which requests are sampled for a particular endpoint, HTTP method, and URL of the incoming request.
-In this way, you can change the behavior of sampling using `http_method`, `service_name`,
-`url_path` attributes to specify the route, and then use
-`fixed_target` and rate to determine sampling rates.
+    AWSXRay.middleware.disableCentralizedSampling();
+
+so that the SDK use local rules exclusively. You can also set local sampling rules in case the X-Ray SDK can't reach
+the back-end service and the service sampling rules expire (TTL is 1 hour). The following shows how to configure local rules.
+
+A local sampling rule defines the rate at which requests are sampled for a particular endpoint, HTTP method, and URL of the incoming request.
+In this way, you can change the behavior of sampling using `http_method`, `host`, `url_path` attributes to specify the route, and then
+use `fixed_target` and rate to determine sampling rates.
 
 Fixed target refers to the maximum number of requests to sample per second. When this
 threshold is reached, the sampling decision uses the specified percentage (rate) to sample on.
@@ -127,11 +130,11 @@ A sampling file must have a "default" defined. The default matches all routes as
         "fixed_target": 10,
         "rate": 0.05
       },
-      "version": 1
+      "version": 2
     }
 
 Order of priority is determined by the spot in the rules array, top being highest priority. The default is always checked last.
-Service name, URL path, and HTTP method patterns are case insensitive, and use a string with wild cards as the pattern format.
+Host, URL path, and HTTP method patterns are case insensitive, and use a string with wild cards as the pattern format.
 A `*` represents any number of characters, while `?` represents a single character. A description is optional.
 
     {
@@ -139,7 +142,7 @@ A `*` represents any number of characters, while `?` represents a single charact
         {
           "description": "Sign-in request",
           "http_method": "GET",
-          "service_name": "*.foo.com",
+          "host": "*.foo.com",
           "url_path": "/signin/*",
           "fixed_target": 10,
           "rate": 0.05
@@ -149,7 +152,7 @@ A `*` represents any number of characters, while `?` represents a single charact
         "fixed_target": 10,
         "rate": 0.05
       },
-      "version": 1
+      "version": 2
     }
 
 ### AWS SDK whitelist configuration

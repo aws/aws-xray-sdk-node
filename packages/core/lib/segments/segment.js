@@ -137,6 +137,12 @@ Segment.prototype.setSDKData = function setSDKData(data) {
   this.aws.xray = data;
 };
 
+Segment.prototype.setMatchedSamplingRule = function setMatchedSamplingRule(ruleName) {
+  if(this.aws) this.aws = JSON.parse(JSON.stringify(this.aws));
+  if(this.aws && this.aws['xray']) this.aws.xray['rule_name'] = ruleName;
+  else this.aws = {xray: {'rule_name': ruleName}};
+};
+
 /**
  * Adds data about the service into the segment.
  * @param {Object} data - Object that contains the version of the application, and other information.

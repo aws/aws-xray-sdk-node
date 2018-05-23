@@ -127,6 +127,36 @@ describe('Segment', function() {
       });
       assert.propertyVal(segment.aws.xray, 'sdk_version', version);
     });
+
+    it('should perserve SDK data when adding a rule name', function() {
+      segment.setSDKData({
+        sdk_version: version
+      });
+      segment.setMatchedSamplingRule('rule');
+      assert.propertyVal(segment.aws.xray, 'sdk_version', version);
+    });
+  });
+
+  describe('#setMatchedSamplingRule', function() {
+    var segment1, segment2, data;
+
+    beforeEach(function() {
+      segment1 = new Segment('test1');
+      segment2 = new Segment('test2');
+      data = {
+        sdk_version: '2.0.0'
+      };
+    });
+
+    it('should not pollute rule names', function() {
+      segment1.setSDKData(data);
+      segment2.setSDKData(data);
+      segment1.setMatchedSamplingRule('rule1');
+      segment2.setMatchedSamplingRule('rule2');
+
+      assert.equal(segment1.aws.xray.rule_name, 'rule1');
+      assert.equal(segment2.aws.xray.rule_name, 'rule2');
+    });
   });
 
   describe('#addPluginData', function() {

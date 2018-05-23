@@ -1,6 +1,19 @@
 # Changelog for AWS X-Ray Core SDK for JavaScript
-<!--LATEST=1.3.0-->
+<!--LATEST=2.0.0-->
 <!--ENTRYINSERT-->
+
+## 2.0.0
+### Breaking Changes
+* The default sampler now launches background tasks to poll sampling rules from X-Ray backend.
+* `shouldSample` method now takes a object containing rule matching information and returns the rule name if sampled based on a service rule.
+* `Sampler` renamed to `LocalReservoir` to reflect the default sampling strategy change.
+* `SamplingRules` renamed to `LocalSampler` to reflect the default sampling strategy change.
+
+### New
+* feature: Environment variable `AWS_XRAY_DAEMON_ADDRESS` now takes an additional notation in `tcp:127.0.0.1:2000 udp:127.0.0.2:2001` to set TCP and UDP destination separately. By default it assumes a X-Ray daemon listening to both UDP and TCP traffic on `127.0.0.1:2000`.
+* improvement: Winston has been updated to 2.4.4 to reduce bundle size. [#PR51](https://github.com/aws/aws-xray-sdk-node/pull/51)
+* bugfix: Set callback to undefined in mysql capture. [#PR47](https://github.com/aws/aws-xray-sdk-node/pull/47)
+* bugfix: Address an issue where a log message cannot be suppressed by user. [#ISSUE2](https://github.com/aws/aws-xray-sdk-node/issues/2)
 
 ## 1.3.0
 * improvement: The SDK now uses fewer sockets when running on Lambda by batching the send operations. [#PR42](https://github.com/aws/aws-xray-sdk-node/pull/42)

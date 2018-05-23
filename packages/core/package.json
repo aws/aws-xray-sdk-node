@@ -15,6 +15,7 @@
   },
   "dependencies": {
     "atomic-batcher": "^1.0.2",
+    "aws-sdk": "^2.304.0",
     "continuation-local-storage": "^3.2.0",
     "date-fns": "^1.29.0",
     "lodash": "^4.17.10",
