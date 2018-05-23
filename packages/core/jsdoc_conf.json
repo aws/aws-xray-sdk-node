@@ -1,0 +1,7 @@
+{
+    "templates": {
+        "default": {
+            "layoutFile": "doc-src/templates/layout.tmpl"
+        }
+    }
+}
