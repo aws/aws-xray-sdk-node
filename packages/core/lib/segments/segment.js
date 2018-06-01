@@ -315,7 +315,7 @@ Segment.prototype.close = function(err, remote) {
   if (!this.end_time)
     this.end_time = SegmentUtils.getCurrentTime();
 
-  if (!_.isUndefined(err))
+  if (err)
     this.addError(err, remote);
 
   delete this.in_progress;
