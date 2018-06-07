@@ -37,4 +37,6 @@ function capturePromise() {
   patchPromise(Promise);
 }
 
+capturePromise.patchPromiseImpl = patchPromise;
+
 module.exports.capturePromise = capturePromise;
