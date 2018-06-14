@@ -3,8 +3,8 @@
  */
 
 /**
- * This module patches native Promise libraries provided by V8 engine 
- * so all subsegments generated within Promise are attached to the correct parent. 
+ * This module patches native Promise libraries provided by V8 engine
+ * so all subsegments generated within Promise are attached to the correct parent.
  */
 
 var contextUtils = require('../context_utils');
@@ -37,6 +37,6 @@ function capturePromise() {
   patchPromise(Promise);
 }
 
-capturePromise.patchPromiseImpl = patchPromise;
+capturePromise.patchThirdPartyPromise = patchPromise;
 
 module.exports.capturePromise = capturePromise;
