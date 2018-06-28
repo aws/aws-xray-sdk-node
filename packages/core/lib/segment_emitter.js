@@ -1,11 +1,69 @@
 var dgram = require('dgram');
 
+var batcher = require('atomic-batcher');
 var logger = require('./logger');
 
 var DEFAULT_ADDRESS = '127.0.0.1';
 var DEFAULT_PORT = 2000;
 var PROTOCOL_HEADER = '{"format": "json", "version": 1}';
 var PROTOCOL_DELIMITER = '\n';
+
+function batchRun (work, callback) {
+  var client = dgram.createSocket('udp4');
+
+  processWork(client, work, 0, function () {
+    try {
+      client.close();
+    } finally {
+      callback();
+    }
+  });
+}
+
+function processWork (client, work, index, callback) {
+  if (index >= work.length) {
+    callback();
+    return;
+  }
+
+  sendMessage(client, work[index], function () {
+    processWork(client, work, index+1, callback);
+  });
+}
+
+function sendMessage (client, data, batchCallback) {
+  var msg = data.msg;
+  var offset = data.offset;
+  var length = data.length;
+  var port = data.port;
+  var address = data.address;
+  var callback = data.callback;
+
+  client.send(msg, offset, length, port, address, function(err) {
+    try {
+      callback(err);
+    } finally {
+      batchCallback();
+    }
+  });
+}
+
+function BatchingTemporarySocket() {
+  this.sendBatcher = batcher(batchRun);
+}
+
+BatchingTemporarySocket.prototype.send = function (msg, offset, length, port, address, callback) {
+  var work = {
+    msg: msg,
+    offset: offset,
+    length: length,
+    port: port,
+    address: address,
+    callback: callback
+  };
+
+  this.sendBatcher(work);
+};
 
 /**
  * Segment emitter module.
@@ -31,8 +89,7 @@ var SegmentEmitter = {
    */
 
   send: function send(segment) {
-    var socket = this.socket;
-    var client = socket || dgram.createSocket('udp4');
+    var client = this.socket;
     var formatted = segment.format();
     var data = PROTOCOL_HEADER + PROTOCOL_DELIMITER + formatted;
     var message = new Buffer(data);
@@ -50,9 +107,6 @@ var SegmentEmitter = {
         logger.getLogger().debug(type + ' sent: {"trace_id:"' + segment.trace_id + '","id":"' + segment.id + '"}');
         logger.getLogger().debug('UDP message sent: ' + segment);
       }
-
-      if (!socket)
-        client.close();
     });
   },
 
@@ -80,7 +134,7 @@ var SegmentEmitter = {
    */
 
   disableReusableSocket: function() {
-    delete this.socket;
+    this.socket = new BatchingTemporarySocket();
   }
 };
 
