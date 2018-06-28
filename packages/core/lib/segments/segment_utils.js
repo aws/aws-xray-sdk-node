@@ -1,4 +1,4 @@
-var _ = require('underscore');
+var isFinite = require('lodash/isFinite');
 
 var logger = require('../logger');
 
@@ -37,7 +37,7 @@ var utils = {
    */
 
   setStreamingThreshold: function setStreamingThreshold(threshold) {
-    if (_.isFinite(threshold) && threshold >= 0) {
+    if (isFinite(threshold) && threshold >= 0) {
       utils.streamingThreshold = threshold;
       logger.getLogger().info('Subsegment streaming threshold set to: ' + threshold);
     } else {

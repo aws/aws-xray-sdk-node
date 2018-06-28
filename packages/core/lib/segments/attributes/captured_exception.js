@@ -1,4 +1,5 @@
-var _ = require('underscore');
+var each = require('lodash/each');
+var isEmpty = require('lodash/isEmpty');
 
 /**
  * Represents a captured exception.
@@ -23,12 +24,13 @@ CapturedException.prototype.init = function init(err, remote) {
     var stack = e.stack.split('\n');
     stack.shift();
 
-    _.each(stack, function(stackline) {
+    var self = this;
+    each(stack, function(stackline) {
       var line = stackline.trim().replace(/\(|\)/g, '');
       line = line.substring(line.indexOf(' ') + 1);
 
       var label = line.lastIndexOf(' ') >= 0 ? line.slice(0, line.lastIndexOf(' ')) : null;
-      var path = _.isEmpty(label) ? line : line.slice(line.lastIndexOf(' ') + 1);
+      var path = isEmpty(label) ? line : line.slice(line.lastIndexOf(' ') + 1);
       path = path.split(':');
 
       var entry = {
@@ -37,8 +39,8 @@ CapturedException.prototype.init = function init(err, remote) {
         label: label || 'anonymous'
       };
 
-      this.stack.push(entry);
-    }, this);
+      self.stack.push(entry);
+    });
   }
 };
 

@@ -2,7 +2,9 @@
  * @module utils
  */
 
-var _ = require('underscore');
+var each = require('lodash/each');
+var isNull = require('lodash/isNull');
+var isUndefined = require('lodash/isUndefined');
 
 var logger = require('./logger');
 
@@ -17,9 +19,9 @@ var utils = {
 
   getCauseTypeFromHttpStatus: function getCauseTypeFromHttpStatus(status) {
     var stat = status.toString();
-    if (!_.isNull(stat.match(/^[4][0-9]{2}$/)))
+    if (!isNull(stat.match(/^[4][0-9]{2}$/)))
       return 'error';
-    else if (!_.isNull(stat.match(/^[5][0-9]{2}$/)))
+    else if (!isNull(stat.match(/^[5][0-9]{2}$/)))
       return 'fault';
   },
 
@@ -35,7 +37,7 @@ var utils = {
    */
 
   wildcardMatch: function wildcardMatch(pattern, text) {
-    if (_.isUndefined(pattern) || _.isUndefined(text))
+    if (isUndefined(pattern) || isUndefined(text))
       return false;
 
     if (pattern.length === 1 && pattern.charAt(0) === '*')
@@ -161,10 +163,10 @@ var utils = {
   processTraceData: function processTraceData(traceData) {
     var amznTraceData = {};
 
-    _.each(traceData.split(';'), function(header) {
+    each(traceData.split(';'), function(header) {
       var pair = header.split('=');
-      this[pair[0].trim()] = pair[1].trim();
-    }, amznTraceData);
+      amznTraceData[pair[0].trim()] = pair[1].trim();
+    });
 
     return amznTraceData;
   }
