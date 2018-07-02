@@ -1,5 +1,5 @@
 var winston = require('winston');
-var moment = require('moment');
+var format = require('date-fns/format')
 
 var logger;
 
@@ -26,7 +26,7 @@ if (process.env.LAMBDA_TASK_ROOT) {
 /* eslint-enable no-console */
 
 function timestampFormatter() {
-  return moment().format('YYYY-MM-DD HH:mm:ss.SSSS Z');
+  return format(new Date(), 'YYYY-MM-DD HH:mm:ss.SSS Z');
 }
 
 function outputFormatter(options) {
