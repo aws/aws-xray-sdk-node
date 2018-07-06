@@ -1,5 +1,12 @@
 var crypto = require('crypto');
-var _ = require('underscore');
+var omit = require('lodash/omit');
+var extend = require('lodash/extend');
+var isEmpty = require('lodash/isEmpty');
+var isBoolean = require('lodash/isBoolean');
+var isFinite = require('lodash/isFinite');
+var isString = require('lodash/isString');
+var isUndefined = require('lodash/isUndefined');
+var isObject = require('lodash/isObject');
 
 var CapturedException = require('./attributes/captured_exception');
 var SegmentEmitter = require('../segment_emitter');
@@ -70,13 +77,13 @@ Segment.prototype.addIncomingRequestData = function addIncomingRequestData(data)
  */
 
 Segment.prototype.addAnnotation = function addAnnotation(key, value) {
-  if (!(_.isBoolean(value) || _.isString(value) || _.isFinite(value))) {
+  if (!(isBoolean(value) || isString(value) || isFinite(value))) {
     logger.getLogger().error('Add annotation key: ' + key + ' value: ' + value + ' failed.' +
       ' Annotations must be of type string, number or boolean.');
     return;
   }
 
-  if (_.isUndefined(this.annotations))
+  if (isUndefined(this.annotations))
     this.annotations = {};
 
   this.annotations[key] = value;
@@ -91,10 +98,10 @@ Segment.prototype.addAnnotation = function addAnnotation(key, value) {
  */
 
 Segment.prototype.addMetadata = function(key, value, namespace) {
-  if (!_.isString(key)) {
+  if (!isString(key)) {
     throw new Error('Failed to add annotation key: ' + key + ' value: ' + value + ' to subsegment ' +
       this.name + '. Key must be of type string.');
-  } else if (namespace && !_.isString(namespace)) {
+  } else if (namespace && !isString(namespace)) {
     throw new Error('Failed to add annotation key: ' + key + ' value: ' + value + 'namespace: ' + namespace + ' to subsegment ' +
       this.name + '. Namespace must be of type string.');
   }
@@ -151,10 +158,10 @@ Segment.prototype.setServiceData = function setServiceData(data) {
  */
 
 Segment.prototype.addPluginData = function addPluginData(data) {
-  if (_.isUndefined(this.aws))
+  if (isUndefined(this.aws))
     this.aws = {};
 
-  _.extend(this.aws, data);
+  extend(this.aws, data);
 };
 
 /**
@@ -177,7 +184,7 @@ Segment.prototype.addSubsegment = function addSubsegment(subsegment) {
   if (!(subsegment instanceof Subsegment))
     throw new Error('Cannot add subsegment: ' + subsegment + '. Not a subsegment.');
 
-  if (_.isUndefined(this.subsegments))
+  if (isUndefined(this.subsegments))
     this.subsegments = [];
 
   subsegment.segment = this;
@@ -198,7 +205,7 @@ Segment.prototype.removeSubsegment = function removeSubsegment(subsegment) {
       '".  Not a subsegment.');
   }
 
-  if (!_.isUndefined(this.subsegments)) {
+  if (!isUndefined(this.subsegments)) {
     var index = this.subsegments.indexOf(subsegment);
 
     if (index >= 0)
@@ -213,7 +220,7 @@ Segment.prototype.removeSubsegment = function removeSubsegment(subsegment) {
  */
 
 Segment.prototype.addError = function addError(err, remote) {
-  if (!_.isObject(err) && typeof(err) !== 'string') {
+  if (!isObject(err) && typeof(err) !== 'string') {
     throw new Error('Failed to add error:' + err + ' to subsegment "' + this.name +
       '".  Not an object or string literal.');
   }
@@ -229,7 +236,7 @@ Segment.prototype.addError = function addError(err, remote) {
     delete this.exception;
   }
 
-  if (_.isUndefined(this.cause)) {
+  if (isUndefined(this.cause)) {
     this.cause = {
       working_directory: process.cwd(),
       exceptions: []
@@ -315,7 +322,7 @@ Segment.prototype.close = function(err, remote) {
   if (!this.end_time)
     this.end_time = SegmentUtils.getCurrentTime();
 
-  if (!_.isUndefined(err))
+  if (!isUndefined(err))
     this.addError(err, remote);
 
   delete this.in_progress;
@@ -333,17 +340,17 @@ Segment.prototype.close = function(err, remote) {
 Segment.prototype.flush = function flush() {
   if (this.notTraced !== true) {
     delete this.exception;
-    SegmentEmitter.send(_.omit(this, ['counter', 'notTraced']));
+    SegmentEmitter.send(omit(this, ['counter', 'notTraced']));
   }
 };
 
 Segment.prototype.format = function format() {
   var ignore = ['counter', 'notTraced', 'exception'];
 
-  if (_.isEmpty(this.subsegments))
+  if (isEmpty(this.subsegments))
     ignore.push('subsegments');
 
-  var trimmed = _.omit(this, ignore);
+  var trimmed = omit(this, ignore);
   return JSON.stringify(trimmed);
 };
 

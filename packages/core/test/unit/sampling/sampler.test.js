@@ -1,4 +1,4 @@
-var _ = require('underscore');
+var times = require('lodash/times');
 var assert = require('chai').assert;
 var expect = require('chai').expect;
 var sinon = require('sinon');
@@ -43,7 +43,7 @@ describe('Sampler', function() {
     });
 
     it('should return true up to the fixed target set.', function() {
-      _.times(fixedTarget, function() {
+      times(fixedTarget, function() {
         assert.isTrue(sampler.isSampled());
       });
 
