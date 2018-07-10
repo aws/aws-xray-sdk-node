@@ -8,7 +8,7 @@
   ],
   "main": "lib/index.js",
   "engines": {
-    "node": ">= 0.8.0"
+    "node": ">= 4.x <= 10.x"
   },
   "dependencies": {
     "aws-xray-sdk-core": "^1.2.0",
