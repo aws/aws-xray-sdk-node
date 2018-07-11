@@ -6,7 +6,7 @@
 
 ## Installing
 
-The AWS X-Ray SDK for Node.js is compatible with Node.js version 0.8 and later.
+The AWS X-Ray SDK for Node.js is compatible with Node.js version 4 and later.
 
 The SDK is available from NPM. For local development, install the SDK in your project directory with npm.
 
