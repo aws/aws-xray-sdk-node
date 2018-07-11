@@ -49,20 +49,47 @@ describe('SegmentEmitter', function() {
     });
   });
 
+
   describe('#send', function() {
-    it('should send the segment using the dgram client', function() {
+    function testSegmentSend (sendCount, createSocketCount, configureHook, done) {
       client = dgram.createSocket('udp4');
-      sandbox.stub(client, 'send');
+      sandbox.stub(client, 'send').callsFake(function  (msg, offset, length, host, port, callback) {
+        setImmediate(callback);
+
+        if (client.send.callCount === sendCount) {
+          expect(client.send).to.have.callCount(sendCount);
+          expect(client.send).to.have.been.calledWithExactly(sinon.match.any, 0, sinon.match.number,
+            SegmentEmitter[PORT_PROPERTY_NAME], SegmentEmitter[ADDRESS_PROPERTY_NAME], sinon.match.func);
+
+          expect(dgram.createSocket).to.have.callCount(createSocketCount);
+
+          done();
+        }
+      });
+      sandbox.stub(client, 'close');
       sandbox.stub(dgram, 'createSocket').returns(client);
 
       SegmentEmitter = getUncachedEmitter();
+      if (configureHook) {
+        configureHook(SegmentEmitter);
+      }
 
       var segment = new Segment('test');
-      SegmentEmitter.send(segment);
+      for (var i = 0;i < sendCount; i++) {
+        SegmentEmitter.send(segment);
+      }
 
-      expect(client.send).to.have.been.calledOnce;
-      expect(client.send).to.have.been.calledWithExactly(sinon.match.any, 0, sinon.match.number,
-        SegmentEmitter[PORT_PROPERTY_NAME], SegmentEmitter[ADDRESS_PROPERTY_NAME], sinon.match.func);
+    }
+
+    it('should send the segment using the dgram client', testSegmentSend.bind(undefined, 1, 1, undefined));
+
+    describe('after disableReusableSocket is called', function() {
+      function configureHook (SegmentEmitter) {
+        SegmentEmitter.disableReusableSocket();
+      }
+
+      it('should send the segment using the dgram client', testSegmentSend.bind(undefined, 1, 2, configureHook));
+      it('should share the dgram client between many segments sent at once', testSegmentSend.bind(undefined, 10, 3, configureHook));
     });
   });
 

@@ -1,11 +1,102 @@
 var dgram = require('dgram');
 
+var batcher = require('atomic-batcher');
 var logger = require('./logger');
 
 var DEFAULT_ADDRESS = '127.0.0.1';
 var DEFAULT_PORT = 2000;
 var PROTOCOL_HEADER = '{"format": "json", "version": 1}';
 var PROTOCOL_DELIMITER = '\n';
+
+/**
+ * Sends a collection of data over a UDP socket. This method
+ * is designed to be used by `atomic-batcher` as a way to share
+ * a single UDP socket for sending multiple data blocks.
+ * 
+ * @param {[object]} ops - Details of the data to send
+ * @param {Function} callback - The function to call when done
+ */
+function batchSendData (ops, callback) {
+  var client = dgram.createSocket('udp4');
+
+  executeSendData(client, ops, 0, function () {
+    try {
+      client.close();
+    } finally {
+      callback();
+    }
+  });
+}
+
+/**
+ * Execute sending data starting at the specified index and
+ * using the provided client.
+ *  
+ * @param {Socket} client - Socket to send data with
+ * @param {[object]} ops - Details of data to send
+ * @param {number} index - Starting index for sending
+ * @param {Function} callback - Function to call when done
+ */
+function executeSendData (client, ops, index, callback) {
+  if (index >= ops.length) {
+    callback();
+    return;
+  }
+
+  sendMessage(client, ops[index], function () {
+    executeSendData(client, ops, index+1, callback);
+  });
+}
+
+/**
+ * Send a single message over a UDP socket.
+ * 
+ * @param {Socket} client - Socket to send data with
+ * @param {object} data - Details of the data to send
+ * @param {Function} batchCallback - Function to call when done
+ */
+function sendMessage (client, data, batchCallback) {
+  var msg = data.msg;
+  var offset = data.offset;
+  var length = data.length;
+  var port = data.port;
+  var address = data.address;
+  var callback = data.callback;
+
+  client.send(msg, offset, length, port, address, function(err) {
+    try {
+      callback(err);
+    } finally {
+      batchCallback();
+    }
+  });
+}
+
+/**
+ * Class to mimic the Socket interface for a UDP client, but to provided
+ * batching of outgoing sends using temporary Sockets that are created and
+ * destroyed as needed.
+ */
+function BatchingTemporarySocket() {
+  this.batchSend = batcher(batchSendData);
+}
+
+/**
+ * Provide the same signature as the Socket.send method but the work will be
+ * batched to share temporary UDP sockets whenever possible.
+ */
+BatchingTemporarySocket.prototype.send = function (msg, offset, length, port, address, callback) {
+  var work = {
+    msg: msg,
+    offset: offset,
+    length: length,
+    port: port,
+    address: address,
+    callback: callback
+  };
+
+  this.batchSend(work);
+};
 
 /**
  * Segment emitter module.
@@ -31,8 +122,7 @@ var SegmentEmitter = {
    */
 
   send: function send(segment) {
-    var socket = this.socket;
-    var client = socket || dgram.createSocket('udp4');
+    var client = this.socket;
     var formatted = segment.format();
     var data = PROTOCOL_HEADER + PROTOCOL_DELIMITER + formatted;
     var message = new Buffer(data);
@@ -50,9 +140,6 @@ var SegmentEmitter = {
         logger.getLogger().debug(type + ' sent: {"trace_id:"' + segment.trace_id + '","id":"' + segment.id + '"}');
         logger.getLogger().debug('UDP message sent: ' + segment);
       }
-
-      if (!socket)
-        client.close();
     });
   },
 
@@ -80,7 +167,7 @@ var SegmentEmitter = {
    */
 
   disableReusableSocket: function() {
-    delete this.socket;
+    this.socket = new BatchingTemporarySocket();
   }
 };
 
