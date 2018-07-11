@@ -1,5 +1,5 @@
 # Changelog for AWS X-Ray SDK Express for JavaScript
-<!--LATEST=1.2.0-->
+<!--LATEST=1.3.0-->
 <!--ENTRYINSERT-->
 
 ## 1.1.5

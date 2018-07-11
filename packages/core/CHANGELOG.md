@@ -1,6 +1,13 @@
 # Changelog for AWS X-Ray Core SDK for JavaScript
-<!--LATEST=1.2.0-->
+<!--LATEST=1.3.0-->
 <!--ENTRYINSERT-->
+
+## 1.3.0
+* improvement: The SDK now uses fewer sockets when running on Lambda by batching the send operations. [#PR42](https://github.com/aws/aws-xray-sdk-node/pull/42)
+* improvement: Moment is replaced by date-fns for smaller bundle size. [#PR44](https://github.com/aws/aws-xray-sdk-node/pull/44)
+* improvement: Underscore is replaced by lodash for smaller bundle size. [#PR43](https://github.com/aws/aws-xray-sdk-node/pull/43)
+* feature: New method `patchThirdPartyPromise` so you can patch context binding on third party promise libraries. [#PR40](https://github.com/aws/aws-xray-sdk-node/pull/40)
+* docs: Fix node version requirement on docs. [#PR46](https://github.com/aws/aws-xray-sdk-node/pull/46)
 
 ## 1.2.0
 * feature: All S3 operations are added to `aws_whitelist.json`. [#PR17](https://github.com/aws/aws-xray-sdk-node/pull/17)
