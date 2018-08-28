@@ -18,8 +18,5 @@
   "engines": {
     "node": ">= 4.x <= 10.x",
     "npm": ">= 2.x <= 5.x"
-  },
-  "dependencies": {
-    "npm": "^6.1.0"
   }
 }

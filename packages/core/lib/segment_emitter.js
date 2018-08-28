@@ -11,7 +11,7 @@ var PROTOCOL_DELIMITER = '\n';
  * is designed to be used by `atomic-batcher` as a way to share
  * a single UDP socket for sending multiple data blocks.
  * 
- * @param {[object]} ops - Details of the data to send
+ * @param {object} ops - Details of the data to send
  * @param {Function} callback - The function to call when done
  */
 function batchSendData (ops, callback) {
@@ -31,7 +31,7 @@ function batchSendData (ops, callback) {
  * using the provided client.
  *  
  * @param {Socket} client - Socket to send data with
- * @param {[object]} ops - Details of data to send
+ * @param {object} ops - Details of data to send
  * @param {number} index - Starting index for sending
  * @param {Function} callback - Function to call when done
  */

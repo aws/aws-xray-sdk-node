@@ -4,8 +4,8 @@
 
 ## 2.0.0
 ### Breaking Changes
-* The default sampler now launches background tasks to poll sampling rules from X-Ray backend.
-* `shouldSample` method now takes a object containing rule matching information and returns the rule name if sampled based on a service rule.
+* The default sampler now launches background tasks to poll sampling rules from X-Ray backend. See more details here: https://docs.aws.amazon.com/xray/latest/devguide/xray-sdk-nodejs-configuration.html#xray-sdk-nodejs-configuration-sampling.
+* `shouldSample` method now takes an object containing rule matching information and returns the rule name if sampled based on a service rule.
 * `Sampler` renamed to `LocalReservoir` to reflect the default sampling strategy change.
 * `SamplingRules` renamed to `LocalSampler` to reflect the default sampling strategy change.
 
