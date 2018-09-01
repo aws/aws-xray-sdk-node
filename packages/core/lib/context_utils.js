@@ -171,10 +171,10 @@ var contextUtils = {
           contextUtils.contextMissingStrategy.contextMissing = lookupStrategy.contextMissing;
 
           if (process.env.AWS_XRAY_CONTEXT_MISSING)
-            logger.getLogger().info('AWS_XRAY_CONTEXT_MISSING is set. Configured context missing strategy to ' +
+            logger.getLogger().debug('AWS_XRAY_CONTEXT_MISSING is set. Configured context missing strategy to ' +
               process.env.AWS_XRAY_CONTEXT_MISSING + '.');
           else
-            logger.getLogger().info('Configured context missing strategy to: ' + strategy);
+            logger.getLogger().debug('Configured context missing strategy to: ' + strategy);
         } else {
           throw new Error('Invalid context missing strategy: ' + strategy + '. Valid values are ' +
             Object.keys(contextUtils.CONTEXT_MISSING_STRATEGY) + '.');

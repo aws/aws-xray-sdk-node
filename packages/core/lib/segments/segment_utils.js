@@ -39,7 +39,7 @@ var utils = {
   setStreamingThreshold: function setStreamingThreshold(threshold) {
     if (isFinite(threshold) && threshold >= 0) {
       utils.streamingThreshold = threshold;
-      logger.getLogger().info('Subsegment streaming threshold set to: ' + threshold);
+      logger.getLogger().debug('Subsegment streaming threshold set to: ' + threshold);
     } else {
       logger.getLogger().error('Invalid threshold: ' + threshold + '. Must be a whole number >= 0.');
     }
