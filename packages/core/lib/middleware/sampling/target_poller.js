@@ -16,6 +16,7 @@ var TargetPoller = {
 
   start: function start() {
     this.poller = setInterval(refreshWithFirewall, DEFAULT_INTERVAL + getJitter());
+    this.poller.unref();
   },
 };
 
