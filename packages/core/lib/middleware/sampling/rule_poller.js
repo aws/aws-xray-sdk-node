@@ -16,6 +16,7 @@ var RulePoller = {
     // Refresh sampling rules cache with no jitter upon start.
     refresh(false);
     this.poller = setInterval(refresh, DEFAULT_INTERVAL);
+    this.poller.unref();
   },
 };
 
