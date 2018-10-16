@@ -1,6 +1,6 @@
 {
   "name": "aws-xray-sdk-mysql",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "AWS X-Ray Patcher for MySQL (Javascript)",
   "author": "Amazon Web Services",
   "contributors": [
