@@ -1,6 +1,10 @@
 # Changelog for AWS X-Ray Core SDK for JavaScript
-<!--LATEST=2.0.0-->
+<!--LATEST=2.0.1-->
 <!--ENTRYINSERT-->
+
+## 2.0.1
+* bugfix: Added a missing commit in the previous release for [#ISSUE2](https://github.com/aws/aws-xray-sdk-node/issues/2).
+* bugfix: Unref poller timers to avoid keeping node.js alive. [#PR56](https://github.com/aws/aws-xray-sdk-node/pull/56)
 
 ## 2.0.0
 ### Breaking Changes
