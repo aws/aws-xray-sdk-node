@@ -35,7 +35,7 @@ var DefaultSampler = {
         return this.localSampler.shouldSample(sampleRequest);
       }
     } catch (err) {
-      logger.getLogger.error('Unhandled exception by the SDK during making sampling decisions: ' + err);
+      logger.getLogger().error('Unhandled exception by the SDK during making sampling decisions: ' + err);
     }
   },
 
