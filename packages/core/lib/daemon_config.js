@@ -21,7 +21,7 @@ var DaemonConfig = {
   }
 };
 
-  processAddress = function processAddress(address) {
+var processAddress = function processAddress(address) {
     if(address.indexOf(':') === -1) {
       throw new Error('Invalid Daemon Address. You must specify an ip and port.');
     } else {

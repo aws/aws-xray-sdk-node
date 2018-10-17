@@ -1,7 +1,7 @@
-var _ = require('underscore');
 var assert = require('chai').assert;
 var expect = require('chai').expect;
 var sinon = require('sinon');
+var times = require('lodash/times');
 
 var LocalReservoir = require('../../../lib/middleware/sampling/local_reservoir');
 
@@ -43,7 +43,7 @@ describe('LocalReservoir', function() {
     });
 
     it('should return true up to the fixed target set.', function() {
-      _.times(fixedTarget, function() {
+      times(fixedTarget, function() {
         assert.isTrue(localReservoir.isSampled());
       });
 
