@@ -26,65 +26,97 @@ module.exports = function capturePostgres(pg) {
     return pg;
 
   pg.Client.prototype.__query = pg.Client.prototype.query;
-
-  pg.Client.prototype.query = function captureQuery(sql, values, callback, segment) {
-    var parent = AWSXRay.resolveSegment(segment);
-    delete arguments[3];
-
-    if (!parent) {
-      AWSXRay.getLogger().info('Failed to capture Postgres. Cannot resolve sub/segment.');
-      return this.__query.apply(this, arguments);
-    }
-
-    var subsegment = parent.addNewSubsegment(this.database + '@' + this.host);
-    subsegment.namespace = 'remote';
-
-    var query = this.__query.apply(this, arguments);
-
-    subsegment.addSqlData(createSqlData(this.connectionParameters, query));
-
-    if (typeof query.callback === 'function') {
-      var cb = query.callback;
-
-      if (AWSXRay.isAutomaticMode()) {
-        query.callback = function autoContext(err, data) {
-          var session = AWSXRay.getNamespace();
-
-          session.run(function() {
-            AWSXRay.setSegment(subsegment);
-            cb(err, data);
-          });
-
-          subsegment.close(err);
-        };
-      } else {
-        query.callback = function(err, data) {
-          cb(err, data, subsegment);
-          subsegment.close(err);
-        };
-      }
-    } else {
-      query.on('end', function() {
-        subsegment.close();
-      });
-
-      var errorCapturer = function (err) {
-        subsegment.close(err);
-
-        if (this._events && this._events.error && this._events.error.length === 1) {
-          this.removeListener('error', errorCapturer);
-          this.emit('error', err);
-        }
-      };
-
-      query.on('error', errorCapturer);
-    }
-
-    return query;
-  };
-
+  pg.Client.prototype.query = captureQuery;
   return pg;
 };
+
+function resolveArguments(argsObj) {
+  var args = {};
+
+  if (argsObj && argsObj.length > 0) {
+    if (argsObj[0] instanceof Object) {
+      args.sql = argsObj[0].text;
+      args.values = argsObj[0].values;
+      args.callback = argsObj[1];
+    } else {
+      args.sql = argsObj[0];
+      args.values = typeof argsObj[1] !== 'function' ? argsObj[1] : null;
+      args.callback = !args.values ? argsObj[1] : (typeof argsObj[2] === 'function' ? argsObj[2] : undefined);
+    }
+
+    args.segment = (argsObj[argsObj.length-1].constructor && (argsObj[argsObj.length-1].constructor.name === 'Segment' ||
+      argsObj[argsObj.length-1].constructor.name === 'Subsegment')) ? argsObj[argsObj.length-1] : null;
+  }
+
+  return args;
+}
+
+function captureQuery() {
+  var args = resolveArguments(arguments);
+  var parent = AWSXRay.resolveSegment(args.segment);
+
+  if (!parent) {
+    AWSXRay.getLogger().info('Failed to capture Postgres. Cannot resolve sub/segment.');
+    return this.__query.apply(this, arguments);
+  }
+
+  var subsegment = parent.addNewSubsegment(this.database + '@' + this.host);
+
+  if (args.callback) {
+    var cb = args.callback;
+
+    if (AWSXRay.isAutomaticMode()) {
+      args.callback = function autoContext(err, data) {
+        var session = AWSXRay.getNamespace();
+
+        session.run(function() {
+          AWSXRay.setSegment(subsegment);
+          cb(err, data);
+        });
+
+        subsegment.close(err);
+      };
+    } else {
+      args.callback = function(err, data) {
+        cb(err, data, subsegment);
+        subsegment.close(err);
+      };
+    }
+  }
+
+  var result = this.__query.call(this, args.sql, args.values, args.callback);
+
+  var query = result;
+  if (query instanceof Promise && this._queryable && !this._ending) {
+    if (this.queryQueue.length === 0) {
+      query = this.activeQuery;
+    } else {
+      query = this.queryQueue[this.queryQueue.length-1];
+    }
+  }
+
+  if (!args.callback && query.on instanceof Function) {
+    query.on('end', function() {
+      subsegment.close();
+    });
+
+    var errorCapturer = function (err) {
+      subsegment.close(err);
+
+      if (this._events && this._events.error && this._events.error.length === 1) {
+        this.removeListener('error', errorCapturer);
+        this.emit('error', err);
+      }
+    };
+
+    query.on('error', errorCapturer);
+  }
+
+  subsegment.addSqlData(createSqlData(this.connectionParameters, query));
+  subsegment.namespace = 'remote';
+
+  return result;
+}
 
 function createSqlData(connParams, query) {
   var queryType = query.name ? PREPARED : undefined;
