@@ -37,7 +37,7 @@ function resolveArguments(argsObj) {
     if (argsObj[0] instanceof Object) {
       args.sql = argsObj[0].text;
       args.values = argsObj[0].values;
-      args.callback = argsObj[1];
+      args.callback = argsObj[1] || argsObj[0].submit;
     } else {
       args.sql = argsObj[0];
       args.values = typeof argsObj[1] !== 'function' ? argsObj[1] : null;
