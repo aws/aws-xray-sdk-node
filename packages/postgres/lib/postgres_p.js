@@ -88,6 +88,9 @@ function captureQuery() {
 
   var query = result;
   if (query instanceof Promise && this._queryable && !this._ending) {
+    // To get the actual query object, we have to extract it from the
+    // owning connection object.  The query will either be the last one in
+    // the queue or it will be the active query.
     if (this.queryQueue.length === 0) {
       query = this.activeQuery;
     } else {
