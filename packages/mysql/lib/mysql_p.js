@@ -38,24 +38,14 @@ function patchCreateConnection(mysql) {
     var connection = mysql[baseFcn].apply(connection, arguments);
     if (connection instanceof Promise) {
       connection = connection.then((result) => {
-        if (result.connection.query instanceof Function) {
-          patchConnection(result.connection);
-        }
+        patchObject(result.connection);
         return result;
       });
     } else if (connection.query instanceof Function) {
-      patchConnection(connection);
+      patchObject(connection);
     }
     return connection;
   };
-}
-
-function patchConnection(connection) {
-  connection.__query = connection.query;
-  connection.query = captureOperation('query');
-
-  connection.__execute = connection.execute;
-  connection.execute = captureOperation('execute');
 }
 
 function patchCreatePool(mysql) {
@@ -66,19 +56,26 @@ function patchCreatePool(mysql) {
     var pool = mysql[baseFcn].apply(pool, arguments);
     if (pool instanceof Promise) {
       pool = pool.then((result) => {
-        if (result.pool.query instanceof Function) {
-          result.pool.__query = result.pool.query;
-          result.pool.query = captureOperation('query');
-        }
+        patchObject(result.pool);
         return result;
       });
     } else if (pool.query instanceof Function) {
-      pool.__query = pool.query;
-      pool.query = captureOperation('query');
+      patchObject(pool);
     }
-
     return pool;
   };
+}
+
+function patchObject(connection) {
+  if (connection.query instanceof Function) {
+    connection.__query = connection.query;
+    connection.query = captureOperation('query');
+  }
+
+  if (connection.execute instanceof Function) {
+    connection.__execute = connection.execute;
+    connection.execute = captureOperation('execute');
+  }
 }
 
 function resolveArguments(argsObj) {
