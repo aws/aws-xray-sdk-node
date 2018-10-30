@@ -62,7 +62,7 @@ function resolveArguments(argsObj) {
   if (argsObj && argsObj.length > 0) {
     args.sql = argsObj[0];
     args.values = typeof argsObj[1] !== 'function' ? argsObj[1] : null;
-    args.callback = !args.values ? argsObj[1] : (typeof argsObj[2] === 'function' ? argsObj[2] : undefined);
+    args.callback = typeof argsObj[1] === 'function' ? argsObj[1] : (typeof argsObj[2] === 'function' ? argsObj[2] : undefined);
     args.segment = (argsObj[argsObj.length-1].constructor && (argsObj[argsObj.length-1].constructor.name === 'Segment' ||
       argsObj[argsObj.length-1].constructor.name === 'Subsegment')) ? argsObj[argsObj.length-1] : null;
   }
