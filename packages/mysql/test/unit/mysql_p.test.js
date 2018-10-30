@@ -145,4 +145,100 @@ describe('captureMySQL', function() {
       });
     });
   });
+
+  describe('#capturePromiseQuery', function() {
+    describe('for basic connections', function() {
+      var conn, resolvedConn, mysql, queryObj, sandbox, segment, stubAddNew, stubBaseQuery, subsegment;
+
+      before(function() {
+        conn = new Promise(function(resolve, reject) {
+          resolve({
+            connection: {
+              config: {
+                user: 'mcmuls',
+                host: 'database.location',
+                port: '8080',
+                database: 'myTestDb'
+              },
+              query: function() {}
+            },
+            query: function() {
+              var self = this, args = arguments;
+              return new Promise(function(resolve, reject) {
+                self.connection.query.apply(self.connection, args);
+                resolve();
+              })
+            }
+          });
+        });
+
+        mysql = { createConnection: function() { return conn; } };
+        mysql = captureMySQL(mysql);
+      });
+
+      beforeEach(function(done) {
+        sandbox = sinon.sandbox.create();
+        segment = new Segment('test');
+        subsegment = segment.addNewSubsegment('testSub');
+
+        queryObj = new TestEmitter();
+        queryObj.sql = 'sql statement here';
+        queryObj.values = ['hello', 'there'];
+
+        sandbox = sinon.sandbox.create();
+        sandbox.stub(AWSXRay, 'getSegment').returns(segment);
+        stubAddNew = sandbox.stub(segment, 'addNewSubsegment').returns(subsegment);
+        sandbox.stub(AWSXRay, 'isAutomaticMode').returns(true);
+
+        mysql.createConnection().then(function (result) {
+          resolvedConn = result;
+          stubBaseQuery = sandbox.stub(resolvedConn.connection, '__query').returns(queryObj);
+          done();
+        });
+      });
+
+      afterEach(function() {
+        sandbox.restore();
+      });
+
+      it('should create a new subsegment using database and host', function() {
+        var config = resolvedConn.connection.config;
+        resolvedConn.query('sql here').then(function() {
+          stubAddNew.should.have.been.calledWithExactly(config.database + '@' + config.host);
+        });
+      });
+
+      it('should add the sql data to the subsegment', function() {
+        var stubAddSql = sandbox.stub(subsegment, 'addSqlData');
+        var stubDataInit = sandbox.stub(SqlData.prototype, 'init');
+        var config = resolvedConn.connection.config;
+
+        resolvedConn.query('sql here').then(function() {
+          stubDataInit.should.have.been.calledWithExactly(undefined, undefined, config.user,
+            config.host + ':' + config.port + '/' + config.database, 'statement');
+          stubAddSql.should.have.been.calledWithExactly(sinon.match.instanceOf(SqlData));
+        });
+      });
+
+      it('should close the subsegment via the event', function() {
+        var stubClose = sandbox.stub(subsegment, 'close');
+        resolvedConn.query().then(function() {
+          queryObj.emit('end');
+          stubClose.should.always.have.been.calledWithExactly();
+        });
+      });
+
+      it('should capture the error via the event', function() {
+        var stubClose = sandbox.stub(subsegment, 'close');
+        resolvedConn.query().then(function() {
+          assert.throws(function() {
+            queryObj.emit('error', err);
+          });
+
+          stubClose.should.have.been.calledWithExactly(err);
+        });
+      });
+
+    });
+  });
 });

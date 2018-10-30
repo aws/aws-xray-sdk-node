@@ -36,9 +36,18 @@ function patchCreateConnection(mysql) {
 
   mysql['createConnection'] = function patchedCreateConnection() {
     var connection = mysql[baseFcn].apply(connection, arguments);
-    connection.__query = connection.query;
-    connection.query = captureQuery;
-
+    if (connection instanceof Promise) {
+      connection = connection.then((result) => {
+        if (result.connection.query instanceof Function) {
+          result.connection.__query = result.connection.query;
+          result.connection.query = captureQuery;
+        }
+        return result;
+      });
+    } else if (connection.query instanceof Function) {
+      connection.__query = connection.query;
+      connection.query = captureQuery;
+    }
     return connection;
   };
 }
@@ -60,9 +69,16 @@ function resolveArguments(argsObj) {
   var args = {};
 
   if (argsObj && argsObj.length > 0) {
-    args.sql = argsObj[0];
-    args.values = typeof argsObj[1] !== 'function' ? argsObj[1] : null;
-    args.callback = typeof argsObj[1] === 'function' ? argsObj[1] : (typeof argsObj[2] === 'function' ? argsObj[2] : undefined);
+    if (argsObj[0] instanceof Object) {
+      args.sql = argsObj[0].sql;
+      args.values = argsObj[0].values;
+      args.callback = argsObj[1];
+    } else {
+      args.sql = argsObj[0];
+      args.values = typeof argsObj[1] !== 'function' ? argsObj[1] : null;
+      args.callback = typeof argsObj[1] === 'function' ? argsObj[1] : (typeof argsObj[2] === 'function' ? argsObj[2] : undefined);
+    }
+
     args.segment = (argsObj[argsObj.length-1].constructor && (argsObj[argsObj.length-1].constructor.name === 'Segment' ||
       argsObj[argsObj.length-1].constructor.name === 'Subsegment')) ? argsObj[argsObj.length-1] : null;
   }
