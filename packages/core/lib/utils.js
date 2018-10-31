@@ -4,6 +4,7 @@
 
 var each = require('lodash/each');
 var isNull = require('lodash/isNull');
+var isString = require('lodash/isString');
 var isUndefined = require('lodash/isUndefined');
 
 var logger = require('./logger');
@@ -163,9 +164,17 @@ var utils = {
   processTraceData: function processTraceData(traceData) {
     var amznTraceData = {};
 
+    if (!(isString(traceData) && traceData))
+      return amznTraceData;
+
     each(traceData.split(';'), function(header) {
+      if (!header)
+        return;
+
       var pair = header.split('=');
-      amznTraceData[pair[0].trim()] = pair[1].trim();
+
+      if (pair[0] && pair[1])
+        amznTraceData[pair[0].trim()] = pair[1].trim();
     });
 
     return amznTraceData;
