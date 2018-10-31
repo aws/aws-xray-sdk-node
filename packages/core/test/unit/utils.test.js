@@ -37,6 +37,38 @@ describe('Utils', function() {
       assert.propertyVal(parsed, 'Parent', '48af77592b6dd73f');
       assert.propertyVal(parsed, 'Sampled', '1');
     });
+
+    it('should bail out for missing trace values', function() {
+        assert.deepEqual(Utils.processTraceData(), {});
+    });
+
+    it('should bail out for empty trace values', function() {
+        assert.deepEqual(Utils.processTraceData(''), {});
+    });
+
+    it('should handle trace header values with excess semicolons correctly', function() {
+        assert.deepEqual(Utils.processTraceData('Root=1-58ed6027-14afb2e09172c337713486c0;'), {
+          Root: '1-58ed6027-14afb2e09172c337713486c0'
+        });
+    });
+
+    it('should handle malformed key=value pairs correctly (missing value)', function() {
+        assert.deepEqual(Utils.processTraceData('Root=1-58ed6027-14afb2e09172c337713486c0;Parent'), {
+          Root: '1-58ed6027-14afb2e09172c337713486c0'
+        });
+    });
+
+    it('should handle malformed key=value pairs correctly (empty key)', function() {
+        assert.deepEqual(Utils.processTraceData('Root=1-58ed6027-14afb2e09172c337713486c0;=48af77592b6dd73f'), {
+          Root: '1-58ed6027-14afb2e09172c337713486c0'
+        });
+    });
+
+    it('should handle malformed key=value pairs correctly (empty value)', function() {
+        assert.deepEqual(Utils.processTraceData('Root=1-58ed6027-14afb2e09172c337713486c0;Parent='), {
+          Root: '1-58ed6027-14afb2e09172c337713486c0'
+        });
+    });
   });
 
   describe('#processTraceData', function() {
