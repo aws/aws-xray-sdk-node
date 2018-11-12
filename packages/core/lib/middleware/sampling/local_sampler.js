@@ -132,6 +132,8 @@ var parseRulesConfig = function parseRulesConfig(config) {
             params[key] = value;
           if (config.version === 1 && key === 'service_name')
             params['host'] = value;
+          else 
+            params[key] = value;
           delete required[key];
         }
       }
