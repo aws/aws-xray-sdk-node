@@ -53,8 +53,12 @@ describe('capturePostgres', function() {
       queryObj.text = 'sql statement here';
       queryObj.values = ['hello', 'there'];
 
+      postgres.__query = function(args, values, callback) {
+        queryObj.callback = callback;
+        return queryObj;
+      };
+
       sandbox = sinon.sandbox.create();
-      sandbox.stub(postgres, '__query').returns(queryObj);
       sandbox.stub(AWSXRay, 'getSegment').returns(segment);
       stubAddNew = sandbox.stub(segment, 'addNewSubsegment').returns(subsegment);
       sandbox.stub(AWSXRay, 'isAutomaticMode').returns(true);
@@ -75,7 +79,7 @@ describe('capturePostgres', function() {
       var stubDataInit = sandbox.stub(SqlData.prototype, 'init');
       var conParam = postgres.connectionParameters;
 
-      query.call(postgres);
+      query.call(postgres, 'sql here');
 
       stubDataInit.should.have.been.calledWithExactly(undefined, undefined, conParam.user,
         conParam.host + ':' + conParam.port + '/' + conParam.database, undefined);
@@ -89,9 +93,7 @@ describe('capturePostgres', function() {
 
       sandbox.stub(AWSXRay, 'getNamespace').returns(session);
 
-      queryObj.callback = function() {};
-
-      query.call(postgres);
+      query.call(postgres, { sql: 'sql here', submit: function() {} });
       assert.equal(queryObj.callback.name, 'autoContext');
       queryObj.callback();
 
@@ -106,7 +108,7 @@ describe('capturePostgres', function() {
       var stubClose = sandbox.stub(subsegment, 'close');
       queryObj.callback = function() {};
 
-      query.call(postgres);
+      query.call(postgres, 'sql here', [], function() {});
       queryObj.callback(err);
 
       setTimeout(function() {
@@ -132,6 +134,93 @@ describe('capturePostgres', function() {
       });
 
       stubClose.should.have.been.calledWithExactly(err);
+    });
+  });
+
+
+  describe('#capturePromiseQuery', function() {
+    var postgres, query, queryObj, sandbox, segment, stubAddNew, subsegment;
+
+    before(function() {
+      postgres = { Client: { prototype: {
+        query: function () {},
+        host: 'database.location',
+        database: 'myTestDb',
+        connectionParameters: {
+          user: 'mcmuls',
+          host: 'database.location',
+          port: '8080',
+          database: 'myTestDb'
+        }
+      }}};
+      postgres = capturePostgres(postgres);
+
+      query = postgres.Client.prototype.query;
+      postgres = postgres.Client.prototype;
+    });
+
+    beforeEach(function() {
+      segment = new Segment('test');
+      subsegment = segment.addNewSubsegment('testSub');
+
+      queryObj = new TestEmitter();
+      queryObj.text = 'sql statement here';
+      queryObj.values = ['hello', 'there'];
+
+      postgres.__query = function(args, values) {
+        this._queryable = true;
+        this.queryQueue = [ null, null, queryObj ];
+        var result = new Promise(function(resolve, reject) {
+          resolve();
+        });
+        return result;
+      };
+
+      sandbox = sinon.sandbox.create();
+      sandbox.stub(AWSXRay, 'getSegment').returns(segment);
+      stubAddNew = sandbox.stub(segment, 'addNewSubsegment').returns(subsegment);
+      sandbox.stub(AWSXRay, 'isAutomaticMode').returns(true);
+    });
+
+    afterEach(function() {
+      sandbox.restore();
+    });
+
+    it('should create a new subsegment using database and host', function() {
+      query.call(postgres);
+
+      stubAddNew.should.have.been.calledWithExactly(postgres.database + '@' + postgres.host);
+    });
+
+    it('should add the sql data to the subsegment', function() {
+      var stubAddSql = sandbox.stub(subsegment, 'addSqlData');
+      var stubDataInit = sandbox.stub(SqlData.prototype, 'init');
+      var conParam = postgres.connectionParameters;
+
+      query.call(postgres, 'sql here');
+
+      stubDataInit.should.have.been.calledWithExactly(undefined, undefined, conParam.user,
+        conParam.host + ':' + conParam.port + '/' + conParam.database, undefined);
+      stubAddSql.should.have.been.calledWithExactly(sinon.match.instanceOf(SqlData));
+    });
+
+    it('should close the subsegment via the event', function() {
+      var stubClose = sandbox.stub(subsegment, 'close');
+      query.call(postgres, 'sql here', []).then(function() {
+        queryObj.emit('end');
+        stubClose.should.always.have.been.calledWithExactly();
+      });
+    });
+
+    it('should capture the error via the event', function() {
+      var stubClose = sandbox.stub(subsegment, 'close');
+      query.call(postgres, { sql: 'sql here', values: [] }).then(function() {
+        assert.throws(function() {
+          queryObj.emit('error', err);
+        });
+
+        stubClose.should.have.been.calledWithExactly(err);
+      });
     });
   });
 });
