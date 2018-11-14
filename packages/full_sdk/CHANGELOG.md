@@ -1,6 +1,11 @@
 # Changelog for AWS X-Ray SDK for JavaScript
-<!--LATEST=2.0.1-->
+<!--LATEST=2.1.0-->
 <!--ENTRYINSERT-->
+## 2.1.0
+* change: Updated aws-xray-sdk-core to 2.1.0. See aws-xray-sdk-core's CHANGELOG.md for package changes.
+* change: Updated aws-xray-sdk-express to 2.1.0. No further changes.
+* change: Updated aws-xray-sdk-mysql to 2.1.0. Added Promise support on `mysql2`. [#PR62](https://github.com/aws/aws-xray-sdk-node/pull/62)
+* change: Updated aws-xray-sdk-postgres to 2.1.0. Added Promise support for `pg`. [#PR64](https://github.com/aws/aws-xray-sdk-node/pull/64)
 
 ## 2.0.1
 * change: Updated aws-xray-sdk-core to 2.0.1. See aws-xray-sdk-core's CHANGELOG.md for package changes.

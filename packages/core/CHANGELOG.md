@@ -1,6 +1,10 @@
 # Changelog for AWS X-Ray Core SDK for JavaScript
-<!--LATEST=2.0.1-->
+<!--LATEST=2.1.0-->
 <!--ENTRYINSERT-->
+## 2.1.0
+* bugfix: Fixed an undefined method in `DaemonConfig`. [#ISSUE52](https://github.com/aws/aws-xray-sdk-node/issues/52)
+* bugfix: Fixed an issue in transforming sampling rule definition file from v1 to v2. [#PR70](https://github.com/aws/aws-xray-sdk-node/pull/70)
+* bugfix: Fixed a type safety issue when processing malformed trace header. [#PR69](https://github.com/aws/aws-xray-sdk-node/pull/69)
 
 ## 2.0.1
 * bugfix: Added a missing commit in the previous release for [#ISSUE2](https://github.com/aws/aws-xray-sdk-node/issues/2).
