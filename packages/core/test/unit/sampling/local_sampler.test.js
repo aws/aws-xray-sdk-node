@@ -77,6 +77,55 @@ describe('localSampler', function() {
       assert(localSampler.rules);
     });
 
+    it('should load all valid rules from custom SamplingRules object given a version 1 config', function() {
+      localSampler.rules = null;
+      var v1SamplingRules = {
+        rules: [
+          {
+            description: 'moop',
+            http_method: 'GET',
+            service_name: '*.foo.com',
+            url_path: '/signin/*',
+            fixed_target: 0,
+            rate: 0
+          },
+          {
+            description: 'noop',
+            http_method: 'POST',
+            service_name: '*.moop.com',
+            url_path: '/login/*',
+            fixed_target: 10,
+            rate: 0.05
+          }
+        ],
+        default: {
+          fixed_target: 10,
+          rate: 0.05
+        },
+        version: 1
+      };
+      localSampler.setLocalRules(v1SamplingRules);
+      var rules = localSampler.rules;
+      var rule0 = rules[0];
+      var rule1 = rules[1];
+      var rule2 = rules[2];
+
+      assert.equal(rule0.host, v1SamplingRules.rules[0].service_name);
+      assert.equal(rule0.http_method, v1SamplingRules.rules[0].http_method);
+      assert.equal(rule0.url_path, v1SamplingRules.rules[0].url_path);
+      assert.equal(rule0.description, v1SamplingRules.rules[0].description);
+      assert.instanceOf(rule0.reservoir, LocalReservoir);
+      
+      assert.equal(rule1.host, v1SamplingRules.rules[1].service_name);
+      assert.equal(rule1.http_method, v1SamplingRules.rules[1].http_method);
+      assert.equal(rule1.url_path, v1SamplingRules.rules[1].url_path);
+      assert.equal(rule1.description, v1SamplingRules.rules[1].description);
+      assert.instanceOf(rule1.reservoir, LocalReservoir);
+
+      assert.isTrue(rule2.default);
+      assert.instanceOf(rule2.reservoir, LocalReservoir);
+    });
+
     describe('given a config file', function() {
       var sandbox;
 
