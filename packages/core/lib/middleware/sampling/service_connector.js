@@ -1,5 +1,6 @@
 var crypto = require('crypto');
-var AWS = require('aws-sdk');
+var AWS = require('aws-sdk/global');
+var Xray = require('aws-sdk/clients/xray');
 var logger = require('../../logger');
 var SamplingRule = require('./sampling_rule');
 var DaemonConfig = require('../../daemon_config')
@@ -16,7 +17,7 @@ var ServiceConnector = {
   // identifying the SDK instance and is generated during SDK initialization/
   // This is required when reporting sampling to X-Ray back-end.
   clientId: crypto.randomBytes(12).toString('hex'),
-  client: new AWS.XRay({endpoint: util.format('http://%s:%d', DaemonConfig.tcp_ip, DaemonConfig.tcp_port)}),
+  client: new Xray({endpoint: util.format('http://%s:%d', DaemonConfig.tcp_ip, DaemonConfig.tcp_port)}),
 
   fetchSamplingRules: function fetchSamplingRules(callback) {
 
