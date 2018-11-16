@@ -8,6 +8,14 @@ node_js:
 
 sudo: false
 
+matrix:
+  include:
+    - node_js: "8"
+      env: TEST_ASYNC=test-async
+    - node_js: "10"
+      env: TEST_ASYNC=test-async
+
 script:
   - lerna bootstrap --hoist
   - lerna run test
+  - "if [[ $TEST_ASYNC == 'test-async' ]]; then lerna run $TEST_ASYNC || exit 0; fi"
