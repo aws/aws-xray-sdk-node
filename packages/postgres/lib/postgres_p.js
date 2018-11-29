@@ -85,10 +85,10 @@ function captureQuery() {
     }
   }
 
-  const result = this.__query.call(this, args.sql, args.values, args.callback);
+  var result = this.__query.call(this, args.sql, args.values, args.callback);
 
   if (this._queryable && !this._ending) {
-    let query;
+    var query;
     // To get the actual query object, we have to extract it from the
     // owning connection object.  The query will either be the last one in
     // the queue or it will be the active query.
