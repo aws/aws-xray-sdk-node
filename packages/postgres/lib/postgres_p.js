@@ -37,7 +37,7 @@ function resolveArguments(argsObj) {
     if (argsObj[0] instanceof Object) {
       args.sql = argsObj[0].text;
       args.values = argsObj[0].values;
-      args.callback = argsObj[1] || argsObj[0].submit;
+      args.callback = argsObj[1] || argsObj[0].callback;
     } else {
       args.sql = argsObj[0];
       args.values = typeof argsObj[1] !== 'function' ? argsObj[1] : null;
@@ -61,6 +61,7 @@ function captureQuery() {
   }
 
   var subsegment = parent.addNewSubsegment(this.database + '@' + this.host);
+  subsegment.namespace = 'remote';
 
   if (args.callback) {
     var cb = args.callback;
@@ -84,10 +85,10 @@ function captureQuery() {
     }
   }
 
-  var result = this.__query.call(this, args.sql, args.values, args.callback);
+  const result = this.__query.call(this, args.sql, args.values, args.callback);
 
-  var query = result;
-  if (query instanceof Promise && this._queryable && !this._ending) {
+  if (this._queryable && !this._ending) {
+    let query;
     // To get the actual query object, we have to extract it from the
     // owning connection object.  The query will either be the last one in
     // the queue or it will be the active query.
@@ -96,27 +97,26 @@ function captureQuery() {
     } else {
       query = this.queryQueue[this.queryQueue.length-1];
     }
+
+    if (!args.callback && query.on instanceof Function) {
+      query.on('end', function() {
+        subsegment.close();
+      });
+
+      var errorCapturer = function (err) {
+        subsegment.close(err);
+
+        if (this._events && this._events.error && this._events.error.length === 1) {
+          this.removeListener('error', errorCapturer);
+          this.emit('error', err);
+        }
+      };
+
+      query.on('error', errorCapturer);
+    }
+
+    subsegment.addSqlData(createSqlData(this.connectionParameters, query));
   }
-
-  if (!args.callback && query.on instanceof Function) {
-    query.on('end', function() {
-      subsegment.close();
-    });
-
-    var errorCapturer = function (err) {
-      subsegment.close(err);
-
-      if (this._events && this._events.error && this._events.error.length === 1) {
-        this.removeListener('error', errorCapturer);
-        this.emit('error', err);
-      }
-    };
-
-    query.on('error', errorCapturer);
-  }
-
-  subsegment.addSqlData(createSqlData(this.connectionParameters, query));
-  subsegment.namespace = 'remote';
 
   return result;
 }
