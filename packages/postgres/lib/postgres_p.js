@@ -84,7 +84,8 @@ function captureQuery() {
     }
   }
 
-  var result = this.__query.call(this, args.sql, args.values, args.callback);
+  var sqlInput = (arguments && arguments.length > 0) ?  arguments[0] : args.sql;
+  var result = this.__query.call(this, sqlInput, args.values, args.callback);
 
   var query = result;
   if (query instanceof Promise && this._queryable && !this._ending) {

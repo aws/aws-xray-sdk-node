@@ -25,7 +25,7 @@ describe('capturePostgres', function() {
   });
 
   describe('#captureQuery', function() {
-    var postgres, query, queryObj, sandbox, segment, stubAddNew, subsegment;
+    var postgres, query, queryObj, sandbox, segment, stubAddNew, subsegment, querySpy;
 
     before(function() {
       postgres = { Client: { prototype: {
@@ -58,6 +58,8 @@ describe('capturePostgres', function() {
         return queryObj;
       };
 
+      querySpy = sinon.spy(postgres, '__query');
+
       sandbox = sinon.sandbox.create();
       sandbox.stub(AWSXRay, 'getSegment').returns(segment);
       stubAddNew = sandbox.stub(segment, 'addNewSubsegment').returns(subsegment);
@@ -66,6 +68,7 @@ describe('capturePostgres', function() {
 
     afterEach(function() {
       sandbox.restore();
+      querySpy.restore();
     });
 
     it('should create a new subsegment using database and host', function() {
@@ -102,6 +105,15 @@ describe('capturePostgres', function() {
         stubRun.should.have.been.calledOnce;
         done();
       }, 50);
+    });
+
+    it('should forward to Postgres client query function the same input provided by the user', function() {
+      query.call(postgres, 'sql here');
+      query.call(postgres, { sql: 'sql here' });
+      query.call(postgres, { text: 'sql here' });
+      chai.expect(querySpy.firstCall.args[0]).to.equal('sql here');
+      chai.expect(querySpy.secondCall.args[0]).to.deep.equal({ sql: 'sql here' });
+      chai.expect(querySpy.thirdCall.args[0]).to.deep.equal({ text: 'sql here' });
     });
 
     it('should capture the error via the callback if supplied', function(done) {
