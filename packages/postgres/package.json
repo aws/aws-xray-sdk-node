@@ -8,7 +8,7 @@
   ],
   "main": "lib/index.js",
   "engines": {
-    "node": ">= 4.x <= 10.x"
+    "node": ">= 4.x"
   },
   "directories": {
     "test": "test"
