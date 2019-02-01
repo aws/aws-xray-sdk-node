@@ -240,7 +240,7 @@ is discarded in favor of the completed subsegment.
 ### Developing custom solutions using automatic mode
 
 Automatic mode is for use with the aws-xray-sdk-express module to support Express
-applications, however it can be used outside of Express applictions.
+applications, however it can be used outside of Express applications.
 If your application isn't using the Express middleware, you have to create the
 new segment and set this on the SDK.
 You need to create a new level of CLS, and you can do so by using the CLS namespace object. We expose this via the following.
