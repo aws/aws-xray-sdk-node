@@ -74,14 +74,16 @@ function patchGetConnection(pool) {
     var args = arguments;
     var callback = args[0];
 
-    if(callback instanceof Function){
+    if (callback instanceof Function) {
       args[0] = (err, connection) => {
         if(connection) patchObject(connection);
         return callback(err, connection);
       }
     }
 
-    return pool[baseFcn].apply(pool, args);
+    var result = pool[baseFcn].apply(pool, args);
+    if (result instanceof Promise) return result.then(patchObject);
+    else return result;
   }
 }
 
@@ -99,6 +101,7 @@ function patchObject(connection) {
   if(connection.getConnection instanceof Function){
     patchGetConnection(connection);
   }
+  return connection;
 }
 
 function resolveArguments(argsObj) {
