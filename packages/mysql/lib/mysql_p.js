@@ -66,6 +66,25 @@ function patchCreatePool(mysql) {
   };
 }
 
+function patchGetConnection(pool) {
+  var baseFcn = '__getConnection';
+  pool[baseFcn] = pool['getConnection'];
+
+  pool['getConnection'] = function patchedGetConnection() {
+    var args = arguments;
+    var callback = args[0];
+
+    if(callback instanceof Function){
+      args[0] = (err, connection) => {
+        if(connection) patchObject(connection);
+        return callback(err, connection);
+      }
+    }
+
+    return pool[baseFcn].apply(pool, args);
+  }
+}
+
 function patchObject(connection) {
   if (connection.query instanceof Function) {
     connection.__query = connection.query;
@@ -75,6 +94,10 @@ function patchObject(connection) {
   if (connection.execute instanceof Function) {
     connection.__execute = connection.execute;
     connection.execute = captureOperation('execute');
+  }
+
+  if(connection.getConnection instanceof Function){
+    patchGetConnection(connection);
   }
 }
 
