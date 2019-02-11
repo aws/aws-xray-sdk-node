@@ -247,4 +247,143 @@ describe('captureMySQL', function() {
 
     });
   });
+
+  describe('#capturePool', function(){
+    it('should patch getConnection on the pool', function(){
+      var pool = {
+        query: function() {},
+        getConnection: function() {}
+      };
+      var mysql = {
+        createPool: function() { return pool; }
+      };
+
+      var mysqlObj = captureMySQL(mysql);
+      var patched = mysqlObj.createPool();
+
+      assert.property(patched, '__getConnection');
+      assert.equal(patched.getConnection.name, 'patchedGetConnection');
+    });
+
+    describe('for basic connections', function(){
+      var conn, connectionObj, pool, poolObj, mysql, query, queryObj, sandbox, segment, stubAddNew, stubBaseQuery, subsegment;
+
+      before(function(done) {
+        conn = {
+          config: {
+            user: 'mcmuls',
+            host: 'database.location',
+            port: '8080',
+            database: 'myTestDb'
+          },
+          query: function() {}
+        };
+        pool = {
+          query: function() {},
+          getConnection: function(callback) { return callback(undefined, conn); }
+        };
+
+        mysql = { createPool: function() { return pool; } };
+        mysql = captureMySQL(mysql);
+        poolObj = mysql.createPool();
+        poolObj.getConnection(function (err, connection) {connectionObj = connection; return done();});
+      });
+
+      beforeEach(function() {
+        sandbox = sinon.sandbox.create();
+        segment = new Segment('test');
+        subsegment = segment.addNewSubsegment('testSub');
+
+        queryObj = new TestEmitter();
+        queryObj.sql = 'sql statement here';
+        queryObj.values = ['hello', 'there'];
+
+        sandbox = sinon.sandbox.create();
+        stubBaseQuery = sandbox.stub(connectionObj, '__query').returns(queryObj);
+        sandbox.stub(AWSXRay, 'getSegment').returns(segment);
+        stubAddNew = sandbox.stub(segment, 'addNewSubsegment').returns(subsegment);
+        sandbox.stub(AWSXRay, 'isAutomaticMode').returns(true);
+        query = connectionObj.query;
+      });
+
+      afterEach(function() {
+        sandbox.restore();
+      });
+
+      it('should create a new subsegment using database and host', function() {
+        var config = conn.config;
+        query.call(connectionObj, 'sql here');
+
+        stubAddNew.should.have.been.calledWithExactly(config.database + '@' + config.host);
+      });
+
+      it('should add the sql data to the subsegment', function() {
+        var stubAddSql = sandbox.stub(subsegment, 'addSqlData');
+        var stubDataInit = sandbox.stub(SqlData.prototype, 'init');
+        var config = conn.config;
+
+        query.call(connectionObj, 'sql here');
+
+        stubDataInit.should.have.been.calledWithExactly(undefined, undefined, config.user,
+          config.host + ':' + config.port + '/' + config.database, 'statement');
+        stubAddSql.should.have.been.calledWithExactly(sinon.match.instanceOf(SqlData));
+      });
+
+      it('should start a new automatic context and close the subsegment via the callback if supplied', function(done) {
+        var stubClose = sandbox.stub(subsegment, 'close');
+        var session = { run: function(fcn) { fcn(); }};
+        var stubRun = sandbox.stub(session, 'run');
+
+        sandbox.stub(AWSXRay, 'getNamespace').returns(session);
+        query.call(connectionObj, 'sql here', function() {});
+
+        stubBaseQuery.should.have.been.calledWith(sinon.match.string, null, sinon.match.func);
+        assert.equal(stubBaseQuery.args[0][2].name, 'autoContext');
+        stubBaseQuery.args[0][2].call(queryObj);
+
+        setTimeout(function() {
+          stubClose.should.always.have.been.calledWith();
+          stubRun.should.have.been.calledOnce;
+          done();
+        }, 50);
+      });
+
+      it('should capture the error via the callback if supplied', function(done) {
+        var stubClose = sandbox.stub(subsegment, 'close');
+
+        query.call(connectionObj, 'sql here', function() {});
+        stubBaseQuery.args[0][2].call(queryObj, err);
+
+        setTimeout(function() {
+          stubClose.should.have.been.calledWithExactly(err);
+          done();
+        }, 50);
+      });
+
+      it('should close the subsegment via the event if the callback is missing', function() {
+        var stubClose = sandbox.stub(subsegment, 'close');
+        query.call(connectionObj);
+
+        queryObj.emit('end');
+        stubClose.should.always.have.been.calledWithExactly();
+      });
+
+      it('should capture the error via the event if the callback is missing', function() {
+        var stubClose = sandbox.stub(subsegment, 'close');
+        query.call(connectionObj);
+
+        assert.throws(function() {
+          queryObj.emit('error', err);
+        });
+
+        stubClose.should.have.been.calledWithExactly(err);
+      });
+
+      it('should start a new automatic context when last query paramater is null', function() {
+        query.call(connectionObj, 'sql here', function() {}, null);
+
+        assert.equal(stubBaseQuery.args[0][2].name, 'autoContext');
+      });
+    });
+  });
 });
