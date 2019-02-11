@@ -347,43 +347,6 @@ describe('captureMySQL', function() {
           done();
         }, 50);
       });
-
-      it('should capture the error via the callback if supplied', function(done) {
-        var stubClose = sandbox.stub(subsegment, 'close');
-
-        query.call(connectionObj, 'sql here', function() {});
-        stubBaseQuery.args[0][2].call(queryObj, err);
-
-        setTimeout(function() {
-          stubClose.should.have.been.calledWithExactly(err);
-          done();
-        }, 50);
-      });
-
-      it('should close the subsegment via the event if the callback is missing', function() {
-        var stubClose = sandbox.stub(subsegment, 'close');
-        query.call(connectionObj);
-
-        queryObj.emit('end');
-        stubClose.should.always.have.been.calledWithExactly();
-      });
-
-      it('should capture the error via the event if the callback is missing', function() {
-        var stubClose = sandbox.stub(subsegment, 'close');
-        query.call(connectionObj);
-
-        assert.throws(function() {
-          queryObj.emit('error', err);
-        });
-
-        stubClose.should.have.been.calledWithExactly(err);
-      });
-
-      it('should start a new automatic context when last query paramater is null', function() {
-        query.call(connectionObj, 'sql here', function() {}, null);
-
-        assert.equal(stubBaseQuery.args[0][2].name, 'autoContext');
-      });
     });
   });
 
