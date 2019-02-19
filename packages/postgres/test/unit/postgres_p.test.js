@@ -54,6 +54,8 @@ describe('capturePostgres', function() {
       queryObj.values = ['hello', 'there'];
 
       postgres.__query = function(args, values, callback) {
+        this._queryable = true;
+        this.queryQueue = [ null, null, queryObj ];
         queryObj.callback = callback;
         return queryObj;
       };
@@ -93,7 +95,7 @@ describe('capturePostgres', function() {
 
       sandbox.stub(AWSXRay, 'getNamespace').returns(session);
 
-      query.call(postgres, { sql: 'sql here', submit: function() {} });
+      query.call(postgres, { sql: 'sql here', callback: function() {} });
       assert.equal(queryObj.callback.name, 'autoContext');
       queryObj.callback();
 
@@ -134,6 +136,12 @@ describe('capturePostgres', function() {
       });
 
       stubClose.should.have.been.calledWithExactly(err);
+    });
+
+    it('should start a new automatic context when last query paramater is null', function() {
+      query.call(postgres, 'sql here', [], function() {}, null);
+
+      assert.equal(queryObj.callback.name, 'autoContext');
     });
   });
 

@@ -143,6 +143,12 @@ describe('captureMySQL', function() {
 
         stubClose.should.have.been.calledWithExactly(err);
       });
+
+      it('should start a new automatic context when last query paramater is null', function() {
+        query.call(connectionObj, 'sql here', function() {}, null);
+
+        assert.equal(stubBaseQuery.args[0][2].name, 'autoContext');
+      });
     });
   });
 

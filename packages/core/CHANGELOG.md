@@ -1,6 +1,11 @@
 # Changelog for AWS X-Ray Core SDK for JavaScript
-<!--LATEST=2.1.0-->
+<!--LATEST=2.2.0-->
 <!--ENTRYINSERT-->
+## 2.2.0
+* improvement: The `aws-xray-sdk-core` package now imports the AWS X-Ray service client directly, resulting in smaller bundle sizes. [#PR73](https://github.com/aws/aws-xray-sdk-node/pull/73)
+* bugfix: Fixes an issue where setting a sampling rule to have a fixed rate of 0 would fail to be honored. [#PR79](https://github.com/aws/aws-xray-sdk-node/pull/79)
+* improvement: Removes the upper-bound on supported node.js versions. [#PR89](https://github.com/aws/aws-xray-sdk-node/pull/89)
+
 ## 2.1.0
 * bugfix: Fixed an undefined method in `DaemonConfig`. [#ISSUE52](https://github.com/aws/aws-xray-sdk-node/issues/52)
 * bugfix: Fixed an issue in transforming sampling rule definition file from v1 to v2. [#PR70](https://github.com/aws/aws-xray-sdk-node/pull/70)

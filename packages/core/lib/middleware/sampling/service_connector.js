@@ -116,7 +116,7 @@ var isRuleValid = function isRuleValid(record) {
     && record['ServiceType']
     && record['RuleName']
     && record['Priority']
-    && record['FixedRate'];
+    && typeof record['FixedRate'] == 'number';
 };
 
 var dateToEpoch = function dateToEpoch(date) {
