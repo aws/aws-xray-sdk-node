@@ -6,6 +6,8 @@
 
 ## Installing
 
+__These instructions are for installing the experimental version of the AWS X-Ray SDK for Node.js.__
+
 The AWS X-Ray SDK for Node.js is compatible with Node.js version 4 and later.
 The AWS X-Ray SDK for Node.js has been tested with versions 4.x through 11.x of Node.js.
 There may be issues when running on versions of Node.js newer than 11.x.
@@ -13,14 +15,25 @@ There may be issues when running on versions of Node.js newer than 11.x.
 The SDK is available from NPM. For local development, install the SDK in your project directory with npm.
 
 ```
-npm install aws-xray-sdk
+npm install aws-xray-sdk@experimental
 ```
 
 Use the --save option to save the SDK as a dependency in your application's package.json.
 
 ```
-npm install aws-xray-sdk --save
+npm install aws-xray-sdk@experimental --save
 ```
+
+## Experimental Version
+This version of the AWS X-Ray SDK is an experimental attempt to improve support for
+promises and async/await. See [#60](https://github.com/aws/aws-xray-sdk-node/issues/60)
+for more discussion.
+
+This allows us to test using `cls-hooked` for trace context preservation while the
+`async_hooks` node.js module is still in an experimental state.
+This version might not work in applications where 3rd-party libraries (e.g.
+`bluebird`) are currently patched to work with `continuation-local-storage`.
+
 
 ## Getting Help
 
