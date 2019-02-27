@@ -10,6 +10,7 @@ var contextUtils = require('../context_utils');
 var Utils = require('../utils');
 
 var logger = require('../logger');
+var ServiceConnector = require('../middleware/sampling/service_connector');
 
 var minVersion = '2.7.15';
 
@@ -57,6 +58,11 @@ var captureAWSClient = function captureAWSClient(service) {
 };
 
 function captureAWSRequest(req) {
+  // short-circuit if the client is the sampling poller
+  if (req.service === ServiceConnector.client) {
+    return req;
+  }
+
   var parent = contextUtils.resolveSegment(contextUtils.resolveManualSegmentParams(req.params));
 
   if (!parent) {
