@@ -88,17 +88,17 @@ function patchGetConnection(pool) {
 }
 
 function patchObject(connection) {
-  if (connection.query instanceof Function) {
+  if (connection.query instanceof Function && !connection.__query) {
     connection.__query = connection.query;
     connection.query = captureOperation('query');
   }
 
-  if (connection.execute instanceof Function) {
+  if (connection.execute instanceof Function && !connection.__execute) {
     connection.__execute = connection.execute;
     connection.execute = captureOperation('execute');
   }
 
-  if(connection.getConnection instanceof Function){
+  if(connection.getConnection instanceof Function && !connection.__getConnection){
     patchGetConnection(connection);
   }
   return connection;
