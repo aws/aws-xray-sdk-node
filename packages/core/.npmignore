@@ -9,3 +9,4 @@ core
 express
 mysql
 postgres
+tsconfig.json

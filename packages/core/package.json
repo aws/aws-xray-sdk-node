@@ -7,6 +7,7 @@
     "Sandra McMullen <mcmuls@amazon.com>"
   ],
   "main": "lib/index.js",
+  "types": "types",
   "engines": {
     "node": ">= 4.x"
   },
@@ -47,5 +48,9 @@
     "x ray"
   ],
   "license": "Apache-2.0",
-  "repository": "https://github.com/aws/aws-xray-sdk-node/tree/master/packages/core"
+  "repository": "https://github.com/aws/aws-xray-sdk-node/tree/master/packages/core",
+  "optionalDependencies": {
+    "@types/continuation-local-storage": "^3.2.0",
+    "@types/node": ">= 4.x"
+  }
 }
