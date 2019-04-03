@@ -5,6 +5,35 @@ import { Namespace } from 'continuation-local-storage';
 import { LoggerInstance as Logger } from 'winston';
 
 declare namespace AWSXRay {
+    namespace plugins {
+        interface Plugin {
+            getData(callback: (data?: { [key: string]: unknown }) => void): void;
+            originName: string;
+        }
+
+        /**
+         * Exposes the AWS EC2 plugin.
+         */
+        const EC2Plugin: Plugin;
+
+        /**
+         * Exposes the AWS ECS plugin.
+         */
+        const ECSPlugin: Plugin;
+
+        /**
+         * Exposes the AWS Elastic Beanstalk plugin.
+         */
+        const ElasticBeanstalkPlugin: Plugin;
+    }
+
+    /**
+     * Enables use of plugins to capture additional data for segments.
+     * @param plugins - A configurable subset of AWSXRay.plugins.
+     * @see AWSXRay.plugins
+     */
+    function config(plugins: plugins.Plugin[]): void;
+
     abstract class SegmentLike {
         readonly trace_id?: string;
         readonly id: string;
