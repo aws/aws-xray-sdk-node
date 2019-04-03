@@ -73,26 +73,26 @@ declare namespace AWSXRay {
     function getLogger(): Logger;
     function setLogger(logger: Logger): void;
     function getSegment(): Segment;
-    function setSegment(segment: Segment | Subsegment): void;
-    function resolveSegment(segment?: Segment | Subsegment): Segment | Subsegment | undefined;
+    function setSegment(segment: SegmentLike): void;
+    function resolveSegment(segment?: SegmentLike): SegmentLike | undefined;
     function getNamespace(): Namespace;
 
     function captureFunc(
         name: string,
         fcn: (subsegment: Subsegment) => void,
-        parent?: Segment | Subsegment,
+        parent?: SegmentLike,
     ): void;
 
     function captureAsyncFunc(
         name: string,
         fcn: (subsegment: Subsegment) => Promise<void>,
-        parent?: Segment | Subsegment,
+        parent?: SegmentLike,
     ): void;
 
     function captureCallbackFunc<A extends any[]>(
         name: string,
         fcn: (...args: A) => void,
-        parent?: Segment | Subsegment,
+        parent?: SegmentLike,
     ): (...args: A) => void;
 
     function capturePromise(): void;
