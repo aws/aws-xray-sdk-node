@@ -107,7 +107,7 @@ declare namespace AWSXRay {
 
         function enableDynamicNaming(hostPattern: string): void;
         function processHeaders(req: http.IncomingMessage): TraceData;
-        function resolveName(hostHeader: string): string;
+        function resolveName(hostHeader?: string): string;
         function resolveSampling(amznTraceHeader: TraceData, segment: Segment, res: http.ServerResponse): void;
         function setDefaultName(name: string): void;
 
