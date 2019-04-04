@@ -14,3 +14,4 @@ Gruntfile.js
 jsdoc_conf.json
 test
 tsconfig.json
+types/test.ts

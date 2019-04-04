@@ -1,9 +1,19 @@
 // TypeScript Version: 3.0
 import http = require('http');
 
+import AWS = require('aws-sdk');
 import AWSClients = require('aws-sdk/clients/all');
 import { Namespace } from 'continuation-local-storage';
 import { LoggerInstance as Logger } from 'winston';
+
+type AWSClient = InstanceType<typeof AWSClients[keyof typeof AWSClients]>;
+
+interface AWSRequestMethod<P, D> {
+  (params: P, callback?: Callback<D>): AWS.Request<D, AWS.AWSError>;
+  (callback?: Callback<D>): AWS.Request<D, AWS.AWSError>;
+}
+
+type Callback<D> = (err: AWS.AWSError | undefined, data: D) => void;
 
 declare namespace AWSXRay {
   namespace plugins {
@@ -115,7 +125,18 @@ declare namespace AWSXRay {
 
   function capturePromise(): void;
 
-  function captureAWSClient<C extends InstanceType<typeof AWSClients[keyof typeof AWSClients]>>(client: C): C;
+  type CapturedAWSClient<C extends AWSClient> = { [K in keyof C]:
+    C[K] extends AWSRequestMethod<infer P, infer D>
+    ? AWSRequestMethod<P & { XRaySegment?: SegmentLike }, D>
+    : C[K]
+  };
+
+  type CapturedAWS<T = typeof AWS> = { [K in keyof T]:
+    T[K] extends AWSClient ? CapturedAWSClient<T[K]> : T[K]
+  };
+
+  function captureAWSClient<C extends AWSClient>(client: C): CapturedAWSClient<C>;
+  function captureAWS(awssdk: typeof AWS): CapturedAWS;
 
   function captureHTTPs(mod: typeof http): typeof http;
   function captureHTTPsGlobal(mod: typeof http): void;
