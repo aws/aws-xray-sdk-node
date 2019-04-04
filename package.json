@@ -3,8 +3,11 @@
   "private": true,
   "license": "Apache-2.0",
   "devDependencies": {
+    "@types/continuation-local-storage": "^3.2.0",
+    "@types/node": ">= 4.x",
     "aws-xray-sdk-core": "^2.0.1",
     "chai": "^3.5.0",
+    "dtslint": "^0.6.0",
     "eslint": "^3.10.2",
     "grunt": "^1.0.3",
     "grunt-contrib-clean": "^1.0.0",
@@ -13,7 +16,8 @@
     "mocha": "^3.0.2",
     "nock": "^8.0.0",
     "sinon": "^1.17.5",
-    "sinon-chai": "^2.8.0"
+    "sinon-chai": "^2.8.0",
+    "typescript": ">=3.2"
   },
   "engines": {
     "node": ">= 4.x",

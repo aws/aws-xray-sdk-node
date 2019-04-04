@@ -1,3 +1,4 @@
+// TypeScript Version: 3.0
 import http = require('http');
 
 import AWSClients = require('aws-sdk/clients/all');
@@ -43,9 +44,9 @@ declare namespace AWSXRay {
 
     notTraced?: boolean;
 
-    public fault?: boolean;
-    public error?: boolean;
-    public throttle?: boolean;
+    fault?: boolean;
+    error?: boolean;
+    throttle?: boolean;
 
     addNewSubsegment(name: string): Subsegment;
     addAnnotation(key: string, value: boolean | number | string): void;
@@ -67,12 +68,12 @@ declare namespace AWSXRay {
   class Segment extends SegmentLike {
     /**
      * Represents a segment.
-     * @constructor
-     * @param {string} name - The name of the subsegment.
-     * @param {string} [rootId] - The trace ID of the spawning parent, included in the 'X-Amzn-Trace-Id' header of
-     *                            the incoming request.  If one is not supplied, it will be generated.
-     * @param {string} [parentId] - The sub/segment ID of the spawning parent, included in the 'X-Amzn-Trace-Id'
-     *                              header of the incoming request.
+     *
+     * @param name - The name of the subsegment.
+     * @param [rootId] - The trace ID of the spawning parent, included in the 'X-Amzn-Trace-Id' header of
+     *                   the incoming request.  If one is not supplied, it will be generated.
+     * @param [parentId] - The sub/segment ID of the spawning parent, included in the 'X-Amzn-Trace-Id'
+     *                     header of the incoming request.
      */
     constructor(name: string, rootId?: string, parentId?: string);
 
@@ -120,7 +121,9 @@ declare namespace AWSXRay {
   function captureHTTPsGlobal(mod: typeof http): void;
 
   namespace middleware {
-    type TraceData = { [key: string]: string };
+    interface TraceData {
+      [key: string]: string;
+    }
 
     function enableDynamicNaming(hostPattern: string): void;
     function processHeaders(req: http.IncomingMessage): TraceData;
