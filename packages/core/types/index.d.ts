@@ -139,6 +139,13 @@ declare namespace AWSXRay {
 
   namespace utils {
     function getCauseTypeFromHttpStatus(status: number | string): 'error' | 'fault' | undefined;
+
+    /**
+     * Splits out the data from the trace id format.  Used by the middleware.
+     * @param traceData - The additional trace data (typically in req.headers.x-amzn-trace-id).
+     * @alias module:mw_utils.processTraceData
+     */
+    function processTraceData(traceData?: string): middleware.TraceData;
   }
 }
 
