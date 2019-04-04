@@ -42,8 +42,6 @@ declare namespace AWSXRay {
     readonly in_progress: boolean;
     readonly counter: number;
 
-    notTraced?: boolean;
-
     fault?: boolean;
     error?: boolean;
     throttle?: boolean;
@@ -78,6 +76,7 @@ declare namespace AWSXRay {
     constructor(name: string, rootId?: string, parentId?: string);
 
     readonly trace_id: string;
+    notTraced?: boolean;
 
     readonly http?: middleware.IncomingRequestData;
 
@@ -88,6 +87,7 @@ declare namespace AWSXRay {
     constructor(name: string);
 
     segment?: Segment;
+    traced?: boolean;
 
     streamSubsegments(): boolean;
   }
