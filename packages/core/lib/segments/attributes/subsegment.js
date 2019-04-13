@@ -377,8 +377,9 @@ Subsegment.prototype.toJSON = function toJSON() {
   if ('parent' in thisCopy) delete thisCopy.parent;
   if ('counter' in thisCopy) delete thisCopy.counter;
 
-  if (Array.isArray(this.subsegments) && !this.subsegments.length && 'subsegments' in thisCopy)
+  if (Array.isArray(this.subsegments) && !this.subsegments.length && 'subsegments' in thisCopy) {
     delete thisCopy.subsegments;
+  }
 
   return thisCopy;
 };

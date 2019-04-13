@@ -354,8 +354,9 @@ Segment.prototype.format = function format() {
   if ('notTraced' in thisCopy) delete thisCopy.notTraced;
   if ('exception' in thisCopy) delete thisCopy.exception;
 
-  if (Array.isArray(this.subsegments) && !this.subsegments.length && 'subsegments' in thisCopy)
+  if (Array.isArray(this.subsegments) && !this.subsegments.length && 'subsegments' in thisCopy) {
     delete thisCopy.subsegments;
+  }
 
   return JSON.stringify(thisCopy);
 };
