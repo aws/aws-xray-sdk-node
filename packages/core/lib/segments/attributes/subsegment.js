@@ -116,7 +116,7 @@ Subsegment.prototype.addPrecursorId = function(id) {
  */
 
 Subsegment.prototype.addAnnotation = function(key, value) {
-  if (!['boolean', 'number', 'string'].includes(typeof value)) {
+  if (!(typeof value === 'boolean' || typeof value === 'string' || (typeof value === 'number' && isFinite(value)))) {
     throw new Error('Failed to add annotation key: ' + key + ' value: ' + value + ' to subsegment ' +
       this.name + '. Value must be of type string, number or boolean.');
   } else if (typeof key !== 'string') {
