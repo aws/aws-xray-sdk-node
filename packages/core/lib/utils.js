@@ -2,11 +2,6 @@
  * @module utils
  */
 
-var each = require('lodash/each');
-var isNull = require('lodash/isNull');
-var isString = require('lodash/isString');
-var isUndefined = require('lodash/isUndefined');
-
 var logger = require('./logger');
 
 var utils = {
@@ -20,9 +15,9 @@ var utils = {
 
   getCauseTypeFromHttpStatus: function getCauseTypeFromHttpStatus(status) {
     var stat = status.toString();
-    if (!isNull(stat.match(/^[4][0-9]{2}$/)))
+    if (stat.match(/^[4][0-9]{2}$/) !== null)
       return 'error';
-    else if (!isNull(stat.match(/^[5][0-9]{2}$/)))
+    else if (stat.match(/^[5][0-9]{2}$/) !== null)
       return 'fault';
   },
 
@@ -38,7 +33,7 @@ var utils = {
    */
 
   wildcardMatch: function wildcardMatch(pattern, text) {
-    if (isUndefined(pattern) || isUndefined(text))
+    if (pattern === undefined || text === undefined)
       return false;
 
     if (pattern.length === 1 && pattern.charAt(0) === '*')
@@ -164,10 +159,10 @@ var utils = {
   processTraceData: function processTraceData(traceData) {
     var amznTraceData = {};
 
-    if (!(isString(traceData) && traceData))
+    if (!(typeof traceData === 'string' && traceData))
       return amznTraceData;
 
-    each(traceData.split(';'), function(header) {
+    traceData.split(';').forEach(function(header) {
       if (!header)
         return;
 
