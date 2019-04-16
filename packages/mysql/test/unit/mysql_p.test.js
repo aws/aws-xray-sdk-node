@@ -443,10 +443,11 @@ describe('captureMySQL', function() {
   });
 
   describe('#capturePoolCluster', function(){
-    it('should patch getConnection on the poolCluster', function(){
+    it('should patch getConnection and of on the poolCluster', function(){
       var poolCluster = {
         query: function() {},
-        getConnection: function() {}
+        getConnection: function() {},
+        of: function() {}
       };
       var mysql = {
         createPoolCluster: function() { return poolCluster; }
@@ -457,6 +458,30 @@ describe('captureMySQL', function() {
 
       assert.property(patched, '__getConnection');
       assert.equal(patched.getConnection.name, 'patchedGetConnection');
+      assert.property(patched, '__of');
+      assert.equal(patched.of.name, 'patchedOf');
+    });
+
+    it('should patch the pool returned by of', function(){
+      var pool = {
+        query: function() {},
+        getConnection: function() {}
+      };
+      var poolCluster = {
+        query: function() {},
+        getConnection: function() {},
+        of: function() {return pool;}
+      };
+      var mysql = {
+        createPoolCluster: function() { return poolCluster; }
+      };
+
+      var mysqlObj = captureMySQL(mysql);
+      var patched = mysqlObj.createPoolCluster();
+      var patchedPool = patched.of();
+
+      assert.property(patchedPool, '__getConnection');
+      assert.equal(patchedPool.getConnection.name, 'patchedGetConnection');
     });
 
     describe('for basic connections', function(){
