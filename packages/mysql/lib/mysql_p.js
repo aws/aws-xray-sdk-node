@@ -26,6 +26,7 @@ module.exports = function captureMySQL(mysql) {
 
   patchCreateConnection(mysql);
   patchCreatePool(mysql);
+  patchCreatePoolCluster(mysql);
 
   return mysql;
 };
@@ -66,13 +67,26 @@ function patchCreatePool(mysql) {
   };
 }
 
+function patchCreatePoolCluster(mysql) {
+  var baseFcn = '__createPoolCluster';
+  mysql[baseFcn] = mysql['createPoolCluster'];
+
+  mysql['createPoolCluster'] = function patchedCreatePoolCluster() {
+    var poolCluster = mysql[baseFcn].apply(poolCluster, arguments);
+    if (poolCluster.query instanceof Function) {
+      patchObject(poolCluster);
+    }
+    return poolCluster;
+  };
+}
+
 function patchGetConnection(pool) {
   var baseFcn = '__getConnection';
   pool[baseFcn] = pool['getConnection'];
 
   pool['getConnection'] = function patchedGetConnection() {
     var args = arguments;
-    var callback = args[0];
+    var callback = args[args.length-1];
 
     if (callback instanceof Function) {
       args[0] = (err, connection) => {
