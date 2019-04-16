@@ -80,6 +80,18 @@ function patchCreatePoolCluster(mysql) {
   };
 }
 
+function patchOf(poolCluster) {
+  var baseFcn = '__of';
+  poolCluster[baseFcn] = poolCluster['of'];
+
+  poolCluster['of'] = function patchedOf() {
+    var args = arguments;
+
+    var resultPool = poolCluster[baseFcn].apply(poolCluster, args);
+    return patchObject(resultPool);
+  }
+}
+
 function patchGetConnection(pool) {
   var baseFcn = '__getConnection';
   pool[baseFcn] = pool['getConnection'];
@@ -114,6 +126,10 @@ function patchObject(connection) {
 
   if(connection.getConnection instanceof Function && !connection.__getConnection){
     patchGetConnection(connection);
+  }
+
+  if (connection.of instanceof Function && !connection.__of) {
+    patchOf(connection);
   }
   return connection;
 }
