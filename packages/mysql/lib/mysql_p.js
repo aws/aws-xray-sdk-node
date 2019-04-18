@@ -26,6 +26,7 @@ module.exports = function captureMySQL(mysql) {
 
   patchCreateConnection(mysql);
   patchCreatePool(mysql);
+  patchCreatePoolCluster(mysql);
 
   return mysql;
 };
@@ -66,16 +67,72 @@ function patchCreatePool(mysql) {
   };
 }
 
+function patchCreatePoolCluster(mysql) {
+  var baseFcn = '__createPoolCluster';
+  mysql[baseFcn] = mysql['createPoolCluster'];
+
+  mysql['createPoolCluster'] = function patchedCreatePoolCluster() {
+    var poolCluster = mysql[baseFcn].apply(poolCluster, arguments);
+    if (poolCluster.query instanceof Function) {
+      patchObject(poolCluster);
+    }
+    return poolCluster;
+  };
+}
+
+function patchOf(poolCluster) {
+  var baseFcn = '__of';
+  poolCluster[baseFcn] = poolCluster['of'];
+
+  poolCluster['of'] = function patchedOf() {
+    var args = arguments;
+
+    var resultPool = poolCluster[baseFcn].apply(poolCluster, args);
+    return patchObject(resultPool);
+  }
+}
+
+function patchGetConnection(pool) {
+  var baseFcn = '__getConnection';
+  pool[baseFcn] = pool['getConnection'];
+
+  pool['getConnection'] = function patchedGetConnection() {
+    var args = arguments;
+    var callback = args[args.length-1];
+
+    if (callback instanceof Function) {
+      args[args.length-1] = (err, connection) => {
+        if(connection) patchObject(connection);
+        return callback(err, connection);
+      }
+    }
+
+    var result = pool[baseFcn].apply(pool, args);
+    if (result.then instanceof Function) return result.then(patchObject);
+    else return result;
+  }
+}
+
 function patchObject(connection) {
-  if (connection.query instanceof Function) {
+  if (connection.query instanceof Function && !connection.__query) {
     connection.__query = connection.query;
     connection.query = captureOperation('query');
   }
 
-  if (connection.execute instanceof Function) {
+  if (connection.execute instanceof Function && !connection.__execute) {
     connection.__execute = connection.execute;
     connection.execute = captureOperation('execute');
   }
+
+  if(connection.getConnection instanceof Function && !connection.__getConnection){
+    patchGetConnection(connection);
+  }
+
+  // Patches the of function on a mysql PoolCluster which returns a pool
+  if (connection.of instanceof Function && !connection.__of) {
+    patchOf(connection);
+  }
+  return connection;
 }
 
 function resolveArguments(argsObj) {
