@@ -101,7 +101,7 @@ function patchGetConnection(pool) {
     var callback = args[args.length-1];
 
     if (callback instanceof Function) {
-      args[0] = (err, connection) => {
+      args[args.length-1] = (err, connection) => {
         if(connection) patchObject(connection);
         return callback(err, connection);
       }
