@@ -108,7 +108,7 @@ function patchGetConnection(pool) {
     }
 
     var result = pool[baseFcn].apply(pool, args);
-    if (result instanceof Promise) return result.then(patchObject);
+    if (result.then instanceof Function) return result.then(patchObject);
     else return result;
   }
 }
