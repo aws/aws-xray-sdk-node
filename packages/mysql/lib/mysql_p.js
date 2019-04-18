@@ -128,6 +128,7 @@ function patchObject(connection) {
     patchGetConnection(connection);
   }
 
+  // Patches the of function on a mysql PoolCluster which returns a pool
   if (connection.of instanceof Function && !connection.__of) {
     patchOf(connection);
   }
