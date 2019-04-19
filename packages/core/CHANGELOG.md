@@ -1,6 +1,9 @@
 # Changelog for AWS X-Ray Core SDK for JavaScript
-<!--LATEST=2.3.0-->
+<!--LATEST=2.3.1-->
 <!--ENTRYINSERT-->
+## 2.3.1
+* bugfix: Reverts removal of `lodash`.
+
 ## 2.3.0
 * improvement: Removes dependency on `lodash`. [PR 99](https://github.com/aws/aws-xray-sdk-node/pull/99)
 * bugfix: Fixes an issue where xray calls made for centralized sampling were being traced. [PR 102](https://github.com/aws/aws-xray-sdk-node/pull/102)
