@@ -37,7 +37,7 @@ function patchCreateConnection(mysql) {
 
   mysql['createConnection'] = function patchedCreateConnection() {
     var connection = mysql[baseFcn].apply(connection, arguments);
-    if (connection instanceof Promise) {
+    if (connection.then instanceof Function) {
       connection = connection.then((result) => {
         patchObject(result.connection);
         return result;
@@ -55,7 +55,7 @@ function patchCreatePool(mysql) {
 
   mysql['createPool'] = function patchedCreatePool() {
     var pool = mysql[baseFcn].apply(pool, arguments);
-    if (pool instanceof Promise) {
+    if (pool.then instanceof Function) {
       pool = pool.then((result) => {
         patchObject(result.pool);
         return result;
