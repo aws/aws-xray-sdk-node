@@ -1,6 +1,10 @@
 # Changelog for AWS X-Ray Core SDK for JavaScript
-<!--LATEST=2.2.0-->
+<!--LATEST=2.3.0-->
 <!--ENTRYINSERT-->
+## 2.3.0
+* improvement: Removes dependency on `lodash`. [PR 99](https://github.com/aws/aws-xray-sdk-node/pull/99)
+* bugfix: Fixes an issue where xray calls made for centralized sampling were being traced. [PR 102](https://github.com/aws/aws-xray-sdk-node/pull/102)
+
 ## 2.2.0
 * improvement: The `aws-xray-sdk-core` package now imports the AWS X-Ray service client directly, resulting in smaller bundle sizes. [#PR73](https://github.com/aws/aws-xray-sdk-node/pull/73)
 * bugfix: Fixes an issue where setting a sampling rule to have a fixed rate of 0 would fail to be honored. [#PR79](https://github.com/aws/aws-xray-sdk-node/pull/79)

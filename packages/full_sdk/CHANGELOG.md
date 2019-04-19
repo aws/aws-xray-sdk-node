@@ -1,6 +1,16 @@
 # Changelog for AWS X-Ray SDK for JavaScript
-<!--LATEST=2.2.0-->
+<!--LATEST=2.3.0-->
 <!--ENTRYINSERT-->
+## 2.3.0
+* change: Updated aws-xray-sdk-core to 2.3.0. See aws-xray-sdk-core's CHANGELOG.md for package changes.
+* change: Updated aws-xray-sdk-express to 2.3.0. No further changes.
+* change: Updated aws-xray-sdk-mysql to 2.3.0.
+  * feature: Patches connections created by a pool's `getConnection` method. 
+  [#PR98](https://github.com/aws/aws-xray-sdk-node/pull/98)
+  * feature: Improved promise checks when Promise implementations are mixed-and-matched.
+  [#PR114](https://github.com/aws/aws-xray-sdk-node/pull/114)
+* change: Updated aws-xray-postgres to 2.3.0. No further changes.
+
 ## 2.2.0
 * change: Updated aws-xray-sdk-core to 2.2.0. See aws-xray-sdk-core's CHANGELOG.md for package changes.
 * change: Updated aws-xray-sdk-express to 2.2.0. No further changes.
