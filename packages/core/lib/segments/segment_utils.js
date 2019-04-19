@@ -1,3 +1,5 @@
+var isFinite = require('lodash/isFinite');
+
 var logger = require('../logger');
 
 var DEFAULT_STREAMING_THRESHOLD = 100;
