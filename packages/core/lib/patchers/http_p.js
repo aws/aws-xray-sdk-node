@@ -6,6 +6,7 @@
  * This module patches the HTTP and HTTPS node built-in libraries and returns a copy of the module with tracing enabled.
  */
 
+var omit = require('lodash/omit');
 var url = require('url');
 
 var contextUtils = require('../context_utils');
@@ -111,10 +112,7 @@ function enableCapture(module, downstreamXRayEnabled) {
       }
     };
 
-    var optionsCopy = Object.assign({}, options);
-    if ('Segment' in optionsCopy) delete optionsCopy.Segment;
-
-    var req = baseFunc(optionsCopy, function(res) {
+    var req = baseFunc(omit(options, 'Segment'), function(res) {
       res.on('end', function() {
         if (res.statusCode === 429)
           subsegment.addThrottleFlag();

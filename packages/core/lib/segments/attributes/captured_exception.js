@@ -1,3 +1,6 @@
+var each = require('lodash/each');
+var isEmpty = require('lodash/isEmpty');
+
 /**
  * Represents a captured exception.
  * @constructor
@@ -22,12 +25,12 @@ CapturedException.prototype.init = function init(err, remote) {
     stack.shift();
 
     var self = this;
-    stack.forEach(function(stackline) {
+    each(stack, function(stackline) {
       var line = stackline.trim().replace(/\(|\)/g, '');
       line = line.substring(line.indexOf(' ') + 1);
 
       var label = line.lastIndexOf(' ') >= 0 ? line.slice(0, line.lastIndexOf(' ')) : null;
-      var path = Array.isArray(label) && !label.length ? line : line.slice(line.lastIndexOf(' ') + 1);
+      var path = isEmpty(label) ? line : line.slice(line.lastIndexOf(' ') + 1);
       path = path.split(':');
 
       var entry = {

@@ -1,4 +1,12 @@
 var crypto = require('crypto');
+var omit = require('lodash/omit');
+var extend = require('lodash/extend');
+var isEmpty = require('lodash/isEmpty');
+var isBoolean = require('lodash/isBoolean');
+var isFinite = require('lodash/isFinite');
+var isString = require('lodash/isString');
+var isUndefined = require('lodash/isUndefined');
+var isObject = require('lodash/isObject');
 
 var CapturedException = require('./attributes/captured_exception');
 var SegmentEmitter = require('../segment_emitter');
@@ -69,13 +77,13 @@ Segment.prototype.addIncomingRequestData = function addIncomingRequestData(data)
  */
 
 Segment.prototype.addAnnotation = function addAnnotation(key, value) {
-  if (typeof value !== 'boolean' && typeof value !== 'string' && !isFinite(value)) {
+  if (!(isBoolean(value) || isString(value) || isFinite(value))) {
     logger.getLogger().error('Add annotation key: ' + key + ' value: ' + value + ' failed.' +
       ' Annotations must be of type string, number or boolean.');
     return;
   }
 
-  if (this.annotations === undefined)
+  if (isUndefined(this.annotations))
     this.annotations = {};
 
   this.annotations[key] = value;
@@ -90,10 +98,10 @@ Segment.prototype.addAnnotation = function addAnnotation(key, value) {
  */
 
 Segment.prototype.addMetadata = function(key, value, namespace) {
-  if (typeof key !== 'string') {
+  if (!isString(key)) {
     throw new Error('Failed to add annotation key: ' + key + ' value: ' + value + ' to subsegment ' +
       this.name + '. Key must be of type string.');
-  } else if (namespace && typeof namespace !== 'string') {
+  } else if (namespace && !isString(namespace)) {
     throw new Error('Failed to add annotation key: ' + key + ' value: ' + value + 'namespace: ' + namespace + ' to subsegment ' +
       this.name + '. Namespace must be of type string.');
   }
@@ -156,10 +164,10 @@ Segment.prototype.setServiceData = function setServiceData(data) {
  */
 
 Segment.prototype.addPluginData = function addPluginData(data) {
-  if (this.aws === undefined)
+  if (isUndefined(this.aws))
     this.aws = {};
 
-  Object.assign(this.aws, data);
+  extend(this.aws, data);
 };
 
 /**
@@ -182,7 +190,7 @@ Segment.prototype.addSubsegment = function addSubsegment(subsegment) {
   if (!(subsegment instanceof Subsegment))
     throw new Error('Cannot add subsegment: ' + subsegment + '. Not a subsegment.');
 
-  if (this.subsegments === undefined)
+  if (isUndefined(this.subsegments))
     this.subsegments = [];
 
   subsegment.segment = this;
@@ -203,7 +211,7 @@ Segment.prototype.removeSubsegment = function removeSubsegment(subsegment) {
       '".  Not a subsegment.');
   }
 
-  if (this.subsegments !== undefined) {
+  if (!isUndefined(this.subsegments)) {
     var index = this.subsegments.indexOf(subsegment);
 
     if (index >= 0)
@@ -218,7 +226,7 @@ Segment.prototype.removeSubsegment = function removeSubsegment(subsegment) {
  */
 
 Segment.prototype.addError = function addError(err, remote) {
-  if (err == null || typeof err !== 'object' && typeof(err) !== 'string') {
+  if (!isObject(err) && typeof(err) !== 'string') {
     throw new Error('Failed to add error:' + err + ' to subsegment "' + this.name +
       '".  Not an object or string literal.');
   }
@@ -234,7 +242,7 @@ Segment.prototype.addError = function addError(err, remote) {
     delete this.exception;
   }
 
-  if (this.cause === undefined) {
+  if (isUndefined(this.cause)) {
     this.cause = {
       working_directory: process.cwd(),
       exceptions: []
@@ -320,7 +328,7 @@ Segment.prototype.close = function(err, remote) {
   if (!this.end_time)
     this.end_time = SegmentUtils.getCurrentTime();
 
-  if (err !== undefined)
+  if (!isUndefined(err))
     this.addError(err, remote);
 
   delete this.in_progress;
@@ -338,27 +346,18 @@ Segment.prototype.close = function(err, remote) {
 Segment.prototype.flush = function flush() {
   if (this.notTraced !== true) {
     delete this.exception;
-
-    var thisCopy = Object.assign({}, this);
-    if ('counter' in thisCopy) delete thisCopy.counter;
-    if ('notTraced' in thisCopy) delete thisCopy.notTraced;
-
-    SegmentEmitter.send(thisCopy);
+    SegmentEmitter.send(omit(this, ['counter', 'notTraced']));
   }
 };
 
 Segment.prototype.format = function format() {
-  var thisCopy = Object.assign({}, this);
+  var ignore = ['counter', 'notTraced', 'exception'];
 
-  if ('counter' in thisCopy) delete thisCopy.counter;
-  if ('notTraced' in thisCopy) delete thisCopy.notTraced;
-  if ('exception' in thisCopy) delete thisCopy.exception;
+  if (isEmpty(this.subsegments))
+    ignore.push('subsegments');
 
-  if (Array.isArray(this.subsegments) && !this.subsegments.length && 'subsegments' in thisCopy) {
-    delete thisCopy.subsegments;
-  }
-
-  return JSON.stringify(thisCopy);
+  var trimmed = omit(this, ignore);
+  return JSON.stringify(trimmed);
 };
 
 Segment.prototype.toString = function toString() {
