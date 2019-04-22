@@ -15,6 +15,12 @@ matrix:
       env: TEST_ASYNC=test-async
     - node_js: "10"
       env: TEST_ASYNC=test-async
+notifications:
+  email:
+    recipients:
+      - aws-xray-peryton@amazon.com
+    on_success: never
+    on_failure: always
 
 script:
   - lerna bootstrap --hoist
