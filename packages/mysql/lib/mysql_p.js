@@ -37,7 +37,7 @@ function patchCreateConnection(mysql) {
 
   mysql['createConnection'] = function patchedCreateConnection() {
     var connection = mysql[baseFcn].apply(connection, arguments);
-    if (connection != null && connection.then instanceof Function) {
+    if (connection && connection.then instanceof Function) {
       connection = connection.then((result) => {
         patchObject(result.connection);
         return result;
@@ -55,7 +55,7 @@ function patchCreatePool(mysql) {
 
   mysql['createPool'] = function patchedCreatePool() {
     var pool = mysql[baseFcn].apply(pool, arguments);
-    if (pool != null && pool.then instanceof Function) {
+    if (pool && pool.then instanceof Function) {
       pool = pool.then((result) => {
         patchObject(result.pool);
         return result;
@@ -108,7 +108,7 @@ function patchGetConnection(pool) {
     }
 
     var result = pool[baseFcn].apply(pool, args);
-    if (result != null && result.then instanceof Function) return result.then(patchObject);
+    if (result && result.then instanceof Function) return result.then(patchObject);
     else return result;
   }
 }
