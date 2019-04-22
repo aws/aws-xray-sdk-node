@@ -163,10 +163,10 @@ However, some service operations are whitelisted to capture extra parameters on 
 These are pulled in via a default whitelisting file in the SDK in the `aws-xray-sdk-core` package under `lib/resources/aws_whitelist.json`.
 Each service is whitelisted by the AWS SDK's `service identifier` and `operation` properties.
 
-  request_parameters are properties to capture in the request
-  request_descriptors are objects to capture, or to process and capture in the request (get_keys, get_count)
-  response_parameters are properties to capture in the response data
-  response_descriptors are objects to capture, or to process and capture in the response data (get_keys, get_count)
+    request_parameters are properties to capture in the request
+    request_descriptors are objects to capture, or to process and capture in the request (get_keys, get_count)
+    response_parameters are properties to capture in the response data
+    response_descriptors are objects to capture, or to process and capture in the response data (get_keys, get_count)
 
 This is an example document that whitelists X-Ray to capture the `Bucket` and `key` request parameters on an s3.getObject call.
 
