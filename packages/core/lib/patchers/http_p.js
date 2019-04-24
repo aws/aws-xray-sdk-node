@@ -111,8 +111,7 @@ function enableCapture(module, downstreamXRayEnabled) {
       }
     };
 
-    var optionsCopy = Object.assign({}, options);
-    if ('Segment' in optionsCopy) delete optionsCopy.Segment;
+    var optionsCopy = Utils.objectWithoutProperties(options, ['Segment'], true);
 
     var req = baseFunc(optionsCopy, function(res) {
       res.on('end', function() {

@@ -173,6 +173,26 @@ var utils = {
     });
 
     return amznTraceData;
+  },
+
+  /**
+   * Makes a shallow copy of an object without given keys - keeps prototype
+   * @param {Object} obj - The object to copy
+   * @param {string[]} [keys=[]] - The keys that won't be copied
+   * @param {boolean} [preservePrototype=false] - If true also copy prototype properties
+   * @returns {}
+   */
+
+  objectWithoutProperties: function objectWithoutProperties(obj, keys, preservePrototype) {
+    keys = Array.isArray(keys) ? keys : [];
+    var target = {};
+    preservePrototype = typeof preservePrototype === 'boolean' ? preservePrototype : false;
+    for (var property in obj) {
+      if (keys.indexOf(property) >= 0) continue;
+      if (!preservePrototype && !Object.prototype.hasOwnProperty.call(obj, property)) continue;
+      target[property] = obj[property];
+    }
+    return target;
   }
 };
 

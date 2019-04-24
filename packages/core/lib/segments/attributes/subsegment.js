@@ -5,6 +5,7 @@ var RemoteRequestData = require('./remote_request_data');
 var SegmentEmitter = require('../../segment_emitter');
 var SegmentUtils = require('../segment_utils');
 
+var Utils = require('../../utils');
 var logger = require('../../logger');
 
 /**
@@ -371,15 +372,11 @@ Subsegment.prototype.toString = function toString() {
 };
 
 Subsegment.prototype.toJSON = function toJSON() {
-  var thisCopy = Object.assign({}, this);
-
-  if ('segment' in thisCopy) delete thisCopy.segment;
-  if ('parent' in thisCopy) delete thisCopy.parent;
-  if ('counter' in thisCopy) delete thisCopy.counter;
-
-  if (Array.isArray(this.subsegments) && !this.subsegments.length && 'subsegments' in thisCopy) {
-    delete thisCopy.subsegments;
-  }
+  var thisCopy = Utils.objectWithoutProperties(
+    this,
+    ['segment', 'parent', 'counter', 'subsegments'],
+    true
+  );
 
   return thisCopy;
 };

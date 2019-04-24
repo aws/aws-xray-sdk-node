@@ -5,6 +5,7 @@ var SegmentEmitter = require('../segment_emitter');
 var SegmentUtils = require('./segment_utils');
 var Subsegment = require('./attributes/subsegment');
 
+var Utils = require('../utils');
 var logger = require('../logger');
 
 /**
@@ -339,24 +340,22 @@ Segment.prototype.flush = function flush() {
   if (this.notTraced !== true) {
     delete this.exception;
 
-    var thisCopy = Object.assign({}, this);
-    if ('counter' in thisCopy) delete thisCopy.counter;
-    if ('notTraced' in thisCopy) delete thisCopy.notTraced;
+    var thisCopy = Utils.objectWithoutProperties(
+      this,
+      ['counter', 'notTraced'],
+      true
+    );
 
     SegmentEmitter.send(thisCopy);
   }
 };
 
 Segment.prototype.format = function format() {
-  var thisCopy = Object.assign({}, this);
-
-  if ('counter' in thisCopy) delete thisCopy.counter;
-  if ('notTraced' in thisCopy) delete thisCopy.notTraced;
-  if ('exception' in thisCopy) delete thisCopy.exception;
-
-  if (Array.isArray(this.subsegments) && !this.subsegments.length && 'subsegments' in thisCopy) {
-    delete thisCopy.subsegments;
-  }
+  var thisCopy = Utils.objectWithoutProperties(
+    this,
+    ['counter', 'notTraced', 'exception', 'subsegments'],
+    true
+  );
 
   return JSON.stringify(thisCopy);
 };
