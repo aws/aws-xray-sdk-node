@@ -185,11 +185,11 @@ var utils = {
 
   objectWithoutProperties: function objectWithoutProperties(obj, keys, preservePrototype) {
     keys = Array.isArray(keys) ? keys : [];
-    var target = {};
     preservePrototype = typeof preservePrototype === 'boolean' ? preservePrototype : false;
+    var target = preservePrototype ? Object.create(Object.getPrototypeOf(obj))  : {};
     for (var property in obj) {
       if (keys.indexOf(property) >= 0) continue;
-      if (!preservePrototype && !Object.prototype.hasOwnProperty.call(obj, property)) continue;
+      if (!Object.prototype.hasOwnProperty.call(obj, property)) continue;
       target[property] = obj[property];
     }
     return target;

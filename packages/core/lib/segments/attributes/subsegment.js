@@ -375,7 +375,7 @@ Subsegment.prototype.toJSON = function toJSON() {
   var thisCopy = Utils.objectWithoutProperties(
     this,
     ['segment', 'parent', 'counter', 'subsegments'],
-    true
+    false
   );
 
   return thisCopy;

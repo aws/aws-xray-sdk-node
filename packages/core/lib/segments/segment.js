@@ -354,7 +354,7 @@ Segment.prototype.format = function format() {
   var thisCopy = Utils.objectWithoutProperties(
     this,
     ['counter', 'notTraced', 'exception', 'subsegments'],
-    true
+    false
   );
 
   return JSON.stringify(thisCopy);
