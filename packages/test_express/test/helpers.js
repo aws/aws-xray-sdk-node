@@ -37,6 +37,14 @@ function messageCounter(expectedCount, callback) {
   }
 }
 
+function parseMessage(message) {
+  message = message.toString();
+  var parts = message.split('\n');
+  assert.equal(parts.length, 2, 'Daemon message should contain a protocol and a segment document.');
+  // parse the Segment document
+  return JSON.parse(parts[1]);
+}
+
 /**
  * @param {string} url 
  */
@@ -58,12 +66,23 @@ function triggerEndpoint(url) {
   });
 }
 
-function parseMessage(message) {
-  message = message.toString();
-  var parts = message.split('\n');
-  assert.equal(parts.length, 2, 'Daemon message should contain a protocol and a segment document.');
-  // parse the Segment document
-  return JSON.parse(parts[1]);
+/**
+ * 
+ * @param {*} segment 
+ * @param {object} expectedFields
+ * @param {string} expectedFields.name Segment name
+ * @param {number} expectedFields.responseStatus Express response status code
+ * @param {string} expectedFields.url Express route url
+ */
+function validateExpressSegment(segment, expectedFields) {
+  assert.equal(segment.name, expectedFields.name);
+  assert.isNumber(segment.end_time);
+  assert.isNumber(segment.start_time);
+  assert.equal(segment.http.request.method, 'GET');
+  assert.isString(segment.http.request.client_ip);
+  assert.equal(segment.http.request.url, expectedFields.url);
+  assert.equal(segment.http.response.status, expectedFields.responseStatus);
+  assert.isString(segment.trace_id);
 }
 
 module.exports = {
@@ -71,5 +90,6 @@ module.exports = {
   createDaemon: createDaemon,
   messageCounter: messageCounter,
   parseMessage: parseMessage,
-  triggerEndpoint: triggerEndpoint
+  triggerEndpoint: triggerEndpoint,
+  validateExpressSegment: validateExpressSegment
 };
