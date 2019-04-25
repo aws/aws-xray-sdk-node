@@ -1,6 +1,9 @@
 # Changelog for AWS X-Ray Core SDK for JavaScript
-<!--LATEST=2.3.1-->
+<!--LATEST=2.3.2-->
 <!--ENTRYINSERT-->
+## 2.3.2
+* bugfix: Avoid logging error message twice and comply to winston v3 signature. [#PR108](https://github.com/aws/aws-xray-sdk-node/pull/108)
+
 ## 2.3.1
 * bugfix: Reverts removal of `lodash`.
 
