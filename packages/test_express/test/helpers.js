@@ -37,6 +37,10 @@ function messageCounter(expectedCount, callback) {
   }
 }
 
+function jitter() {
+  return 100 * Math.random();
+}
+
 function parseMessage(message) {
   message = message.toString();
   var parts = message.split('\n');
@@ -46,23 +50,47 @@ function parseMessage(message) {
 }
 
 /**
- * @param {string} url 
+ * @param {number} ms 
  */
-function triggerEndpoint(url) {
-  return new Promise((resolve, reject) => {
-    http.get(url, (response) => {
-      var chunks = [];
-      response.on('data', (chunk) => {
-        chunks.push(chunk);
-      });
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
 
-      response.on('end', () => {
-        resolve({
-          body: Buffer.concat(chunks).toString(),
-          status: response.statusCode
-        });
+function sleepDedupe() {
+  var inflightSleep = null;
+  return () => {
+    if (!inflightSleep) {
+      inflightSleep = sleep(200);
+      inflightSleep.then(() => {
+        inflightSleep = null
       });
-    }).on('error', reject);
+    }
+
+    return inflightSleep;
+  }
+}
+
+/**
+ * @param {string} url 
+ * @param {number} waitFor Amount of time to wait before making request in ms
+ */
+function triggerEndpoint(url, waitFor) {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      http.get(url, (response) => {
+        var chunks = [];
+        response.on('data', (chunk) => {
+          chunks.push(chunk);
+        });
+  
+        response.on('end', () => {
+          resolve({
+            body: Buffer.concat(chunks).toString(),
+            status: response.statusCode
+          });
+        });
+      }).on('error', reject);
+    }, waitFor || 0);
   });
 }
 
@@ -88,8 +116,11 @@ function validateExpressSegment(segment, expectedFields) {
 module.exports = {
   createAppWithRoute: createAppWithRoute,
   createDaemon: createDaemon,
+  jitter: jitter,
   messageCounter: messageCounter,
   parseMessage: parseMessage,
+  sleep: sleep,
+  sleepDedupe: sleepDedupe,
   triggerEndpoint: triggerEndpoint,
   validateExpressSegment: validateExpressSegment
 };

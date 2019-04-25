@@ -4,8 +4,11 @@ xray.capturePromise();
 
 var createAppWithRoute = require('./helpers').createAppWithRoute;
 var createDaemon = require('./helpers').createDaemon;
+var jitter = require('./helpers').jitter;
 var messageCounter = require('./helpers').messageCounter;
 var parseMessage = require('./helpers').parseMessage;
+var sleep = require('./helpers').sleep;
+var sleepDedupe = require('./helpers').sleepDedupe;
 var triggerEndpoint = require('./helpers').triggerEndpoint;
 var validateExpressSegment = require('./helpers').validateExpressSegment;
 
@@ -381,6 +384,154 @@ describe('Express', () => {
           assert.equal(segment.subsegments[0].name, subsegmentName);
           done();
         }).catch(done);
+      });
+    });
+
+    describe('with parallel requests', () => {
+      it('sets subsegment on correct segment', (done) => {
+        // resolve promise once expected number of messages received by daemon
+        var daemonMessagesResolved = new Promise((resolve) => {
+          daemon.on('message', messageCounter(5, resolve));
+        });
+    
+        var route = '/';
+        var name = 'test';
+        var subsegmentName = 'descendant';
+
+        var counter = 0;
+
+        var expressApp = createAppWithRoute({
+          name: name,
+          route: route,
+          handler: function(req, res) {
+            var segment = xray.getSegment();
+            var count = ++counter;
+            segment.addAnnotation('segmentCount', count);
+            sleep(jitter()).then(() => {
+              // create matching subsegment
+              xray.captureAsyncFunc(subsegmentName, (subsegment) => {
+                setTimeout(() => {
+                  subsegment.addAnnotation('subsegmentCount', count);
+                  subsegment.close();
+                  res.status(200).end();
+                }, jitter());
+              });
+            }).catch((err) => {
+              res.status(500).end();
+            });
+          }
+        });
+    
+        var server = expressApp.listen(0, () => {
+          var url = 'http://127.0.0.1:' + server.address().port + route;
+    
+          // wait for the express response, and the daemon to receive messages
+          var actions = [daemonMessagesResolved];
+          // trigger 5 calls to express
+          for (var i = 0; i < 5; i++) {
+            actions.push(triggerEndpoint(url, jitter()));
+          }
+          Promise.all(actions)
+          .then((data) => {
+            var messages = data[0];
+            var results = data.slice(1);
+    
+            assert.equal(messages.length, 5);
+            results.forEach((r) => {
+              assert.equal(r.status, 200);
+            });
+
+            // verify the Segments are valid
+            messages.forEach((message) => {
+              var segment = parseMessage(message);
+              validateExpressSegment(segment, {
+                name: name,
+                responseStatus: 200,
+                url: url
+              });
+
+              assert.equal(segment.subsegments.length, 1);
+              assert.equal(segment.subsegments[0].name, subsegmentName);
+              assert.equal(segment.annotations.segmentCount, segment.subsegments[0].annotations.subsegmentCount);
+            });
+            done();
+          }).catch(done);
+        });
+      });
+
+      it('sets subsegment on correct segment (with dedupe)', (done) => {
+        // this test should fail if xray.capturePromise() is not called (unless using cls-hooked)
+
+        // resolve promise once expected number of messages received by daemon
+        var daemonMessagesResolved = new Promise((resolve) => {
+          daemon.on('message', messageCounter(5, resolve));
+        });
+    
+        var route = '/';
+        var name = 'test';
+        var subsegmentName = 'descendant';
+
+        var counter = 0;
+
+        var sleeper = sleepDedupe();
+
+        var expressApp = createAppWithRoute({
+          name: name,
+          route: route,
+          handler: function(req, res) {
+            var segment = xray.getSegment();
+            var count = ++counter;
+            segment.addAnnotation('segmentCount', count);
+            // simulate making a de-duped network request
+            sleeper().then(() => {
+              // create matching subsegment
+              xray.captureAsyncFunc(subsegmentName, (subsegment) => {
+                setTimeout(() => {
+                  subsegment.addAnnotation('subsegmentCount', count);
+                  subsegment.close();
+                  res.status(200).end();
+                });
+              });
+            }).catch((err) => {
+              res.status(500).end();
+            });
+          }
+        });
+    
+        var server = expressApp.listen(0, () => {
+          var url = 'http://127.0.0.1:' + server.address().port + route;
+    
+          // wait for the express response, and the daemon to receive messages
+          var actions = [daemonMessagesResolved];
+          // trigger 5 calls to express
+          for (var i = 0; i < 5; i++) {
+            actions.push(triggerEndpoint(url));
+          }
+          Promise.all(actions)
+          .then((data) => {
+            var messages = data[0];
+            var results = data.slice(1);
+    
+            assert.equal(messages.length, 5);
+            results.forEach((r) => {
+              assert.equal(r.status, 200);
+            });
+
+            // verify the Segments are valid
+            messages.forEach((message) => {
+              var segment = parseMessage(message);
+              validateExpressSegment(segment, {
+                name: name,
+                responseStatus: 200,
+                url: url
+              });
+              assert.equal(segment.subsegments.length, 1);
+              assert.equal(segment.subsegments[0].name, subsegmentName);
+              assert.equal(segment.annotations.segmentCount, segment.subsegments[0].annotations.subsegmentCount);
+            });
+            done();
+          }).catch(done);
+        });
       });
     });
   });
