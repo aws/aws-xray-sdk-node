@@ -18,7 +18,9 @@
     "aws-xray-sdk-core": "^2.3.1",
     "aws-xray-sdk-express": "^2.3.1",
     "chai": "^3.5.0",
+    "cls-hooked": "^4.2.2",
     "eslint": "^3.10.2",
+    "express": "^4.16.4",
     "mocha": "^3.0.2"
   },
   "scripts": {
@@ -34,8 +36,5 @@
     "x ray"
   ],
   "license": "Apache-2.0",
-  "repository": "https://github.com/aws/aws-xray-sdk-node/tree/master/packages/express",
-  "dependencies": {
-    "express": "^4.16.4"
-  }
+  "repository": "https://github.com/aws/aws-xray-sdk-node/tree/master/packages/express"
 }

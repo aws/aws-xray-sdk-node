@@ -172,4 +172,15 @@ describe('ContextUtils', function() {
       assert.throws(function() { ContextUtils.setContextMissingStrategy({}); } );
     });
   });
+
+  describe('#getNamespace', function() {
+    it('should create the namespace if it is missing', function() {
+      // check that namespace exists originally
+      assert.equal(ContextUtils.getNamespace().name, 'AWSXRay');
+      // delete the namespace
+      delete process.namespaces['AWSXRay'];
+      // namespace should be created
+      assert.equal(ContextUtils.getNamespace().name, 'AWSXRay');
+    });
+  });
 });
