@@ -10,7 +10,9 @@ var parseMessage = require('./helpers').parseMessage;
 var sleep = require('./helpers').sleep;
 var sleepDedupe = require('./helpers').sleepDedupe;
 var triggerEndpoint = require('./helpers').triggerEndpoint;
+var triggerEndpointWithTimeout = require('./helpers').triggerEndpointWithTimeout;
 var validateExpressSegment = require('./helpers').validateExpressSegment;
+var ShakyStream = require('./shaky_stream').ShakyStream;
 
 var chai = require('chai');
 var assert = chai.assert;
@@ -382,6 +384,58 @@ describe('Express', () => {
   
           assert.equal(segment.subsegments.length, 1);
           assert.equal(segment.subsegments[0].name, subsegmentName);
+          done();
+        }).catch(done);
+      });
+    });
+
+    it('supports aborted client-side requests', (done) => {
+      // resolve promise once expected number of messages received by daemon
+      var daemonMessagesResolved = new Promise((resolve) => {
+        daemon.on('message', messageCounter(1, resolve));
+      });
+  
+      var route = '/';
+      var name = 'test';
+      var expressSegment;
+
+      var expressApp = createAppWithRoute({
+        name: name,
+        route: route,
+        handler: function(req, res) {
+          expressSegment = xray.getSegment();
+          var slowStream = new ShakyStream({
+            pauseFor: 4000
+          });
+          res.status(200);
+          slowStream.pipe(res);
+        }
+      });
+  
+      var server = expressApp.listen(0, () => {
+        var url = 'http://127.0.0.1:' + server.address().port + route;
+  
+        // wait for the express response, and the daemon to receive messages
+        Promise.all([triggerEndpointWithTimeout(url, 100), daemonMessagesResolved])
+        .then((data) => {
+          var result = data[0];
+          var messages = data[1];
+  
+          assert.equal(result.status, 200);
+          assert.equal(messages.length, 1);
+          
+          // verify the Segment is valid
+          var segment = parseMessage(messages[0]);
+          validateExpressSegment(segment, {
+            name: name,
+            responseStatus: result.status,
+            url: url
+          });
+  
+          // verify segment retrieved from express handler
+          assert.isDefined(expressSegment);
+          assert.equal(expressSegment.id, segment.id);
+
           done();
         }).catch(done);
       });

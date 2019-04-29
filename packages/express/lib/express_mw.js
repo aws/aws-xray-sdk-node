@@ -43,7 +43,7 @@ var expressMW = {
       AWSXRay.getLogger().debug('Starting express segment: { url: ' + req.url + ', name: ' + segment.name + ', trace_id: ' +
         segment.trace_id + ', id: ' + segment.id + ', sampled: ' + !segment.notTraced + ' }');
 
-      res.on('finish', function () {
+      var endSegment = function () {
         if (this.statusCode === 429)
           segment.addThrottleFlag();
         if (AWSXRay.utils.getCauseTypeFromHttpStatus(this.statusCode))
@@ -54,7 +54,10 @@ var expressMW = {
 
         AWSXRay.getLogger().debug('Closed express segment successfully: { url: ' + req.url + ', name: ' + segment.name + ', trace_id: ' +
           segment.trace_id + ', id: ' + segment.id + ', sampled: ' + !segment.notTraced + ' }');
-      });
+      };
+
+      res.on('finish', endSegment);
+      res.on('close', endSegment);
 
       if (AWSXRay.isAutomaticMode()) {
         var ns = AWSXRay.getNamespace();
