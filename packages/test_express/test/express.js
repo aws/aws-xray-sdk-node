@@ -389,7 +389,7 @@ describe('Express', () => {
       });
     });
 
-    it('supports aborted client-side requests', (done) => {
+    it('supports client-side cancelled requests after response headers sent', (done) => {
       // resolve promise once expected number of messages received by daemon
       var daemonMessagesResolved = new Promise((resolve) => {
         daemon.on('message', messageCounter(1, resolve));
@@ -429,6 +429,58 @@ describe('Express', () => {
           validateExpressSegment(segment, {
             name: name,
             responseStatus: result.status,
+            url: url
+          });
+  
+          // verify segment retrieved from express handler
+          assert.isDefined(expressSegment);
+          assert.equal(expressSegment.id, segment.id);
+
+          done();
+        }).catch(done);
+      });
+    });
+
+    it('supports client-side cancelled requests before response headers sent', (done) => {
+      // resolve promise once expected number of messages received by daemon
+      var daemonMessagesResolved = new Promise((resolve) => {
+        daemon.on('message', messageCounter(1, resolve));
+      });
+  
+      var route = '/';
+      var name = 'test';
+      var expressSegment;
+
+      var expressApp = createAppWithRoute({
+        name: name,
+        route: route,
+        handler: function(req, res) {
+          expressSegment = xray.getSegment();
+          setTimeout(() => {
+            res.status(500).end();
+          }, 400);
+        }
+      });
+  
+      var server = expressApp.listen(0, () => {
+        var url = 'http://127.0.0.1:' + server.address().port + route;
+  
+        // wait for the express response, and the daemon to receive messages
+        Promise.all([triggerEndpointWithTimeout(url, 100), daemonMessagesResolved])
+        .then((data) => {
+          var result = data[0];
+          var messages = data[1];
+  
+          assert.equal(result.status, void 0);
+          assert.equal(messages.length, 1);
+          
+          // verify the Segment is valid
+          var segment = parseMessage(messages[0]);
+          validateExpressSegment(segment, {
+            name: name,
+            // all ServerResponse instances have a default statusCode of 200
+            // https://github.com/nodejs/node/blob/56098a9c3f227df29ece95d773186194f2a1ec64/lib/_http_server.js#L159
+            responseStatus: 200,
             url: url
           });
   

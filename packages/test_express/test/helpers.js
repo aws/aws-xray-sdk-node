@@ -101,22 +101,23 @@ function triggerEndpoint(url, waitFor) {
  */
 function triggerEndpointWithTimeout(url, timeoutAfter) {
     return new Promise((resolve, reject) => {
+        var result = {};
         var request = http.get(url, (response) => {
+            result.status = response.statusCode;
             var chunks = [];
             response.on('data', (chunk) => {
                 chunks.push(chunk);
             });
 
             response.on('end', () => {
-                resolve({
-                    body: Buffer.concat(chunks).toString(),
-                    status: response.statusCode
-                });
+                result.body = Buffer.concat(chunks).toString();
+                resolve(result);
             });
         }).on('error', reject);
         request.setTimeout(timeoutAfter || 0, function () {
             // response.end should be triggered
             this.socket.end();
+            resolve(result);
         });
     });
 }

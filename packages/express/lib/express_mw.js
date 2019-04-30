@@ -43,7 +43,15 @@ var expressMW = {
       AWSXRay.getLogger().debug('Starting express segment: { url: ' + req.url + ', name: ' + segment.name + ', trace_id: ' +
         segment.trace_id + ', id: ' + segment.id + ', sampled: ' + !segment.notTraced + ' }');
 
+      var didEnd = false;
       var endSegment = function () {
+        // ensure `endSegment` is only called once
+        // in some versions of node.js 10.x and in all versions of node.js 11.x and higher,
+        // the 'finish' and 'close' event are BOTH triggered.
+        // Previously, only one or the other was triggered:
+        // https://github.com/nodejs/node/pull/20611
+        if (didEnd) return;
+        didEnd = true;
         if (this.statusCode === 429)
           segment.addThrottleFlag();
         if (AWSXRay.utils.getCauseTypeFromHttpStatus(this.statusCode))
