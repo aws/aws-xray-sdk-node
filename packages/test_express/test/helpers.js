@@ -96,6 +96,33 @@ function triggerEndpoint(url, waitFor) {
 }
 
 /**
+ * @param {string} url 
+ * @param {number} timeoutAfter Amount of time in ms to wait before aborting request
+ */
+function triggerEndpointWithTimeout(url, timeoutAfter) {
+    return new Promise((resolve, reject) => {
+        var result = {};
+        var request = http.get(url, (response) => {
+            result.status = response.statusCode;
+            var chunks = [];
+            response.on('data', (chunk) => {
+                chunks.push(chunk);
+            });
+
+            response.on('end', () => {
+                result.body = Buffer.concat(chunks).toString();
+                resolve(result);
+            });
+        }).on('error', reject);
+        request.setTimeout(timeoutAfter || 0, function () {
+            // response.end should be triggered
+            this.socket.end();
+            resolve(result);
+        });
+    });
+}
+
+/**
  * 
  * @param {*} segment 
  * @param {object} expectedFields
@@ -123,5 +150,6 @@ module.exports = {
     sleep: sleep,
     sleepDedupe: sleepDedupe,
     triggerEndpoint: triggerEndpoint,
+    triggerEndpointWithTimeout: triggerEndpointWithTimeout,
     validateExpressSegment: validateExpressSegment
 };
