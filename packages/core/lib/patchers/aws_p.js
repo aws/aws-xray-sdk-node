@@ -83,11 +83,13 @@ function captureAWSRequest(req) {
   var stack = (new Error()).stack;
   var subsegment = parent.addNewSubsegment(this.serviceIdentifier);
   var traceId = parent.segment ? parent.segment.trace_id : parent.trace_id;
-
-  req.on('build', function(req) {
+  
+  var buildListener = function(req) {
     req.httpRequest.headers['X-Amzn-Trace-Id'] = 'Root=' + traceId + ';Parent=' + subsegment.id +
       ';Sampled=' + (subsegment.segment.notTraced ? '0' : '1');
-  }).on('complete', function(res) {
+  };
+
+  var completeListener = function(res) {
     subsegment.addAttribute('namespace', 'aws');
     subsegment.addAttribute('aws', new Aws(res, subsegment.name));
 
@@ -120,7 +122,18 @@ function captureAWSRequest(req) {
       }
       subsegment.close();
     }
+  }
+
+  req.on('beforePresign', function(req) {
+    // the `beforePresign` check only works with the S3 service, so this
+    // is needed in case a customer creates a presigned url for another service
+    parent.removeSubsegment(subsegment);
+    parent.decrementCounter();
+    req.removeListener('build', buildListener);
+    req.removeListener('complete', completeListener);
   });
+
+  req.on('build', buildListener).on('complete', completeListener);
 
   if (!req.__send) {
     req.__send = req.send;
