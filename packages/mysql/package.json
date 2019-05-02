@@ -14,7 +14,7 @@
     "test": "test"
   },
   "peerDependencies": {
-    "aws-xray-sdk-core": "^2.3.2"
+    "aws-xray-sdk-core": "^2.3.3"
   },
   "devDependencies": {
     "aws-xray-sdk-core": "^2.3.2",
