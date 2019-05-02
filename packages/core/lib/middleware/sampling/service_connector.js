@@ -23,7 +23,7 @@ var ServiceConnector = {
 
     this.client.makeUnauthenticatedRequest('getSamplingRules', null, function(err, data) {
       if(err)
-        logger.getLogger().warn(err, err.stack);
+        logger.getLogger().warn(err.stack);
       else {
         var newRules = assembleRules(data);
         callback(newRules);
@@ -36,7 +36,7 @@ var ServiceConnector = {
 
     this.client.makeUnauthenticatedRequest('getSamplingTargets', params, function(err, data) {
       if(err) {
-        logger.getLogger().warn(err, err.stack);
+        logger.getLogger().warn(err.stack);
       }
       else{
         var targetsMapping = assembleTargets(data);

@@ -1,6 +1,7 @@
 {
-  "name": "aws-xray-sdk-express",
-  "version": "2.3.3-experimental.1",
+  "name": "test-aws-xray-sdk-express",
+  "private": true,
+  "version": "2.3.2",
   "description": "AWS X-Ray Middleware for Express (Javascript)",
   "author": "Amazon Web Services",
   "contributors": [
@@ -13,20 +14,14 @@
   "directories": {
     "test": "test"
   },
-  "peerDependencies": {
-    "aws-xray-sdk-core": "2.3.3-experimental.1"
-  },
   "devDependencies": {
-    "aws-xray-sdk-core": "2.3.3-experimental.1",
+    "aws-xray-sdk-core": "^2.3.3",
+    "aws-xray-sdk-express": "^2.3.3",
     "chai": "^3.5.0",
+    "cls-hooked": "^4.2.2",
     "eslint": "^3.10.2",
-    "grunt": "^1.0.3",
-    "grunt-contrib-clean": "^1.0.0",
-    "grunt-jsdoc": "^2.1.0",
-    "mocha": "^3.0.2",
-    "nock": "^8.0.0",
-    "sinon": "^1.17.5",
-    "sinon-chai": "^2.8.0"
+    "express": "^4.16.4",
+    "mocha": "^3.0.2"
   },
   "scripts": {
     "test": "./node_modules/.bin/mocha --recursive ./test/ -R spec"
