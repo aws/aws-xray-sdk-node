@@ -115,11 +115,12 @@ describe('Express middleware', function() {
         addReqDataSpy.should.have.been.calledWithExactly(sinon.match.instanceOf(IncomingRequestData));
       });
 
-      it('should add a finish event to the response', function() {
+      it('should add a finish and close event to the response', function() {
         open(req, res);
 
-        onEventStub.should.have.been.calledOnce;
+        onEventStub.should.have.been.calledTwice;
         onEventStub.should.have.been.calledWithExactly('finish', sinon.match.typeOf('function'));
+        onEventStub.should.have.been.calledWithExactly('close', sinon.match.typeOf('function'));
       });
     });
 

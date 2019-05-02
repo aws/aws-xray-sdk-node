@@ -1,6 +1,13 @@
 # Changelog for AWS X-Ray Core SDK for JavaScript
-<!--LATEST=2.3.1-->
+<!--LATEST=2.3.3-->
 <!--ENTRYINSERT-->
+## 2.3.3
+* bugfix: adds workaround for missing cls namespace when cls-hooked imported. [#PR126](https://github.com/aws/aws-xray-sdk-node/pull/126)
+* bugfix: no longer creates pending subsegments for AWS presigned url operations. [#PR130](https://github.com/aws/aws-xray-sdk-node/pull/130)
+
+## 2.3.2
+* bugfix: Avoid logging error message twice and comply to winston v3 signature. [#PR108](https://github.com/aws/aws-xray-sdk-node/pull/108)
+
 ## 2.3.1
 * bugfix: Reverts removal of `lodash`.
 
