@@ -24,6 +24,31 @@ function createAppWithRoute(options) {
     return app;
 }
 
+/**
+ * @param {number} statusCode
+ * @param {{[header: string]: string}} headers 
+ * @param {string} [body] An optional body
+ */
+function createService(statusCode, headers, body) {
+    var server = http.createServer((req, res) => {
+        res.writeHead(statusCode, headers);
+        res.end(body);
+    });
+
+    return server;
+}
+
+function createS3Service(body) {
+    return createService(200, {
+        'x-amz-id-2': 'id2',
+        'x-amz-request-id': 'requestId',
+        date: (new Date()).toUTCString(),
+        'x-amz-bucket-region': 'foo-bar-1',
+        'content-type': 'application/xml',
+        server: 'localhost'
+    }, body);
+}
+
 function createDaemon() {
     return dgram.createSocket('udp4');
 }
@@ -144,6 +169,7 @@ function validateExpressSegment(segment, expectedFields) {
 module.exports = {
     createAppWithRoute: createAppWithRoute,
     createDaemon: createDaemon,
+    createS3Service: createS3Service,
     jitter: jitter,
     messageCounter: messageCounter,
     parseMessage: parseMessage,
