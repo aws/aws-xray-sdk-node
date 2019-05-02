@@ -125,8 +125,9 @@ function captureAWSRequest(req) {
   }
 
   req.on('beforePresign', function(req) {
-    // the `beforePresign` check only works with the S3 service, so this
-    // is needed in case a customer creates a presigned url for another service
+    // Only the AWS Presigner triggers this event,
+    // so we can rely on this event to notify us when
+    // a request is for a presigned url
     parent.removeSubsegment(subsegment);
     parent.decrementCounter();
     req.removeListener('build', buildListener);
