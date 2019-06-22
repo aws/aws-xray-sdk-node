@@ -42,11 +42,12 @@ describe('Capture', function() {
         sandbox.restore();
       });
 
-      it('should create an subsegment on the parent', function() {
-        captureFunc('tracedFcn', function() {
-          return;
+      it('should create a subsegment on the parent', function() {
+        const response = captureFunc('tracedFcn', function() {
+          return 'OK';
         }, segment);
 
+        assert.equal(response, 'OK');
         assert.property(segment, 'subsegments');
       });
 
@@ -100,12 +101,14 @@ describe('Capture', function() {
         sandbox.restore();
       });
 
-      it('should create an subsegment on the parent', function(done) {
-        captureAsyncFunc('tracedFcn', function(seg) {
+      it('should create a subsegment on the parent', function(done) {
+        const response = captureAsyncFunc('tracedFcn', function(seg) {
           seg.close();
+          return 'OK';
         }, segment);
 
         setTimeout(function() {
+          assert.equal(response, 'OK');
           assert.property(segment, 'subsegments');
           done();
         }, 50);
@@ -195,11 +198,12 @@ describe('Capture', function() {
         sandbox.restore();
       });
 
-      it('should create an subsegment on the parent', function() {
-        captureFunc('tracedFcn', function() {
-          return;
+      it('should create a subsegment on the parent', function() {
+        const response = captureFunc('tracedFcn', function() {
+          return 'OK';
         });
 
+        assert.equal(response, 'OK');
         assert.property(segment, 'subsegments');
       });
 
@@ -253,12 +257,14 @@ describe('Capture', function() {
         sandbox.restore();
       });
 
-      it('should create an subsegment on the parent', function(done) {
-        captureAsyncFunc('tracedFcn', function(seg) {
+      it('should create a subsegment on the parent', function(done) {
+        const response = captureAsyncFunc('tracedFcn', function(seg) {
           seg.close();
+          return 'OK';
         });
 
         setTimeout(function() {
+          assert.equal(response, 'OK');
           assert.property(segment, 'subsegments');
           done();
         }, 50);

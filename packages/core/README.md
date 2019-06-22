@@ -17,12 +17,13 @@ mechanisms, but a few are supplied.
 These keep the current subsegment up to date in automatic mode, or propagate the current subsegment in manual mode.
 
 `AWSXRay.captureFunc` - Takes a function that takes a single subsegment argument. This creates a new nested subsegment and exposes it. The segment
-closes automatically when the function finishes executing. This does not correctly
+closes automatically when the function finishes executing and returns the result if any. This does not correctly
 time functions with asynchronous calls. Instead, use
 captureAsyncFunc.
 
-`AWSXRay.captureAsyncFunc` - Takes a function that takes a single subsegment argument. This creates a new nested subsegment and exposes it. The segment
-must be closed using subsegment.close() or subsegment.close(error) when the asynchronous function completes.
+`AWSXRay.captureAsyncFunc` - Takes an async function that takes a single subsegment argument and returns the promise by executing the function. 
+This creates a new nested subsegment and exposes it. 
+The segment must be closed using subsegment.close() the asynchronous function completes successfully.
 
 `AWSXRay.captureCallbackFunc` - Takes a function to be used as a callback. Useful
 for capturing callback information and directly associating it to the call
