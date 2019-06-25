@@ -19,7 +19,7 @@
     "aws-xray-sdk-express": "^2.3.3",
     "chai": "^3.5.0",
     "cls-hooked": "^4.2.2",
-    "eslint": "^3.10.2",
+    "eslint": "^4.18.2",
     "express": "^4.16.4",
     "mocha": "^3.0.2"
   },

@@ -5,7 +5,7 @@
   "devDependencies": {
     "aws-xray-sdk-core": "^2.0.1",
     "chai": "^3.5.0",
-    "eslint": "^3.10.2",
+    "eslint": "^4.18.2",
     "grunt": "^1.0.3",
     "grunt-contrib-clean": "^1.0.0",
     "grunt-jsdoc": "^2.1.0",
