@@ -22,7 +22,7 @@ var DefaultSampler = {
    */
   shouldSample: function shouldSample(sampleRequest) {
     try {
-      if (!this.started) this.start()
+      if (!this.started) this.start();
       if (!sampleRequest.serviceType) sampleRequest.serviceType = SegmentUtils.origin;
       var now = Math.floor(new Date().getTime() / 1000);
       var matchedRule = this.ruleCache.getMatchedRule(sampleRequest, now);
