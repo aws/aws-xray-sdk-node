@@ -175,7 +175,7 @@ describe('captureMySQL', function() {
               return new Promise(function(resolve, reject) {
                 self.connection.query.apply(self.connection, args);
                 resolve();
-              })
+              });
             }
           });
         });
