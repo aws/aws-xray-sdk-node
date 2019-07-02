@@ -1,5 +1,5 @@
 var winston = require('winston');
-var format = require('date-fns/format')
+var format = require('date-fns/format');
 
 var logger;
 

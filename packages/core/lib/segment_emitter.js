@@ -148,7 +148,7 @@ var SegmentEmitter = {
    */
 
   setDaemonAddress: function setDaemonAddress(address) {
-    this.daemonConfig.setDaemonAddress(address)
+    this.daemonConfig.setDaemonAddress(address);
   },
 
   /**

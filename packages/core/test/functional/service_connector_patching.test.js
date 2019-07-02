@@ -27,7 +27,7 @@ function generateXrayClient() {
       request.emit('success', request);
     });
     return request.send(cb);
-  }
+  };
   
   return client;
 }
@@ -57,7 +57,7 @@ describe('X-Ray AWS', function() {
   describe('client patching', function() {
     it('should not affect the centralized sampling x-ray client', function(done) {
       AWSXRay.captureAWSClient(XRay.prototype);
-      ServiceConnector.client.makeUnauthenticatedRequest('getSamplingTargets', {}, function(err, data) {
+      ServiceConnector.client.makeUnauthenticatedRequest('getSamplingTargets', {}, function(err) {
         expect(err).to.be.a('null');
         done();
       });
@@ -67,7 +67,7 @@ describe('X-Ray AWS', function() {
       AWSXRay.captureAWSClient(XRay.prototype);
       // expect to get a context missing error if the client is instrumented
       expect(function() {
-        generateXrayClient().makeUnauthenticatedRequest('getSamplingTargets', {}, function(err, data) {})
+        generateXrayClient().makeUnauthenticatedRequest('getSamplingTargets', {}, function() {})
           .to.throw(Error, 'Failed to get the current sub/segment from the context.');
       });
       

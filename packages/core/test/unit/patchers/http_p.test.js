@@ -26,7 +26,7 @@ var buildFakeResponse = function() {
   var response = new TestEmitter();
   response.resume = function() {
     response.emit('resume');
-  }
+  };
   return response;
 };
 
