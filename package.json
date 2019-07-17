@@ -10,8 +10,8 @@
     "grunt-contrib-clean": "^1.0.0",
     "grunt-jsdoc": "^2.1.0",
     "lerna": "^2.11.0",
-    "mocha": "^3.0.2",
-    "nock": "^8.0.0",
+    "mocha": "^6.1.4",
+    "nock": "^10.0.6",
     "sinon": "^1.17.5",
     "sinon-chai": "^2.8.0"
   },
