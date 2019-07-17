@@ -29,7 +29,7 @@
     "grunt": "^1.0.3",
     "grunt-contrib-clean": "^1.0.0",
     "grunt-jsdoc": "^2.1.0",
-    "mocha": "^3.0.2",
+    "mocha": "^6.1.4",
     "nock": "^10.0.3",
     "sinon": "^4.0.0",
     "sinon-chai": "^2.8.0"
