@@ -50,6 +50,8 @@ guidance about using the AWS X-Ray service.
 The [API Reference](http://docs.aws.amazon.com/xray-sdk-for-nodejs/latest/reference/)
 provides guidance for using the SDK and module-level documentation.
 
+[CHANGELOG.md](https://github.com/aws/aws-xray-sdk-node/blob/master/packages/full_sdk/CHANGELOG.md)
+
 ## Contributing
 
 This monorepo hosts the following npm packages for the SDK:

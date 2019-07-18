@@ -37,7 +37,7 @@ var refreshWithFirewall = function refreshWithFirewall() {
     refreshCache();
   } catch (e) {
     logger.getLogger().debug('Encountered unexpected exception when fetching sampling rules: ' + e);
-  };
+  }
 };
 
 var refreshCache = function refreshCache() {

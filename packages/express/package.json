@@ -1,6 +1,6 @@
 {
   "name": "aws-xray-sdk-express",
-  "version": "2.3.2",
+  "version": "2.3.3",
   "description": "AWS X-Ray Middleware for Express (Javascript)",
   "author": "Amazon Web Services",
   "contributors": [
@@ -14,12 +14,12 @@
     "test": "test"
   },
   "peerDependencies": {
-    "aws-xray-sdk-core": "^2.3.2"
+    "aws-xray-sdk-core": "^2.3.3"
   },
   "devDependencies": {
-    "aws-xray-sdk-core": "^2.3.2",
+    "aws-xray-sdk-core": "^2.3.3",
     "chai": "^3.5.0",
-    "eslint": "^3.10.2",
+    "eslint": "^4.18.2",
     "grunt": "^1.0.3",
     "grunt-contrib-clean": "^1.0.0",
     "grunt-jsdoc": "^2.1.0",

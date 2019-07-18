@@ -3,7 +3,7 @@ var AWS = require('aws-sdk/global');
 var Xray = require('aws-sdk/clients/xray');
 var logger = require('../../logger');
 var SamplingRule = require('./sampling_rule');
-var DaemonConfig = require('../../daemon_config')
+var DaemonConfig = require('../../daemon_config');
 const util = require('util');
 
 
