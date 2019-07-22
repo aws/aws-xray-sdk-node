@@ -11,8 +11,8 @@ function generateMockClient(samplingRules) {
   return {
     makeUnauthenticatedRequest: function(_, _, callback) {
       callback(null, {
-        "SamplingRuleRecords": samplingRules,
-        "NextToken": null
+        'SamplingRuleRecords': samplingRules,
+        'NextToken': null
       });
     }
   };
@@ -30,62 +30,62 @@ describe('ServiceConnector', function() {
 
   describe('fetchSamplingRules', function() {
     var defaultSamplingRule = {
-      "SamplingRule": {
-        "RuleName": "Default",
-        "RuleARN": "arn:aws:xray:us-west-2:0000000000:sampling-rule/Default",
-        "ResourceARN": "*",
-        "Priority": 10000,
-        "FixedRate": 0.05,
-        "ReservoirSize": 1,
-        "ServiceName": "*",
-        "ServiceType": "*",
-        "Host": "*",
-        "HTTPMethod": "*",
-        "URLPath": "*",
-        "Version": 1,
-        "Attributes": {}
+      'SamplingRule': {
+        'RuleName': 'Default',
+        'RuleARN': 'arn:aws:xray:us-west-2:0000000000:sampling-rule/Default',
+        'ResourceARN': '*',
+        'Priority': 10000,
+        'FixedRate': 0.05,
+        'ReservoirSize': 1,
+        'ServiceName': '*',
+        'ServiceType': '*',
+        'Host': '*',
+        'HTTPMethod': '*',
+        'URLPath': '*',
+        'Version': 1,
+        'Attributes': {}
       },
-      "CreatedAt": "1970-01-01T00:00:00.000Z",
-      "ModifiedAt": "1970-01-01T00:00:00.000Z"
+      'CreatedAt': '1970-01-01T00:00:00.000Z',
+      'ModifiedAt': '1970-01-01T00:00:00.000Z'
     };
 
     var noSamplingRule = {
-      "SamplingRule": {
-        "RuleName": "no-sampling",
-        "RuleARN": "arn:aws:xray:us-west-2:00000000:sampling-rule/no-sampling",
-        "ResourceARN": "*",
-        "Priority": 1,
-        "FixedRate": 0,
-        "ReservoirSize": 0,
-        "ServiceName": "*",
-        "ServiceType": "*",
-        "Host": "*",
-        "HTTPMethod": "*",
-        "URLPath": "/foo",
-        "Version": 1,
-        "Attributes": {}
+      'SamplingRule': {
+        'RuleName': 'no-sampling',
+        'RuleARN': 'arn:aws:xray:us-west-2:00000000:sampling-rule/no-sampling',
+        'ResourceARN': '*',
+        'Priority': 1,
+        'FixedRate': 0,
+        'ReservoirSize': 0,
+        'ServiceName': '*',
+        'ServiceType': '*',
+        'Host': '*',
+        'HTTPMethod': '*',
+        'URLPath': '/foo',
+        'Version': 1,
+        'Attributes': {}
       },
-      "CreatedAt": "1970-01-01T00:00:00.000Z",
-      "ModifiedAt": "1970-01-01T00:00:00.000Z"
+      'CreatedAt': '1970-01-01T00:00:00.000Z',
+      'ModifiedAt': '1970-01-01T00:00:00.000Z'
     };
 
     var invalidRule = {
-      "SamplingRule": {
-        "RuleName": "invalid-rule",
-        "RuleARN": "arn:aws:xray:us-west-2:00000000:sampling-rule/invalid-rule",
-        "ResourceARN": "*",
-        "Priority": 1,
-        "FixedRate": 0,
-        "ReservoirSize": 0,
-        "ServiceName": "*",
-        "Host": "*",
-        "HTTPMethod": "*",
-        "URLPath": "/foo",
-        "Version": 1,
-        "Attributes": {}
+      'SamplingRule': {
+        'RuleName': 'invalid-rule',
+        'RuleARN': 'arn:aws:xray:us-west-2:00000000:sampling-rule/invalid-rule',
+        'ResourceARN': '*',
+        'Priority': 1,
+        'FixedRate': 0,
+        'ReservoirSize': 0,
+        'ServiceName': '*',
+        'Host': '*',
+        'HTTPMethod': '*',
+        'URLPath': '/foo',
+        'Version': 1,
+        'Attributes': {}
       },
-      "CreatedAt": "1970-01-01T00:00:00.000Z",
-      "ModifiedAt": "1970-01-01T00:00:00.000Z"
+      'CreatedAt': '1970-01-01T00:00:00.000Z',
+      'ModifiedAt': '1970-01-01T00:00:00.000Z'
     };
 
     it('filters invalid rules', function(done) {

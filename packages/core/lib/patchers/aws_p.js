@@ -122,7 +122,7 @@ function captureAWSRequest(req) {
       }
       subsegment.close();
     }
-  }
+  };
 
   req.on('beforePresign', function(req) {
     // Only the AWS Presigner triggers this event,

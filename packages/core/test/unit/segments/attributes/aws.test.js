@@ -58,7 +58,7 @@ describe('Aws', function() {
     });
 
     it('should capture s3 params: bucket, key', function() {
-      var aws = new Aws(req, serviceName);
+      new Aws(req, serviceName);
       addDataStub.should.have.been.calledWith({
         bucket_name: bucketName,
         key: keyName
