@@ -22,6 +22,16 @@ Use the --save option to save the SDK as a dependency in your application's pack
 npm install aws-xray-sdk --save
 ```
 
+## Documentation
+
+This repository hosts all the packages we publish, which each have their own README. The [Core package README](https://github.com/aws/aws-xray-sdk-node/tree/master/packages/core) covers all basic use cases of the main X-Ray SDK.
+The [developer guide](https://docs.aws.amazon.com/xray/latest/devguide) provides in-depth
+guidance about using the AWS X-Ray service.
+The [API Reference](http://docs.aws.amazon.com/xray-sdk-for-nodejs/latest/reference/)
+provides guidance for using the SDK and module-level documentation.
+
+[CHANGELOG.md](https://github.com/aws/aws-xray-sdk-node/blob/master/packages/full_sdk/CHANGELOG.md)
+
 ## Getting Help
 
 Use the following community resources for getting help with the SDK. We use the GitHub
@@ -43,16 +53,9 @@ The GitHub issues are intended for bug reports and feature requests. For help an
 questions about using the AWS X-Ray SDK for Node.js, use the resources listed
 in the [Getting Help](https://github.com/aws/aws-xray-sdk-node#getting-help) section. Keeping the list of open issues lean helps us respond in a timely manner.
 
-## Documentation
-
-The [developer guide](https://docs.aws.amazon.com/xray/latest/devguide) provides in-depth
-guidance about using the AWS X-Ray service.
-The [API Reference](http://docs.aws.amazon.com/xray-sdk-for-nodejs/latest/reference/)
-provides guidance for using the SDK and module-level documentation.
-
-[CHANGELOG.md](https://github.com/aws/aws-xray-sdk-node/blob/master/packages/full_sdk/CHANGELOG.md)
-
 ## Contributing
+
+We support and accept PRs from the community.
 
 This monorepo hosts the following npm packages for the SDK:
 - [aws-xray-sdk](https://www.npmjs.com/package/aws-xray-sdk)
