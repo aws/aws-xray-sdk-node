@@ -1,6 +1,11 @@
 # Changelog for AWS X-Ray Core SDK for JavaScript
-<!--LATEST=2.3.3-->
+<!--LATEST=2.3.4-->
 <!--ENTRYINSERT-->
+## 2.3.4
+* improvement: Updated eslint dev dependency: [PR #145](https://github.com/aws/aws-xray-sdk-node/pull/145)
+* improvement: Updated .eslintrc.json to enable es6 and fixed eslint errors: [PR #146](https://github.com/aws/aws-xray-sdk-node/pull/146)
+* improvement: Updated nock,mocha dependencies to fix lodash version: [PR #153](https://github.com/aws/aws-xray-sdk-node/pull/153)
+
 ## 2.3.3
 * bugfix: adds workaround for missing cls namespace when cls-hooked imported. [#PR126](https://github.com/aws/aws-xray-sdk-node/pull/126)
 * bugfix: no longer creates pending subsegments for AWS presigned url operations. [#PR130](https://github.com/aws/aws-xray-sdk-node/pull/130)
