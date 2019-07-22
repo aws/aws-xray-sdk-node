@@ -60,7 +60,7 @@ describe('DaemonConfig', function() {
     });
 
     it('should set the tcp and udp addresses separately', function() {
-      var input = util.format('tcp:%s:%s udp:%s:%s', tcp_ip, tcp_port, udp_ip, udp_port)
+      var input = util.format('tcp:%s:%s udp:%s:%s', tcp_ip, tcp_port, udp_ip, udp_port);
       DaemonConfig.setDaemonAddress(input);
 
       assert.equal(DaemonConfig.tcp_ip, tcp_ip);
@@ -68,8 +68,8 @@ describe('DaemonConfig', function() {
       assert.equal(DaemonConfig.tcp_port, parseInt(tcp_port));
       assert.equal(DaemonConfig.udp_port, parseInt(udp_port));
 
-      var input_reverse = util.format('udp:%s:%s tcp:%s:%s', udp_ip, udp_port, tcp_ip, tcp_port)
-      DaemonConfig.setDaemonAddress(input);
+      var input_reverse = util.format('udp:%s:%s tcp:%s:%s', udp_ip, udp_port, tcp_ip, tcp_port);
+      DaemonConfig.setDaemonAddress(input_reverse);
 
       assert.equal(DaemonConfig.tcp_ip, tcp_ip);
       assert.equal(DaemonConfig.udp_ip, udp_ip);

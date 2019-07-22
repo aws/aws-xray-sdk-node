@@ -1,7 +1,6 @@
 language: node_js
 
 node_js:
-  - "4"
   - "6"
   - "8"
   - "10"
@@ -26,4 +25,7 @@ notifications:
 script:
   - lerna bootstrap --hoist
   - lerna run test
+<<<<<<< HEAD
   - "if [[ $TEST_ASYNC == 'test-async' ]]; then lerna run $TEST_ASYNC || exit 0; fi"
+=======
+>>>>>>> master

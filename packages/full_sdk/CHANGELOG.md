@@ -1,6 +1,19 @@
 # Changelog for AWS X-Ray SDK for JavaScript
-<!--LATEST=2.3.3-->
+<!--LATEST=2.3.4-->
 <!--ENTRYINSERT-->
+## 2.3.4
+* change: Updated .eslintrc.json to enable es6 and fixed eslint errors: [PR #146](https://github.com/aws/aws-xray-sdk-node/pull/146)
+* change: Updated aws-xray-sdk-core to 2.3.4. See aws-xray-sdk-core's CHANGELOG.md for package changes.
+* change: Updated aws-xray-sdk-express to 2.3.4. See aws-xray-sdk-express's CHANGELOG.md for package changes.
+* change: Updated aws-xray-sdk-mysql to 2.3.4.
+  * improvement: Updated eslint dev dependency: [PR #145](https://github.com/aws/aws-xray-sdk-node/pull/145)
+  * improvement: Updated .eslintrc.json to enable es6 and fixed eslint errors: [PR #146](https://github.com/aws/aws-xray-sdk-node/pull/146)
+  * improvement: Updated nock,mocha,sinon dependencies to fix lodash version: [PR #153](https://github.com/aws/aws-xray-sdk-node/pull/153)
+* change: Updated aws-xray-postgres to 2.3.4
+  * improvement: Updated eslint dev dependency: [PR #145](https://github.com/aws/aws-xray-sdk-node/pull/145)
+  * improvement: Updated .eslintrc.json to enable es6 and fixed eslint errors: [PR #146](https://github.com/aws/aws-xray-sdk-node/pull/146)
+  * improvement: Updated nock,mocha,sinon dependencies to fix lodash version: [PR #153](https://github.com/aws/aws-xray-sdk-node/pull/153)
+
 ## 2.3.3
 * change: Updated aws-xray-sdk-core to 2.3.3. See aws-xray-sdk-core's CHANGELOG.md for package changes.
 * change: Updated aws-xray-sdk-express to 2.3.3. See aws-xray-sdk-express's CHANGELOG.md for package changes.

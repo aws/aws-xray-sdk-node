@@ -8,13 +8,13 @@ var Reservoir = require('./reservoir');
  * @constructor
  */
 function SamplingRule(name, priority, rate, reservoirSize,
-                      host, httpMethod, urlPath, serviceName, serviceType) {
+  host, httpMethod, urlPath, serviceName, serviceType) {
   this.init(name, priority, rate, reservoirSize,
-            host, httpMethod, urlPath, serviceName, serviceType);
+    host, httpMethod, urlPath, serviceName, serviceType);
 }
 
 SamplingRule.prototype.init = function init(name, priority, rate, reservoirSize,
-                                            host, httpMethod, urlPath, serviceName, serviceType) {
+  host, httpMethod, urlPath, serviceName, serviceType) {
   this.name = name;
   this.priority = priority;
   this.rate = rate;
