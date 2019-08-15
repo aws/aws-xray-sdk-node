@@ -122,7 +122,7 @@ var SegmentEmitter = {
     var client = this.socket;
     var formatted = segment.format();
     var data = PROTOCOL_HEADER + PROTOCOL_DELIMITER + formatted;
-    var message = new Buffer(data);
+    var message = Buffer.from(data);
 
     var short = '{"trace_id:"' + segment.trace_id + '","id":"' + segment.id + '"}';
     var type = segment.type === 'subsegment' ? 'Subsegment' : 'Segment';
