@@ -13,6 +13,7 @@ var logger = require('./logger');
  * @param {function} fcn - The function context to wrap. Can take a single 'subsegment' argument.
  * @param {Segment|Subsegment} [parent] - The parent for the new subsegment, for manual mode.
  * @alias module:capture.captureFunc
+ * @return {*} - Returns the result if any by executing the provided function.
  */
 
 var captureFunc = function captureFunc(name, fcn, parent) {
@@ -31,8 +32,9 @@ var captureFunc = function captureFunc(name, fcn, parent) {
   executeFcn = captureFcn(fcn, current);
 
   try {
-    executeFcn(current);
+    const response = executeFcn(current);
     current.close();
+    return response;
   } catch (e) {
     current.close(e);
     throw(e);
@@ -46,6 +48,7 @@ var captureFunc = function captureFunc(name, fcn, parent) {
  * @param {function} fcn - The function context to wrap. Must take a single 'subsegment' argument and call 'subsegment.close([optional error])' when the async function completes.
  * @param {Segment|Subsegment} [parent] - The parent for the new subsegment, for manual mode.
  * @alias module:capture.captureAsyncFunc
+ * @return {*} - Returns a promise by executing the provided async function.
  */
 
 var captureAsyncFunc = function captureAsyncFunc(name, fcn, parent) {
@@ -63,7 +66,7 @@ var captureAsyncFunc = function captureAsyncFunc(name, fcn, parent) {
   executeFcn = captureFcn(fcn, current);
 
   try {
-    executeFcn(current);
+    return executeFcn(current);
   } catch (e) {
     current.close(e);
     throw(e);
