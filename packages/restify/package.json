@@ -17,7 +17,7 @@
     "aws-xray-sdk-core": "^2.3.5"
   },
   "devDependencies": {
-    "aws-xray-sdk-core": "^2.3.5",
+    "aws-xray-sdk-core": "^2.3.4",
     "chai": "^3.5.0",
     "eslint": "^4.18.2",
     "mocha": "^6.1.4",
