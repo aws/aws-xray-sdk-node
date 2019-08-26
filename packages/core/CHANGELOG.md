@@ -3,6 +3,8 @@
 <!--ENTRYINSERT-->
 ## 2.3.5
 * bugfix: Updated Lodash dependency and other dev-dependencies pulling in lower lodash versions [#ISSUE166](https://github.com/aws/aws-xray-sdk-node/issues/166) 
+* bugfix: Display debug-level logging in CW logs when debug mode enabled [PR #151](https://github.com/aws/aws-xray-sdk-node/pull/151)
+* improvement: Preserves the first arg of resolveArguments when it's an object and no callback provided [PR #137](https://github.com/aws/aws-xray-sdk-node/pull/137)
 
 ## 2.3.4
 * improvement: Updated eslint dev dependency: [PR #145](https://github.com/aws/aws-xray-sdk-node/pull/145)
