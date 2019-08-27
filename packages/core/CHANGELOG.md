@@ -1,6 +1,10 @@
 # Changelog for AWS X-Ray Core SDK for JavaScript
-<!--LATEST=2.3.4-->
+<!--LATEST=2.3.5-->
 <!--ENTRYINSERT-->
+## 2.3.5
+* bugfix: Updated Lodash dependency and other dev-dependencies pulling in lower lodash versions [#ISSUE166](https://github.com/aws/aws-xray-sdk-node/issues/166) 
+* bugfix: Display debug-level logging in CW logs when debug mode enabled [PR #151](https://github.com/aws/aws-xray-sdk-node/pull/151)
+
 ## 2.3.4
 * improvement: Updated eslint dev dependency: [PR #145](https://github.com/aws/aws-xray-sdk-node/pull/145)
 * improvement: Updated .eslintrc.json to enable es6 and fixed eslint errors: [PR #146](https://github.com/aws/aws-xray-sdk-node/pull/146)
