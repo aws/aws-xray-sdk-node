@@ -29,7 +29,7 @@
     "sinon-chai": "^2.8.0"
   },
   "scripts": {
-    "test": "./node_modules/.bin/mocha --recursive ./test/ -R spec"
+    "test": "mocha --recursive ./test/ -R spec"
   },
   "keywords": [
     "amazon",
