@@ -9,7 +9,7 @@
   ],
   "command": {
   	"publish": {
-  		"allowBranch": ["master", "2.x"]
+  		"allowBranch": "2.x"
   	}
   }
 }
