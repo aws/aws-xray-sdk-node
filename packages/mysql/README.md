@@ -59,7 +59,7 @@ Manual mode requires that you pass around the segment reference. See the example
 
     connection.query('SELECT * FROM cats', function(err, rows) {
       //Automatically captures query information and errors (if any)
-    });
+    }, segment);
 
     ...
 

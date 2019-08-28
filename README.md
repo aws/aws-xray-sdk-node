@@ -69,6 +69,10 @@ in the [Getting Help](https://github.com/aws/aws-xray-sdk-node#getting-help) sec
 
 We support and accept PRs from the community.
 
+**Note: until the release of major version 3.0.0, all pull requests should be made from the [2.x branch](https://github.com/aws/aws-xray-sdk-node/tree/2.x), *not* master. The 2.x branch is also the branch that will be released to the NPM registry.**
+
+We support and accept PRs from the community.
+
 This monorepo hosts the following npm packages for the SDK:
 - [aws-xray-sdk](https://www.npmjs.com/package/aws-xray-sdk)
 - [aws-xray-sdk-core](https://www.npmjs.com/package/aws-xray-sdk-core)
