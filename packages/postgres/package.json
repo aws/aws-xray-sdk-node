@@ -1,6 +1,6 @@
 {
   "name": "aws-xray-sdk-postgres",
-  "version": "2.3.5",
+  "version": "2.3.4",
   "description": "AWS X-Ray Patcher for Postgres (Javascript)",
   "author": "Amazon Web Services",
   "contributors": [
