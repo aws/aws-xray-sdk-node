@@ -2,6 +2,7 @@ var winston = require('winston');
 var format = require('date-fns/format');
 
 var logger;
+var xrayLogLevel = process.env.AWS_XRAY_LOG_LEVEL;
 
 if (process.env.AWS_XRAY_DEBUG_MODE) {
   logger = new (winston.Logger)({
@@ -9,6 +10,16 @@ if (process.env.AWS_XRAY_DEBUG_MODE) {
       new (winston.transports.Console)({
         formatter: outputFormatter,
         level: 'debug',
+        timestamp: timestampFormatter
+      })
+    ]
+  });
+} else if (xrayLogLevel) {
+  logger = new (winston.Logger)({
+    transports: [
+      new (winston.transports.Console)({
+        formatter: outputFormatter,
+        level: xrayLogLevel,
         timestamp: timestampFormatter
       })
     ]
