@@ -24,7 +24,7 @@
     "mocha": "^3.5.3"
   },
   "scripts": {
-    "test": "./node_modules/.bin/mocha --recursive ./test/ -R spec"
+    "test": "mocha --recursive ./test/ -R spec"
   },
   "keywords": [
     "amazon",
