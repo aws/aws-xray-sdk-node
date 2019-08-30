@@ -58,7 +58,7 @@ var contextUtils = {
   },
 
   getNamespace: function getNamespace() {
-    return cls.getNamespace(NAMESPACE);
+    return cls.getNamespace(NAMESPACE) || cls.createNamespace(NAMESPACE);
   },
 
   /**

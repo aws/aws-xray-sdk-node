@@ -1,28 +1,27 @@
 {
-  "name": "aws-xray-sdk-restify",
-  "version": "1.5.4-beta",
-  "description": "Enables AWS X-Ray for Restify (Javascript)",
+  "name": "test-aws-xray-sdk-express",
+  "private": true,
+  "version": "2.3.3",
+  "description": "AWS X-Ray Middleware for Express (Javascript)",
   "author": "Amazon Web Services",
   "contributors": [
     "Sandra McMullen <mcmuls@amazon.com>"
   ],
   "main": "lib/index.js",
   "engines": {
-    "node": ">= 4.3"
+    "node": ">= 4.x"
   },
   "directories": {
     "test": "test"
   },
-  "peerDependencies": {
-    "aws-xray-sdk-core": "^2.3.4"
-  },
   "devDependencies": {
     "aws-xray-sdk-core": "^2.3.4",
+    "aws-xray-sdk-express": "^2.3.4",
     "chai": "^3.5.0",
-    "eslint": "^4.19.1",
-    "mocha": "^6.2.0",
-    "sinon": "^4.5.0",
-    "sinon-chai": "^2.8.0"
+    "cls-hooked": "^4.2.2",
+    "eslint": "^4.18.2",
+    "express": "^4.16.4",
+    "mocha": "^3.5.3"
   },
   "scripts": {
     "test": "mocha --recursive ./test/ -R spec"
@@ -31,11 +30,11 @@
     "amazon",
     "api",
     "aws",
-    "restify",
+    "express",
     "xray",
     "x-ray",
     "x ray"
   ],
   "license": "Apache-2.0",
-  "repository": "https://github.com/aws/aws-xray-sdk-node/tree/master/packages/restify"
+  "repository": "https://github.com/aws/aws-xray-sdk-node/tree/master/packages/express"
 }

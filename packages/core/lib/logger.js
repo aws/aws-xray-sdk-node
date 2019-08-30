@@ -1,5 +1,5 @@
 var winston = require('winston');
-var format = require('date-fns/format')
+var format = require('date-fns/format');
 
 var logger;
 
@@ -22,6 +22,7 @@ if (process.env.LAMBDA_TASK_ROOT) {
   logger.error = function(string) { console.error(string); };
   logger.info = function(string) { console.info(string); };
   logger.warn = function(string) { console.warn(string); };
+  logger.debug = function(string) { console.debug(string); };
 }
 /* eslint-enable no-console */
 

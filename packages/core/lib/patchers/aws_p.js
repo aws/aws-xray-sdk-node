@@ -83,11 +83,13 @@ function captureAWSRequest(req) {
   var stack = (new Error()).stack;
   var subsegment = parent.addNewSubsegment(this.serviceIdentifier);
   var traceId = parent.segment ? parent.segment.trace_id : parent.trace_id;
-
-  req.on('build', function(req) {
+  
+  var buildListener = function(req) {
     req.httpRequest.headers['X-Amzn-Trace-Id'] = 'Root=' + traceId + ';Parent=' + subsegment.id +
       ';Sampled=' + (subsegment.segment.notTraced ? '0' : '1');
-  }).on('complete', function(res) {
+  };
+
+  var completeListener = function(res) {
     subsegment.addAttribute('namespace', 'aws');
     subsegment.addAttribute('aws', new Aws(res, subsegment.name));
 
@@ -120,7 +122,19 @@ function captureAWSRequest(req) {
       }
       subsegment.close();
     }
+  };
+
+  req.on('beforePresign', function(req) {
+    // Only the AWS Presigner triggers this event,
+    // so we can rely on this event to notify us when
+    // a request is for a presigned url
+    parent.removeSubsegment(subsegment);
+    parent.decrementCounter();
+    req.removeListener('build', buildListener);
+    req.removeListener('complete', completeListener);
   });
+
+  req.on('build', buildListener).on('complete', completeListener);
 
   if (!req.__send) {
     req.__send = req.send;
