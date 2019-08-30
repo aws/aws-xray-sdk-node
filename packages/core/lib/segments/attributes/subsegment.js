@@ -75,7 +75,7 @@ Subsegment.prototype.removeSubsegment = function removeSubsegment(subsegment) {
       '".  Not a subsegment.');
   }
 
-  if (this.subsegments === undefined) {
+  if (this.subsegments !== undefined) {
     var index = this.subsegments.indexOf(subsegment);
 
     if (index >= 0)
@@ -372,9 +372,14 @@ Subsegment.prototype.toString = function toString() {
 };
 
 Subsegment.prototype.toJSON = function toJSON() {
+  var ignore = ['segment', 'parent', 'counter'];
+
+  if(this.subsegments && this.subsegments.length === 0)
+    ignore.push('subsegments');
+
   var thisCopy = Utils.objectWithoutProperties(
     this,
-    ['segment', 'parent', 'counter', 'subsegments'],
+    ignore,
     false
   );
 

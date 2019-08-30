@@ -351,9 +351,14 @@ Segment.prototype.flush = function flush() {
 };
 
 Segment.prototype.format = function format() {
+  var ignore = ['segment', 'parent', 'counter'];
+
+  if(this.subsegments && this.subsegments.length === 0)
+    ignore.push('subsegments');
+
   var thisCopy = Utils.objectWithoutProperties(
     this,
-    ['counter', 'notTraced', 'exception', 'subsegments'],
+    ignore,
     false
   );
 
