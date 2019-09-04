@@ -1,11 +1,3 @@
-var omit = require('lodash/omit');
-var isEmpty = require('lodash/isEmpty');
-var isBoolean = require('lodash/isBoolean');
-var isFinite = require('lodash/isFinite');
-var isString = require('lodash/isString');
-var isUndefined = require('lodash/isUndefined');
-var isObject = require('lodash/isObject');
-
 var crypto = require('crypto');
 
 var CapturedException = require('./captured_exception');
@@ -13,6 +5,7 @@ var RemoteRequestData = require('./remote_request_data');
 var SegmentEmitter = require('../../segment_emitter');
 var SegmentUtils = require('../segment_utils');
 
+var Utils = require('../../utils');
 var logger = require('../../logger');
 
 /**
@@ -59,13 +52,13 @@ Subsegment.prototype.addSubsegment = function(subsegment) {
       '".  Not a subsegment.');
   }
 
-  if (isUndefined(this.subsegments))
+  if (this.subsegments === undefined)
     this.subsegments = [];
 
   subsegment.segment = this.segment;
   subsegment.parent = this;
 
-  if (isUndefined(subsegment.end_time)) {
+  if (subsegment.end_time === undefined) {
     this.incrementCounter(subsegment.counter);
   }
 
@@ -82,7 +75,7 @@ Subsegment.prototype.removeSubsegment = function removeSubsegment(subsegment) {
       '".  Not a subsegment.');
   }
 
-  if (!isUndefined(this.subsegments)) {
+  if (this.subsegments !== undefined) {
     var index = this.subsegments.indexOf(subsegment);
 
     if (index >= 0)
@@ -106,11 +99,11 @@ Subsegment.prototype.addAttribute = function addAttribute(name, data) {
  */
 
 Subsegment.prototype.addPrecursorId = function(id) {
-  if (!isString(id))
+  if (typeof id !== 'string')
     logger.getLogger().error('Failed to add id:' + id + ' to subsegment ' + this.name +
       '.  Precursor Ids must be of type string.');
 
-  if (isUndefined(this.precursor_ids))
+  if (this.precursor_ids === undefined)
     this.precursor_ids = [];
 
   this.precursor_ids.push(id);
@@ -124,15 +117,15 @@ Subsegment.prototype.addPrecursorId = function(id) {
  */
 
 Subsegment.prototype.addAnnotation = function(key, value) {
-  if (!(isBoolean(value) || isString(value) || isFinite(value))) {
+  if (!(typeof value === 'boolean' || typeof value === 'string' || (typeof value === 'number' && isFinite(value)))) {
     throw new Error('Failed to add annotation key: ' + key + ' value: ' + value + ' to subsegment ' +
       this.name + '. Value must be of type string, number or boolean.');
-  } else if (!isString(key)) {
+  } else if (typeof key !== 'string') {
     throw new Error('Failed to add annotation key: ' + key + ' value: ' + value + ' to subsegment ' +
       this.name + '. Key must be of type string.');
   }
 
-  if (isUndefined(this.annotations))
+  if (this.annotations === undefined)
     this.annotations = {};
 
   this.annotations[key] = value;
@@ -147,10 +140,10 @@ Subsegment.prototype.addAnnotation = function(key, value) {
  */
 
 Subsegment.prototype.addMetadata = function(key, value, namespace) {
-  if (!isString(key)) {
+  if (typeof key !== 'string') {
     throw new Error('Failed to add annotation key: ' + key + ' value: ' + value + ' to subsegment ' +
       this.name + '. Key must be of type string.');
-  } else if (namespace && !isString(namespace)) {
+  } else if (namespace && typeof namespace !== 'string') {
     throw new Error('Failed to add annotation key: ' + key + ' value: ' + value + 'namespace: ' + namespace + ' to subsegment ' +
       this.name + '. Namespace must be of type string.');
   }
@@ -182,7 +175,7 @@ Subsegment.prototype.addSqlData = function addSqlData(sqlData) {
  */
 
 Subsegment.prototype.addError = function addError(err, remote) {
-  if (!isObject(err) && typeof(err) !== 'string') {
+  if (err == null || typeof err !== 'object' && typeof(err) !== 'string') {
     throw new Error('Failed to add error:' + err + ' to subsegment "' + this.name +
       '".  Not an object or string literal.');
   }
@@ -207,7 +200,7 @@ Subsegment.prototype.addError = function addError(err, remote) {
     //error, cannot propagate exception if not added to segment
   }
 
-  if (isUndefined(this.cause)) {
+  if (this.cause === undefined) {
     this.cause = {
       working_directory: process.cwd(),
       exceptions: []
@@ -381,10 +374,16 @@ Subsegment.prototype.toString = function toString() {
 Subsegment.prototype.toJSON = function toJSON() {
   var ignore = ['segment', 'parent', 'counter'];
 
-  if (isEmpty(this.subsegments))
+  if (this.subsegments == null || this.subsegments.length === 0)
     ignore.push('subsegments');
 
-  return omit(this, ignore);
+  var thisCopy = Utils.objectWithoutProperties(
+    this,
+    ignore,
+    false
+  );
+
+  return thisCopy;
 };
 
 module.exports = Subsegment;
