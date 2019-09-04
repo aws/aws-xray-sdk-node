@@ -80,6 +80,7 @@ below for the different usages.
     with the middleware. See 'dynamic and fixed naming modes'.
     AWS_XRAY_DAEMON_ADDRESS          For setting the daemon address and port.
     AWS_XRAY_CONTEXT_MISSING         For setting the SDK behavior when trace context is missing. Valid values are 'RUNTIME_ERROR' or 'LOG_ERROR'. The SDK's default behavior is 'RUNTIME_ERROR'.
+    AWS_XRAY_LOG_LEVEL               Sets a log level for the SDK built in logger.
 
 ### Daemon configuration
 
@@ -94,7 +95,11 @@ You can change this via the environment variables listed above, or through code.
 ### Logging configuration
 
 Default logging to a file has been removed. To set up file logging, configure a logger
-that responds to debug, info, warn, and error functions.
+that responds to debug, info, warn, and error functions. To suppress logs such as context setup the log level can be
+overridden, e.g. to suppress info logs such as context and daemon config set the following environment variable.  
+
+    AWS_XRAY_LOG_LEVEL='error'
+
 To log information about configuration, be sure you set the logger before other configuration
 options.
 
