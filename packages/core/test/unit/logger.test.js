@@ -16,6 +16,9 @@ describe('logger', function () {
 
     });
     it('Should have a default logger with no transport and level set to info', function () {
+      process.env.AWS_XRAY_LOG_LEVEL = '';
+      process.env.AWS_XRAY_DEBUG_MODE = '';
+      reloadLogger();
       assert.deepEqual(logger.getLogger().transports, {});
       assert.equal(logger.getLogger().level, 'info');
     });
@@ -32,6 +35,7 @@ describe('logger', function () {
     });
     it('Should have a logger with console transport with level set to error when AWS_XRAY_LOG_LEVEL=error and AWS_XRAY_DEBUG_MODE is not set', function () {
       process.env.AWS_XRAY_LOG_LEVEL = 'error';
+      process.env.AWS_XRAY_DEBUG_MODE = '';
       reloadLogger();
       assert.equal(logger.getLogger().transports.console.level, 'error');
     });
