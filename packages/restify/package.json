@@ -1,6 +1,6 @@
 {
   "name": "aws-xray-sdk-restify",
-  "version": "1.5.5-beta",
+  "version": "1.5.6-beta",
   "description": "Enables AWS X-Ray for Restify (Javascript)",
   "author": "Amazon Web Services",
   "contributors": [
@@ -17,7 +17,7 @@
     "aws-xray-sdk-core": "^2.3.6"
   },
   "devDependencies": {
-    "aws-xray-sdk-core": "^2.3.5",
+    "aws-xray-sdk-core": "^2.3.6",
     "chai": "^3.5.0",
     "eslint": "^4.19.1",
     "mocha": "^6.2.0",
