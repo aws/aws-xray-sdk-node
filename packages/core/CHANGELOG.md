@@ -1,6 +1,9 @@
 # Changelog for AWS X-Ray Core SDK for JavaScript
-<!--LATEST=2.3.5-->
+<!--LATEST=2.3.6-->
 <!--ENTRYINSERT-->
+## 2.3.6
+* bugfix: Fixed lambda logging bug causing all debug messages to be logged for lambda customers [#ISSUE176](https://github.com/aws/aws-xray-sdk-node/issues/176) 
+
 ## 2.3.5
 * bugfix: Updated Lodash dependency and other dev-dependencies pulling in lower lodash versions [#ISSUE166](https://github.com/aws/aws-xray-sdk-node/issues/166) 
 * bugfix: Display debug-level logging in CW logs when debug mode enabled [PR #151](https://github.com/aws/aws-xray-sdk-node/pull/151)
