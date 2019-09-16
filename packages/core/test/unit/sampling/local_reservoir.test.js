@@ -1,7 +1,6 @@
 var assert = require('chai').assert;
 var expect = require('chai').expect;
 var sinon = require('sinon');
-var times = require('lodash/times');
 
 var LocalReservoir = require('../../../lib/middleware/sampling/local_reservoir');
 
@@ -43,9 +42,9 @@ describe('LocalReservoir', function() {
     });
 
     it('should return true up to the fixed target set.', function() {
-      times(fixedTarget, function() {
+      for (var i = 0; i < fixedTarget; i++) {
         assert.isTrue(localReservoir.isSampled());
-      });
+      }
 
       assert.isFalse(localReservoir.isSampled());
     });
