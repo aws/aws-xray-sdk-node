@@ -5,27 +5,11 @@ var logger;
 var xrayLogLevel = process.env.AWS_XRAY_LOG_LEVEL;
 
 if (process.env.AWS_XRAY_DEBUG_MODE) {
-  logger = new (winston.Logger)({
-    transports: [
-      new (winston.transports.Console)({
-        formatter: outputFormatter,
-        level: 'debug',
-        timestamp: timestampFormatter
-      })
-    ]
-  });
+  logger = createWinstonLogger('debug');
 } else if (xrayLogLevel) {
-  logger = new (winston.Logger)({
-    transports: [
-      new (winston.transports.Console)({
-        formatter: outputFormatter,
-        level: xrayLogLevel,
-        timestamp: timestampFormatter
-      })
-    ]
-  });
+  logger = createWinstonLogger(xrayLogLevel);
 } else {
-  logger = new (winston.Logger)({});
+  logger = createWinstonLogger('info', true)
 }
 
 /* eslint-disable no-console */
@@ -37,14 +21,23 @@ if (process.env.LAMBDA_TASK_ROOT) {
 }
 /* eslint-enable no-console */
 
-function timestampFormatter() {
-  return format(new Date(), 'YYYY-MM-DD HH:mm:ss.SSS Z');
+function outputFormatter() {
+  return winston.format.printf((info) => {
+    return `${info.timestamp} [${info.level.toUpperCase()}] ${info.message}`
+      + (info.meta && Object.keys(info.meta).length ? '\n\t'+ JSON.stringify(info.meta) : '' );
+  })
 }
 
-function outputFormatter(options) {
-  return options.timestamp() +' [' + options.level.toUpperCase() + '] '+
-    (options.message !== undefined ? options.message : '') +
-    (options.meta && Object.keys(options.meta).length ? '\n\t'+ JSON.stringify(options.meta) : '' );
+function createWinstonLogger(level, silent) {
+  return winston.createLogger({
+    level,
+    format: winston.format.combine(
+      winston.format.metadata({ key: 'meta' }),
+      winston.format.timestamp(),
+      outputFormatter()
+    ),
+    transports: [ new winston.transports.Console({ silent }) ]
+  });
 }
 
 /**
