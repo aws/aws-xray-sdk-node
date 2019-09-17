@@ -22,7 +22,7 @@ describe('logger', function () {
       reloadLogger();
       assert.equal(logger.getLogger().level, 'info');
 
-      var transports = logger.getLogger().transports
+      var transports = logger.getLogger().transports;
       assert.equal(transports.length, 1);
       assert.equal(transports[0].silent, true);
       assert.equal(transports[0].constructor, winston.transports.Console);
@@ -32,7 +32,7 @@ describe('logger', function () {
       reloadLogger();
       assert.equal(logger.getLogger().level, 'debug');
 
-      var transports = logger.getLogger().transports
+      var transports = logger.getLogger().transports;
       assert.equal(transports.length, 1);
       assert.equal(transports[0].constructor, winston.transports.Console);
     });
@@ -42,7 +42,7 @@ describe('logger', function () {
       reloadLogger();
       assert.equal(logger.getLogger().level, 'debug');
 
-      var transports = logger.getLogger().transports
+      var transports = logger.getLogger().transports;
       assert.equal(transports.length, 1);
       assert.equal(transports[0].constructor, winston.transports.Console);
     });
@@ -52,7 +52,7 @@ describe('logger', function () {
       reloadLogger();
       assert.equal(logger.getLogger().level, 'error');
 
-      var transports = logger.getLogger().transports
+      var transports = logger.getLogger().transports;
       assert.equal(transports.length, 1);
       assert.equal(transports[0].constructor, winston.transports.Console);
     });

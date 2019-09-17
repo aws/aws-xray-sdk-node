@@ -1,5 +1,4 @@
 var winston = require('winston');
-var format = require('date-fns/format');
 
 var logger;
 var xrayLogLevel = process.env.AWS_XRAY_LOG_LEVEL;
@@ -9,7 +8,7 @@ if (process.env.AWS_XRAY_DEBUG_MODE) {
 } else if (xrayLogLevel) {
   logger = createWinstonLogger(xrayLogLevel);
 } else {
-  logger = createWinstonLogger('info', true)
+  logger = createWinstonLogger('info', true);
 }
 
 /* eslint-disable no-console */
@@ -25,7 +24,7 @@ function outputFormatter() {
   return winston.format.printf((info) => {
     return `${info.timestamp} [${info.level.toUpperCase()}] ${info.message}`
       + (info.meta && Object.keys(info.meta).length ? '\n\t'+ JSON.stringify(info.meta) : '' );
-  })
+  });
 }
 
 function createWinstonLogger(level, silent) {
