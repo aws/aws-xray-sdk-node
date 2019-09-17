@@ -31,7 +31,8 @@
     "mocha": "^6.2.0",
     "nock": "^10.0.6",
     "sinon": "^4.5.0",
-    "sinon-chai": "^2.8.0"
+    "sinon-chai": "^2.8.0",
+    "upath": "^1.2.0"
   },
   "scripts": {
     "test": "mocha --recursive ./test/ -R spec"
