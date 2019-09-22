@@ -74,7 +74,11 @@ describe('logger', function () {
       sinon.spy(console, 'error');
       sinon.spy(console, 'warn');
       sinon.spy(console, 'info');
-      sinon.spy(console, 'debug');
+      sinon.spy(console, 'log');
+
+      if (console.debug) {
+        sinon.spy(console, 'debug');
+      }
 
       reloadLogger();
       logger.getLogger().setLevel('debug');
@@ -84,12 +88,21 @@ describe('logger', function () {
       console.error.restore();
       console.warn.restore();
       console.info.restore();
-      console.debug.restore();
+      console.log.restore();
+
+      if (console.debug) {
+        console.debug.restore();
+      }
     });
 
     it('Should send debug logs to console.debug', function () {
       logger.getLogger().debug('test');
-      expect(console.debug).to.be.calledOnce;
+      
+      if (console.debug) {
+        expect(console.debug).to.be.calledOnce;
+      } else {
+        expect(console.log).to.be.calledOnce;
+      }
     });
 
     it('Should send info logs to console.info', function () {
