@@ -71,7 +71,7 @@ describe('logger', function () {
 
   describe('console logging levels', function () {
     beforeEach(function() {
-      sinon.spy(console, 'error"');
+      sinon.spy(console, 'error');
       sinon.spy(console, 'warn');
       sinon.spy(console, 'info');
       sinon.spy(console, 'debug');
@@ -87,22 +87,22 @@ describe('logger', function () {
       console.debug.restore();
     });
 
-    it('Should have a default logger with level set to error', function () {
+    it('Should send debug logs to console.debug', function () {
       logger.getLogger().debug('test');
       expect(console.debug).to.be.calledOnce;
     });
 
-    it('Should have a default logger with level set to error', function () {
+    it('Should send info logs to console.info', function () {
       logger.getLogger().info('test');
       expect(console.info).to.be.calledOnce;
     });
 
-    it('Should have a default logger with level set to error', function () {
+    it('Should send warn logs to console.warn', function () {
       logger.getLogger().warn('test');
       expect(console.warn).to.be.calledOnce;
     });
 
-    it('Should have a default logger with level set to error', function () {
+    it('Should sent error logs to console.error', function () {
       logger.getLogger().error('test');
       expect(console.error).to.be.calledOnce;
     });
