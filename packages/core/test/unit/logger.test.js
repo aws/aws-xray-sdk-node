@@ -48,35 +48,37 @@ describe('logger', function () {
       process.env.AWS_XRAY_LOG_LEVEL = 'somethingnotquiteright';
       reloadLogger();
       assert.equal(logger.getLogger().getLevel(), 'error');
-    })
+    });
 
     it('Should set logging level after initialisation', function() {
       process.env.AWS_XRAY_LOG_LEVEL = 'warn';
       reloadLogger();
       
       assert.equal(logger.getLogger().getLevel(), 'warn');
-      logger.getLogger().setLevel('debug')
+      logger.getLogger().setLevel('debug');
       assert.equal(logger.getLogger().getLevel(), 'debug');
-    })
+    });
 
     it('Should set logging level to error if invalid value is used after initialisation', function() {
       process.env.AWS_XRAY_LOG_LEVEL = 'warn';
       reloadLogger();
       
       assert.equal(logger.getLogger().getLevel(), 'warn');
-      logger.getLogger().setLevel('debugorsomething')
+      logger.getLogger().setLevel('debugorsomething');
       assert.equal(logger.getLogger().getLevel(), 'error');
-    })
+    });
   });
 
   describe('console logging levels', function () {
     beforeEach(function() {
-      sinon.spy(console, "error");
-      sinon.spy(console, "warn");
-      sinon.spy(console, "info");
-      sinon.spy(console, "debug");
+      sinon.spy(console, 'error"');
+      sinon.spy(console, 'warn');
+      sinon.spy(console, 'info');
+      sinon.spy(console, 'debug');
+
+      reloadLogger();
       logger.getLogger().setLevel('debug');
-    })
+    });
 
     afterEach(function () {
       console.error.restore();

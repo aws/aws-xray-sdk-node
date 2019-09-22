@@ -15,7 +15,7 @@ var logger = {
 /* eslint-disable no-console */
 function createLoggerForLevel(level) {
   var loggerLevel = validLogLevels.indexOf(level);
-  var consoleMethod = console[level] || console.log || (() => {})
+  var consoleMethod = console[level] || console.log || (() => {});
   return (message, meta) => {
     if (loggerLevel >= logLevel) {
       consoleMethod(formatLogMessage(level, message, meta));
