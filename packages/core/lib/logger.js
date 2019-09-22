@@ -1,96 +1,55 @@
-var winston = require('winston');
 var format = require('date-fns/format');
 
-var logger;
-var xrayLogLevel = process.env.AWS_XRAY_LOG_LEVEL;
+var validLogLevels = [ 'trace', 'debug', 'info', 'warn', 'error'  ];
+var logLevel = calculateLogLevel(process.env.AWS_XRAY_DEBUG_MODE ? 'debug' : process.env.AWS_XRAY_LOG_LEVEL);
 
-if (process.env.AWS_XRAY_DEBUG_MODE) {
-  logger = new (winston.Logger)({
-    transports: [
-      new (winston.transports.Console)({
-        formatter: outputFormatter,
-        level: 'debug',
-        timestamp: timestampFormatter
-      })
-    ]
-  });
-} else if (xrayLogLevel) {
-  logger = new (winston.Logger)({
-    transports: [
-      new (winston.transports.Console)({
-        formatter: outputFormatter,
-        level: xrayLogLevel,
-        timestamp: timestampFormatter
-      })
-    ]
-  });
-} else {
-  logger = new (winston.Logger)({});
-}
+var logger = {
+  error: createLoggerForLevel('error'),
+  info: createLoggerForLevel('info'),
+  warn: createLoggerForLevel('warn'),
+  debug: createLoggerForLevel('debug'),
+  setLevel: (level) => logLevel = calculateLogLevel(level),
+  getLevel: () => validLogLevels[logLevel]
+};
 
 /* eslint-disable no-console */
-if (process.env.LAMBDA_TASK_ROOT) {
-  logger.error = function(string) { console.error(string); };
-  logger.info = function(string) { console.info(string); };
-  logger.warn = function(string) { console.warn(string); };
-  logger.debug = function(string) { console.debug(string); };
+function createLoggerForLevel(level) {
+  var loggerLevel = validLogLevels.indexOf(level);
+  return (message, meta) => {
+    if (loggerLevel >= logLevel) {
+      console[level](formatLogMessage(level, message, meta));
+    }
+  };
 }
 /* eslint-enable no-console */
 
-function timestampFormatter() {
+function calculateLogLevel(level) {
+  if (level) {
+    var normalisedLevel = level.toLowerCase();
+    var index = validLogLevels.indexOf(normalisedLevel);
+    return index >= 0 ? index : validLogLevels.length - 1;
+  }
+
+  // Silently ignore invalid log levels, default to highest level
+  return validLogLevels.length - 1;
+}
+
+function createTimestamp() {
   return format(new Date(), 'YYYY-MM-DD HH:mm:ss.SSS Z');
 }
 
-function outputFormatter(options) {
-  return options.timestamp() +' [' + options.level.toUpperCase() + '] '+
-    (options.message !== undefined ? options.message : '') +
-    (options.meta && Object.keys(options.meta).length ? '\n\t'+ JSON.stringify(options.meta) : '' );
+function formatLogMessage(level, message, meta) {
+  return createTimestamp() +' [' + level.toUpperCase() + '] ' +
+    (message !== undefined ? message : '') +
+    formatMetaData(meta);
 }
 
-/**
- * Polyfill for Object.keys
- * @see: https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects/Object/keys
- */
+function formatMetaData(meta) {
+  if (!meta) {
+    return '';
+  }
 
-if (!Object.keys) {
-  Object.keys = (function() {
-    'use strict';
-    var hasOwnProperty = Object.prototype.hasOwnProperty,
-      hasDontEnumBug = !({ toString: null }).propertyIsEnumerable('toString'),
-      dontEnums = [
-        'toString',
-        'toLocaleString',
-        'valueOf',
-        'hasOwnProperty',
-        'isPrototypeOf',
-        'propertyIsEnumerable',
-        'constructor'
-      ],
-      dontEnumsLength = dontEnums.length;
-
-    return function(obj) {
-      if (typeof obj !== 'object' && (typeof obj !== 'function' || obj === null)) {
-        throw new TypeError('Object.keys called on non-object');
-      }
-
-      var result = [], prop, i;
-
-      for (prop in obj) {
-        if (hasOwnProperty.call(obj, prop)) {
-          result.push(prop);
-        }
-      }
-
-      if (hasDontEnumBug) {
-        for (i = 0; i < dontEnumsLength; i++) {
-          if (hasOwnProperty.call(obj, dontEnums[i])) {
-            result.push(dontEnums[i]);
-          }
-        }
-      }
-      return result;
-    };
-  }());
+  return '\n  ' + ((typeof(meta) === 'string') ? meta : JSON.stringify(meta));
 }
 
 var logging = {
