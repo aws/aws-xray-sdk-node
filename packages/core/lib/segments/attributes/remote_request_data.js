@@ -12,7 +12,7 @@ function RemoteRequestData(req, res, downstreamXRayEnabled) {
 
 RemoteRequestData.prototype.init = function init(req, res, downstreamXRayEnabled) {
   this.request = {
-    url: (req.agent.protocol + '//' + req.getHeader('host') + req.path) || '',
+    url: (req.connection.secure ? 'https:' : 'http:') + '//' + req.getHeader('host') + req.path) || '',
     method: req.method || '',
   };
 
