@@ -119,7 +119,11 @@ var SegmentEmitter = {
 
   send: function send(segment) {
     if (!this.socket) {
-      this.socket = dgram.createSocket('udp4'); 
+      if (this.useBatchingTemporarySocket) {
+        this.socket = new BatchingTemporarySocket();
+      } else {
+        this.socket = dgram.createSocket('udp4');
+      }
     }
     var client = this.socket;
     var formatted = segment.format();
@@ -180,7 +184,7 @@ var SegmentEmitter = {
    */
 
   disableReusableSocket: function() {
-    this.socket = new BatchingTemporarySocket();
+    this.useBatchingTemporarySocket = true;
   }
 };
 
