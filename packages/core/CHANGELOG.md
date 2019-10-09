@@ -1,6 +1,13 @@
 # Changelog for AWS X-Ray Core SDK for JavaScript
-<!--LATEST=2.3.6-->
+<!--LATEST=2.4.0-->
 <!--ENTRYINSERT-->
+## 2.4.0
+* bugfix: Lazily create socket emitter to prevent Jest tests from failing due to open sockets [#ISSUE142](https://github.com/aws/aws-xray-sdk-node/issues/142)
+* bugfix: Resolve one critical dependency from dynamic use of require when bundling w/ Webpack [#ISSUE103](https://github.com/aws/aws-xray-sdk-node/issues/103)
+* bugfix: Use our safer, contextUtils version of getNamespace instead of cls.getNamespace [#ISSUE183](https://github.com/aws/aws-xray-sdk-node/issues/183)
+* improvement: Added AWS_XRAY_LOG_LEVEL environment var to automatically emit SDK logs of given level [PR #172](https://github.com/aws/aws-xray-sdk-node/pull/172)
+* improvement: Removes lodash as a dependency [PR #123](https://github.com/aws/aws-xray-sdk-node/pull/123)
+
 ## 2.3.6
 * bugfix: Fixed lambda logging bug causing all debug messages to be logged for lambda customers [#ISSUE176](https://github.com/aws/aws-xray-sdk-node/issues/176) 
 
