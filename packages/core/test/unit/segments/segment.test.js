@@ -430,10 +430,23 @@ describe('Segment', function() {
         segment.flush();
 
         sendStub.should.have.been.calledOnce;
-        var sentSegment = sendStub.lastCall.args;
+        var sentSegment = sendStub.lastCall.args[0];
         assert.notProperty(sentSegment, 'exception');
         assert.notProperty(sentSegment, 'counter');
         assert.notProperty(sentSegment, 'notTraced');
+      });
+
+      it('should preserve prototype properties', function() {
+        var sendStub = sandbox.stub(SegmentEmitter, 'send');
+        segment.notTraced = false;
+        segment.__proto__.prototypeProperty = 'testProperty';
+
+        segment.flush();
+
+        sendStub.should.have.been.calledOnce;
+        var sentSegment = sendStub.lastCall.args[0];
+
+        assert.property(sentSegment, 'prototypeProperty');
       });
     });
   });
