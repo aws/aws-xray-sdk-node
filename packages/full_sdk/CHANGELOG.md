@@ -1,6 +1,12 @@
 # Changelog for AWS X-Ray SDK for JavaScript
-<!--LATEST=2.3.6-->
+<!--LATEST=2.4.0-->
 <!--ENTRYINSERT-->
+## 2.4.0
+* change: Updated aws-xray-sdk-core to 2.4.0. See aws-xray-sdk-core's CHANGELOG.md for package changes.
+* change: Updated aws-xray-sdk-express to 2.4.0. No further changes.
+* change: Updated aws-xray-sdk-mysql to 2.4.0. No further changes.
+* change: Updated aws-xray-postgres to 2.4.0. No further changes.
+
 ## 2.3.6
 * change: Updated aws-xray-sdk-core to 2.3.6. See aws-xray-sdk-core's CHANGELOG.md for package changes.
 * change: Updated aws-xray-sdk-express to 2.3.6. No further changes.
