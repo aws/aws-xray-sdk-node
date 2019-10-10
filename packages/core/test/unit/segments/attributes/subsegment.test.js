@@ -11,6 +11,8 @@ var Subsegment = require('../../../../lib/segments/attributes/subsegment');
 chai.should();
 chai.use(sinonChai);
 
+var dgram = require('dgram');
+
 describe('Subsegment', function() {
   describe('#init', function() {
     it('should set the required attributes', function() {
@@ -225,13 +227,19 @@ describe('Subsegment', function() {
 
   describe('#flush', function() {
     var child, emitStub, parent, sandbox, segment;
+    // Since SegmentEmitter is reused across tests, we need the emitStub
+    // to also persist across tests
+    emitStub = sinon.stub();
 
     beforeEach(function() {
       sandbox = sinon.sandbox.create();
 
       segment = { trace_id: '1-58c835af-cf6bfe9f8f2c5b84a6d1f50c', parent_id: '12345abc3456def' };
       parent = new Subsegment('test');
-      emitStub = sandbox.stub(SegmentEmitter.socket, 'send');
+
+      sandbox.stub(dgram, 'createSocket').returns({
+        send: emitStub
+      });
 
       child = parent.addNewSubsegment('child');
       child.segment = segment;
@@ -239,6 +247,7 @@ describe('Subsegment', function() {
 
     afterEach(function() {
       sandbox.restore();
+      emitStub.reset();
     });
 
     it('should throw an error if the subsegment has no parent', function() {

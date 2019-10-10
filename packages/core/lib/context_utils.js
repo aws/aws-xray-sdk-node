@@ -86,7 +86,7 @@ var contextUtils = {
 
   getSegment: function getSegment() {
     if (cls_mode) {
-      var segment = cls.getNamespace(NAMESPACE).get(SEGMENT);
+      var segment = contextUtils.getNamespace(NAMESPACE).get(SEGMENT);
 
       if (!segment) {
         contextUtils.contextMissingStrategy.contextMissing('Failed to get the current sub/segment from the context.');
@@ -109,7 +109,7 @@ var contextUtils = {
 
   setSegment: function setSegment(segment) {
     if (cls_mode) {
-      if (!cls.getNamespace(NAMESPACE).set(SEGMENT, segment))
+      if (!contextUtils.getNamespace(NAMESPACE).set(SEGMENT, segment))
         logger.getLogger().warn('Failed to set the current sub/segment on the context.');
     } else {
       contextUtils.contextMissingStrategy.contextMissing('Cannot set sub/segment on context. Not supported in manual mode.');
@@ -148,7 +148,7 @@ var contextUtils = {
   enableManualMode: function enableManualMode() {
     cls_mode = false;
 
-    if (cls.getNamespace(NAMESPACE))
+    if (contextUtils.getNamespace(NAMESPACE))
       cls.destroyNamespace(NAMESPACE);
 
     logger.getLogger().debug('Overriding AWS X-Ray SDK mode. Set to manual mode.');
