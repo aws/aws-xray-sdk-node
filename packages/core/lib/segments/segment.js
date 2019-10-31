@@ -89,7 +89,7 @@ Segment.prototype.addAnnotation = function addAnnotation(key, value) {
  */
 Segment.prototype.setUser = function (user) {
   if (typeof user !== 'string') {
-    logger.getLogger().error('Set user:' + user + 'failed. User IDs must be of type string.');
+    logger.getLogger().error('Set user: ' + user + ' failed. User IDs must be of type string.');
   }
   this.user = user;
 }
