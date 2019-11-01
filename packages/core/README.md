@@ -337,6 +337,14 @@ This will solve the issue where the subsegments within a Promise chain are attac
 
     subsegment.addMetadata(key, value);
     subsegment.addMetadata(key, value, 'greeting');   //custom namespace
+    
+### Set user
+
+Note that this operation will not work in Lambda functions, because the segment object is immutable. `setUser()` can only be applied to segments, not subsegments. 
+
+    var user = 'john123';
+    
+    AWSXRay.getSegment().setUser(user);
 
 ### Create new subsegment
 
