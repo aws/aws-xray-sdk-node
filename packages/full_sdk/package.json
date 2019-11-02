@@ -7,6 +7,7 @@
     "Sandra McMullen <mcmuls@amazon.com>"
   ],
   "main": "lib/index.js",
+  "types": "lib/index.d.ts",
   "engines": {
     "node": ">= 4.x"
   },
@@ -16,6 +17,13 @@
     "aws-xray-sdk-mysql": "^2.4.0",
     "aws-xray-sdk-postgres": "^2.4.0",
     "pkginfo": "^0.4.0"
+  },
+  "devDependencies": {
+    "tsd": "^0.10.0"
+  },
+  "scripts": {
+    "test": "tsd",
+    "test-d": "tsd"
   },
   "keywords": [
     "amazon",
