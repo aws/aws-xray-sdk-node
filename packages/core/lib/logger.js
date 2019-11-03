@@ -1,6 +1,7 @@
 var format = require('date-fns/format');
 
-var validLogLevels = [ 'trace', 'debug', 'info', 'warn', 'error'  ];
+var validLogLevels = [ 'debug', 'info', 'warn', 'error', 'silent' ];
+var defaultLogLevel = validLogLevels.indexOf('error');
 var logLevel = calculateLogLevel(process.env.AWS_XRAY_DEBUG_MODE ? 'debug' : process.env.AWS_XRAY_LOG_LEVEL);
 
 var logger = {
@@ -8,19 +9,18 @@ var logger = {
   info: createLoggerForLevel('info'),
   warn: createLoggerForLevel('warn'),
   debug: createLoggerForLevel('debug'),
-  setLevel: (level) => logLevel = calculateLogLevel(level),
-  getLevel: () => validLogLevels[logLevel]
 };
 
 /* eslint-disable no-console */
 function createLoggerForLevel(level) {
   var loggerLevel = validLogLevels.indexOf(level);
   var consoleMethod = console[level] || console.log || (() => {});
-  return (message, meta) => {
-    if (loggerLevel >= logLevel) {
-      consoleMethod(formatLogMessage(level, message, meta));
-    }
-  };
+
+  if (loggerLevel >= logLevel) {
+    return (message, meta) => consoleMethod(formatLogMessage(level, message, meta));
+  } else {
+    return () => {};
+  }
 }
 /* eslint-enable no-console */
 
@@ -28,11 +28,11 @@ function calculateLogLevel(level) {
   if (level) {
     var normalisedLevel = level.toLowerCase();
     var index = validLogLevels.indexOf(normalisedLevel);
-    return index >= 0 ? index : validLogLevels.length - 1;
+    return index >= 0 ? index : defaultLogLevel;
   }
 
-  // Silently ignore invalid log levels, default to highest level
-  return validLogLevels.length - 1;
+  // Silently ignore invalid log levels, default to default level
+  return defaultLogLevel;
 }
 
 function createTimestamp() {
@@ -41,7 +41,7 @@ function createTimestamp() {
 
 function formatLogMessage(level, message, meta) {
   return createTimestamp() +' [' + level.toUpperCase() + '] ' +
-    (message !== undefined ? message : '') +
+    (message ? message : '') +
     formatMetaData(meta);
 }
 

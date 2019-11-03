@@ -75,12 +75,12 @@ below for the different usages.
 
 **Environment variables always override values set in code.**
 
-    AWS_XRAY_DEBUG_MODE              Enables logging to console output. Logging to a file is no longer built in. See 'configure logging' below.
+    AWS_XRAY_DEBUG_MODE              Enables logging of dbug messages to console output. Logging to a file is no longer built in. See 'configure logging' below.
     AWS_XRAY_TRACING_NAME            For overriding the default segment name to use
     with the middleware. See 'dynamic and fixed naming modes'.
     AWS_XRAY_DAEMON_ADDRESS          For setting the daemon address and port.
     AWS_XRAY_CONTEXT_MISSING         For setting the SDK behavior when trace context is missing. Valid values are 'RUNTIME_ERROR' or 'LOG_ERROR'. The SDK's default behavior is 'RUNTIME_ERROR'.
-    AWS_XRAY_LOG_LEVEL               Sets a log level for the SDK built in logger.
+    AWS_XRAY_LOG_LEVEL               Sets a log level for the SDK built in logger. This value is ignored if AWS_XRAY_DEBUG_MODE is set.
 
 ### Daemon configuration
 
@@ -94,16 +94,34 @@ You can change this via the environment variables listed above, or through code.
 
 ### Logging configuration
 
-Default logging to a file has been removed. To set up file logging, configure a logger
-that responds to debug, info, warn, and error functions. To suppress logs such as context setup the log level can be
-overridden, e.g. to suppress info logs such as context and daemon config set the following environment variable.  
+By default the SDK will log error messages to the console using the standard methods on the console object. The log
+level of the built in logger can be set bu using either the AWS_XRAY_DEBUG_MODE or AWS_XRAY_LOG_LEVEL environment
+variables.
 
-    AWS_XRAY_LOG_LEVEL='error'
+If AWS_XRAY_DEBUG_MODE is set to a truthy value, e.g. true, then the log level will be set to debug. If
+AWS_XRAY_DEBUG_MODE is not set then AWS_XRAY_LOG_LEVEL will be used to determine the log level. This variable can
+be set to either debug, info, warn, error or silent. Be warned if the log level is set to silent then NO log
+messages will be produced. The default log level is error and this will be used if neither environment variable
+is set or if an invalid level is specified.
 
-To log information about configuration, be sure you set the logger before other configuration
-options.
+If you wish to provide a different format or destination for the logs then you can provide the SDK with you own
+implementation of the logger interface as shown below. Any object that implements this interface can be used.
+This means that many logging libraries, e.g. Winston, could be used and passed to the SDK directly.
 
-    AWSXRay.setLogger(logger);
+```js
+// Create your own logger or instantiate one using a library.
+var logger = {
+  error: (message, meta) => { /* logging code */ },
+  warn: (message, meta) => { /* logging code */ },
+  info: (message, meta) => { /* logging code */ },
+  debug: (message, meta) => { /* logging code */ }
+}
+
+AWSXRay.setLogger(logger);
+```
+
+If you use your own logged you are responsible for determining the log level as the AWS_XRAY_DEBUG_MODE and
+AWS_XRAY_LOG_LEVEL only apply to the default logger. 
 
 ### Sampling configuration
 

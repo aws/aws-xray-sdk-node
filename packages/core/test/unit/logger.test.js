@@ -1,102 +1,47 @@
-var assert = require('chai').assert;
 var expect = require('chai').expect;
 var sinon = require('sinon');
-var logger = require('../../lib/logger');
+var logging = require('../../lib/logger');
 
 describe('logger', function () {
+  var spies = [];
+
   function reloadLogger() {
     var path = '../../lib/logger';
     delete require.cache[require.resolve(path)];
-    logger = require(path);
+    logging = require(path);
   }
 
-  describe('setting logging levels', function () {
-    afterEach(function () {
-      delete process.env.AWS_XRAY_DEBUG_MODE;
-      delete process.env.AWS_XRAY_LOG_LEVEL;
-      reloadLogger();
+  before(function() {
+    spies.push(sinon.spy(console, 'error'));
+    spies.push(sinon.spy(console, 'warn'));
+    spies.push(sinon.spy(console, 'info'));
+    spies.push(sinon.spy(console, 'log'));
 
-    });
-
-    it('Should have a default logger with level set to error', function () {
-      process.env.AWS_XRAY_LOG_LEVEL = '';
-      process.env.AWS_XRAY_DEBUG_MODE = '';
-      reloadLogger();
-      assert.equal(logger.getLogger().getLevel(), 'error');
-    });
-
-    it('Should have a logger with level set to debug when AWS_XRAY_DEBUG_MODE is set', function () {
-      process.env.AWS_XRAY_DEBUG_MODE = 'set';
-      reloadLogger();
-      assert.equal(logger.getLogger().getLevel(), 'debug');
-    });
-
-    it('Should have a loggerwith level set to debug when AWS_XRAY_DEBUG_MODE is set even when XRAY_LOG_LEVEL is error', function () {
-      process.env.AWS_XRAY_DEBUG_MODE = 'set';
-      process.env.AWS_XRAY_LOG_LEVEL = 'error';
-      reloadLogger();
-      assert.equal(logger.getLogger().getLevel(), 'debug');
-    });
-
-    it('Should have a logger with level set to warn when AWS_XRAY_LOG_LEVEL=warn and AWS_XRAY_DEBUG_MODE is not set', function () {
-      process.env.AWS_XRAY_LOG_LEVEL = 'warn';
-      reloadLogger();
-      assert.equal(logger.getLogger().getLevel(), 'warn');
-    });
-
-    it('Should set level to error if invalid level specified in AWS_XRAY_LOG_LEVEL', function() {
-      process.env.AWS_XRAY_LOG_LEVEL = 'somethingnotquiteright';
-      reloadLogger();
-      assert.equal(logger.getLogger().getLevel(), 'error');
-    });
-
-    it('Should set logging level after initialisation', function() {
-      process.env.AWS_XRAY_LOG_LEVEL = 'warn';
-      reloadLogger();
-      
-      assert.equal(logger.getLogger().getLevel(), 'warn');
-      logger.getLogger().setLevel('debug');
-      assert.equal(logger.getLogger().getLevel(), 'debug');
-    });
-
-    it('Should set logging level to error if invalid value is used after initialisation', function() {
-      process.env.AWS_XRAY_LOG_LEVEL = 'warn';
-      reloadLogger();
-      
-      assert.equal(logger.getLogger().getLevel(), 'warn');
-      logger.getLogger().setLevel('debugorsomething');
-      assert.equal(logger.getLogger().getLevel(), 'error');
-    });
+    if (console.debug) {
+      spies.push(sinon.spy(console, 'debug'));
+    }
   });
 
-  describe('console logging levels', function () {
-    beforeEach(function() {
-      sinon.spy(console, 'error');
-      sinon.spy(console, 'warn');
-      sinon.spy(console, 'info');
-      sinon.spy(console, 'log');
+  afterEach(function () {
+    spies.forEach(spy => spy.resetHistory());
+  });
 
-      if (console.debug) {
-        sinon.spy(console, 'debug');
-      }
+  after(function () {
+    spies.forEach(spy => spy.restore());
+  });
 
+  describe('console logging methods', function () {
+    before(function() {
+      process.env.AWS_XRAY_DEBUG_MODE = 'set';
       reloadLogger();
-      logger.getLogger().setLevel('debug');
     });
 
-    afterEach(function () {
-      console.error.restore();
-      console.warn.restore();
-      console.info.restore();
-      console.log.restore();
-
-      if (console.debug) {
-        console.debug.restore();
-      }
+    after(function() {
+      delete process.env.AWS_XRAY_DEBUG_MODE;
     });
 
     it('Should send debug logs to console.debug', function () {
-      logger.getLogger().debug('test');
+      logging.getLogger().debug('test');
       
       if (console.debug) {
         expect(console.debug).to.be.calledOnce;
@@ -106,18 +51,100 @@ describe('logger', function () {
     });
 
     it('Should send info logs to console.info', function () {
-      logger.getLogger().info('test');
+      logging.getLogger().info('test');
       expect(console.info).to.be.calledOnce;
     });
 
     it('Should send warn logs to console.warn', function () {
-      logger.getLogger().warn('test');
+      logging.getLogger().warn('test');
       expect(console.warn).to.be.calledOnce;
     });
 
     it('Should sent error logs to console.error', function () {
-      logger.getLogger().error('test');
+      logging.getLogger().error('test');
       expect(console.error).to.be.calledOnce;
+    });
+  });
+
+  describe('console logging filters', function () {
+    function sendLogMessages() {
+      var logger = logging.getLogger();
+      logger.debug('test');
+      logger.info('test');
+      logger.warn('test');
+      logger.error('test');
+    }
+
+    afterEach(function() {
+      delete process.env.AWS_XRAY_LOG_LEVEL;
+    });
+
+    it('Should not emit log if log level is silent', function () {
+      process.env.AWS_XRAY_LOG_LEVEL = 'silent';
+      reloadLogger();
+
+      sendLogMessages();
+      spies.forEach(spy => expect(spy).to.not.be.called);
+    });
+
+    it('Should only emit error logs if level is error', function () {
+      process.env.AWS_XRAY_LOG_LEVEL = 'error';
+      reloadLogger();
+      
+      sendLogMessages();
+      expect(console.error).to.be.calledOnce;
+      spies.filter(spy => spy !== console.error)
+        .forEach(spy => expect(spy).to.not.be.called);
+    });
+
+    it('Should emit error and warn logs if level is warn', function () {
+      process.env.AWS_XRAY_LOG_LEVEL = 'warn';
+      reloadLogger();
+      
+      sendLogMessages();
+      var expected = [ console.error, console.warn ];
+      expected.forEach(spy => expect(spy).to.be.called);
+      spies.filter(spy => !expected.includes(spy))
+        .forEach(spy => expect(spy).to.not.be.called);
+    });
+
+    it('Should emit error, warn, and info logs if level is info', function () {
+      process.env.AWS_XRAY_LOG_LEVEL = 'info';
+      reloadLogger();
+      
+      sendLogMessages();
+      var expected = [ console.error, console.warn, console.info ];
+      expected.forEach(spy => expect(spy).to.be.called);
+      spies.filter(spy => !expected.includes(spy))
+        .forEach(spy => expect(spy).to.not.be.called);
+    });
+
+    it('Should emit all logs if level is debug', function () {
+      process.env.AWS_XRAY_LOG_LEVEL = 'debug';
+      reloadLogger();
+      
+      sendLogMessages();
+      var filterMethod = console.debug ? (spy => spy !== console.log) : (() => true);
+      spies.filter(filterMethod).forEach(spy => expect(spy).to.be.called);
+    });
+
+    it('Should default to error if invalid log level', function () {
+      process.env.AWS_XRAY_LOG_LEVEL = 'not_a_level';
+      reloadLogger();
+      
+      sendLogMessages();
+      expect(console.error).to.be.calledOnce;
+      spies.filter(spy => spy !== console.error)
+        .forEach(spy => expect(spy).to.not.be.called);
+    });
+
+    it('Should default to error if no log level', function () {
+      reloadLogger();
+      
+      sendLogMessages();
+      expect(console.error).to.be.calledOnce;
+      spies.filter(spy => spy !== console.error)
+        .forEach(spy => expect(spy).to.not.be.called);
     });
   });
 });
