@@ -127,6 +127,18 @@ Note that in most circumstances the provided logger will prefix each log line wi
 level of the message as shown in the example below. However this will not be the case when using this SDK
 from within an AWS Lambda. In that scenaro the timestamp and level are added by the lambda runtime instead.
 
+### Context Missing Strategy Configuration
+
+By default, when the X-Ray SDK is operating in automatic mode and attempts to find a segment in the `cls` context but
+cannot find one, it throws a runtime error. This behavior can be undesirable when unit testing or doing experimentation. 
+It can be changed to instead log an error either by using the `AWS_XRAY_CONTEXT_MISSING` environment variable documented above, or programatically by calling
+
+    AWSXRay.setContextMissingStrategy("LOG_ERROR");
+
+You can also pass in your own function to set custom behavior for handling context missing errors.
+
+    AWSXRay.setContextMissingStrategy(myFunction);
+
 ### Sampling configuration
 
 When using our supported AWS X-Ray-enabled frameworks, you can configure the rates at which the SDK samples requests to capture.
