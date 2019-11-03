@@ -37,10 +37,25 @@ function createTimestamp() {
   return format(new Date(), 'YYYY-MM-DD HH:mm:ss.SSS Z');
 }
 
+function isLambdaFunction() {
+  return process.env.LAMBDA_TASK_ROOT !== undefined;
+}
+
 function formatLogMessage(level, message, meta) {
-  return createTimestamp() +' [' + level.toUpperCase() + '] ' +
-    (message ? message : '') +
-    formatMetaData(meta);
+  var messageParts = [];
+
+  if (!isLambdaFunction()) {
+    messageParts.push(createTimestamp());
+    messageParts.push(`[${level.toUpperCase()}]`);
+  }
+
+  if (message) {
+    messageParts.push(message);
+  }
+
+  var logString = messageParts.join(' ');
+  var metaDataString = formatMetaData(meta);
+  return [logString, metaDataString].filter(str => str.length > 0).join('\n  ');
 }
 
 function formatMetaData(meta) {
@@ -48,7 +63,7 @@ function formatMetaData(meta) {
     return '';
   }
 
-  return '\n  ' + ((typeof(meta) === 'string') ? meta : JSON.stringify(meta));
+  return ((typeof(meta) === 'string') ? meta : JSON.stringify(meta));
 }
 
 var logging = {

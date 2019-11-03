@@ -121,7 +121,11 @@ AWSXRay.setLogger(logger);
 ```
 
 If you use your own logged you are responsible for determining the log level as the AWS_XRAY_DEBUG_MODE and
-AWS_XRAY_LOG_LEVEL only apply to the default logger. 
+AWS_XRAY_LOG_LEVEL only apply to the default logger.
+
+Note that in most circumstances the provided logger will prefix each log line with a timestamp and the
+level of the message as shown in the example below. However this will not be the case when using this SDK
+from within an AWS Lambda. In that scenaro the timestamp and level are added by the lambda runtime instead.
 
 ### Sampling configuration
 

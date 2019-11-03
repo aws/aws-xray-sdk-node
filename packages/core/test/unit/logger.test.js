@@ -147,4 +147,71 @@ describe('logger', function () {
         .forEach(spy => expect(spy).to.not.be.called);
     });
   });
+
+  describe('console logging format', function () {
+    var logMessageRegex = /(\d{4}-[01]\d-[0-3]\d) ([0-2]\d:[0-5]\d:[0-5]\d\.\d+) ([+-][0-2]\d:[0-5]\d|Z) \[(\w+)\](.*)/;
+
+    before(function() {
+      reloadLogger();
+    });
+
+    afterEach(function() {
+      delete process.env.LAMBDA_TASK_ROOT;
+    });
+
+    it('should output error message', () => {
+      var logger = logging.getLogger();
+      var expectedMessage = 'error message';
+      logger.error(expectedMessage);
+
+      var message = console.error.args[0][0];
+      var groups = message.match(logMessageRegex);
+      expect(groups[4]).to.equal('ERROR');
+      expect(groups[5].trim()).to.equal(expectedMessage);
+    });
+
+    it('should convert falsey value to empty string', () => {
+      var logger = logging.getLogger();
+      logger.error(null);
+
+      var message = console.error.args[0][0];
+      var groups = message.match(logMessageRegex);
+      expect(groups[4]).to.equal('ERROR');
+      expect(groups[5]).to.equal('');
+    });
+
+    it('should not add timestamp to lambda errors', () => {
+      process.env.LAMBDA_TASK_ROOT = 'on';
+      var expectedMessage = 'error message';
+      var logger = logging.getLogger();
+      logger.error(expectedMessage);
+
+      var message = console.error.args[0][0];
+      expect(logMessageRegex.test(message)).to.be.false;
+      expect(message).to.equal(expectedMessage);
+    });
+
+    it('should only output metadata for lambda with no message', () => {
+      process.env.LAMBDA_TASK_ROOT = 'on';
+      var expectedMetaData = 'this is some metadata';
+      var logger = logging.getLogger();
+      logger.error(null, expectedMetaData);
+
+      var message = console.error.args[0][0];
+      expect(logMessageRegex.test(message)).to.be.false;
+      expect(message).to.equal(expectedMetaData);
+    });
+
+    it('should output both message and metadata for lambda', () => {
+      process.env.LAMBDA_TASK_ROOT = 'on';
+      var expectedMessage = 'error message';
+      var expectedMetaData = 'metadata';
+      var logger = logging.getLogger();
+      logger.error(expectedMessage, expectedMetaData);
+
+      var message = console.error.args[0][0];
+      expect(logMessageRegex.test(message)).to.be.false;
+      expect(message).to.equal(expectedMessage + '\n  ' + expectedMetaData);
+    });
+  });
 });
