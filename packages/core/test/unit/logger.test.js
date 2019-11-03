@@ -170,9 +170,18 @@ describe('logger', function () {
       expect(groups[5].trim()).to.equal(expectedMessage);
     });
 
+    it('should not output if message and meta falsey', () => {
+      var logger = logging.getLogger();
+      logger.error();
+      logger.error(null);
+      logger.error('', null);
+
+      spies.forEach(spy => expect(spy).not.to.be.called);
+    });
+
     it('should convert falsey value to empty string', () => {
       var logger = logging.getLogger();
-      logger.error(null);
+      logger.error(null, {});
 
       var message = console.error.args[0][0];
       var groups = message.match(logMessageRegex);

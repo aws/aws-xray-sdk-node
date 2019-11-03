@@ -16,7 +16,11 @@ function createLoggerForLevel(level) {
   var consoleMethod = console[level] || console.log || (() => {});
 
   if (loggerLevel >= logLevel) {
-    return (message, meta) => consoleMethod(formatLogMessage(level, message, meta));
+    return (message, meta) => {
+      if(message || meta) {
+        consoleMethod(formatLogMessage(level, message, meta));
+      }
+    };
   } else {
     return () => {};
   }
