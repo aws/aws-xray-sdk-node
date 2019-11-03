@@ -11,7 +11,6 @@ var logger = {
   debug: createLoggerForLevel('debug'),
 };
 
-/* eslint-disable no-console */
 function createLoggerForLevel(level) {
   var loggerLevel = validLogLevels.indexOf(level);
   var consoleMethod = console[level] || console.log || (() => {});
@@ -22,7 +21,6 @@ function createLoggerForLevel(level) {
     return () => {};
   }
 }
-/* eslint-enable no-console */
 
 function calculateLogLevel(level) {
   if (level) {
