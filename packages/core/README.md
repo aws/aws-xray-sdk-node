@@ -75,7 +75,7 @@ below for the different usages.
 
 **Environment variables always override values set in code.**
 
-    AWS_XRAY_DEBUG_MODE              Enables logging of dbug messages to console output. Logging to a file is no longer built in. See 'configure logging' below.
+    AWS_XRAY_DEBUG_MODE              Enables logging of debug messages to console output. Logging to a file is no longer built in. See 'configure logging' below.
     AWS_XRAY_TRACING_NAME            For overriding the default segment name to use
     with the middleware. See 'dynamic and fixed naming modes'.
     AWS_XRAY_DAEMON_ADDRESS          For setting the daemon address and port.
@@ -95,16 +95,16 @@ You can change this via the environment variables listed above, or through code.
 ### Logging configuration
 
 By default the SDK will log error messages to the console using the standard methods on the console object. The log
-level of the built in logger can be set bu using either the AWS_XRAY_DEBUG_MODE or AWS_XRAY_LOG_LEVEL environment
+level of the built in logger can be set bu using either the `AWS_XRAY_DEBUG_MODE` or `AWS_XRAY_LOG_LEVEL` environment
 variables.
 
-If AWS_XRAY_DEBUG_MODE is set to a truthy value, e.g. true, then the log level will be set to debug. If
-AWS_XRAY_DEBUG_MODE is not set then AWS_XRAY_LOG_LEVEL will be used to determine the log level. This variable can
+If `AWS_XRAY_DEBUG_MODE` is set to a truthy value, e.g. true, then the log level will be set to debug. If
+`AWS_XRAY_DEBUG_MODE` is not set then `AWS_XRAY_LOG_LEVEL` will be used to determine the log level. This variable can
 be set to either debug, info, warn, error or silent. Be warned if the log level is set to silent then NO log
 messages will be produced. The default log level is error and this will be used if neither environment variable
 is set or if an invalid level is specified.
 
-If you wish to provide a different format or destination for the logs then you can provide the SDK with you own
+If you wish to provide a different format or destination for the logs then you can provide the SDK with your own
 implementation of the logger interface as shown below. Any object that implements this interface can be used.
 This means that many logging libraries, e.g. Winston, could be used and passed to the SDK directly.
 
@@ -120,12 +120,12 @@ var logger = {
 AWSXRay.setLogger(logger);
 ```
 
-If you use your own logged you are responsible for determining the log level as the AWS_XRAY_DEBUG_MODE and
-AWS_XRAY_LOG_LEVEL only apply to the default logger.
+If you use your own logger you are responsible for determining the log level as the `AWS_XRAY_DEBUG_MODE` and
+`AWS_XRAY_LOG_LEVEL` only apply to the default logger.
 
-Note that in most circumstances the provided logger will prefix each log line with a timestamp and the
-level of the message as shown in the example below. However this will not be the case when using this SDK
-from within an AWS Lambda. In that scenaro the timestamp and level are added by the lambda runtime instead.
+Note that by default the provided logger prefixes each log line with a timestamp and the
+log level of the message. However this is not the case when using this SDK
+within an AWS Lambda function. In that scenario the timestamp and level are added by the Lambda runtime instead.
 
 ### Context Missing Strategy Configuration
 
