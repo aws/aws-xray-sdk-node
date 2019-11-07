@@ -302,7 +302,7 @@ the X-Ray SDK provides helper functions under `AWSXRay.middleware`.
 See the [aws-xray-sdk-express](https://github.com/aws/aws-xray-sdk-node/tree/master/packages/express) module for more information.
 
 For additional information about and examples for using the CLS namespace to create
-a new context, see: https://github.com/othiym23/node-continuation-local-storage.
+a new context, see: https://github.com/jeff-lewis/cls-hooked.
 
 ### Capture subsegmenets within chained native Promise using automatic mode
 
