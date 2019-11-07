@@ -2,7 +2,7 @@
  * @module context_utils
  */
 
-var cls = require('continuation-local-storage');
+var cls = require('cls-hooked');
 
 var logger = require('./logger');
 var Segment = require('./segments/segment');
