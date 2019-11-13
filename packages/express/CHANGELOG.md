@@ -1,5 +1,5 @@
 # Changelog for AWS X-Ray SDK Express for JavaScript
-<!--LATEST=2.4.0-->
+<!--LATEST=2.5.0-->
 <!--ENTRYINSERT-->
 ## 2.3.4
 * improvement: Updated eslint dev dependency: [PR #145](https://github.com/aws/aws-xray-sdk-node/pull/145)
