@@ -1,6 +1,10 @@
 # Changelog for AWS X-Ray Core SDK for JavaScript
-<!--LATEST=2.4.0-->
+<!--LATEST=2.5.0-->
 <!--ENTRYINSERT-->
+## 2.5.0
+* improvement: Add setUser function to segment object [PR #206](https://github.com/aws/aws-xray-sdk-node/pull/206)
+* improvement: Add TypeScript definitions for entire SDK [PR #207](https://github.com/aws/aws-xray-sdk-node/pull/207)
+
 ## 2.4.0
 * bugfix: Lazily create socket emitter to prevent Jest tests from failing due to open sockets [#ISSUE142](https://github.com/aws/aws-xray-sdk-node/issues/142)
 * bugfix: Resolve one critical dependency from dynamic use of require when bundling w/ Webpack [#ISSUE103](https://github.com/aws/aws-xray-sdk-node/issues/103)
