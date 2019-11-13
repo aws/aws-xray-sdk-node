@@ -7,6 +7,7 @@
     "Sandra McMullen <mcmuls@amazon.com>"
   ],
   "main": "lib/index.js",
+  "types": "lib/index.d.ts",
   "engines": {
     "node": ">= 4.x"
   },
@@ -14,6 +15,7 @@
     "test": "test"
   },
   "dependencies": {
+    "@types/continuation-local-storage": "*",
     "atomic-batcher": "^1.0.2",
     "aws-sdk": "^2.304.0",
     "cls-hooked": "^4.2.2",
@@ -31,11 +33,13 @@
     "mocha": "^6.2.0",
     "nock": "^10.0.6",
     "sinon": "^4.5.0",
-    "sinon-chai": "^2.8.0"
+    "sinon-chai": "^2.8.0",
+    "tsd": "^0.10.0"
   },
   "scripts": {
-    "test": "./node_modules/.bin/mocha --recursive ./test/ -R spec",
-    "test-async": "./node_modules/.bin/mocha --recursive ./test_async/ -R spec"
+    "test": "mocha --recursive ./test/ -R spec && tsd",
+    "test-async": "./node_modules/.bin/mocha --recursive ./test_async/ -R spec",
+    "test-d": "tsd"
   },
   "keywords": [
     "amazon",
