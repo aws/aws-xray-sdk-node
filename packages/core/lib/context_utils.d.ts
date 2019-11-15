@@ -4,7 +4,7 @@ import Subsegment = require('./segments/attributes/subsegment');
 
 export function getNamespace(): Namespace;
 
-export function resolveSegment(segment: Segment | Subsegment): Segment | Subsegment | undefined;
+export function resolveSegment(segment?: Segment | Subsegment | null): Segment | Subsegment | undefined;
 
 export function getSegment(): Segment | Subsegment | undefined;
 
