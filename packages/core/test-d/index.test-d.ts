@@ -151,6 +151,9 @@ expectType<void>(AWSXRay.middleware.setSamplingRules(rulesConfig));
 
 expectType<string>(AWSXRay.getNamespace().name);
 expectType<AWSXRay.Segment | AWSXRay.Subsegment | undefined>(AWSXRay.resolveSegment(segment));
+expectType<AWSXRay.Segment | AWSXRay.Subsegment | undefined>(AWSXRay.resolveSegment(undefined));
+expectType<AWSXRay.Segment | AWSXRay.Subsegment | undefined>(AWSXRay.resolveSegment(null));
+expectType<AWSXRay.Segment | AWSXRay.Subsegment | undefined>(AWSXRay.resolveSegment());
 expectType<AWSXRay.Segment | AWSXRay.Subsegment | undefined>(AWSXRay.getSegment());
 expectType<void>(AWSXRay.setSegment(segment));
 expectType<boolean>(AWSXRay.isAutomaticMode());
