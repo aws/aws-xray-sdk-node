@@ -24,7 +24,12 @@ module.exports.init = function init() {
     logger.getLogger().warn('AWS Lambda does not support AWS X-Ray manual mode.');
   };
 
-  fs.mkdirSync('/tmp/.aws-xray/');
+  try {
+    fs.mkdirSync('/tmp/.aws-xray/');
+  } catch (e) {
+    logger.getLogger().debug('Lambda handshake directory already exists.');
+  }
+  
   var filename = '/tmp/.aws-xray/initialized';
   fs.closeSync(fs.openSync(filename, 'a'));
   var now = new Date();
