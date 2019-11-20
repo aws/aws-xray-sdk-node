@@ -104,7 +104,6 @@ const urlWithoutQuery: Omit<url.UrlWithStringQuery, 'query'> = AWSXRay.utils.obj
   url.parse('url'), ['query'],
   true
 );
-expectType<string | null>(urlWithoutQuery.path);
 expectError(urlWithoutQuery.query);
 
 new AWSXRay.database.SqlData('databaseVer', 'driverVer', 'user', 'url', 'queryType');
