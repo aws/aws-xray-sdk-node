@@ -24,14 +24,11 @@ module.exports.init = function init() {
     logger.getLogger().warn('AWS Lambda does not support AWS X-Ray manual mode.');
   };
 
-  fs.mkdir('/tmp/', function() {
-    fs.mkdir('/tmp/.aws-xray/', function() {
-      var filename = '/tmp/.aws-xray/initialized';
-      fs.closeSync(fs.openSync(filename, 'a'));
-      var now = new Date();
-      fs.utimesSync(filename, now, now);
-    });
-  });
+  fs.mkdirSync('/tmp/.aws-xray/');
+  var filename = '/tmp/.aws-xray/initialized';
+  fs.closeSync(fs.openSync(filename, 'a'));
+  var now = new Date();
+  fs.utimesSync(filename, now, now);
 
   SegmentEmitter.disableReusableSocket();
   SegmentUtils.setStreamingThreshold(0);
