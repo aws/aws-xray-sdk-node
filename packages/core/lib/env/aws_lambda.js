@@ -1,5 +1,3 @@
-var fs = require('fs');
-
 var contextUtils = require('../context_utils');
 var LambdaUtils = require('../utils').LambdaUtils;
 var Segment = require('../segments/segment');
@@ -23,15 +21,6 @@ module.exports.init = function init() {
   contextUtils.enableManualMode = function() {
     logger.getLogger().warn('AWS Lambda does not support AWS X-Ray manual mode.');
   };
-
-  fs.mkdir('/tmp/', function() {
-    fs.mkdir('/tmp/.aws-xray/', function() {
-      var filename = '/tmp/.aws-xray/initialized';
-      fs.closeSync(fs.openSync(filename, 'a'));
-      var now = new Date();
-      fs.utimesSync(filename, now, now);
-    });
-  });
 
   SegmentEmitter.disableReusableSocket();
   SegmentUtils.setStreamingThreshold(0);
