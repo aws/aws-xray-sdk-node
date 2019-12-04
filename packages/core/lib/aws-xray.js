@@ -286,8 +286,8 @@ var AWSXRay = {
   isAutomaticMode: contextUtils.isAutomaticMode,
 
   /**
-   * Enables automatic mode. Automatic mode uses 'continuation-local-storage'.
-   * @see https://github.com/othiym23/node-continuation-local-storage
+   * Enables automatic mode. Automatic mode uses 'cls-hooked'.
+   * @see https://github.com/jeff-lewis/cls-hooked
    * @memberof AWSXRay
    * @function
    * @see module:context_utils.enableAutomaticMode
