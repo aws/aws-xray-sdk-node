@@ -9,8 +9,8 @@ The AWS X-Ray SDK (the SDK) automatically records information for incoming and o
 requests and responses (via middleware). It also automatically records local data
 such as function calls, time, variables (via metadata and annotations), and Amazon
 EC2 instance data (via plugins). Currently, only Express
-applications are supported for automatic capturing. See the [aws-xray-sdk-express]
-(https://github.com/aws/aws-xray-sdk-node/tree/master/packages/express) package for additional information.
+applications are supported for automatic capturing. See the 
+[aws-xray-sdk-express](https://github.com/aws/aws-xray-sdk-node/tree/master/packages/express) package for additional information.
 
 The SDK exposes the Segment and Subsegment objects so you can create your own capturing
 mechanisms, but a few are supplied.
@@ -302,7 +302,7 @@ the X-Ray SDK provides helper functions under `AWSXRay.middleware`.
 See the [aws-xray-sdk-express](https://github.com/aws/aws-xray-sdk-node/tree/master/packages/express) module for more information.
 
 For additional information about and examples for using the CLS namespace to create
-a new context, see: https://github.com/othiym23/node-continuation-local-storage.
+a new context, see: https://github.com/jeff-lewis/cls-hooked.
 
 ### Capture subsegmenets within chained native Promise using automatic mode
 
