@@ -1,99 +1,73 @@
-var winston = require('winston');
 var format = require('date-fns/format');
 
-var logger;
-var xrayLogLevel = process.env.AWS_XRAY_LOG_LEVEL;
+var validLogLevels = [ 'debug', 'info', 'warn', 'error', 'silent' ];
+var defaultLogLevel = validLogLevels.indexOf('error');
+var logLevel = calculateLogLevel(process.env.AWS_XRAY_DEBUG_MODE ? 'debug' : process.env.AWS_XRAY_LOG_LEVEL);
 
-if (process.env.AWS_XRAY_DEBUG_MODE) {
-  logger = new (winston.Logger)({
-    transports: [
-      new (winston.transports.Console)({
-        formatter: outputFormatter,
-        level: 'debug',
-        timestamp: timestampFormatter
-      })
-    ]
-  });
-} else if (xrayLogLevel) {
-  logger = new (winston.Logger)({
-    transports: [
-      new (winston.transports.Console)({
-        formatter: outputFormatter,
-        level: xrayLogLevel,
-        timestamp: timestampFormatter
-      })
-    ]
-  });
-} else {
-  logger = new (winston.Logger)({});
-}
+var logger = {
+  error: createLoggerForLevel('error'),
+  info: createLoggerForLevel('info'),
+  warn: createLoggerForLevel('warn'),
+  debug: createLoggerForLevel('debug'),
+};
 
-/* eslint-disable no-console */
-if (process.env.LAMBDA_TASK_ROOT) {
-  logger.error = function(string) { console.error(string); };
-  logger.info = function(string) { console.info(string); };
-  logger.warn = function(string) { console.warn(string); };
-  
-  if (process.env.AWS_XRAY_DEBUG_MODE) {
-    logger.debug = function(string) { console.debug(string); };
+function createLoggerForLevel(level) {
+  var loggerLevel = validLogLevels.indexOf(level);
+  var consoleMethod = console[level] || console.log || (() => {});
+
+  if (loggerLevel >= logLevel) {
+    return (message, meta) => {
+      if(message || meta) {
+        consoleMethod(formatLogMessage(level, message, meta));
+      }
+    };
+  } else {
+    return () => {};
   }
 }
-/* eslint-enable no-console */
 
-function timestampFormatter() {
+function calculateLogLevel(level) {
+  if (level) {
+    var normalisedLevel = level.toLowerCase();
+    var index = validLogLevels.indexOf(normalisedLevel);
+    return index >= 0 ? index : defaultLogLevel;
+  }
+
+  // Silently ignore invalid log levels, default to default level
+  return defaultLogLevel;
+}
+
+function createTimestamp() {
   return format(new Date(), 'YYYY-MM-DD HH:mm:ss.SSS Z');
 }
 
-function outputFormatter(options) {
-  return options.timestamp() +' [' + options.level.toUpperCase() + '] '+
-    (options.message !== undefined ? options.message : '') +
-    (options.meta && Object.keys(options.meta).length ? '\n\t'+ JSON.stringify(options.meta) : '' );
+function isLambdaFunction() {
+  return process.env.LAMBDA_TASK_ROOT !== undefined;
 }
 
-/**
- * Polyfill for Object.keys
- * @see: https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects/Object/keys
- */
+function formatLogMessage(level, message, meta) {
+  var messageParts = [];
 
-if (!Object.keys) {
-  Object.keys = (function() {
-    'use strict';
-    var hasOwnProperty = Object.prototype.hasOwnProperty,
-      hasDontEnumBug = !({ toString: null }).propertyIsEnumerable('toString'),
-      dontEnums = [
-        'toString',
-        'toLocaleString',
-        'valueOf',
-        'hasOwnProperty',
-        'isPrototypeOf',
-        'propertyIsEnumerable',
-        'constructor'
-      ],
-      dontEnumsLength = dontEnums.length;
+  if (!isLambdaFunction()) {
+    messageParts.push(createTimestamp());
+    messageParts.push(`[${level.toUpperCase()}]`);
+  }
 
-    return function(obj) {
-      if (typeof obj !== 'object' && (typeof obj !== 'function' || obj === null)) {
-        throw new TypeError('Object.keys called on non-object');
-      }
+  if (message) {
+    messageParts.push(message);
+  }
 
-      var result = [], prop, i;
+  var logString = messageParts.join(' ');
+  var metaDataString = formatMetaData(meta);
+  return [logString, metaDataString].filter(str => str.length > 0).join('\n  ');
+}
 
-      for (prop in obj) {
-        if (hasOwnProperty.call(obj, prop)) {
-          result.push(prop);
-        }
-      }
+function formatMetaData(meta) {
+  if (!meta) {
+    return '';
+  }
 
-      if (hasDontEnumBug) {
-        for (i = 0; i < dontEnumsLength; i++) {
-          if (hasOwnProperty.call(obj, dontEnums[i])) {
-            result.push(dontEnums[i]);
-          }
-        }
-      }
-      return result;
-    };
-  }());
+  return ((typeof(meta) === 'string') ? meta : JSON.stringify(meta));
 }
 
 var logging = {
