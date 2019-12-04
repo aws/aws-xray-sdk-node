@@ -1,21 +1,29 @@
 {
   "name": "aws-xray-sdk",
-  "version": "2.3.4",
+  "version": "2.5.0",
   "description": "AWS X-Ray SDK for Javascript",
   "author": "Amazon Web Services",
   "contributors": [
     "Sandra McMullen <mcmuls@amazon.com>"
   ],
   "main": "lib/index.js",
+  "types": "lib/index.d.ts",
   "engines": {
     "node": ">= 4.x"
   },
   "dependencies": {
-    "aws-xray-sdk-core": "^2.3.4",
-    "aws-xray-sdk-express": "^2.3.4",
-    "aws-xray-sdk-mysql": "^2.3.4",
-    "aws-xray-sdk-postgres": "^2.3.4",
+    "aws-xray-sdk-core": "^2.5.0",
+    "aws-xray-sdk-express": "^2.5.0",
+    "aws-xray-sdk-mysql": "^2.5.0",
+    "aws-xray-sdk-postgres": "^2.5.0",
     "pkginfo": "^0.4.0"
+  },
+  "devDependencies": {
+    "tsd": "^0.10.0"
+  },
+  "scripts": {
+    "test": "tsd",
+    "test-d": "tsd"
   },
   "keywords": [
     "amazon",

@@ -1,23 +1,27 @@
 {
   "name": "aws-xray-sdk-mysql",
-  "version": "2.3.4",
+  "version": "2.5.0",
   "description": "AWS X-Ray Patcher for MySQL (Javascript)",
   "author": "Amazon Web Services",
   "contributors": [
     "Sandra McMullen <mcmuls@amazon.com>"
   ],
   "main": "lib/index.js",
+  "types": "lib/index.d.ts",
   "engines": {
     "node": ">= 4.x"
   },
   "directories": {
     "test": "test"
   },
+  "dependencies": {
+    "@types/mysql": "*"
+  },
   "peerDependencies": {
-    "aws-xray-sdk-core": "^2.3.4"
+    "aws-xray-sdk-core": "^2.5.0"
   },
   "devDependencies": {
-    "aws-xray-sdk-core": "^2.3.4",
+    "aws-xray-sdk-core": "^2.5.0",
     "chai": "^3.5.0",
     "eslint": "^4.19.1",
     "grunt": "^1.0.4",
@@ -26,10 +30,12 @@
     "mocha": "^6.2.0",
     "nock": "^10.0.6",
     "sinon": "^4.5.0",
-    "sinon-chai": "^2.8.0"
+    "sinon-chai": "^2.8.0",
+    "tsd": "^0.10.0"
   },
   "scripts": {
-    "test": "mocha --recursive ./test/ -R spec"
+    "test": "mocha --recursive ./test/ -R spec && tsd",
+    "test-d": "tsd"
   },
   "keywords": [
     "amazon",

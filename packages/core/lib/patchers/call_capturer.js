@@ -38,7 +38,7 @@ CallCapturer.prototype.append = function append(source) {
 
   if (typeof source === 'string') {
     logger.getLogger().info('Appending AWS whitelist with custom file: ' + source);
-    newServices = loadWhitelist(require(source));
+    newServices = loadWhitelist(JSON.parse(fs.readFileSync(source, 'utf8')));
   } else {
     logger.getLogger().info('Appending AWS whitelist with a custom source.');
     newServices = loadWhitelist(source);

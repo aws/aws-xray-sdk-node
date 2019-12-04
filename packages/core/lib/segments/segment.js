@@ -83,6 +83,18 @@ Segment.prototype.addAnnotation = function addAnnotation(key, value) {
 };
 
 /**
+ * Adds a User ID that can be queried from the X-Ray console. User ID
+ * must be a string.
+ * @param {string} user - The ID of the user corresponding to this segment
+ */
+Segment.prototype.setUser = function (user) {
+  if (typeof user !== 'string') {
+    logger.getLogger().error('Set user: ' + user + ' failed. User IDs must be of type string.');
+  }
+  this.user = user;
+}
+
+/**
  * Adds a key-value pair to the metadata.default attribute when no namespace is given.
  * Metadata is not queryable, but is recorded.
  * @param {string} key - The name of the key to add.

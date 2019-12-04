@@ -102,7 +102,6 @@ BatchingTemporarySocket.prototype.send = function (msg, offset, length, port, ad
  */
 
 var SegmentEmitter = {
-  socket: dgram.createSocket('udp4'),
   daemonConfig: require('./daemon_config'),
 
   /**
@@ -119,6 +118,13 @@ var SegmentEmitter = {
    */
 
   send: function send(segment) {
+    if (!this.socket) {
+      if (this.useBatchingTemporarySocket) {
+        this.socket = new BatchingTemporarySocket();
+      } else {
+        this.socket = dgram.createSocket('udp4');
+      }
+    }
     var client = this.socket;
     var formatted = segment.format();
     var data = PROTOCOL_HEADER + PROTOCOL_DELIMITER + formatted;
@@ -178,7 +184,7 @@ var SegmentEmitter = {
    */
 
   disableReusableSocket: function() {
-    this.socket = new BatchingTemporarySocket();
+    this.useBatchingTemporarySocket = true;
   }
 };
 

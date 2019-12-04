@@ -87,8 +87,8 @@ describe('SegmentEmitter', function() {
         SegmentEmitter.disableReusableSocket();
       }
 
-      it('should send the segment using the dgram client', testSegmentSend.bind(undefined, 1, 2, configureHook));
-      it('should share the dgram client between many segments sent at once', testSegmentSend.bind(undefined, 10, 3, configureHook));
+      it('should send the segment using the dgram client', testSegmentSend.bind(undefined, 1, 1, configureHook));
+      it('should share the dgram client between many segments sent at once', testSegmentSend.bind(undefined, 10, 2, configureHook));
     });
   });
 

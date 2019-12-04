@@ -1,6 +1,5 @@
 var assert = require('chai').assert;
 var chai = require('chai');
-var fs = require('fs');
 var sinon = require('sinon');
 var sinonChai = require('sinon-chai');
 
@@ -40,16 +39,11 @@ describe('AWSLambda', function() {
   });
 
   describe('#init', function() {
-    var disableReusableSocketStub, openSyncStub, populateStub, sandbox, setSegmentStub, validateStub;
+    var disableReusableSocketStub, populateStub, sandbox, setSegmentStub, validateStub;
 
     beforeEach(function() {
       sandbox = sinon.sandbox.create();
       disableReusableSocketStub = sandbox.stub(SegmentEmitter, 'disableReusableSocket');
-      openSyncStub = sandbox.stub(fs, 'openSync');
-      sandbox.stub(fs, 'mkdir').yields();
-      sandbox.stub(fs, 'closeSync');
-      sandbox.stub(fs, 'utimesSync');
-
       validateStub = sandbox.stub(LambdaUtils, 'validTraceData').returns(true);
       populateStub = sandbox.stub(LambdaUtils, 'populateTraceData').returns(true);
       setSegmentStub = sandbox.stub(contextUtils, 'setSegment');
@@ -57,11 +51,6 @@ describe('AWSLambda', function() {
 
     afterEach(function() {
       sandbox.restore();
-    });
-
-    it('should create the AWS XRay init file', function() {
-      Lambda.init();
-      openSyncStub.should.have.been.calledOnce;
     });
 
     it('should disable reusable socket', function() {
@@ -118,10 +107,6 @@ describe('AWSLambda', function() {
     beforeEach(function() {
       sandbox = sinon.sandbox.create();
       sandbox.stub(SegmentEmitter, 'disableReusableSocket');
-      sandbox.stub(fs, 'openSync');
-      sandbox.stub(fs, 'mkdir').yields();
-      sandbox.stub(fs, 'closeSync');
-      sandbox.stub(fs, 'utimesSync');
 
       sandbox.stub(LambdaUtils, 'validTraceData').returns(true);
       populateStub = sandbox.stub(LambdaUtils, 'populateTraceData').returns(true);
