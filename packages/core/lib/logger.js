@@ -1,5 +1,3 @@
-var format = require('date-fns/format');
-
 var validLogLevels = [ 'debug', 'info', 'warn', 'error', 'silent' ];
 var defaultLogLevel = validLogLevels.indexOf('error');
 var logLevel = calculateLogLevel(process.env.AWS_XRAY_DEBUG_MODE ? 'debug' : process.env.AWS_XRAY_LOG_LEVEL);
@@ -38,7 +36,19 @@ function calculateLogLevel(level) {
 }
 
 function createTimestamp() {
-  return format(new Date(), 'YYYY-MM-DD HH:mm:ss.SSS Z');
+  var now = new Date(),
+      tzo = -now.getTimezoneOffset(),  // Negate to make this tzo = local - UTC
+      dif = tzo >= 0 ? '+' : '-',
+      pad = function(num) {
+          var norm = Math.floor(Math.abs(num));
+          return (norm < 10 ? '0' : '') + norm;
+      };
+
+  return new Date(now.getTime() + (tzo * 60 * 1000)).toISOString()
+    .replace(/T/, ' ')
+    .replace(/Z/, ' ') +
+    dif + pad(tzo / 60) +
+    ':' + pad(tzo % 60);
 }
 
 function isLambdaFunction() {
