@@ -37,9 +37,9 @@
     "tsd": "^0.10.0"
   },
   "scripts": {
-    "test": "mocha --recursive ./test/ -R spec && tsd",
+    "test": "mocha --recursive ./test/ -R spec && tsd && mocha --recursive ./test_async/ -R spec",
     "test-d": "tsd",
-    "test-async": "./node_modules/.bin/mocha --recursive ./test_async/ -R spec"
+    "test-async": "mocha --recursive ./test_async/ -R spec"
   },
   "keywords": [
     "amazon",
