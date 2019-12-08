@@ -6,7 +6,7 @@ var utils = {
   streamingThreshold: DEFAULT_STREAMING_THRESHOLD,
 
   getCurrentTime: function getCurrentTime() {
-    return new Date().getTime()/1000;
+    return Date.now() / 1000;
   },
 
   setOrigin: function setOrigin(origin) {
