@@ -35,20 +35,19 @@ function calculateLogLevel(level) {
   return defaultLogLevel;
 }
 
-function createTimestamp() {
-  var now = new Date(),
-      tzo = -now.getTimezoneOffset(),  // Negate to make this tzo = local - UTC
+function createTimestamp(date) {
+  var tzo = -date.getTimezoneOffset(),  // Negate to make this tzo = local - UTC
       dif = tzo >= 0 ? '+' : '-',
       pad = function(num) {
           var norm = Math.floor(Math.abs(num));
           return (norm < 10 ? '0' : '') + norm;
       };
 
-  return new Date(now.getTime() + (tzo * 60 * 1000)).toISOString()
-    .replace(/T/, ' ')
-    .replace(/Z/, ' ') +
-    dif + pad(tzo / 60) +
-    ':' + pad(tzo % 60);
+  return new Date(date.getTime() + (tzo * 60 * 1000)).toISOString()
+      .replace(/T/, ' ')
+      .replace(/Z/, ' ') +
+      dif + pad(tzo / 60) +
+      ':' + pad(tzo % 60);
 }
 
 function isLambdaFunction() {
@@ -59,7 +58,7 @@ function formatLogMessage(level, message, meta) {
   var messageParts = [];
 
   if (!isLambdaFunction()) {
-    messageParts.push(createTimestamp());
+    messageParts.push(createTimestamp(new Date()));
     messageParts.push(`[${level.toUpperCase()}]`);
   }
 
