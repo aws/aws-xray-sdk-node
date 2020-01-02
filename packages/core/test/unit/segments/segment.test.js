@@ -113,6 +113,32 @@ describe('Segment', function() {
     });
   });
 
+  describe('#addAnnotation', function() {
+    var segment, subsegment, key, value;
+
+    beforeEach(function() {
+      segment = new Segment('test');
+      subsegment = segment.addNewSubsegment('newSubsegment');
+      key = 'key';
+      value = 'value';
+    });
+
+    it('should throw an error if trying to add with invalid key', function() {
+      assert.throws( function() { subsegment.addAnnotation('invalid key with non-alphanumerics', 'validValue'); }, Error);
+      assert.throws( function() { subsegment.addAnnotation('invalid_key_because_of_length'+'1'.repeat(500), 'validValue'); }, Error);
+      assert.throws( function() { subsegment.addAnnotation(3, 'validValue'); }, Error);
+    });
+
+    it('should throw an error if trying to add with invalid value', function() {
+      assert.throws( function() { subsegment.addAnnotation('validKey', '🤓'.repeat(1001)); }, Error);
+    });
+
+    it('should set annotations[key] to value', function() {
+      subsegment.addAnnotation(key, value);
+      assert.propertyVal(subsegment.annotations, key, value);
+    });
+  });
+
   describe('#addSDKData', function() {
     var segment, version;
 

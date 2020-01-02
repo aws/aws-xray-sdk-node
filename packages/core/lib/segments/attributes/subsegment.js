@@ -112,8 +112,8 @@ Subsegment.prototype.addPrecursorId = function(id) {
 /**
  * Adds a key-value pair that can be queryable through GetTraceSummaries.
  * Only acceptable types are string, float/int and boolean.
- * @param {string} key - The name of key to add.
- * @param {boolean|string|number} value - The value to add for the given key.
+ * @param {string} key - The name of key to add. Alphanumeric and underscores allowed. 500 characters allowed.
+ * @param {boolean|string|number} value - The value to add for the given key. If string, must be less than 1000 unicode characters.
  */
 
 Subsegment.prototype.addAnnotation = function(key, value) {
@@ -123,6 +123,15 @@ Subsegment.prototype.addAnnotation = function(key, value) {
   } else if (typeof key !== 'string') {
     throw new Error('Failed to add annotation key: ' + key + ' value: ' + value + ' to subsegment ' +
       this.name + '. Key must be of type string.');
+  } else if (typeof key === 'string'  && key.length > 500) {
+    throw new Error('Failed to add annotation key: ' + key + ' value: ' + value + ' to subsegment ' +
+      this.name + '. Key must not be longer than 500 characters.');
+  } else if (typeof key === 'string' && !/^[A-Za-z0-9_]+$/.test(key)) {
+    throw new Error('Failed to add annotation key: ' + key + ' value: ' + value + ' to subsegment ' +
+      this.name + '. Key must be alphanumeric or underscores.');
+  } else if (typeof value === 'string'  && [...value].length > 1000) {
+    throw new Error('Failed to add annotation key: ' + key + ' value: ' + value + ' to subsegment ' +
+      this.name + '. Value must not be longer than 1000 unicode characters.');
   }
 
   if (this.annotations === undefined)
