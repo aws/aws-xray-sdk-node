@@ -1,4 +1,5 @@
 var expect = require('chai').expect;
+var rewire = require('rewire');
 var sinon = require('sinon');
 var logging = require('../../lib/logger');
 
@@ -149,7 +150,8 @@ describe('logger', function () {
   });
 
   describe('console logging format', function () {
-    var logMessageRegex = /(\d{4}-[01]\d-[0-3]\d) ([0-2]\d:[0-5]\d:[0-5]\d\.\d+) ([+-][0-2]\d:[0-5]\d|Z) \[(\w+)\](.*)/;
+    var logMessageRegex = /(\d{4}-[01]\d-[0-3]\d) ([0-2]\d:[0-5]\d:[0-5]\d\.\d+) ([+-][0-2]\d:[0-5]\d) \[(\w+)\](.*)/;
+    var timestampRegex = /(\d{4}-[01]\d-[0-3]\d) ([0-2]\d:[0-5]\d:[0-5]\d\.\d+) ([+-][0-2]\d:[0-5]\d)/;
 
     before(function() {
       reloadLogger();
@@ -221,6 +223,54 @@ describe('logger', function () {
       var message = console.error.args[0][0];
       expect(logMessageRegex.test(message)).to.be.false;
       expect(message).to.equal(expectedMessage + '\n  ' + expectedMetaData);
+    });
+
+    it('should generate timestamp with negative timezone offset', () => {
+      var rewiredLogger = rewire('../../lib/logger');
+      var createTimestamp = rewiredLogger.__get__('createTimestamp');
+
+      var date = new Date();
+      sinon.stub(date, 'getTimezoneOffset').returns(60);
+      var stamp = createTimestamp(date);
+
+      var groups = stamp.match(timestampRegex);
+      expect(groups[3]).to.equal('-01:00');
+    });
+
+    it('should generate timestamp with positive timezone offset', () => {
+      var rewiredLogger = rewire('../../lib/logger');
+      var createTimestamp = rewiredLogger.__get__('createTimestamp');
+
+      var date = new Date();
+      sinon.stub(date, 'getTimezoneOffset').returns(-60);
+      var stamp = createTimestamp(date);
+
+      var groups = stamp.match(timestampRegex);
+      expect(groups[3]).to.equal('+01:00');
+    });
+
+    it('should generate timestamp with special timezone offset', () => {
+      var rewiredLogger = rewire('../../lib/logger');
+      var createTimestamp = rewiredLogger.__get__('createTimestamp');
+
+      var date = new Date();
+      sinon.stub(date, 'getTimezoneOffset').returns(108);
+      var stamp = createTimestamp(date);
+
+      var groups = stamp.match(timestampRegex);
+      expect(groups[3]).to.equal('-01:48');
+    });
+
+    it('should generate correctly formatted timestamp', () => {
+      var rewiredLogger = rewire('../../lib/logger');
+      var createTimestamp = rewiredLogger.__get__('createTimestamp');
+
+      var date = new Date(1576877599000);  // 12/20/2019 @ 9:33pm (UTC)
+      sinon.stub(date, 'getTimezoneOffset').returns(0);
+      var stamp = createTimestamp(date);
+      var expected = '2019-12-20 21:33:19.000 +00:00';
+
+      expect(stamp).to.equal(expected);
     });
   });
 });
