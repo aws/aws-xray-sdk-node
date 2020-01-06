@@ -1,6 +1,18 @@
 # Changelog for AWS X-Ray Core SDK for JavaScript
-<!--LATEST=2.5.0-->
+<!--LATEST=3.0.0-alpha.1-->
 <!--ENTRYINSERT-->
+## 3.0.0-alpha.1
+* **BREAKING** change: Merged `2.x` branch into `master`, breaking node v4 [PR #226](https://github.com/aws/aws-xray-sdk-node/pull/226)
+* **BREAKING** change: Officially deprecated support for node 4 and 6 [PR #228](https://github.com/aws/aws-xray-sdk-node/pull/228)
+* **BREAKING** change: Removed `winston` dependency, which could impact `getLogger` API [PR #190](https://github.com/aws/aws-xray-sdk-node/pull/190)
+* improvement: Replaced `continuation-local-storage` with `cls-hooked` [PR #227](https://github.com/aws/aws-xray-sdk-node/pull/227)
+* improvement: Whitelisted new SageMaker operation [PR #211](https://github.com/aws/aws-xray-sdk-node/pull/211)
+* improvement: Removed dependency on `date-fns` [PR #229](https://github.com/aws/aws-xray-sdk-node/pull/229)
+* bugfix: Make resolve segment argument optional [PR #216](https://github.com/aws/aws-xray-sdk-node/pull/216)
+* bugfix: Remove unused Lambda handshake file [PR #221](https://github.com/aws/aws-xray-sdk-node/pull/221)
+* bugfix: Replace `Date.getTime` with `Date.Now` [PR #230](https://github.com/aws/aws-xray-sdk-node/pull/230)
+
+
 ## 2.5.0
 * improvement: Add setUser function to segment object [PR #206](https://github.com/aws/aws-xray-sdk-node/pull/206)
 * improvement: Add TypeScript definitions for entire SDK [PR #207](https://github.com/aws/aws-xray-sdk-node/pull/207)
