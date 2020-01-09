@@ -9,9 +9,11 @@
 
 ## 2.5.0
 * change: Updated aws-xray-sdk-core to 2.5.0. See aws-xray-sdk-core's CHANGELOG.md for package changes.
-* change: Updated aws-xray-sdk-express to 2.5.0. No further changes.
-* change: Updated aws-xray-sdk-mysql to 2.5.0. No further changes.
-* change: Updated aws-xray-postgres to 2.5.0. No further changes.
+* change: Updated aws-xray-sdk-express to 2.5.0. See aws-xray-sdk-express's CHANGELOG.md for package changes.
+* change: Updated aws-xray-sdk-mysql to 2.5.0.
+  * improvement: Added TypeScript definitions [PR #207](https://github.com/aws/aws-xray-sdk-node/pull/207)
+* change: Updated aws-xray-postgres to 2.5.0.
+  * improvement: Added TypeScript definitions [PR #207](https://github.com/aws/aws-xray-sdk-node/pull/207)
 
 ## 2.4.0
 * change: Updated aws-xray-sdk-core to 2.4.0. See aws-xray-sdk-core's CHANGELOG.md for package changes.
