@@ -304,13 +304,13 @@ See the [aws-xray-sdk-express](https://github.com/aws/aws-xray-sdk-node/tree/mas
 For additional information about and examples for using the CLS namespace to create
 a new context, see: https://github.com/jeff-lewis/cls-hooked.
 
-### Capture subsegmenets within chained native Promise using automatic mode
+### Capture subsegments within chained native Promise using automatic mode
 
 If you have chained native Promise and you have subsegments generated within those promises, you should consider to run the following code to patch the behavior of CLS on binding X-Ray context to Promise.
 
     AWSXRay.capturePromise();
 
-This will solve the issue where the subsegments within a Promise chain are attached to wrong segments or nested instead of being siblings. For more details on the discussion please see this [PR](https://github.com/aws/aws-xray-sdk-node/pull/11).
+This will solve the issue where the subsegments within a Promise chain are attached to wrong segments or nested instead of being siblings. For more details on the discussion please see this [PR](https://github.com/aws/aws-xray-sdk-node/pull/11). See the "Capture all outgoing Axios requests" section for full sample code. 
 
 ## Example code
 
@@ -513,6 +513,15 @@ Only then will the segment be available for use in automatic mode and be able to
     //Create new requests as usual
     //Be sure any outgoing calls that are dependent on another async
     //function are wrapped with captureAsyncFunc, or duplicate segments might leak
+
+### Capture all outgoing Axios requests
+
+This sample code works with any promise-based HTTP client.
+
+    const AWSXRay = require('aws-xray-sdk');
+    AWSXRay.captureHTTPsGlobal(require('http'));
+    AWSXRay.capturePromise();
+    const AxiosWithXray = require('axios');
 
 ## Manual mode examples
 
