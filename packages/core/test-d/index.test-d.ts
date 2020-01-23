@@ -1,6 +1,7 @@
 import * as AWS from 'aws-sdk';
 import { AWSError } from 'aws-sdk';
 import { PromiseResult } from 'aws-sdk/lib/request';
+import { Namespace } from 'cls-hooked';
 import * as http from 'http';
 import * as https from 'https';
 import { Socket } from 'net';
@@ -148,7 +149,7 @@ const rulesConfig: AWSXRay.middleware.RulesConfig = {
 };
 expectType<void>(AWSXRay.middleware.setSamplingRules(rulesConfig));
 
-expectType<string>(AWSXRay.getNamespace().name);
+expectType<Namespace>(AWSXRay.getNamespace());
 expectType<AWSXRay.Segment | AWSXRay.Subsegment | undefined>(AWSXRay.resolveSegment(segment));
 expectType<AWSXRay.Segment | AWSXRay.Subsegment | undefined>(AWSXRay.resolveSegment(undefined));
 expectType<AWSXRay.Segment | AWSXRay.Subsegment | undefined>(AWSXRay.resolveSegment(null));

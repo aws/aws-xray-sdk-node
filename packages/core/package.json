@@ -15,7 +15,7 @@
     "test": "test"
   },
   "dependencies": {
-    "@types/continuation-local-storage": "*",
+    "@types/cls-hooked": "*",
     "atomic-batcher": "^1.0.2",
     "aws-sdk": "^2.304.0",
     "cls-hooked": "^4.2.2",
