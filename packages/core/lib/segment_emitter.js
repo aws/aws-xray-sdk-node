@@ -122,7 +122,7 @@ var SegmentEmitter = {
       if (this.useBatchingTemporarySocket) {
         this.socket = new BatchingTemporarySocket();
       } else {
-        this.socket = dgram.createSocket('udp4');
+        this.socket = dgram.createSocket('udp4').unref();
       }
     }
     var client = this.socket;
@@ -187,8 +187,5 @@ var SegmentEmitter = {
     this.useBatchingTemporarySocket = true;
   }
 };
-
-if (SegmentEmitter.socket && (typeof SegmentEmitter.socket.unref === 'function'))
-  SegmentEmitter.socket.unref();
 
 module.exports = SegmentEmitter;

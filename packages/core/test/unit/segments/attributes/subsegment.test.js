@@ -238,7 +238,8 @@ describe('Subsegment', function() {
       parent = new Subsegment('test');
 
       sandbox.stub(dgram, 'createSocket').returns({
-        send: emitStub
+        send: emitStub,
+        unref: sinon.stub().returnsThis()
       });
 
       child = parent.addNewSubsegment('child');
