@@ -141,7 +141,11 @@ function resolveArguments(argsObj) {
   if (argsObj && argsObj.length > 0) {
     if (argsObj[0] instanceof Object) {
       args.sql = argsObj[0].sql;
-      args.timeout = argsObj[0].timeout;
+
+      if (argsObj[0].timeout) {
+        args.timeout = argsObj[0].timeout;
+      }
+
       args.values = argsObj[0].values;
       args.callback = argsObj[1];
       if (!argsObj[1] && argsObj[0].on instanceof Function) args.sql = argsObj[0];
@@ -199,7 +203,7 @@ function captureOperation(name) {
     }
 
     var sql = { sql:args.sql };
-    if(args.timeout) {
+    if (args.timeout) {
       sql.timeout = args.timeout
     }
 
