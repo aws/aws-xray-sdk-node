@@ -1,4 +1,4 @@
-import { Namespace } from 'continuation-local-storage';
+import { Namespace } from 'cls-hooked';
 import Segment = require('./segments/segment');
 import Subsegment = require('./segments/attributes/subsegment');
 
