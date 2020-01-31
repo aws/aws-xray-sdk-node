@@ -54,22 +54,39 @@ var captureHTTPs = function captureHTTPs(module, downstreamXRayEnabled) {
 };
 
 function enableCapture(module, downstreamXRayEnabled) {
-  function captureOutgoingHTTPs(baseFunc, options, callback) {
+  function captureOutgoingHTTPs(baseFunc, ...args) {
+    let options;
+    let callback;
+    let hasUrl;
+    let urlObj;
+    if (typeof args[1] === 'object') {
+      hasUrl = true;
+      urlObj = typeof args[0] === 'string' ? url.parse(args[0]) : args[0];
+      options = args[1],
+      callback = args[2];
+    } else {
+      hasUrl = false;
+      options = args[0];
+      callback = args[1];
+    }
     if (!options || (options.headers && (options.headers['X-Amzn-Trace-Id']))) {
-      return baseFunc(options, callback);
+      return baseFunc(...args);
     }
 
     if (typeof options === 'string') {
       options = url.parse(options);
     }
+    if (!hasUrl) {
+      urlObj = options;
+    }
 
     var parent = contextUtils.resolveSegment(contextUtils.resolveManualSegmentParams(options));
-    var hostname = options.hostname || options.host || 'Unknown host';
+    var hostname = options.hostname || options.host || urlObj.hostname || urlObj.host || 'Unknown host';
 
     if (!parent) {
       var output = '[ host: ' + hostname;
       output = options.method ? (output + ', method: ' + options.method) : output;
-      output += ', path: ' + options.path + ' ]';
+      output += ', path: ' + (options.path || urlObj.path) + ' ]';
 
       if (!contextUtils.isAutomaticMode()) {
         logger.getLogger().info('Options for request ' + output +
@@ -79,7 +96,8 @@ function enableCapture(module, downstreamXRayEnabled) {
           ' is missing the sub/segment context for automatic mode. Ignoring.');
       }
 
-      return baseFunc(options, callback);
+      // Options are not modified, only parsed for logging. We can pass in the original arguments.
+      return baseFunc(...args);
     }
 
     var subsegment = parent.addNewSubsegment(hostname);
@@ -113,7 +131,7 @@ function enableCapture(module, downstreamXRayEnabled) {
 
     var optionsCopy = Utils.objectWithoutProperties(options, ['Segment'], true);
 
-    var req = baseFunc(optionsCopy, function(res) {
+    var req = baseFunc(...(hasUrl ? [urlObj, optionsCopy] : [options]), function(res) {
       res.on('end', function() {
         if (res.statusCode === 429)
           subsegment.addThrottleFlag();
@@ -149,13 +167,13 @@ function enableCapture(module, downstreamXRayEnabled) {
   }
 
   module.__request = module.request;
-  module.request = function captureHTTPsRequest(options, callback) {
-    return captureOutgoingHTTPs(module.__request, options, callback);
+  module.request = function captureHTTPsRequest(...args) {
+    return captureOutgoingHTTPs(module.__request, ...args);
   };
 
   module.__get = module.get;
-  module.get = function captureHTTPsGet(options, callback) {
-    return captureOutgoingHTTPs(module.__get, options, callback);
+  module.get = function captureHTTPsGet(...args) {
+    return captureOutgoingHTTPs(module.__get, ...args);
   };
 }
 
