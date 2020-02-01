@@ -5,6 +5,7 @@ declare class Subsegment {
   name: string;
   start_time: number;
   in_progress?: boolean;
+  subsegments?: Array<Subsegment>;
 
   constructor(name: string);
 
