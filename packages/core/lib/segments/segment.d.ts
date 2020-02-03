@@ -9,6 +9,7 @@ declare class Segment {
   trace_id: string;
   parent_id?: string;
   origin?: string;
+  subsegments?: Array<Subsegment>;
 
   constructor(name: string, rootId?: string | null, parentId?: string | null);
 
