@@ -202,10 +202,7 @@ function captureOperation(name) {
       }
     }
 
-    var sql = { sql:args.sql };
-    if (args.timeout) {
-      sql.timeout = args.timeout
-    }
+    const sql = args.timeout ? { sql: args.sql, timeout: args.timeout } : args.sql;
 
     command = originalOperation.call(this, sql, args.values, args.callback);
 
