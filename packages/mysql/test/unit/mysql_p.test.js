@@ -115,6 +115,24 @@ describe('captureMySQL', function() {
         }, 50);
       });
 
+      it('should pass timeout to basequery if supplied', function (done) {
+        var stubClose = sandbox.stub(subsegment, 'close');
+        var session = { run: function (fcn) { fcn(); } };
+        var stubRun = sandbox.stub(session, 'run');
+
+        sandbox.stub(AWSXRay, 'getNamespace').returns(session);
+        query.call(connectionObj, {sql: 'sql here', timeout: 234}, function () { });
+
+        stubBaseQuery.should.have.been.calledWith(sinon.match({ sql: 'sql here', timeout: 234 }), undefined, sinon.match.func);
+        stubBaseQuery.args[0][2].call(queryObj);
+
+        setTimeout(function () {
+          stubClose.should.always.have.been.calledWith();
+          stubRun.should.have.been.calledOnce;
+          done();
+        }, 50);
+      });
+
       it('should capture the error via the callback if supplied', function(done) {
         var stubClose = sandbox.stub(subsegment, 'close');
 
