@@ -22,6 +22,23 @@ var utils = {
   },
 
   /**
+   * Removes the query string parameters from a given http request path
+   * as it may contain sensitive information
+   * 
+   * Related issue: https://github.com/aws/aws-xray-sdk-node/issues/246
+   * 
+   * Node documentation: https://nodejs.org/api/http.html#http_http_request_url_options_callback
+   * 
+   * @param {string} path - options.path in a http.request callback
+   * @returns [string] - removes query string element from path
+   * @alias module:utils.stripQueryStringFromPath
+   */
+
+  stripQueryStringFromPath: function stripQueryStringFromPath(path) {
+    return path.split('?')[0];
+  },
+
+  /**
    * Performs a case-insensitive wildcard match against two strings. This method works with pseduo-regex chars; specifically ? and * are supported.
    *   An asterisk (*) represents any combination of characters
    *   A question mark (?) represents any single character

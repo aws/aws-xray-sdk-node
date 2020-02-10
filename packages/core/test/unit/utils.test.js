@@ -19,6 +19,16 @@ describe('Utils', function() {
     });
   });
 
+  describe('#stripQueryStringFromPath', function() {
+    it('should remove query string for simple path', function() {
+      assert.equal(Utils.stripQueryStringFromPath('/index.html?page=12'), '/index.html');
+    });
+
+    it('should remove query string for complex path', function() {
+      assert.equal(Utils.stripQueryStringFromPath('/really/long/path/to/content.html?page=12'), '/really/long/path/to/content.html');
+    });
+  });
+
   describe('#processTraceData', function() {
     it('should parse X-Amzn-Trace-Id with spaces', function() {
       var traceData = 'Root=1-58ed6027-14afb2e09172c337713486c0; Parent=48af77592b6dd73f; Sampled=1';

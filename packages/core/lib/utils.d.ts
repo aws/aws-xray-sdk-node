@@ -2,6 +2,8 @@ import Segment = require('./segments/segment');
 
 export function getCauseTypeFromHttpStatus(status: number | string): 'error' | 'fault' | undefined;
 
+export function stripQueryStringFromPath(path: string): string;
+
 export function wildcardMatch(pattern: string, text: string): boolean;
 
 export namespace LambdaUtils {
