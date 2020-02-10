@@ -1,7 +1,7 @@
 var assert = require('chai').assert;
 var chai = require('chai');
 
-var RemoteRequestData = require('../../../../lib/segments/attributes/remote_request_data')
+var RemoteRequestData = require('../../../../lib/segments/attributes/remote_request_data');
 
 chai.should();
 
@@ -31,7 +31,7 @@ describe('RemoteRequestData', function() {
     response = defaultResponse;
   });
 
-  describe.only('#constructor', function() {
+  describe('#constructor', function() {
     it('should mask out query string in path', function() {
       const requestWithPathQueryString = Object.assign(request, { path: '/path/to/resource?qs=qs' });
       
