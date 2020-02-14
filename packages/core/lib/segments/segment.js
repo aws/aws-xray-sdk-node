@@ -92,7 +92,7 @@ Segment.prototype.setUser = function (user) {
     logger.getLogger().error('Set user: ' + user + ' failed. User IDs must be of type string.');
   }
   this.user = user;
-}
+};
 
 /**
  * Adds a key-value pair to the metadata.default attribute when no namespace is given.

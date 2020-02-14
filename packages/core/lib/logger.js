@@ -37,15 +37,15 @@ function calculateLogLevel(level) {
 
 function createTimestamp(date) {
   var tzo = -date.getTimezoneOffset(),  // Negate to make this tzo = local - UTC
-      dif = tzo >= 0 ? '+' : '-',
-      pad = function(num) {
-          var norm = Math.floor(Math.abs(num));
-          return (norm < 10 ? '0' : '') + norm;
-      };
+    dif = tzo >= 0 ? '+' : '-',
+    pad = function(num) {
+      var norm = Math.floor(Math.abs(num));
+      return (norm < 10 ? '0' : '') + norm;
+    };
 
   return new Date(date.getTime() + (tzo * 60 * 1000)).toISOString()
-      .replace(/T/, ' ')
-      .replace(/Z/, ' ') +
+    .replace(/T/, ' ')
+    .replace(/Z/, ' ') +
       dif + pad(tzo / 60) +
       ':' + pad(tzo % 60);
 }

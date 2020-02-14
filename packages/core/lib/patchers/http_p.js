@@ -59,20 +59,22 @@ function enableCapture(module, downstreamXRayEnabled) {
     let callback;
     let hasUrl;
     let urlObj;
+
+    let arg0 = args[0];
     if (typeof args[1] === 'object') {
       hasUrl = true;
-      urlObj = typeof args[0] === 'string' ? url.parse(args[0]) : args[0];
+      urlObj = typeof arg0 === 'string' ? url.parse(arg0) : arg0;
       options = args[1],
       callback = args[2];
     } else {
       hasUrl = false;
-      options = args[0];
+      options = arg0;
       callback = args[1];
     }
+
     if (!options || (options.headers && (options.headers['X-Amzn-Trace-Id']))) {
       return baseFunc(...args);
     }
-
     if (typeof options === 'string') {
       options = url.parse(options);
     }
@@ -131,7 +133,7 @@ function enableCapture(module, downstreamXRayEnabled) {
 
     var optionsCopy = Utils.objectWithoutProperties(options, ['Segment'], true);
 
-    var req = baseFunc(...(hasUrl ? [urlObj, optionsCopy] : [options]), function(res) {
+    var req = baseFunc(...(hasUrl ? [arg0, optionsCopy] : [options]), function(res) {
       res.on('end', function() {
         if (res.statusCode === 429)
           subsegment.addThrottleFlag();
