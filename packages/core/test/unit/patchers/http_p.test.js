@@ -112,7 +112,8 @@ describe('HTTP/S', function() {
         fakeRequest = buildFakeRequest();
         fakeResponse = buildFakeResponse();
 
-        httpClient = { request: function(options, callback) {
+        httpClient = { request: function(...args) {
+          const callback = args[typeof args[1] === 'object' ? 2 : 1];
           callback(fakeResponse);
           return fakeRequest;
         }};
@@ -179,6 +180,17 @@ describe('HTTP/S', function() {
         var options = requestSpy.firstCall.args[0];
         assert.match(options.headers['X-Amzn-Trace-Id'], xAmznTraceId);
       });
+
+      if (process.version.startsWith('v') && process.version >= 'v10') {
+        it('should inject the tracing headers into the options if a URL is also provided', function() {
+          capturedHttp.request(`http://${httpOptions.host}${httpOptions.path}`, httpOptions);
+  
+          // example: 'Root=1-59138384-82ff54d5ba9282f0c680adb3;Parent=53af362e4e4efeb8;Sampled=1'
+          var xAmznTraceId = new RegExp('^Root=' + traceId + ';Parent=([a-f0-9]{16});Sampled=1$');
+          var options = requestSpy.firstCall.args[1];
+          assert.match(options.headers['X-Amzn-Trace-Id'], xAmznTraceId);
+        });
+      }
 
       it('should return the request object', function() {
         var request = capturedHttp.request(httpOptions);
