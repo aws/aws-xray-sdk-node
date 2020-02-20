@@ -88,7 +88,7 @@ function enableCapture(module, downstreamXRayEnabled) {
     if (!parent) {
       var output = '[ host: ' + hostname;
       output = options.method ? (output + ', method: ' + options.method) : output;
-      output += ', path: ' + (options.path || urlObj.path) + ' ]';
+      output += ', path: ' + Utils.stripQueryStringFromPath(options.path || urlObj.path) + ' ]';
 
       if (!contextUtils.isAutomaticMode()) {
         logger.getLogger().info('Options for request ' + output +

@@ -1,3 +1,5 @@
+var { stripQueryStringFromPath } = require('../../utils');
+
 /**
  * Represents an outgoing HTTP/HTTPS call.
  * @constructor
@@ -12,7 +14,7 @@ function RemoteRequestData(req, res, downstreamXRayEnabled) {
 
 RemoteRequestData.prototype.init = function init(req, res, downstreamXRayEnabled) {
   this.request = {
-    url: (req.agent.protocol + '//' + req.getHeader('host') + req.path) || '',
+    url: (req.agent.protocol + '//' + req.getHeader('host') +  stripQueryStringFromPath(req.path)) || '',
     method: req.method || '',
   };
 
