@@ -78,7 +78,7 @@ function enableCapture(module, downstreamXRayEnabled) {
     // or represents a centralized sampling request to the daemon
     if (!options || 
        (options.headers && (options.headers['X-Amzn-Trace-Id'])) ||
-       (options.host == DaemonConfig.tcp_ip && 
+       (options.hostname == DaemonConfig.tcp_ip && 
         options.port == DaemonConfig.tcp_port && 
        (options.path == ServiceConnector.samplingRulesPath || 
         options.path == ServiceConnector.samplingTargetsPath)))
@@ -89,7 +89,7 @@ function enableCapture(module, downstreamXRayEnabled) {
     if (typeof options === 'string') {
       options = url.parse(options);
     }
-    
+
     if (!hasUrl) {
       urlObj = options;
     }
