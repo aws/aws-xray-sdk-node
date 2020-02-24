@@ -1,7 +1,5 @@
-import * as AWS from 'aws-sdk';
-
 declare class Aws {
-  constructor(res: AWS.Response<any, any>, serviceName: string);
+  constructor(res: any, serviceName: string);
 
   addData(data: any): void;
 }

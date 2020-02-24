@@ -78,6 +78,8 @@ describe('HTTP/S', function() {
   describe('#captureHTTPsRequest', function() {
     var addRemoteDataStub, closeStub, httpOptions, newSubsegmentStub, resolveManualStub, sandbox, segment, subsegment;
     var traceId = '1-57fbe041-2c7ad569f5d6ff149137be86';
+    const DEFAULT_DAEMON_ADDRESS = '127.0.0.1';
+    const DEFAULT_DAEMON_PORT = 2000;
 
     beforeEach(function() {
       sandbox = sinon.sandbox.create();
@@ -195,6 +197,32 @@ describe('HTTP/S', function() {
       it('should return the request object', function() {
         var request = capturedHttp.request(httpOptions);
         assert.equal(request, fakeRequest);
+      });
+
+      it('should not add header to get sampling rules calls', function() {
+        var options = {
+          host: DEFAULT_DAEMON_ADDRESS,
+          port: DEFAULT_DAEMON_PORT,
+          path: '/GetSamplingRules'
+        };
+
+        capturedHttp.request(options, (res) => {});
+        var newOptions = requestSpy.firstCall.args[0];
+
+        assert.equal(options, newOptions);
+      });
+
+      it('should not add header to get sampling targets calls', function() {
+        var options = {
+          host: DEFAULT_DAEMON_ADDRESS,
+          port: DEFAULT_DAEMON_PORT,
+          path: '/SamplingTargets'
+        };
+
+        capturedHttp.request(options, (res) => {});
+        var newOptions = requestSpy.firstCall.args[0];
+
+        assert.equal(options, newOptions);
       });
     });
 

@@ -10,7 +10,6 @@ var contextUtils = require('../context_utils');
 var Utils = require('../utils');
 
 var logger = require('../logger');
-var ServiceConnector = require('../middleware/sampling/service_connector');
 
 var minVersion = '2.7.15';
 
@@ -24,7 +23,7 @@ var throttledErrorDefault = function throttledErrorDefault() {
  * for additional details.
  * @param {AWS} awssdk - The Javascript AWS SDK.
  * @alias module:aws_p.captureAWS
- * @returns {AWS}
+ * @returns {any} - Typed as any to avoid dependency on AWS SDK. Otherwise would be AWS.
  * @see https://github.com/aws/aws-sdk-js
  */
 
@@ -48,7 +47,7 @@ var captureAWS = function captureAWS(awssdk) {
  * call paramaters, and must reference a Segment or Subsegment object.
  * @param {AWS.Service} service - An instance of a AWS service to wrap.
  * @alias module:aws_p.captureAWSClient
- * @returns {AWS.Service}
+ * @returns {any} - Typed as any to avoid dependency on AWS SDK. Otherwise would be AWS.Service.
  * @see https://github.com/aws/aws-sdk-js
  */
 
@@ -58,11 +57,6 @@ var captureAWSClient = function captureAWSClient(service) {
 };
 
 function captureAWSRequest(req) {
-  // short-circuit if the client is the sampling poller
-  if (req.service === ServiceConnector.client) {
-    return req;
-  }
-
   var parent = contextUtils.resolveSegment(contextUtils.resolveManualSegmentParams(req.params));
 
   if (!parent) {

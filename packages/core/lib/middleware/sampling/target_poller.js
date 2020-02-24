@@ -24,7 +24,7 @@ var refreshWithFirewall = function refreshWithFirewall() {
   try {
     refresh();
   } catch (e) {
-    logger.getLogger().debug('Encountered unexpected exception when fetching sampling targets: ' + e);
+    logger.getLogger().warn('Encountered unexpected exception when fetching sampling targets: ' + e);
   }
 };
 
@@ -34,7 +34,12 @@ var refresh = function refresh() {
     logger.getLogger().debug('There is no sampling rule statistics to report.');
   else {
     logger.getLogger().debug('Reporting rule statistics to get new quota.');
-    serviceConnector.fetchTargets(candidates, function(targetsMapping, ruleFreshness) {
+    serviceConnector.fetchTargets(candidates, function(err, targetsMapping, ruleFreshness) {
+      if (err) {
+        logger.getLogger().debug('Failed to call GetSamplingTargets API: ' + err);
+        return;
+      }
+
       ruleCache.loadTargets(targetsMapping);
       if(ruleFreshness > ruleCache.getLastUpdated()) {
         logger.getLogger().info('Performing out-of-band sampling rule polling to fetch updated rules.');

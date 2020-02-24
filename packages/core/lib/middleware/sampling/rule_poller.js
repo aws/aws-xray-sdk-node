@@ -36,7 +36,7 @@ var refreshWithFirewall = function refreshWithFirewall() {
   try {
     refreshCache();
   } catch (e) {
-    logger.getLogger().debug('Encountered unexpected exception when fetching sampling rules: ' + e);
+    logger.getLogger().warn('Encountered unexpected exception when fetching sampling rules: ' + e);
   }
 };
 
@@ -47,8 +47,10 @@ var refreshCache = function refreshCache() {
 
   // Pass a callback that only runs when the new rules are
   // successfully fetched. 
-  ServiceConnector.fetchSamplingRules(function(newRules) {
-    if(newRules.length !== 0) {
+  ServiceConnector.fetchSamplingRules(function(err, newRules) {
+    if (err) {
+      logger.getLogger().warn('Failed to call GetSamplingRules API: ' + err);
+    } else if(newRules.length !== 0) {
       ruleCache.loadRules(newRules);
       ruleCache.timestamp(now);
       logger.getLogger().info('Successfully refreshed centralized sampling rule cache.');

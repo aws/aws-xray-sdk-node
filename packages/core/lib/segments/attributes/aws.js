@@ -7,7 +7,7 @@ var capturer = new CallCapturer();
  * Data captured depends on the whitelisting file supplied.
  * The base whitelisting file can be found at /lib/resources/aws_whitelist.json.
  * @constructor
- * @param {AWS.Response} res - The response object from the AWS call.
+ * @param {any} res - The response object from the AWS call. Typed as any to avoid AWS SDK dependency. Otherwise would be AWS.Response.
  * @param {string} serviceName - The service name of the AWS client.
  * @see https://github.com/aws/aws-sdk-js/blob/master/lib/response.js
  */
