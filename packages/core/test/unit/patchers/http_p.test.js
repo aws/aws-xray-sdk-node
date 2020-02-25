@@ -201,28 +201,26 @@ describe('HTTP/S', function() {
 
       it('should not add header to get sampling rules calls', function() {
         var options = {
-          host: DEFAULT_DAEMON_ADDRESS,
+          hostname: DEFAULT_DAEMON_ADDRESS,
           port: DEFAULT_DAEMON_PORT,
           path: '/GetSamplingRules'
         };
 
         capturedHttp.request(options, (res) => {});
-        var newOptions = requestSpy.firstCall.args[0];
 
-        assert.equal(options, newOptions);
+        sinon.assert.notCalled(newSubsegmentStub);
       });
 
-      it('should not add header to get sampling targets calls', function() {
+      it('should not create subsegment for sampling targets calls', function() {
         var options = {
-          host: DEFAULT_DAEMON_ADDRESS,
+          hostname: DEFAULT_DAEMON_ADDRESS,
           port: DEFAULT_DAEMON_PORT,
           path: '/SamplingTargets'
         };
 
         capturedHttp.request(options, (res) => {});
-        var newOptions = requestSpy.firstCall.args[0];
 
-        assert.equal(options, newOptions);
+        sinon.assert.notCalled(newSubsegmentStub);
       });
     });
 
