@@ -1,5 +1,6 @@
 {
   "name": "aws-xray-sdk-node",
+  "version": "3.0.0-alpha.1",
   "private": true,
   "license": "Apache-2.0",
   "devDependencies": {
