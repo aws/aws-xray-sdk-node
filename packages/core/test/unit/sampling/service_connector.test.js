@@ -2,21 +2,47 @@ var assert = require('chai').assert;
 var chai = require('chai');
 var sinon = require('sinon');
 
+var DaemonConfig = require('../../../lib/daemon_config');
 var ServiceConnector = require('../../../lib/middleware/sampling/service_connector');
+var TestEmitter = require('../test_utils').TestEmitter;
 
 chai.should();
 chai.use(require('sinon-chai'));
 
+function buildFakeResponse() {
+  var response = new TestEmitter();
+  return response;
+};
+
+function buildFakeRequest(res, rules) {
+  var rulesObj = {
+    'SamplingRuleRecords': rules,
+    'NextToken': null
+  };
+
+  var request = new TestEmitter();
+  request.method = 'GET';
+  request.url = '/';
+  request.connection = { remoteAddress: 'myhost' };
+  request.write = () => {};
+  request.end = () => {
+    res.emit('data', JSON.stringify(rulesObj));
+    res.emit('end');
+  };
+  return request;
+};
+
 function generateMockClient(samplingRules) {
   return {
-    makeUnauthenticatedRequest: function(_, _, callback) {
-      callback(null, {
-        'SamplingRuleRecords': samplingRules,
-        'NextToken': null
-      });
+    request: function(options, callback) {
+      var res = buildFakeResponse();
+      var req = buildFakeRequest(res, samplingRules);
+
+      callback(res);
+      return req;
     }
   };
-}
+};
 
 describe('ServiceConnector', function() {
   var sandbox;
@@ -89,13 +115,13 @@ describe('ServiceConnector', function() {
     };
 
     it('filters invalid rules', function(done) {
-      sandbox.stub(ServiceConnector, 'client').value(generateMockClient([
+      sandbox.stub(ServiceConnector, 'httpClient').value(generateMockClient([
         noSamplingRule,
         invalidRule,
         defaultSamplingRule
       ]));
 
-      ServiceConnector.fetchSamplingRules(function(rules) {
+      ServiceConnector.fetchSamplingRules(function(_, rules) {
         // should contain 2 rules
         assert.include(rules[0], {
           name: noSamplingRule.SamplingRule.RuleName,
@@ -127,12 +153,12 @@ describe('ServiceConnector', function() {
     });
 
     it('respects a fixed rate of 0', function(done) {
-      sandbox.stub(ServiceConnector, 'client').value(generateMockClient([
+      sandbox.stub(ServiceConnector, 'httpClient').value(generateMockClient([
         noSamplingRule,
         defaultSamplingRule
       ]));
 
-      ServiceConnector.fetchSamplingRules(function(rules) {
+      ServiceConnector.fetchSamplingRules(function(_, rules) {
         assert.deepEqual(rules.length, 2);
         assert.include(rules[0], {
           name: noSamplingRule.SamplingRule.RuleName,
@@ -148,6 +174,52 @@ describe('ServiceConnector', function() {
 
         done();
       });
+    });
+  });
+
+  describe('DaemonConfig', function() {
+    const DEFAULT_DAEMON_ADDRESS = '127.0.0.1';
+    const DEFAULT_DAEMON_PORT = 2000;
+    var requestSpy;
+
+    beforeEach(function() {
+      delete process.env.AWS_XRAY_DAEMON_ADDRESS;
+      DaemonConfig.setDaemonAddress(`${DEFAULT_DAEMON_ADDRESS}:${DEFAULT_DAEMON_PORT}`);
+      requestSpy = sandbox.stub(ServiceConnector.httpClient, 'request').returns({
+        write: () => {},
+        end: () => {}
+      });
+    });
+
+    afterEach(function() {
+      sandbox.restore();
+    });
+
+    it('Should call the daemon at its default address', function() {
+      ServiceConnector.fetchSamplingRules(function() {});
+      ServiceConnector.fetchTargets([], function() {});
+
+      assert.equal(DEFAULT_DAEMON_ADDRESS, requestSpy.getCall(0).args[0].hostname);
+      assert.equal(DEFAULT_DAEMON_PORT, requestSpy.getCall(0).args[0].port);
+
+      assert.equal(DEFAULT_DAEMON_ADDRESS, requestSpy.getCall(1).args[0].hostname);
+      assert.equal(DEFAULT_DAEMON_PORT, requestSpy.getCall(1).args[0].port);
+    });
+
+    it('Should call the daemon at new address when updated', function() {
+      const new_address = '1.1.1.1';
+      const new_port = '1999';
+
+      DaemonConfig.setDaemonAddress(`${new_address}:${new_port}`);
+
+      ServiceConnector.fetchSamplingRules(function() {});
+      ServiceConnector.fetchTargets([], function() {});
+
+      assert.equal(new_address, requestSpy.getCall(0).args[0].hostname);
+      assert.equal(new_port, requestSpy.getCall(0).args[0].port);
+
+      assert.equal(new_address, requestSpy.getCall(1).args[0].hostname);
+      assert.equal(new_port, requestSpy.getCall(1).args[0].port);
     });
   });
 });

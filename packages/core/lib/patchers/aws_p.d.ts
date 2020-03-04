@@ -1,38 +1,13 @@
-import * as AWS from 'aws-sdk';
-import Segment = require('../segments/segment');
-import Subsegment = require('../segments/attributes/subsegment');
+/* The types returned from patching AWS clients is left as any because using types defined
+ * by the aws-sdk would require us to depend on that package, which would make our bundle size unreasonable.
+ * Instead, it is recommended to cast patched AWS clients back to their original types.
+ * 
+ * See: https://github.com/aws/aws-xray-sdk-node/issues/113
+ */ 
 
-export type Callback<D> = (err: AWS.AWSError | undefined, data: D) => void;
+export type PatchedAWS = any;
+export type PatchedAWSClient = any; 
 
-export interface AWSRequestMethod<P, D> {
-  (params: P, callback?: Callback<D>): AWS.Request<D, AWS.AWSError>;
-  (callback?: Callback<D>): AWS.Request<D, AWS.AWSError>;
-}
+export function captureAWS(awssdk: any): PatchedAWS;
 
-export type PatchedAWSRequestMethod<P, D> = AWSRequestMethod<P & { XRaySegment?: Segment | Subsegment }, D>;
-
-export type PatchedAWSClient<T extends AWS.Service> = {
-  [K in keyof T]: T[K] extends AWSRequestMethod<infer P, infer D>
-  ? PatchedAWSRequestMethod<P, D>
-  : T[K]
-};
-
-export interface AWSClientConstructor<P, T extends typeof AWS.Service> {
-  new(params?: P): InstanceType<T>;
-}
-
-export interface PatchedAWSClientConstructor<P, T extends typeof AWS.Service> {
-  new(params?: P): PatchedAWSClient<InstanceType<T>>;
-}
-
-export type PatchedAWS<T = typeof AWS> = {
-  [K in keyof T]: T[K] extends typeof AWS.Service
-  ? (T[K] extends AWSClientConstructor<infer P, T[K]>
-    ? PatchedAWSClientConstructor<P, T[K]>
-    : T[K])
-  : T[K];
-};
-
-export function captureAWS(awssdk: typeof AWS): PatchedAWS;
-
-export function captureAWSClient<T extends AWS.Service>(service: T): PatchedAWSClient<T>;
+export function captureAWSClient(service: any): PatchedAWSClient;

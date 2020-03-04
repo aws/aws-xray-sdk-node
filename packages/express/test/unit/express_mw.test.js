@@ -6,6 +6,7 @@ var sinonChai = require('sinon-chai');
 
 var expressMW = require('../../lib/express_mw');
 var SegmentEmitter = require('../../../core/lib/segment_emitter.js');
+var ServiceConnector = require('../../../core/lib/middleware/sampling/service_connector.js');
 
 var mwUtils = xray.middleware;
 var IncomingRequestData = xray.middleware.IncomingRequestData;
@@ -130,6 +131,7 @@ describe('Express middleware', function() {
       beforeEach(function() {
         sandbox = sinon.sandbox.create();
         sandbox.stub(SegmentEmitter);
+        sandbox.stub(ServiceConnector);
       });
 
       afterEach(function() {

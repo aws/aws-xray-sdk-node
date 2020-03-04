@@ -1,10 +1,9 @@
 var crypto = require('crypto');
-var AWS = require('aws-sdk/global');
-var Xray = require('aws-sdk/clients/xray');
 var logger = require('../../logger');
 var SamplingRule = require('./sampling_rule');
 var DaemonConfig = require('../../daemon_config');
 const util = require('util');
+const http = require('http');
 
 
 /**
@@ -17,33 +16,69 @@ var ServiceConnector = {
   // identifying the SDK instance and is generated during SDK initialization/
   // This is required when reporting sampling to X-Ray back-end.
   clientId: crypto.randomBytes(12).toString('hex'),
-  client: new Xray({endpoint: util.format('http://%s:%d', DaemonConfig.tcp_ip, DaemonConfig.tcp_port)}),
+  samplingRulesPath: '/GetSamplingRules',
+  samplingTargetsPath: '/SamplingTargets',
+  httpClient: http,
 
   fetchSamplingRules: function fetchSamplingRules(callback) {
+    const body = '{}';  // Payload needed for GetSamplingRules POST request
+    
+    const req = this.httpClient.request(getOptions(this.samplingRulesPath, body.length), res => {
+      var data = '';
+      res.on('data', d => {
+        data += d;
+      });
+        
+      res.on('error', error => {
+        callback(error);
+      });
+  
+      res.on('end', () => {
+        var dataObj;
+        try {
+          dataObj = JSON.parse(data);
+        } catch (err) {
+          callback(error);
+        }
 
-    this.client.makeUnauthenticatedRequest('getSamplingRules', null, function(err, data) {
-      if(err)
-        logger.getLogger().warn(err.stack);
-      else {
-        var newRules = assembleRules(data);
-        callback(newRules);
-      }
+        var newRules = assembleRules(dataObj);
+        callback(null, newRules);
+      });
     });
+    
+    req.write(body);
+    req.end();
   },
 
   fetchTargets: function fetchTargets(rules, callback) {
-    var params = constructStatisticsDocs(rules);
+    const body = JSON.stringify(constructStatisticsDocs(rules));
+    
+    const req = this.httpClient.request(getOptions(this.samplingTargetsPath, body.length), res => {
+      var data = '';
+      res.on('data', d => {
+        data += d;
+      });
+        
+      res.on('error', error => {
+        callback(error)
+      });
+  
+      res.on('end', () => {
+        var dataObj;
+        try {
+          dataObj = JSON.parse(data);
+        } catch (err) {
+          callback(err);
+        }
 
-    this.client.makeUnauthenticatedRequest('getSamplingTargets', params, function(err, data) {
-      if(err) {
-        logger.getLogger().warn(err.stack);
-      }
-      else{
-        var targetsMapping = assembleTargets(data);
-        var ruleFreshness = dateToEpoch(data['LastRuleModification']);
-        callback(targetsMapping, ruleFreshness);
-      }
+        var targetsMapping = assembleTargets(dataObj);
+        var ruleFreshness = dateToEpoch(dataObj['LastRuleModification']);
+        callback(null, targetsMapping, ruleFreshness);
+      });
     });
+    
+    req.write(body);
+    req.end();
   }
 };
 
@@ -123,8 +158,20 @@ var dateToEpoch = function dateToEpoch(date) {
   return new Date(date).getTime() / 1000; 
 };
 
-ServiceConnector.client.setupRequestListeners = function setupRequestListeners(request) {
-  request.removeListener('validate', AWS.EventListeners.Core.VALIDATE_REGION);
+var getOptions = function getOptions(path, contentLength) {
+  const options = {
+    hostname: DaemonConfig.tcp_ip,
+    port: DaemonConfig.tcp_port,
+    method: 'POST',
+    path: path,
+    headers: {
+      'Content-Type': 'application/json',
+      'Content-Length': contentLength,
+      'Host': util.format('%s:%d', DaemonConfig.tcp_ip, DaemonConfig.tcp_port)
+    }
+  };
+
+  return options;
 };
 
 module.exports = ServiceConnector;
