@@ -1,6 +1,3 @@
-import * as AWS from 'aws-sdk';
-import { AWSError } from 'aws-sdk';
-import { PromiseResult } from 'aws-sdk/lib/request';
 import { Namespace } from 'cls-hooked';
 import * as http from 'http';
 import * as https from 'https';
@@ -66,24 +63,6 @@ function callback(param0: any, param1: any) {
 }
 tracedFcn(AWSXRay.captureCallbackFunc('callback', callback));
 tracedFcn(AWSXRay.captureCallbackFunc('callback', callback, segment));
-
-const aws = AWSXRay.captureAWS(AWS);
-const sqs = new aws.SQS();
-const queues = sqs.listQueues({
-  QueueNamePrefix: 'test',
-  XRaySegment: segment
-});
-expectType<any>(queues);
-
-const s3 = AWSXRay.captureAWSClient(new AWS.S3());
-async function main() {
-  const objects = await s3.listObjectsV2({
-    Bucket: 'test',
-    XRaySegment: segment
-  }).promise();
-
-  expectType<any>(objects);
-}
 
 expectType<typeof http>(AWSXRay.captureHTTPs(http, true));
 expectType<typeof https>(AWSXRay.captureHTTPs(https, true));
