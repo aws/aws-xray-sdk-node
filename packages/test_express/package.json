@@ -15,6 +15,7 @@
     "test": "test"
   },
   "devDependencies": {
+    "aws-sdk": "^2.304.0",
     "aws-xray-sdk-core": "^3.0.0-alpha.1",
     "aws-xray-sdk-express": "^3.0.0-alpha.1",
     "chai": "^3.5.0",
