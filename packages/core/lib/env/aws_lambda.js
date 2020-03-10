@@ -1,4 +1,5 @@
 var contextUtils = require('../context_utils');
+var mwUtils = require('../middleware/mw_utils');
 var LambdaUtils = require('../utils').LambdaUtils;
 var Segment = require('../segments/segment');
 var SegmentEmitter = require('../segment_emitter');
@@ -24,6 +25,15 @@ module.exports.init = function init() {
 
   SegmentEmitter.disableReusableSocket();
   SegmentUtils.setStreamingThreshold(0);
+
+  /** 
+   * Temporarily disable all sampling decisions made in Lambda environments. The sampling decisions would be
+   * uselessly applied to the facade segment, and the sampling pollers were causing errors.
+   * 
+   * See: https://github.com/aws/aws-xray-sdk-node/issues/217
+   */
+  logger.getLogger().info('Disabling middleware sampling decisions in Lambda environment.');
+  mwUtils.disableSampling();
 
   var namespace = contextUtils.getNamespace();
   namespace.enter(namespace.createContext());
