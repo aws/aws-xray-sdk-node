@@ -14,17 +14,9 @@ var overrideFlag = !!process.env.AWS_XRAY_TRACING_NAME;
 
 var utils = {
   defaultName: process.env.AWS_XRAY_TRACING_NAME,
-  disabled: false,
   dynamicNaming: false,
   hostPattern: null,
   sampler: require('./sampling/default_sampler'),
-
-  /**
-   * Disables any sampling decision being made
-   */
-  disableSampling: function() {
-    this.disabled = true;
-  },
 
   /**
    * Enables dynamic naming for segments via the middleware. Use 'AWSXRay.middleware.enableDynamicNaming()'.
@@ -88,9 +80,7 @@ var utils = {
   resolveSampling: function resolveSampling(amznTraceHeader, segment, res) {
     var isSampled;
 
-    if (this.disabled)
-      isSampled = false;
-    else if (amznTraceHeader.Sampled === '1')
+    if (amznTraceHeader.Sampled === '1')
       isSampled = true;
     else if (amznTraceHeader.Sampled === '0')
       isSampled = false;

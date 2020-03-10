@@ -27,13 +27,13 @@ module.exports.init = function init() {
   SegmentUtils.setStreamingThreshold(0);
 
   /** 
-   * Temporarily disable all sampling decisions made in Lambda environments. The sampling decisions would be
+   * Disabling all centralized sampling in Lambda environments. The sampling decisions would be
    * uselessly applied to the facade segment, and the sampling pollers were causing errors.
    * 
    * See: https://github.com/aws/aws-xray-sdk-node/issues/217
    */
-  logger.getLogger().info('Disabling middleware sampling decisions in Lambda environment.');
-  mwUtils.disableSampling();
+  logger.getLogger().info('Disabling centralized sampling in Lambda environment.');
+  mwUtils.disableCentralizedSampling();
 
   var namespace = contextUtils.getNamespace();
   namespace.enter(namespace.createContext());
