@@ -1,6 +1,20 @@
 # Changelog for AWS X-Ray Core SDK for JavaScript
-<!--LATEST=3.0.0-alpha.1-->
+<!--LATEST=3.0.0-alpha.2-->
 <!--ENTRYINSERT-->
+## 3.0.0-alpha.2
+* **BREAKING** change: Removed dependency on the aws-sdk, including all dependent TS definitions [PR #255](https://github.com/aws/aws-xray-sdk-node/pull/255)
+* improvement: Support Node 10 syntax for `http.request` [PR #247](https://github.com/aws/aws-xray-sdk-node/pull/247)
+* bugfix: Disable centralized sampling in Lambda [#ISSUE217](https://github.com/aws/aws-xray-sdk-node/issues/217)
+* bugfix: Allow lerna to bump version number of top-level package.json [PR #254](https://github.com/aws/aws-xray-sdk-node/pull/254)
+* bugfix: Add missing subsegment fields [PR #249](https://github.com/aws/aws-xray-sdk-node/pull/249)
+* bugfix: Remove query string from URL field [#ISSUE246](https://github.com/aws/aws-xray-sdk-node/issues/246)
+* bugfix: `unref` sockets in `segment_emitter.js` [#ISSUE241](https://github.com/aws/aws-xray-sdk-node/issues/241)
+* bugfix: Swap out `continuation-local-storage` types for `cls-hooked` types [PR #242](https://github.com/aws/aws-xray-sdk-node/pull/242)
+* bugfix: Stopped throwing context missing errors for Centralized sampling with `captureHTTPsGlobal` [#ISSUE161](https://github.com/aws/aws-xray-sdk-node/issues/161)
+* bugfix: Fixed `.setDaemonAddress` API not propagating address to `service_connector` [#ISSUE233](https://github.com/aws/aws-xray-sdk-node/issues/233)
+* bugfix: Removed TS race condition involving AWS SDK type definition [#ISSUE253](https://github.com/aws/aws-xray-sdk-node/issues/253)
+
+
 ## 3.0.0-alpha.1
 * **BREAKING** change: Merged `2.x` branch into `master`, breaking node v4 [PR #226](https://github.com/aws/aws-xray-sdk-node/pull/226)
 * **BREAKING** change: Officially deprecated support for node 4 and 6 [PR #228](https://github.com/aws/aws-xray-sdk-node/pull/228)
