@@ -1,6 +1,13 @@
 # Changelog for AWS X-Ray SDK for JavaScript
-<!--LATEST=3.0.0-alpha.1-->
+<!--LATEST=3.0.0-alpha.2-->
 <!--ENTRYINSERT-->
+## 3.0.0-alpha.2
+* change: Updated aws-xray-sdk-core to 3.0.0-alpha.2. See aws-xray-sdk-core's CHANGELOG.md for package changes.
+* change: Updated aws-xray-sdk-express to 3.0.0-alpha.2. No further changes.
+* change: Updated aws-xray-sdk-mysql to 3.0.0-alpha.2.
+  * improvement: Support MySQL Timeout parameter [PR #248](https://github.com/aws/aws-xray-sdk-node/pull/248)
+* change: Updated aws-xray-postgres to 3.0.0-alpha.2. No further changes.
+
 ## 3.0.0-alpha.1
 * change: Updated aws-xray-sdk-core to 3.0.0-alpha.1. See aws-xray-sdk-core's CHANGELOG.md for package changes.
 * change: Updated aws-xray-sdk-express to 3.0.0-alpha.1. No further changes.
