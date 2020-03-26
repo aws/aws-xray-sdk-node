@@ -1,4 +1,5 @@
 var assert = require('chai').assert;
+var expect = require('chai').expect;
 var chai = require('chai');
 var sinon = require('sinon');
 
@@ -33,11 +34,14 @@ function buildFakeRequest(res, rules) {
 };
 
 function generateMockClient(samplingRules) {
+  var res = buildFakeResponse();
+  var req = buildFakeRequest(res, samplingRules);
+  return buildFakeHttpClient(req, res);
+};
+
+function buildFakeHttpClient(req, res) {
   return {
     request: function(options, callback) {
-      var res = buildFakeResponse();
-      var req = buildFakeRequest(res, samplingRules);
-
       callback(res);
       return req;
     }
@@ -187,7 +191,8 @@ describe('ServiceConnector', function() {
       DaemonConfig.setDaemonAddress(`${DEFAULT_DAEMON_ADDRESS}:${DEFAULT_DAEMON_PORT}`);
       requestSpy = sandbox.stub(ServiceConnector.httpClient, 'request').returns({
         write: () => {},
-        end: () => {}
+        end: () => {},
+        on: (event, func) => {}
       });
     });
 
@@ -220,6 +225,28 @@ describe('ServiceConnector', function() {
 
       assert.equal(new_address, requestSpy.getCall(1).args[0].hostname);
       assert.equal(new_port, requestSpy.getCall(1).args[0].port);
+    });
+  });
+
+  describe('HttpException', function() {
+    var logging;
+    beforeEach(function() {
+      var path = '../../../lib/logger';
+      delete require.cache[require.resolve(path)];
+      logging = require(path);
+    });
+
+    it('should log an error when the HTTP request fails', function() {
+      let response = buildFakeResponse();
+      let request = buildFakeRequest(response, []);
+      sandbox.spy(ServiceConnector.logger, 'getLogger');
+      sandbox.stub(ServiceConnector, 'httpClient')
+        .value(buildFakeHttpClient(request, response));
+      
+      ServiceConnector.fetchSamplingRules(function() {});
+      request.emit('error', new Error('Fake ECONNREFUSED error'));
+
+      expect(ServiceConnector.logger.getLogger).to.be.calledOnce;      
     });
   });
 });

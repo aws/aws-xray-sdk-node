@@ -18,6 +18,7 @@ var ServiceConnector = {
   clientId: crypto.randomBytes(12).toString('hex'),
   samplingRulesPath: '/GetSamplingRules',
   samplingTargetsPath: '/SamplingTargets',
+  logger: logger,
   httpClient: http,
 
   fetchSamplingRules: function fetchSamplingRules(callback) {
@@ -48,7 +49,7 @@ var ServiceConnector = {
     });
 
     req.on('error', (e) => {
-      logger.getLogger().error(`Failed to connect to X-Ray daemon at ${options.hostname}:${options.port} to get sampling rules.`);
+      this.logger.getLogger().error(`Failed to connect to X-Ray daemon at ${options.hostname}:${options.port} to get sampling rules.`);
       callback(e);
     });
     
@@ -85,7 +86,7 @@ var ServiceConnector = {
     });
 
     req.on('error', (e) => {
-      logger.getLogger().error(`Failed to connect to X-Ray daemon at ${options.hostname}:${options.port} to get sampling targets.`);
+      this.logger.getLogger().error(`Failed to connect to X-Ray daemon at ${options.hostname}:${options.port} to get sampling targets.`);
       callback(e);
     });
     
