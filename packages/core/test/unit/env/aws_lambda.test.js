@@ -6,6 +6,7 @@ var sinonChai = require('sinon-chai');
 chai.use(sinonChai);
 
 var contextUtils = require('../../../lib/context_utils');
+var mwUtils = require('../../../lib/middleware/mw_utils');
 var Lambda = require('../../../lib/env/aws_lambda');
 var LambdaUtils = require('../../../lib/utils').LambdaUtils;
 var Segment = require('../../../lib/segments/segment');
@@ -44,6 +45,7 @@ describe('AWSLambda', function() {
     beforeEach(function() {
       sandbox = sinon.sandbox.create();
       disableReusableSocketStub = sandbox.stub(SegmentEmitter, 'disableReusableSocket');
+      disableCentralizedSamplingStub = sandbox.stub(mwUtils, 'disableCentralizedSampling');
       validateStub = sandbox.stub(LambdaUtils, 'validTraceData').returns(true);
       populateStub = sandbox.stub(LambdaUtils, 'populateTraceData').returns(true);
       setSegmentStub = sandbox.stub(contextUtils, 'setSegment');
@@ -56,6 +58,11 @@ describe('AWSLambda', function() {
     it('should disable reusable socket', function() {
       Lambda.init();
       disableReusableSocketStub.should.have.been.calledOnce;
+    });
+
+    it('should disable centralized sampling', function() {
+      Lambda.init();
+      disableCentralizedSamplingStub.should.have.been.calledOnce;
     });
 
     it('should override the default streaming threshold', function() {
