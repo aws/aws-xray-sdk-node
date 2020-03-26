@@ -40,7 +40,7 @@ var ServiceConnector = {
         try {
           dataObj = JSON.parse(data);
         } catch (err) {
-          callback(error);
+          callback(err);
         }
 
         var newRules = assembleRules(dataObj);
@@ -48,9 +48,9 @@ var ServiceConnector = {
       });
     });
 
-    req.on('error', (e) => {
+    req.on('error', (err) => {
       this.logger.getLogger().error(`Failed to connect to X-Ray daemon at ${options.hostname}:${options.port} to get sampling rules.`);
-      callback(e);
+      callback(err);
     });
     
     req.write(body);
@@ -85,9 +85,9 @@ var ServiceConnector = {
       });
     });
 
-    req.on('error', (e) => {
+    req.on('error', (err) => {
       this.logger.getLogger().error(`Failed to connect to X-Ray daemon at ${options.hostname}:${options.port} to get sampling targets.`);
-      callback(e);
+      callback(err);
     });
     
     req.write(body);
