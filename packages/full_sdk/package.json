@@ -9,7 +9,7 @@
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "engines": {
-    "node": ">= 4.x"
+    "node": ">= 10.x"
   },
   "dependencies": {
     "aws-xray-sdk-core": "^3.0.0-alpha.2",
