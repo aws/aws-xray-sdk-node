@@ -18,12 +18,14 @@ var ServiceConnector = {
   clientId: crypto.randomBytes(12).toString('hex'),
   samplingRulesPath: '/GetSamplingRules',
   samplingTargetsPath: '/SamplingTargets',
+  logger: logger,
   httpClient: http,
 
   fetchSamplingRules: function fetchSamplingRules(callback) {
     const body = '{}';  // Payload needed for GetSamplingRules POST request
+    const options = getOptions(this.samplingRulesPath, body.length);
     
-    const req = this.httpClient.request(getOptions(this.samplingRulesPath, body.length), res => {
+    const req = this.httpClient.request(options, res => {
       var data = '';
       res.on('data', d => {
         data += d;
@@ -38,12 +40,17 @@ var ServiceConnector = {
         try {
           dataObj = JSON.parse(data);
         } catch (err) {
-          callback(error);
+          callback(err);
         }
 
         var newRules = assembleRules(dataObj);
         callback(null, newRules);
       });
+    });
+
+    req.on('error', (err) => {
+      this.logger.getLogger().error(`Failed to connect to X-Ray daemon at ${options.hostname}:${options.port} to get sampling rules.`);
+      callback(err);
     });
     
     req.write(body);
@@ -52,8 +59,9 @@ var ServiceConnector = {
 
   fetchTargets: function fetchTargets(rules, callback) {
     const body = JSON.stringify(constructStatisticsDocs(rules));
+    const options = getOptions(this.samplingTargetsPath, body.length);
     
-    const req = this.httpClient.request(getOptions(this.samplingTargetsPath, body.length), res => {
+    const req = this.httpClient.request(options, res => {
       var data = '';
       res.on('data', d => {
         data += d;
@@ -75,6 +83,11 @@ var ServiceConnector = {
         var ruleFreshness = dateToEpoch(dataObj['LastRuleModification']);
         callback(null, targetsMapping, ruleFreshness);
       });
+    });
+
+    req.on('error', (err) => {
+      this.logger.getLogger().error(`Failed to connect to X-Ray daemon at ${options.hostname}:${options.port} to get sampling targets.`);
+      callback(err);
     });
     
     req.write(body);

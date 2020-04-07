@@ -49,7 +49,7 @@ var refreshCache = function refreshCache() {
   // successfully fetched. 
   ServiceConnector.fetchSamplingRules(function(err, newRules) {
     if (err) {
-      logger.getLogger().warn('Failed to call GetSamplingRules API: ' + err);
+      logger.getLogger().warn('Failed to retrieve sampling rules from X-Ray service:', err);
     } else if(newRules.length !== 0) {
       ruleCache.loadRules(newRules);
       ruleCache.timestamp(now);

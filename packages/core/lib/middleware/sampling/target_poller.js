@@ -30,13 +30,10 @@ var refreshWithFirewall = function refreshWithFirewall() {
 
 var refresh = function refresh() {
   var candidates = getCandidates();
-  if(!candidates || candidates.length === 0)
-    logger.getLogger().debug('There is no sampling rule statistics to report.');
-  else {
-    logger.getLogger().debug('Reporting rule statistics to get new quota.');
+  if(candidates && candidates.length > 0) {
     serviceConnector.fetchTargets(candidates, function(err, targetsMapping, ruleFreshness) {
       if (err) {
-        logger.getLogger().debug('Failed to call GetSamplingTargets API: ' + err);
+        logger.getLogger().warn('Failed to retrieve sampling targets from X-Ray service:', err);
         return;
       }
 
@@ -45,6 +42,8 @@ var refresh = function refresh() {
         logger.getLogger().info('Performing out-of-band sampling rule polling to fetch updated rules.');
         rulePoller.start();
       }
+
+      logger.getLogger().info('Successfully reported rule statistics to get new sampling quota.');
     });
   }
 };
