@@ -1,13 +1,9 @@
-/* The types returned from patching AWS clients is left as any because using types defined
- * by the aws-sdk would require us to depend on that package, which would make our bundle size unreasonable.
- * Instead, it is recommended to cast patched AWS clients back to their original types.
+/* The type accepted and returned from patching AWS clients is generic because using types defined
+ * by the aws-sdk would require us to depend on it, which would make our bundle size too large.
  * 
- * See: https://github.com/aws/aws-xray-sdk-node/issues/113
+ * See: https://github.com/aws/aws-xray-sdk-node/pull/255
  */ 
 
-export type PatchedAWS = any;
-export type PatchedAWSClient = any; 
+export function captureAWS<T>(awssdk: T): T;
 
-export function captureAWS(awssdk: any): PatchedAWS;
-
-export function captureAWSClient(service: any): PatchedAWSClient;
+export function captureAWSClient<T>(service: T): T;

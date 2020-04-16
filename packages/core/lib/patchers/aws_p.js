@@ -23,7 +23,7 @@ var throttledErrorDefault = function throttledErrorDefault() {
  * for additional details.
  * @param {AWS} awssdk - The Javascript AWS SDK.
  * @alias module:aws_p.captureAWS
- * @returns {any} - Typed as any to avoid dependency on AWS SDK. Otherwise would be AWS.
+ * @returns {AWS} 
  * @see https://github.com/aws/aws-sdk-js
  */
 
@@ -47,7 +47,7 @@ var captureAWS = function captureAWS(awssdk) {
  * call paramaters, and must reference a Segment or Subsegment object.
  * @param {AWS.Service} service - An instance of a AWS service to wrap.
  * @alias module:aws_p.captureAWSClient
- * @returns {any} - Typed as any to avoid dependency on AWS SDK. Otherwise would be AWS.Service.
+ * @returns {AWS.Service}
  * @see https://github.com/aws/aws-sdk-js
  */
 
