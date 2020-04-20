@@ -6,30 +6,14 @@ AWS SDK v2.7.15 or greater if using `captureAWS` or `captureAWSClient`
 ## AWS X-Ray
 
 The AWS X-Ray SDK (the SDK) automatically records information for incoming and outgoing
-requests and responses (via middleware). It also automatically records local data
+requests and responses. It also automatically records local data
 such as function calls, time, variables (via metadata and annotations), and Amazon
-EC2 instance data (via plugins). Currently, only Express
-applications are supported for automatic capturing. See the 
-[aws-xray-sdk-express](https://github.com/aws/aws-xray-sdk-node/tree/master/packages/express) package for additional information.
+EC2 instance data (via plugins). Currently, [Express](https://github.com/aws/aws-xray-sdk-node/tree/master/packages/express) and [Restify](https://github.com/aws/aws-xray-sdk-node/tree/master/packages/restify)
+applications are supported for automatic capturing via middleware. AWS Lambda functions can also be instrumented.
 
 The SDK exposes the Segment and Subsegment objects so you can create your own capturing
 mechanisms, but a few are supplied.
 These keep the current subsegment up to date in automatic mode, or propagate the current subsegment in manual mode.
-
-`AWSXRay.captureFunc` - Takes a function that takes a single subsegment argument. This creates a new nested subsegment and exposes it. The segment
-closes automatically when the function finishes executing and returns the result if any. This does not correctly
-time functions with asynchronous calls. Instead, use
-captureAsyncFunc.
-
-`AWSXRay.captureAsyncFunc` - Takes an async function that takes a single subsegment argument and returns the promise by executing the function. 
-This creates a new nested subsegment and exposes it. 
-The segment must be closed using subsegment.close() the asynchronous function completes successfully.
-
-`AWSXRay.captureCallbackFunc` - Takes a function to be used as a callback. Useful
-for capturing callback information and directly associating it to the call
-that generated it. This creates a new nested subsegment and exposes it by appending it onto the arguments used to call the callback. For this reason,
-always call your captured callbacks with the full parameter list. The subsegment closes
-automatically when the function finishes executing.
 
 ## Setup
 
@@ -44,19 +28,12 @@ By default, the SDK is in automatic mode. You can flip the mode of the SDK using
 
 #### Automatic mode
 
-Automatic mode is for use with the `aws-xray-sdk-express` module to support Express
-applications, but can be used outside of Express applications.
-The `aws-xray-sdk-express` module captures incoming request/response information via middleware and creates the base segment object automatically.
-If your application isn't using the Express middleware, you have to create a
-new segment, and set this on the SDK when in automatic mode.
+Automatic mode is designed for use with Express, Restify, and Lambda
+applications, but can be used outside of such applications.
+For more information about developing your own middleware or using automatic mode without middleware, see the [developing custom solutions
+using automatic mode](https://github.com/aws/aws-xray-sdk-node/tree/master/packages/core#developing-custom-solutions-using-automatic-mode) section below.
 
-    var segment = new AWSXRay.Segment(name, [optional root ID], [optional parent ID]);
-    AWSXRay.setSegment(segment);
-
-For more information about developing your own middleware or using automatic mode without middleware, see the `developing custom solutions
-using automatic mode` section below.
-
-Automatic mode uses the Continuation Local Storage package and automatically tracks
+Automatic mode uses the `cls-hooked` package and automatically tracks
 the current segment or subsegment when using the built-in capture functions or any
 of the aws-xray-sdk modules. Using the built-in capture functions or other aws-xray-sdk modules automatically creates
 new subsegments to capture additional data and update the current segment or subsegment on that context.
@@ -69,7 +46,7 @@ the following:
 #### Manual mode
 
 Manual mode requires that you pass around the segment reference. See the examples
-below for the different usages.
+in the [express package](https://github.com/aws/aws-xray-sdk-node/tree/master/packages/express) for the different usages.
 
 ### Environment variables
 
@@ -129,7 +106,7 @@ within an AWS Lambda function. In that scenario the timestamp and level are adde
 
 ### Context Missing Strategy Configuration
 
-By default, when the X-Ray SDK is operating in automatic mode and attempts to find a segment in the `cls` context but
+By default, when the X-Ray SDK is operating in automatic mode and attempts to find a segment in the `cls-hooked` context but
 cannot find one, it throws a runtime error. This behavior can be undesirable when unit testing or doing experimentation. 
 It can be changed to instead log an error either by using the `AWS_XRAY_CONTEXT_MISSING` environment variable documented above, or programatically by calling
 
@@ -277,11 +254,48 @@ the service to anticipate the asynchronous subsegment
 to be received out of band when it has completed. When received, the in_progress subsegment
 is discarded in favor of the completed subsegment.
 
+### Capturing Function Calls
+
+```ts
+AWSXRay.captureFunc<T>(
+  name: string, 
+  fcn: (subsegment?: Subsegment) => T, 
+  parent?: Segment | Subsegment
+): T
+```
+`AWSXRay.captureFunc` - Takes a function that takes a single subsegment argument. This creates a new nested subsegment and exposes it. The segment
+closes automatically when the function finishes executing and returns the result if any. This does not correctly
+time functions with asynchronous calls. Instead, use
+`captureAsyncFunc`.
+
+```ts
+captureAsyncFunc<T>(
+  name: string,
+  fcn: (subsegment?: Subsegment) => T,
+  parent?: Segment | Subsegment
+): T
+```
+`AWSXRay.captureAsyncFunc` - Takes an async function that takes a single subsegment argument and returns the promise by executing the function. 
+This creates a new nested subsegment and exposes it. 
+The segment must be closed using subsegment.close() the asynchronous function completes successfully.
+
+```ts
+captureCallbackFunc<S extends any[], T>(
+  name: string,
+  fcn: (...args: S) => T,
+  parent?: Segment | Subsegment
+): (...args: S) => T
+```
+
+`AWSXRay.captureCallbackFunc` - Takes a function to be used as a callback. Useful
+for capturing callback information and directly associating it to the call
+that generated it. This creates a new nested subsegment and exposes it by appending it onto the arguments used to call the callback. For this reason,
+always call your captured callbacks with the full parameter list. The subsegment closes
+automatically when the function finishes executing.
+
 ### Developing custom solutions using automatic mode
 
-Automatic mode is for use with the aws-xray-sdk-express module to support Express
-applications, however it can be used outside of Express applications.
-If your application isn't using the Express middleware, you have to create the
+If your application isn't using a supported framework, you have to create the
 new segment and set this on the SDK.
 You need to create a new level of CLS, and you can do so by using the CLS namespace object. We expose this via the following.
 
@@ -312,33 +326,19 @@ If you have chained native Promise and you have subsegments generated within tho
 
 This will solve the issue where the subsegments within a Promise chain are attached to wrong segments or nested instead of being siblings. For more details on the discussion please see this [PR](https://github.com/aws/aws-xray-sdk-node/pull/11). See the "Capture all outgoing Axios requests" section for full sample code. 
 
+## Usage in AWS Lambda
+
+To understand X-Ray's integration with Lambda functions, please read the [Lambda Developer Guide](https://docs.aws.amazon.com/lambda/latest/dg/lambda-x-ray.html). Lambda functions are unique environments because a segment is automatically provided in function code once `Active Tracing` is enabled for a function. That segment is immutable, however all subsegment operations described below are permitted.
+
+By default in Lambda, the streaming threshold is set to 0 (immediate subsegment streaming), centralized sampling is disabled, automatic mode is enabled, and the daemon address is set by the Lambda runtime.
+
+For an example function, see [tracing node.js functions](https://docs.aws.amazon.com/lambda/latest/dg/nodejs-tracing.html).
+
 ## Example code
 
 ### Version capturing
 
     Use the 'npm start' script to enable.
-
-### Capture all incoming HTTP requests to '/'
-
-    var app = express();
-
-    //...
-
-    var AWSXRay = require('aws-xray-sdk');
-
-    app.use(AWSXRay.express.openSegment('defaultName'));               //required at the start of your routes
-
-    app.get('/', function (req, res) {
-      res.render('index');
-    });
-
-    app.use(AWSXRay.express.closeSegment());   //Required at the end of your routes / first in error handling routes
-
-### Capture all outgoing AWS requests
-
-    var AWS = captureAWS(require('aws-sdk'));
-
-    // Create new AWS clients as usual.
 
 ### Configure AWSXRay to automatically capture EC2 instance data
 
@@ -371,97 +371,50 @@ Note that this operation will not work in Lambda functions, because the segment 
 ### Create new subsegment
 
     var newSubseg = subsegment.addNewSubsegment(name);
+    ...
+    newSubseg.close();
 
     // Or
 
-    var subsegment = new Subsegment(name);
-
-## Automatic mode examples
-
-Automatic mode is for use with the aws-xray-sdk-express module to support Express
-applications, however it can be used outside of Express applications.
-If the Express middleware isn't being used, you have to create a root segment and
-set on the SDK using the following.
-
-    var segment = new AWSXRay.Segment(name, [optional root ID], [optional parent ID]);
-    AWSXRay.setSegment(segment);
-
-Only then will the segment be available for use in automatic mode and be able to be picked up by the capture functions and other aws-xray-sdk modules.
-
-### Capture all incoming HTTP requests to '/'
-
-    var app = express();
-
-    //...
-
-    var AWSXRay = require('aws-xray-sdk');
-
-    app.use(AWSXRay.express.openSegment('defaultName'));
-
-    app.get('/', function (req, res) {
-      res.render('index');
-    });
-
-    app.use(AWSXRay.express.closeSegment());
+    var newSubseg = new Subsegment(name);
+    subsegment.addSubsegment(newSubseg);
+    ...
+    newSubseg.close();
 
 ### Capture through function calls
 
-    var AWSXRay = require('aws-xray-sdk');
+This creates 5 nested subsegments on the root segment and captures timing data individually for each subsegment. This example assumes an automatic mode environment.
 
-    app.use(AWSXRay.express.openSegment('defaultName'));
+    captureFunc('1', function(subsegment1) {
+      //Exposing the subsegment in the function is optional, and is listed here as an example
+      //You can also use:
+      //var subsegment1 = AWSXRay.getSegment();
 
-    //...
-
-    //The root segment is created by the Express middleware
-    //This creates 5 nested subsegments on the root segment
-    //and captures timing data individually for each subsegment
-
-    app.get('/', function (req, res) {
-      captureFunc('1', function(subsegment1) {
-        //Exposing the subsegment in the function is optional, and is listed here
-        as an example
-        //You can also use
-        //var subsegment1 = AWSXRay.getSegment();
-
-        captureFunc('2', function(subsegment2) {
-          captureFunc('3', function(subsegment3) {
-            captureFunc('4', function(subsegment4) {
-              captureFunc('5', function() {
-                //exposing the subsegment is optional
-                res.render('index');
-              });
+      captureFunc('2', function(subsegment2) {
+        captureFunc('3', function(subsegment3) {
+          captureFunc('4', function(subsegment4) {
+            captureFunc('5', function() {
+              //exposing the subsegment is optional
+              res.render('index');
             });
           });
         });
       });
     });
 
-    app.use(AWSXRay.express.closeSegment());
-
 ### Capture through async function calls
 
-    var AWSXRay = require('aws-xray-sdk');
+    var host = 'samplego-env.us-east-1.elasticbeanstalk.com';
 
-    //...
+    AWSXRay.captureAsyncFunc('send', function(subsegment) {
+      //'subsegment' here is the newly created and exposed subsegment for the async
+      //request, and must be closed manually (this ensures timing data is correct)
 
-    app.use(AWSXRay.express.openSegment('defaultName'));
-
-    app.get('/', function (req, res) {
-      var host = 'samplego-env.us-east-1.elasticbeanstalk.com';
-
-      AWSXRay.captureAsyncFunc('send', function(subsegment) {
-        //'subsegment' here is the newly created and exposed subsegment for the async
-        //request, and must be closed manually (this ensures timing data is correct)
-
-        sendRequest(host, function() {
-          console.log("rendering!");
-          res.render('index');
-          subsegment.close();
-        });
+      sendRequest(host, function() {
+        console.log("Request sent!");
+        subsegment.close();
       });
     });
-
-    app.use(AWSXRay.express.closeSegment());
 
     function sendRequest(host, cb) {
       var options = {
@@ -484,6 +437,12 @@ Only then will the segment be available for use in automatic mode and be able to
       http.request(options, callback).end();
     };
 
+### Capture all outgoing AWS requests
+
+    var AWS = captureAWS(require('aws-sdk'));
+
+    // Create new AWS clients as usual.
+
 ### Capture outgoing AWS requests on a single client
 
     var s3 = AWSXRay.captureAWSClient(new AWS.S3());
@@ -492,17 +451,19 @@ Only then will the segment be available for use in automatic mode and be able to
     //Be sure any outgoing calls that are dependent on another async
     //function are wrapped with captureAsyncFunc, or duplicate segments might leak
 
-### Capture outgoing AWS requests on every AWS SDK client
+### Capture all outgoing HTTP and HTTPS requests
 
-    var aws = AWSXRay.captureAWS(require('aws-sdk'));
+    AWSXRay.captureHTTPsGlobal(require('http'));
+    AWSXRay.captureHTTPsGlobal(require('https'));
 
-    //Create new clients as usual
-    //Be sure any outgoing calls that are dependent on another async
-    //function are wrapped with captureAsyncFunc, or duplicate segments might leak
+    // Requests with this http client, and any other http/https client including
+    // those used by third party modules, will now be traced
+    var http = require('http');
 
-### Capture all outgoing HTTP/S requests
+### Capture outgoing HTTP/S requests with a traced client
 
-    var tracedHttp = AWSXRay.captureHTTPs(require('http'));     //returns a copy of the http module that is patched, can patch https as well.
+    //returns a copy of the http module that is patched, can patch https as well
+    var tracedHttp = AWSXRay.captureHTTPs(require('http'));     
 
     var options = {
       ...
@@ -522,124 +483,3 @@ This sample code works with any promise-based HTTP client.
     AWSXRay.captureHTTPsGlobal(require('http'));
     AWSXRay.capturePromise();
     const AxiosWithXray = require('axios');
-
-## Manual mode examples
-
-Enable manual mode:
-
-    AWSXRay.enableManualMode();
-
-### Capture through function calls
-
-    var AWSXRay = require('aws-xray-sdk');
-
-    app.use(AWSXRay.express.openSegment('defaultName'));
-
-    //...
-
-    //The root segment is created by the Express middleware
-    //This creates 5 nested subsegments on the root segment
-    //and captures timing data individually for each subsegment
-
-    app.get('/', function (req, res) {
-      var segment = req.segment;
-
-      captureFunc('1', function(subsegment1) {
-        captureFunc('2', function(subsegment2) {
-          captureFunc('3', function(subsegment3) {
-            captureFunc('4', function(subsegment4) {
-              captureFunc('5', function() {
-                //subsegment need not be exposed here since we're not doing anything with it
-
-                res.render('index');
-              }, subsegment4);
-            }, subsegment3);
-          }, subsegment2);
-        }, subsegment1);
-      }, segment);
-    });
-
-    app.use(AWSXRay.express.closeSegment());
-
-### Capture through async function calls
-
-    var AWSXRay = require('aws-xray-sdk');
-
-    AWSXRay.enableManualMode();
-
-    app.use(AWSXRay.express.openSegment('defaultName'));
-
-    app.get('/', function (req, res) {
-      var segment = req.segment;
-      var host = 'samplego-env.us-east-1.elasticbeanstalk.com';
-
-      AWSXRay.captureAsyncFunc('send', function(subsegment) {
-        sendRequest(host, function() {
-          console.log("rendering!");
-          res.render('index');
-          subsegment.close();
-        }, subsegment);
-      }, segment);
-    });
-
-    app.use(AWSXRay.express.closeSegment());
-
-    function sendRequest(host, cb, subsegment) {
-      var options = {
-        host: host,
-        path: '/',
-        XRaySegment: subsegment            //required 'XRaySegment' param
-      };
-
-      var callback = function(response) {
-        var str = '';
-
-        //The whole response has been received, so we just print it out here
-        //Another chunk of data has been received, so append it to `str`
-        response.on('data', function (chunk) {
-          str += chunk;
-        });
-
-        response.on('end', function () {
-          cb();
-        });
-      }
-
-      http.request(options, callback).end();
-    };
-
-### Capture outgoing AWS requests on a single client
-
-    var s3 = AWSXRay.captureAWSClient(new AWS.S3());
-    var params = {
-      Bucket: bucketName,
-      Key: keyName,
-      Body: 'Hello!',
-      XRaySegment: subsegment             //required 'XRaySegment' param
-    };
-
-    s3.putObject(params, function(err, data) {
-      ...
-    });
-
-### Capture all outgoing AWS requests
-
-    var AWS = captureAWS(require('aws-sdk'));
-
-    //Create new clients as usual
-    //Be sure any outgoing calls that are dependent on another async
-    //function are wrapped, or duplicate segments might leak
-
-### Capture all outgoing HTTP/S requests
-
-    var tracedHttp = AWSXRay.captureHTTPs(require('http'));     //returns a copy of the http module that is patched, can patch https as well.
-
-    ...
-
-    //Include sub/segment reference in options as 'XRaySegment'
-    var options = {
-      ...
-      XRaySegment: subsegment             //required 'XRaySegment' param
-    }
-
-    tracedHttp.request(options, callback).end();
