@@ -5,15 +5,15 @@ AWS SDK v2.7.15 or greater if using `captureAWS` or `captureAWSClient`
 
 ## AWS X-Ray
 
-The AWS X-Ray SDK (the SDK) automatically records information for incoming and outgoing
-requests and responses. It also automatically records local data
+The AWS X-Ray SDK (the SDK) allows developers to instrument their web applications 
+to automatically record information for incoming and outgoing
+requests and responses. It can also record local data
 such as function calls, time, variables (via metadata and annotations), and Amazon
-EC2 instance data (via plugins). Currently, [Express](https://github.com/aws/aws-xray-sdk-node/tree/master/packages/express) and [Restify](https://github.com/aws/aws-xray-sdk-node/tree/master/packages/restify)
+EC2, ECS, and Elastic Beanstalk metadata (via plugins). Currently, [Express](https://github.com/aws/aws-xray-sdk-node/tree/master/packages/express) and [Restify](https://github.com/aws/aws-xray-sdk-node/tree/master/packages/restify)
 applications are supported for automatic capturing via middleware. AWS Lambda functions can also be instrumented.
 
 The SDK exposes the Segment and Subsegment objects so you can create your own capturing
-mechanisms, but a few are supplied.
-These keep the current subsegment up to date in automatic mode, or propagate the current subsegment in manual mode.
+mechanisms, but a few are supplied. See Capturing Function Calls below.
 
 ## Setup
 
