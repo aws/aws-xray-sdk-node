@@ -36,7 +36,7 @@ npm install aws-xray-sdk --save
 
 ## Documentation
 
-This repository hosts all the packages we publish, which each have their own README. The [Core package README](https://github.com/aws/aws-xray-sdk-node/tree/master/packages/core) covers all basic use cases of the main X-Ray SDK, inlcuding its use in Lambda.
+This repository hosts all the packages we publish, which each have their own README. The [Core package README](https://github.com/aws/aws-xray-sdk-node/tree/master/packages/core) covers all basic use cases of the main X-Ray SDK, including its use in Lambda.
 The [developer guide](https://docs.aws.amazon.com/xray/latest/devguide) provides in-depth
 guidance about using the AWS X-Ray service and SDKs.
 The [API Reference](http://docs.aws.amazon.com/xray-sdk-for-nodejs/latest/reference/)
