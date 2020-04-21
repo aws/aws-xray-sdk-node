@@ -33,6 +33,10 @@ before defining routes, and the `closeSegment` middleware *must* be the
 first middleware added after defining routes. Otherwise issues with the `cls-hooked`
 context may occur.
 
+## Sample App
+
+To get started with a functional express application instrumented with the X-Ray SDK, check out our [sample app](https://github.com/aws-samples/aws-xray-sdk-node-sample).
+
 ## Automatic mode example
 For more automatic mode examples, see the [example code](https://github.com/aws/aws-xray-sdk-node/tree/master/packages/core#example-code).
 

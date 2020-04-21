@@ -1,6 +1,14 @@
 # Changelog for AWS X-Ray SDK for JavaScript
-<!--LATEST=3.0.0-alpha.2-->
+<!--LATEST=3.0.0-->
 <!--ENTRYINSERT-->
+## 3.0.0
+* change: Updated aws-xray-sdk-core to 3.0.0. See aws-xray-sdk-core's CHANGELOG.md for package changes.
+* change: Updated aws-xray-sdk-express to 3.0.0. No further changes.
+* change: Updated aws-xray-sdk-mysql to 3.0.0. No further changes.
+* change: Updated aws-xray-sdk-postgres to 3.0.0. No further changes.
+* change: Updated aws-xray-sdk-restify to 3.0.0. 
+  * improvement: Brought aws-xray-sdk-restify out of beta [commit](https://github.com/aws/aws-xray-sdk-node/commit/f6e7c2e311dda848aa3915b9c0e0ad2d714745fa#diff-ca41f70ee3218f6dc7b034e823f9e485)
+
 ## 3.0.0-alpha.2
 * change: Updated aws-xray-sdk-core to 3.0.0-alpha.2. See aws-xray-sdk-core's CHANGELOG.md for package changes.
 * change: Updated aws-xray-sdk-express to 3.0.0-alpha.2. No further changes.
