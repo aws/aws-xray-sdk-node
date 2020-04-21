@@ -7,7 +7,7 @@
 ## Installing
 
 The AWS X-Ray SDK for Node.js is compatible with Node.js version 10.x and later.
-There may be issues when running on versions of Node.js newer than 12.x.
+There may be issues when running on the latest odd-numbered release of Node.js.
 
 The X-Ray SDK is in the alpha stage of its 3.0.0 release. Note that these releases may be subject to more breaking changes in future versions. 
 To install the latest 3.0.0-alpha version of the Node SDK for development, just include the `alpha` distribution tag.
@@ -28,7 +28,7 @@ The latest stable version of the SDK is also available from NPM. For local devel
 npm install aws-xray-sdk
 ```
 
-Use the --save option to save the SDK as a dependency in your application's package.json.
+Use the --save option to save the SDK as a dependency in your application's `package.json`.
 
 ```
 npm install aws-xray-sdk --save
@@ -36,11 +36,11 @@ npm install aws-xray-sdk --save
 
 ## Documentation
 
-This repository hosts all the packages we publish, which each have their own README. The [Core package README](https://github.com/aws/aws-xray-sdk-node/tree/master/packages/core) covers all basic use cases of the main X-Ray SDK.
+This repository hosts all the packages we publish, which each have their own README. The [Core package README](https://github.com/aws/aws-xray-sdk-node/tree/master/packages/core) covers all basic use cases of the main X-Ray SDK, including its use in Lambda.
 The [developer guide](https://docs.aws.amazon.com/xray/latest/devguide) provides in-depth
-guidance about using the AWS X-Ray service.
+guidance about using the AWS X-Ray service and SDKs.
 The [API Reference](http://docs.aws.amazon.com/xray-sdk-for-nodejs/latest/reference/)
-provides guidance for using the SDK and module-level documentation.
+provides guidance for using this SDK and module-level documentation.
 
 [CHANGELOG.md](https://github.com/aws/aws-xray-sdk-node/blob/master/packages/full_sdk/CHANGELOG.md)
 
