@@ -1,5 +1,5 @@
 # Changelog for AWS X-Ray SDK Express for JavaScript
-<!--LATEST=3.0.0-alpha.2-->
+<!--LATEST=3.0.0-->
 <!--ENTRYINSERT-->
 ## 2.5.0
 * improvement: Added TypeScript definitions [PR #207](https://github.com/aws/aws-xray-sdk-node/pull/207)
