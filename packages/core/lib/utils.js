@@ -2,7 +2,9 @@
  * @module utils
  */
 
+var crypto = require('crypto');
 var logger = require('./logger');
+var TraceID = require('./segments/attributes/trace_id');
 
 var utils = {
 
@@ -136,33 +138,46 @@ var utils = {
 
       if (xAmznTraceId) {
         var data = utils.processTraceData(xAmznTraceId);
-        valid = !!(data && data.Root && data.Parent && data.Sampled);
+        valid = !!(data && data.root && data.parent && data.sampled);
       }
 
       return valid;
     },
 
+    /**
+     * Populates trace ID, parent ID, and sampled decision of given segment. Will always populate valid values,
+     * even if xAmznTraceId contains missing or invalid values. This ensures downstream services receive valid
+     * headers.
+     * @param {Segment} segment - Facade segment to be populated
+     * @param {String} xAmznTraceId - Raw Trace Header to supply trace data
+     * @returns {Boolean} - true if required fields are present and Trace ID is valid, false otherwise
+     */
     populateTraceData: function(segment, xAmznTraceId) {
       logger.getLogger().debug('Lambda trace data found: ' + xAmznTraceId);
       var data = utils.processTraceData(xAmznTraceId);
-      var populated = false;
+      var valid = false;
+      
+      if (!data) {
+        data = {};
+        logger.getLogger().error('_X_AMZN_TRACE_ID is empty or has an invalid format');
+      } else if (!data.root || data.root !== TraceID.FromString(data.root).toString() 
+                 || !data.parent || !data.sampled) 
+      {
+        logger.getLogger().error('_X_AMZN_TRACE_ID is missing required information');
+      } else {
+        valid = true;
+      }
 
-      if (data && data.Root && data.Parent && data.Sampled) {
-        segment.trace_id = data.Root;
-        segment.id = data.Parent;
+      segment.trace_id = TraceID.FromString(data.root).toString();  // Will always assign valid trace_id
+      segment.id = data.parent || crypto.randomBytes(8).toString('hex');
 
-        if (!parseInt(data.Sampled))
-          segment.notTraced = true;
-        else
-          delete segment.notTraced;
+      if (!parseInt(data.sampled))
+        segment.notTraced = true;
+      else
+        delete segment.notTraced;
 
-        logger.getLogger().debug('Segment started: ' + JSON.stringify(data));
-
-        populated = true;
-      } else
-        logger.getLogger().warn('_X_AMZN_TRACE_ID is missing required data.');
-
-      return populated;
+      logger.getLogger().debug('Segment started: ' + JSON.stringify(data));
+      return valid;
     }
   },
 
@@ -186,7 +201,7 @@ var utils = {
       var pair = header.split('=');
 
       if (pair[0] && pair[1])
-        amznTraceData[pair[0].trim()] = pair[1].trim();
+        amznTraceData[pair[0].trim().toLowerCase()] = pair[1].trim().toLowerCase();
     });
 
     return amznTraceData;

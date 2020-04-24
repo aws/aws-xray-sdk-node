@@ -4,6 +4,7 @@ var CapturedException = require('./attributes/captured_exception');
 var SegmentEmitter = require('../segment_emitter');
 var SegmentUtils = require('./segment_utils');
 var Subsegment = require('./attributes/subsegment');
+var TraceID = require('./attributes/trace_id');
 
 var Utils = require('../utils');
 var logger = require('../logger');
@@ -24,13 +25,18 @@ Segment.prototype.init = function init(name, rootId, parentId) {
   if (typeof name != 'string')
     throw new Error('Segment name must be of type string.');
 
-  var traceId = rootId || '1-' + Math.round(new Date().getTime() / 1000).toString(16) + '-' +
-    crypto.randomBytes(12).toString('hex');
-
+  // Validate the Trace ID
+  var traceId;
+  if (rootId && typeof rootId == 'string') {
+    traceId = TraceID.FromString(rootId);
+  } else {
+    traceId = new TraceID();
+  }
+  
   var id = crypto.randomBytes(8).toString('hex');
   var startTime = SegmentUtils.getCurrentTime();
 
-  this.trace_id = traceId;
+  this.trace_id = traceId.toString();
   this.id = id;
   this.start_time = startTime;
   this.name = name || '';

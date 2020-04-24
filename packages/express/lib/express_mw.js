@@ -35,7 +35,7 @@ var expressMW = {
     return function open(req, res, next) {
       var amznTraceHeader = mwUtils.processHeaders(req);
       var name = mwUtils.resolveName(req.headers.host);
-      var segment = new Segment(name, amznTraceHeader.Root, amznTraceHeader.Parent);
+      var segment = new Segment(name, amznTraceHeader.root, amznTraceHeader.parent);
 
       mwUtils.resolveSampling(amznTraceHeader, segment, res);
       segment.addIncomingRequestData(new IncomingRequestData(req));

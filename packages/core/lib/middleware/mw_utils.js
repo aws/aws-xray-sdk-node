@@ -80,9 +80,9 @@ var utils = {
   resolveSampling: function resolveSampling(amznTraceHeader, segment, res) {
     var isSampled;
 
-    if (amznTraceHeader.Sampled === '1')
+    if (amznTraceHeader.sampled === '1')
       isSampled = true;
-    else if (amznTraceHeader.Sampled === '0')
+    else if (amznTraceHeader.sampled === '0')
       isSampled = false;
     else {
       var sampleRequest = {
@@ -99,8 +99,8 @@ var utils = {
       }
     }
 
-    if (amznTraceHeader.Sampled === '?')
-      res.header[XRAY_HEADER] = 'Root=' + amznTraceHeader.Root + ';Sampled=' + (isSampled ? '1' : '0');
+    if (amznTraceHeader.sampled === '?')
+      res.header[XRAY_HEADER] = 'Root=' + amznTraceHeader.root + ';Sampled=' + (isSampled ? '1' : '0');
 
     if (!isSampled)
       segment.notTraced = true;

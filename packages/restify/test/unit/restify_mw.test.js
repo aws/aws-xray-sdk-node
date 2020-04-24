@@ -110,7 +110,7 @@ describe('Express middleware', function() {
 
         onEventStub = sandbox.stub(res, 'on');
 
-        processHeadersStub = sandbox.stub(mwUtils, 'processHeaders').returns({ Root: traceId, Parent: parentId, Sampled: '0' });
+        processHeadersStub = sandbox.stub(mwUtils, 'processHeaders').returns({ root: traceId, parent: parentId, sampled: '0' });
         resolveNameStub = sandbox.stub(mwUtils, 'resolveName').returns(defaultName);
 
         req.headers = { host: hostName };

@@ -22,6 +22,11 @@ describe('TraceID', function() {
     assert.equal(traceId.id, '2c7ad569f5d6ff149137be86');
   });
 
+  it('should return a valid trace ID given undefined', function() {
+    var traceId = TraceID.FromString(undefined);
+    validateTraceID(traceId);
+  });
+
   it('should return a valid trace ID when given malformed string', function() {
     const traceStr = 'FAKE-TRACE';
     var traceId = TraceID.FromString(traceStr);

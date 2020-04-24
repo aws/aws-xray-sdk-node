@@ -67,7 +67,7 @@ describe('Middleware utils', function() {
       req.headers[XRAY_HEADER] = 'Root=' + traceId;
       var headers = MWUtils.processHeaders(req);
 
-      assert.deepEqual(headers, {Root: traceId});
+      assert.deepEqual(headers, {root: traceId});
     });
 
     it('should return a split array on an request with an "x-amzn-trace-id" header with a root ID and parent ID', function() {
@@ -75,7 +75,7 @@ describe('Middleware utils', function() {
       req.headers[XRAY_HEADER] = 'Root=' + traceId + '; Parent=' + parentId;
       var headers = MWUtils.processHeaders(req);
 
-      assert.deepEqual(headers, {Root: traceId, Parent: parentId});
+      assert.deepEqual(headers, {root: traceId, parent: parentId});
     });
 
     it('should return a split array on an request with an "x-amzn-trace-id" header with a root ID, parent ID and sampling', function() {
@@ -83,7 +83,7 @@ describe('Middleware utils', function() {
       req.headers[XRAY_HEADER] = 'Root=' + traceId + '; Parent=' + parentId + '; Sampled=0';
       var headers = MWUtils.processHeaders(req);
 
-      assert.deepEqual(headers, {Root: traceId, Parent: parentId, Sampled: '0'});
+      assert.deepEqual(headers, {root: traceId, parent: parentId, sampled: '0'});
     });
   });
 
@@ -168,7 +168,7 @@ describe('Middleware utils', function() {
     });
 
     it('should not mark segment as not traced if the sampled header is set to "1"', function() {
-      var headers = { Root: traceId, Sampled: '1' };
+      var headers = { root: traceId, sampled: '1' };
       MWUtils.resolveSampling(headers, segment, res);
 
       shouldSampleStub.should.have.not.been.called;
@@ -177,7 +177,7 @@ describe('Middleware utils', function() {
     });
 
     it('should mark segment as not traced if the sampled header is set to "0"', function() {
-      var headers = { Root: traceId, Sampled: '0' };
+      var headers = { root: traceId, sampled: '0' };
       MWUtils.resolveSampling(headers, segment, res);
 
       shouldSampleStub.should.have.not.been.called;
@@ -186,7 +186,7 @@ describe('Middleware utils', function() {
     });
 
     it('should do a sampling rules check if no "Sampled" header is set', function() {
-      var headers = { Root: traceId };
+      var headers = { root: traceId };
       MWUtils.resolveSampling(headers, segment, res);
 
       var sampleRequest = {
@@ -200,7 +200,7 @@ describe('Middleware utils', function() {
     });
 
     it('should set the response header with sampling result if header is "?"', function() {
-      var headers = { Root: traceId, Sampled: '?' };
+      var headers = { root: traceId, sampled: '?' };
       MWUtils.resolveSampling(headers, segment, res);
 
       var expected = new RegExp('^Root=' + traceId + ';Sampled=1$');
