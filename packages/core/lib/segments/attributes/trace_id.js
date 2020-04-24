@@ -6,8 +6,6 @@ var logger = require('../../logger');
  * @see https://docs.aws.amazon.com/xray/latest/devguide/xray-concepts.html#xray-concepts-traces
  */
 class TraceID {
-  static DELIMITER = '-';
-
   /**
    * Constructs a new trace ID using the current time.
    * @constructor
@@ -24,6 +22,7 @@ class TraceID {
    * @param {string} [rawID] - string to create a Trace ID object from.
    */
   static FromString(rawID) {
+    const DELIMITER = '-';
     var traceID = new TraceID();
     var version, timestamp;
 
@@ -32,7 +31,7 @@ class TraceID {
       return traceID;
     }
 
-    const parts = rawID.trim().split(TraceID.DELIMITER);
+    const parts = rawID.trim().split(DELIMITER);
     if (parts.length !== 3) {
       logger.getLogger().error('Unrecognized trace ID format');
       return traceID;
@@ -62,7 +61,7 @@ class TraceID {
    * @returns {string} - stringified trace ID, e.g. 1-57fbe041-2c7ad569f5d6ff149137be86
    */
   toString() {
-    return `${this.version.toString()}${TraceID.DELIMITER}${this.timestamp}${TraceID.DELIMITER}${this.id}`; 
+    return `${this.version.toString()}-${this.timestamp}-${this.id}`; 
   }
 }
 
