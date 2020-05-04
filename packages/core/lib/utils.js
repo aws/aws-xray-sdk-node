@@ -160,9 +160,7 @@ var utils = {
       if (!data) {
         data = {};
         logger.getLogger().error('_X_AMZN_TRACE_ID is empty or has an invalid format');
-      } else if (!data.root || data.root !== TraceID.FromString(data.root).toString() 
-                 || !data.parent || !data.sampled) 
-      {
+      } else if (!data.root || !data.parent || !data.sampled) {
         logger.getLogger().error('_X_AMZN_TRACE_ID is missing required information');
       } else {
         valid = true;
@@ -171,6 +169,11 @@ var utils = {
       segment.trace_id = TraceID.FromString(data.root).toString();  // Will always assign valid trace_id
       segment.id = data.parent || crypto.randomBytes(8).toString('hex');
 
+      if (data.root && segment.trace_id !== data.root)  {
+        logger.getLogger().error('_X_AMZN_TRACE_ID contains invalid trace ID');
+        valid = false;
+      }
+        
       if (!parseInt(data.sampled))
         segment.notTraced = true;
       else
@@ -190,6 +193,8 @@ var utils = {
 
   processTraceData: function processTraceData(traceData) {
     var amznTraceData = {};
+    var reservedKeywords = ['root', 'parent', 'sampled', 'self'];
+    var remainingBytes = 256;
 
     if (!(typeof traceData === 'string' && traceData))
       return amznTraceData;
@@ -200,8 +205,18 @@ var utils = {
 
       var pair = header.split('=');
 
-      if (pair[0] && pair[1])
-        amznTraceData[pair[0].trim().toLowerCase()] = pair[1].trim().toLowerCase();
+      if (pair[0] && pair[1]) {
+        var key = pair[0].trim().toLowerCase();
+        var value = pair[1].trim().toLowerCase();
+        var reserved = reservedKeywords.indexOf(key) !== -1;
+
+        if (reserved) {
+          amznTraceData[key] = value;
+        } else if (!reserved && remainingBytes - (key.length + value.length) >= 0) {
+          amznTraceData[key] = value;
+          remainingBytes -= (key.length + value.length);
+        }
+      }
     });
 
     return amznTraceData;

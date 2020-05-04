@@ -88,6 +88,29 @@ describe('Utils', function() {
         root: '1-58ed6027-14afb2e09172c337713486c0'
       });
     });
+
+    it('should accept arbitrary key=value pairs', function() {
+      assert.deepEqual(Utils.processTraceData('Root=1-58ed6027-14afb2e09172c337713486c0;Foo=bar'), {
+        root: '1-58ed6027-14afb2e09172c337713486c0',
+        foo: 'bar'
+      });
+    });
+
+    it('should not accept arbitrary key=value pairs that exceed the 256 byte limit', function() {
+      var longVal = 'a'.repeat(251);
+      assert.deepEqual(Utils.processTraceData(`Root=1-58ed6027-14afb2e09172c337713486c0;Foo=bar;Baz=${longVal}`), {
+        root: '1-58ed6027-14afb2e09172c337713486c0',
+        foo: 'bar'
+      });
+    });
+
+    it('should always accept reserved keywords even if unreserved capacity exceeded', function() {
+      var longVal = 'a'.repeat(251);
+      assert.deepEqual(Utils.processTraceData(`Baz=${longVal};Root=1-58ed6027-14afb2e09172c337713486c0;Foo=bar`), {
+        root: '1-58ed6027-14afb2e09172c337713486c0',
+        baz: longVal
+      });
+    });
   });
 
   describe('#processTraceData', function() {
