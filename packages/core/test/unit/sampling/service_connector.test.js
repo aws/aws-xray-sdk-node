@@ -2,6 +2,7 @@ var assert = require('chai').assert;
 var expect = require('chai').expect;
 var chai = require('chai');
 var sinon = require('sinon');
+var rewire = require('rewire');
 
 var DaemonConfig = require('../../../lib/daemon_config');
 var ServiceConnector = require('../../../lib/middleware/sampling/service_connector');
@@ -178,6 +179,24 @@ describe('ServiceConnector', function() {
 
         done();
       });
+    });
+
+    it('handles invalid responses from the API gracefully', function() {
+      var rewiredConnector = rewire('../../../lib/middleware/sampling/service_connector');
+      var assembleRules = rewiredConnector.__get__('assembleRules');
+
+      var res = assembleRules({});
+      assert.isArray(res);
+    });
+  });
+
+  describe('fetchSamplingTargets', function() {
+    it('handles invalid responses from the API gracefully', function() {
+      var rewiredConnector = rewire('../../../lib/middleware/sampling/service_connector');
+      var assembleTargets = rewiredConnector.__get__('assembleTargets');
+
+      var res = assembleTargets({});
+      assert.deepEqual(res, {});
     });
   });
 

@@ -43,6 +43,10 @@ var ServiceConnector = {
           callback(err);
         }
 
+        if (dataObj === null) {
+          callback(new Error('AWS X-Ray GetSamplingRules API returned null response'));
+        }
+
         var newRules = assembleRules(dataObj);
         callback(null, newRules);
       });
@@ -77,6 +81,10 @@ var ServiceConnector = {
           dataObj = JSON.parse(data);
         } catch (err) {
           callback(err);
+        }
+
+        if (dataObj === null || !dataObj['LastRuleModification']) {
+          callback(new Error('AWS X-Ray SamplingTargets API returned invalid response'));
         }
 
         var targetsMapping = assembleTargets(dataObj);
@@ -117,7 +125,7 @@ var constructStatisticsDocs = function constructStatisticsDocs(rules) {
 
 var assembleRules = function assembleRules(data) {
   var newRules = [];
-  var ruleList = data['SamplingRuleRecords'];
+  var ruleList = data['SamplingRuleRecords'] || [];
   ruleList.forEach(function(ruleRecord) {
     ruleRecord = ruleRecord['SamplingRule'];
     // For forward compatibility reason right now it only
@@ -141,7 +149,7 @@ var assembleRules = function assembleRules(data) {
 };
 
 var assembleTargets = function assembleTargets(data) {
-  var docs = data['SamplingTargetDocuments'];
+  var docs = data['SamplingTargetDocuments'] || [];
   var targetsMapping = {};
 
   docs.forEach(function(doc) {
