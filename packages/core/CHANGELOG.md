@@ -1,6 +1,9 @@
 # Changelog for AWS X-Ray Core SDK for JavaScript
-<!--LATEST=3.0.0-->
+<!--LATEST=3.0.1-->
 <!--ENTRYINSERT-->
+## 3.0.1
+* bugfix: Gracefully handle invalid sampling API responses [#ISSUE285](https://github.com/aws/aws-xray-sdk-node/issues/285)
+
 ## 3.0.0
 * **BREAKING** change: Releasing all changes in 3.0.0-alpha.1 and 3.0.0-alpha.2 as stable. See below changelog entries. [#ISSUE157](https://github.com/aws/aws-xray-sdk-node/issues/157)
 * improvement: Deprecated support for Node 8 [#PR 273](https://github.com/aws/aws-xray-sdk-node/pull/273)
