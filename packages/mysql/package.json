@@ -1,6 +1,6 @@
 {
   "name": "aws-xray-sdk-mysql",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "description": "AWS X-Ray Patcher for MySQL (Javascript)",
   "author": "Amazon Web Services",
   "contributors": [
@@ -21,7 +21,7 @@
     "aws-xray-sdk-core": "^3.0.1"
   },
   "devDependencies": {
-    "aws-xray-sdk-core": "^3.0.0",
+    "aws-xray-sdk-core": "^3.0.1",
     "chai": "^3.5.0",
     "eslint": "^4.19.1",
     "grunt": "^1.0.4",
