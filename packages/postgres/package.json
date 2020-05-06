@@ -18,7 +18,7 @@
     "@types/pg": "*"
   },
   "peerDependencies": {
-    "aws-xray-sdk-core": "^3.0.0"
+    "aws-xray-sdk-core": "^3.0.1"
   },
   "devDependencies": {
     "aws-xray-sdk-core": "^3.0.0",
