@@ -30,22 +30,31 @@ describe('Utils', function() {
   });
 
   describe('#processTraceData', function() {
+    it('should be case insensitive when parsing X-Amzn-Trace-Id', function() {
+      var traceData = 'RoOt=1-58ed6027-14afb2e09172c337713486c0;PaREnT=48af77592b6dd73f;saMpLed=1';
+
+      var parsed = Utils.processTraceData(traceData);
+      assert.propertyVal(parsed, 'root', '1-58ed6027-14afb2e09172c337713486c0');
+      assert.propertyVal(parsed, 'parent', '48af77592b6dd73f');
+      assert.propertyVal(parsed, 'sampled', '1');
+    });
+
     it('should parse X-Amzn-Trace-Id with spaces', function() {
       var traceData = 'Root=1-58ed6027-14afb2e09172c337713486c0; Parent=48af77592b6dd73f; Sampled=1';
 
       var parsed = Utils.processTraceData(traceData);
-      assert.propertyVal(parsed, 'Root', '1-58ed6027-14afb2e09172c337713486c0');
-      assert.propertyVal(parsed, 'Parent', '48af77592b6dd73f');
-      assert.propertyVal(parsed, 'Sampled', '1');
+      assert.propertyVal(parsed, 'root', '1-58ed6027-14afb2e09172c337713486c0');
+      assert.propertyVal(parsed, 'parent', '48af77592b6dd73f');
+      assert.propertyVal(parsed, 'sampled', '1');
     });
 
     it('should parse X-Amzn-Trace-Id without spaces', function() {
       var traceData = 'Root=1-58ed6027-14afb2e09172c337713486c0;Parent=48af77592b6dd73f;Sampled=1';
 
       var parsed = Utils.processTraceData(traceData);
-      assert.propertyVal(parsed, 'Root', '1-58ed6027-14afb2e09172c337713486c0');
-      assert.propertyVal(parsed, 'Parent', '48af77592b6dd73f');
-      assert.propertyVal(parsed, 'Sampled', '1');
+      assert.propertyVal(parsed, 'root', '1-58ed6027-14afb2e09172c337713486c0');
+      assert.propertyVal(parsed, 'parent', '48af77592b6dd73f');
+      assert.propertyVal(parsed, 'sampled', '1');
     });
 
     it('should bail out for missing trace values', function() {
@@ -58,25 +67,48 @@ describe('Utils', function() {
 
     it('should handle trace header values with excess semicolons correctly', function() {
       assert.deepEqual(Utils.processTraceData('Root=1-58ed6027-14afb2e09172c337713486c0;'), {
-        Root: '1-58ed6027-14afb2e09172c337713486c0'
+        root: '1-58ed6027-14afb2e09172c337713486c0'
       });
     });
 
     it('should handle malformed key=value pairs correctly (missing value)', function() {
       assert.deepEqual(Utils.processTraceData('Root=1-58ed6027-14afb2e09172c337713486c0;Parent'), {
-        Root: '1-58ed6027-14afb2e09172c337713486c0'
+        root: '1-58ed6027-14afb2e09172c337713486c0'
       });
     });
 
     it('should handle malformed key=value pairs correctly (empty key)', function() {
       assert.deepEqual(Utils.processTraceData('Root=1-58ed6027-14afb2e09172c337713486c0;=48af77592b6dd73f'), {
-        Root: '1-58ed6027-14afb2e09172c337713486c0'
+        root: '1-58ed6027-14afb2e09172c337713486c0'
       });
     });
 
     it('should handle malformed key=value pairs correctly (empty value)', function() {
       assert.deepEqual(Utils.processTraceData('Root=1-58ed6027-14afb2e09172c337713486c0;Parent='), {
-        Root: '1-58ed6027-14afb2e09172c337713486c0'
+        root: '1-58ed6027-14afb2e09172c337713486c0'
+      });
+    });
+
+    it('should accept arbitrary key=value pairs', function() {
+      assert.deepEqual(Utils.processTraceData('Root=1-58ed6027-14afb2e09172c337713486c0;Foo=bar'), {
+        root: '1-58ed6027-14afb2e09172c337713486c0',
+        foo: 'bar'
+      });
+    });
+
+    it('should not accept arbitrary key=value pairs that exceed the 256 byte limit', function() {
+      var longVal = 'a'.repeat(251);
+      assert.deepEqual(Utils.processTraceData(`Root=1-58ed6027-14afb2e09172c337713486c0;Foo=bar;Baz=${longVal}`), {
+        root: '1-58ed6027-14afb2e09172c337713486c0',
+        foo: 'bar'
+      });
+    });
+
+    it('should always accept reserved keywords even if unreserved capacity exceeded', function() {
+      var longVal = 'a'.repeat(251);
+      assert.deepEqual(Utils.processTraceData(`Baz=${longVal};Root=1-58ed6027-14afb2e09172c337713486c0;Foo=bar`), {
+        root: '1-58ed6027-14afb2e09172c337713486c0',
+        baz: longVal
       });
     });
   });
@@ -99,9 +131,9 @@ describe('Utils', function() {
         sandbox = sinon.sandbox.create();
         xAmznTraceId = 'moop';
         headerData = {
-          Root: '1-58e8017e-fd7f0e6deaf6ce16a4841b44',
-          Parent: 'c2f1d3ad6a9fbd5a',
-          Sampled: '1'
+          root: '1-58e8017e-fd7f0e6deaf6ce16a4841b44',
+          parent: 'c2f1d3ad6a9fbd5a',
+          sampled: '1'
         };
 
         processStub = sandbox.stub(Utils, 'processTraceData').returns(headerData);
@@ -121,7 +153,7 @@ describe('Utils', function() {
       });
 
       it('should return false any of Root, Parent and Sampled is missing', function() {
-        delete headerData.Sampled;
+        delete headerData.sampled;
         assert.isFalse(Utils.LambdaUtils.validTraceData(xAmznTraceId));
       });
 
@@ -138,9 +170,9 @@ describe('Utils', function() {
         sandbox = sinon.sandbox.create();
         segment = {};
         headerData = {
-          Root: '1-58e8017e-fd7f0e6deaf6ce16a4841b44',
-          Parent: 'c2f1d3ad6a9fbd5a',
-          Sampled: '1'
+          root: '1-58e8017e-fd7f0e6deaf6ce16a4841b44',
+          parent: 'c2f1d3ad6a9fbd5a',
+          sampled: '1'
         };
 
         processStub = sandbox.stub(Utils, 'processTraceData').returns(headerData);
@@ -161,14 +193,14 @@ describe('Utils', function() {
       });
 
       it('should return false if data is missing', function() {
-        delete headerData.Sampled;
+        delete headerData.sampled;
         var populated = Utils.LambdaUtils.populateTraceData(segment);
         assert.isFalse(populated);
       });
 
       it('should set segment.trace_id', function() {
         Utils.LambdaUtils.populateTraceData(segment);
-        assert.equal(segment.trace_id, headerData.Root);
+        assert.equal(segment.trace_id, headerData.root);
       });
 
       it('should not set segment.notTraced', function() {
@@ -177,13 +209,13 @@ describe('Utils', function() {
       });
 
       it('should set segment.notTraced as true if sampled is 0', function() {
-        headerData.Sampled = '0';
+        headerData.sampled = '0';
         Utils.LambdaUtils.populateTraceData(segment);
         assert.propertyVal(segment, 'notTraced', true);
       });
 
       it('should delete segment.notTraced if sampled is 1', function() {
-        headerData.Sampled = '1';
+        headerData.sampled = '1';
         Utils.LambdaUtils.populateTraceData(segment);
         assert.isUndefined(segment.notTraced);
       });
@@ -191,7 +223,32 @@ describe('Utils', function() {
       it('should set the segment.id as the parent ID', function() {
         segment.id = segmentId;
         Utils.LambdaUtils.populateTraceData(segment);
-        assert.propertyVal(segment, 'id', headerData.Parent);
+        assert.propertyVal(segment, 'id', headerData.parent);
+      });
+
+      it('should create a segment.trace_id if Root is missing', function() {
+        delete headerData.root;
+        var valid = Utils.LambdaUtils.populateTraceData(segment);
+        assert.isFalse(valid);
+        assert.isDefined(segment.trace_id);
+        assert.isNotNull(segment.trace_id);
+      });
+
+      it('should create a segment.trace_id if Root is invalid', function() {
+        headerData.root = 'fake';
+        var valid = Utils.LambdaUtils.populateTraceData(segment);
+        assert.isFalse(valid);
+        assert.isDefined(segment.trace_id);
+        assert.isNotNull(segment.trace_id);
+        assert.notEqual(segment.trace_id, headerData.root);
+      });
+
+      it('should create a segment.id if Parent is missing', function() {
+        delete headerData.parent;
+        var valid = Utils.LambdaUtils.populateTraceData(segment);
+        assert.isFalse(valid);
+        assert.isDefined(segment.id);
+        assert.isNotNull(segment.id);
       });
     });
   });
