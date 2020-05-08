@@ -52,7 +52,7 @@ For more automatic mode examples, see the [example code](https://github.com/aws/
 
     app.get('/', function (req, res) {
       var segment = AWSXRay.getSegment();
-      segment.addAnnotaion('page', 'home');
+      segment.addAnnotation('page', 'home');
 
       //...
 
@@ -61,7 +61,7 @@ For more automatic mode examples, see the [example code](https://github.com/aws/
 
     app.get('/directory', function (req, res) {
       var segment = AWSXRay.getSegment();
-      segment.addAnnotaion('page', 'directory');
+      segment.addAnnotation('page', 'directory');
 
       //...
 
