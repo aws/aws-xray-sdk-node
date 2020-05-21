@@ -16,7 +16,7 @@ function buildFakeResponse() {
   return response;
 };
 
-function buildFakeRequest(res, rules) {
+function buildFakeRequest(res, rules, invalid) {
   var rulesObj = {
     'SamplingRuleRecords': rules,
     'NextToken': null
@@ -28,15 +28,19 @@ function buildFakeRequest(res, rules) {
   request.connection = { remoteAddress: 'myhost' };
   request.write = () => {};
   request.end = () => {
-    res.emit('data', JSON.stringify(rulesObj));
+    if (invalid)
+      res.emit('data', 'nonJsonResponse');
+    else
+      res.emit('data', JSON.stringify(rulesObj));
+
     res.emit('end');
   };
   return request;
 };
 
-function generateMockClient(samplingRules) {
+function generateMockClient(samplingRules, invalidResponse) {
   var res = buildFakeResponse();
-  var req = buildFakeRequest(res, samplingRules);
+  var req = buildFakeRequest(res, samplingRules, invalidResponse);
   return buildFakeHttpClient(req, res);
 };
 
@@ -51,8 +55,17 @@ function buildFakeHttpClient(req, res) {
 
 describe('ServiceConnector', function() {
   var sandbox;
+
+  // The only way to spy this method is if it's in an object
+  var callbackObj = {
+    errCallback: function(err, _) {
+      assert.isNotNull(err);
+    }
+  }
+  
   this.beforeEach(function() {
     sandbox = sinon.sandbox.create();
+    sandbox.spy(callbackObj, 'errCallback');
   });
 
   this.afterEach(function() {
@@ -188,6 +201,26 @@ describe('ServiceConnector', function() {
       var res = assembleRules({});
       assert.isArray(res);
     });
+
+    it('catches request errors and does not crash', function() {
+      let response = buildFakeResponse();
+      let request = buildFakeRequest(response, []);
+      let onSpy = sandbox.spy(response, 'on');
+      sandbox.stub(ServiceConnector, 'httpClient')
+        .value(buildFakeHttpClient(request, response));
+
+      ServiceConnector.fetchSamplingRules(() => {});
+      request.emit('error', new Error('Fake ECONNREFUSED error'));
+    });
+
+    it('Only calls callback once after getting an invalid API response', function() {
+      // Generates a client that returns an invalid (non-JSON) response
+      sandbox.stub(ServiceConnector, 'httpClient').value(generateMockClient(null, true));
+      
+      ServiceConnector.fetchSamplingRules(callbackObj.errCallback);
+
+      callbackObj.errCallback.should.have.been.calledOnce;
+    });
   });
 
   describe('fetchSamplingTargets', function() {
@@ -197,6 +230,25 @@ describe('ServiceConnector', function() {
 
       var res = assembleTargets({});
       assert.deepEqual(res, {});
+    });
+
+    it('catches request errors and does not crash', function() {
+      let response = buildFakeResponse();
+      let request = buildFakeRequest(response, []);
+      sandbox.stub(ServiceConnector, 'httpClient')
+        .value(buildFakeHttpClient(request, response));
+
+      ServiceConnector.fetchTargets([], () => {});
+      request.emit('error', new Error('Fake ECONNREFUSED error'));
+    });
+
+    it('Only calls callback once after getting an invalid API response', function() {
+      // Generates a client that returns an invalid (non-JSON) response
+      sandbox.stub(ServiceConnector, 'httpClient').value(generateMockClient(null, true));
+      
+      ServiceConnector.fetchTargets([], callbackObj.errCallback);
+
+      callbackObj.errCallback.should.have.been.calledOnce;
     });
   });
 
@@ -244,28 +296,6 @@ describe('ServiceConnector', function() {
 
       assert.equal(new_address, requestSpy.getCall(1).args[0].hostname);
       assert.equal(new_port, requestSpy.getCall(1).args[0].port);
-    });
-  });
-
-  describe('HttpException', function() {
-    var logging;
-    beforeEach(function() {
-      var path = '../../../lib/logger';
-      delete require.cache[require.resolve(path)];
-      logging = require(path);
-    });
-
-    it('should log an error when the HTTP request fails', function() {
-      let response = buildFakeResponse();
-      let request = buildFakeRequest(response, []);
-      sandbox.spy(ServiceConnector.logger, 'getLogger');
-      sandbox.stub(ServiceConnector, 'httpClient')
-        .value(buildFakeHttpClient(request, response));
-      
-      ServiceConnector.fetchSamplingRules(function() {});
-      request.emit('error', new Error('Fake ECONNREFUSED error'));
-
-      expect(ServiceConnector.logger.getLogger).to.be.calledOnce;      
     });
   });
 });
