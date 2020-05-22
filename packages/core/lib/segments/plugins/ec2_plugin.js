@@ -9,15 +9,18 @@ var EC2Plugin = {
    */
 
   getData: function(callback) {
+    const TOKEN_PATH = '/latest/api/token';
+    const METADATA_PATH = '/latest/dynamic/instance-identity/document';
+
     function getMetadataToken() {
       const TTL = 60; //seconds
-      const tokenOptions = getOptions('/api/token', 'PUT', {
+      const tokenOptions = getOptions(TOKEN_PATH, 'PUT', {
         'X-aws-ec2-metadata-token-ttl-seconds': TTL
       });
 
       Plugin.getToken(tokenOptions, function(err, data) {
         if (err) {
-          logger.getLogger().debug('EC2Plugin failed to get token from IMDSv2. Falling back to IMDSv1.', err);
+          logger.getLogger().debug('EC2Plugin failed to get token from IMDSv2. Falling back to IMDSv1.', err.toString());
           getV1Metadata();
         } else {
           // Successfully got token, use it for IMDSv2 metadata request
@@ -27,17 +30,20 @@ var EC2Plugin = {
     }
 
     function getV2Metadata(token) {
-      const options = getOptions('/latest/dynamic/instance-identity/document', 'GET', {
+      const options = getOptions(METADATA_PATH, 'GET', {
         'X-aws-ec2-metadata-token': token
       });
 
       Plugin.getPluginMetadata(options, function(err, data) {
         if (err) {
-          logger.getLogger().debug('EC2Plugin failed to get metadata from IMDSv2. Falling back to IMDSv1.', err)
+          logger.getLogger().debug('EC2Plugin failed to get metadata from IMDSv2. Falling back to IMDSv1.', err.toString())
           getV1Metadata();
-        } else {
+        } else if (data) {
           const metadata = { ec2: { instance_id: data.instanceId, availability_zone: data.availabilityZone }};
           callback(metadata);
+        } else {
+          logger.getLogger().debug('Failed to get required EC2 metadata from IMDSv2. Falling back to IMDSv1.');
+          getV1Metadata();
         }
       });
     }
@@ -47,11 +53,14 @@ var EC2Plugin = {
   
       Plugin.getPluginMetadata(options, function(err, data) {
         if (err) {
-          logger.getLogger().error('Error loading EC2 plugin: ', err);
+          logger.getLogger().error('Error loading EC2 plugin: ', err.toString());
           callback();
-        } else {
+        } else if (data) {
           const metadata = { ec2: { instance_id: data.instanceId, availability_zone: data.availabilityZone }};
           callback(metadata);
+        } else {
+          logger.getLogger().error('Failed to get required EC2 metadata from IMDS');
+          callback();
         }
       });
     }
