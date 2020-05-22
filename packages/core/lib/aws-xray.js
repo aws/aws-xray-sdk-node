@@ -55,15 +55,19 @@ var AWSXRay = {
 
   config: function(plugins) {
     var pluginData = {};
+    var lastOriginName;
     plugins.forEach(function(plugin) {
       plugin.getData(function(data) {
         if (data) {
           for (var attribute in data) { pluginData[attribute] = data[attribute]; }
         }
+
+        // Set origin regardless of data added. This will change in a later version
+        lastOriginName = plugin.originName;
       });
-      segmentUtils.setOrigin(plugin.originName);
-      segmentUtils.setPluginData(pluginData);
     });
+    if (lastOriginName) segmentUtils.setOrigin(lastOriginName);
+    segmentUtils.setPluginData(pluginData);
   },
 
   /**
