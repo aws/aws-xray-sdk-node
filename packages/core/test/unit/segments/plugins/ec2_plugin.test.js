@@ -15,7 +15,7 @@ describe('EC2Plugin', function() {
     instanceId: 'i-1234567890abcdef0'
   };
   const HOST = '169.254.169.254';
-  const TOKEN_PATH = '/api/token';
+  const TOKEN_PATH = '/latest/api/token';
   const METADATA_PATH = '/latest/dynamic/instance-identity/document';
   const TOKEN = 'fancyToken';
   const METADATA_HEADER = {
