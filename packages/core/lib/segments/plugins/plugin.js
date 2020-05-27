@@ -57,42 +57,6 @@ var Plugin = {
     };
 
     getMetadata();
-  },
-
-  /**
-   * Asynchronously retrieves a token used in requests to EC2 instance metadata service.
-   * @param {object} options - The HTTP options to make the request with
-   * @param {function} callback - callback to plugin
-   */
-  getToken: function(options, callback) {
-    let httpReq = http.__request ? http.__request : http.request;
-
-    let req = httpReq(options, function(res) {
-      let body = '';
-
-      res.on('data', function(chunk) {
-        body += chunk;
-      });
-
-      res.on('end', function() {
-        if (this.statusCode === 200 || this.statusCode === 300) {
-          callback(null, body);
-        } else {
-          callback(new Error(`Failed to retrieve token with options: ${options}`));
-        }
-      });
-    });
-
-    req.on('error', function(err) {
-      callback(err);
-    });
-
-    req.on('timeout', function() {
-      req.abort();
-    });
-
-    req.setTimeout(Plugin.METADATA_TIMEOUT);
-    req.end();
   }
 };
 

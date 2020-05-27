@@ -1,5 +1,4 @@
 var expect = require('chai').expect;
-var assert = require('chai').assert;
 var nock = require('nock');
 
 var Plugin = require('../../../../lib/segments/plugins/plugin');
@@ -69,44 +68,6 @@ describe('Plugin', function() {
       getPluginMetadata(OPTIONS, function(err, data) {
         expect(data).to.be.empty;
         getMetadata.done();
-        done();
-      });
-    });
-  });
-
-  describe('#getToken', function() {
-    const token = 'fancyToken';
-    let getToken = Plugin.getToken;
-    let getTokenRequest;
-    const TOKEN_PATH = '/token';
-    const TOKEN_OPTIONS = {
-      host: 'localhost',
-      path: '/token',
-      method: 'PUT'
-    }
-
-    it('should return token on 200 OK', function(done) {
-      getTokenRequest = nock(METADATA_HOST)
-        .put(TOKEN_PATH)
-        .reply(200, token);
-
-      getToken(TOKEN_OPTIONS, function(err, data) {
-        assert.isNull(err);
-        assert.equal(data, token);
-        getTokenRequest.done();
-        done();
-      });
-    });
-
-    it('should return an error on 4xx', function(done) {
-      getTokenRequest = nock(METADATA_HOST)
-        .put(TOKEN_PATH)
-        .reply(400);
-
-      getToken(TOKEN_OPTIONS, function(err, data) {
-        assert.isNotNull(err);
-        assert.isDefined(err);
-        getTokenRequest.done();
         done();
       });
     });
