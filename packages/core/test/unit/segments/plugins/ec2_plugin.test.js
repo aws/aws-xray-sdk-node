@@ -19,7 +19,9 @@ describe('EC2Plugin', function() {
   describe('#getData', function() {
     const data = {
       availabilityZone: 'us-east-1d',
-      instanceId: 'i-1234567890abcdef0'
+      instanceId: 'i-1234567890abcdef0',
+      imageId: 'AL2',
+      instanceType: 'm5.xlarge'
     };
     const METADATA_PATH = '/latest/dynamic/instance-identity/document';
     const METADATA_HEADER = {
@@ -60,6 +62,8 @@ describe('EC2Plugin', function() {
         // verify correct data received
         assert.equal(metadata.ec2.instance_id, data.instanceId);
         assert.equal(metadata.ec2.availability_zone, data.availabilityZone);
+        assert.equal(metadata.ec2.ami_id, data.imageId);
+        assert.equal(metadata.ec2.instance_size, data.instanceType);
         done();
       });
     });
@@ -85,6 +89,8 @@ describe('EC2Plugin', function() {
         // verify correct data received
         assert.equal(metadata.ec2.instance_id, data.instanceId);
         assert.equal(metadata.ec2.availability_zone, data.availabilityZone);
+        assert.equal(metadata.ec2.ami_id, data.imageId);
+        assert.equal(metadata.ec2.instance_size, data.instanceType);
         done();
       });
     });
