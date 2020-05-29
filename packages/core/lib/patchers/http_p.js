@@ -9,8 +9,6 @@
 var url = require('url');
 
 var contextUtils = require('../context_utils');
-var DaemonConfig = require('../daemon_config');
-var ServiceConnector = require('../middleware/sampling/service_connector');
 var Utils = require('../utils');
 
 var logger = require('../logger');
@@ -74,15 +72,8 @@ function enableCapture(module, downstreamXRayEnabled) {
       callback = args[1];
     }
 
-    // Short circuit if the HTTP request has no options, is already being captured,
-    // or represents a centralized sampling request to the daemon
-    if (!options || 
-       (options.headers && (options.headers['X-Amzn-Trace-Id'])) ||
-       (options.hostname == DaemonConfig.tcp_ip && 
-        options.port == DaemonConfig.tcp_port && 
-       (options.path == ServiceConnector.samplingRulesPath || 
-        options.path == ServiceConnector.samplingTargetsPath)))
-    {
+    // Short circuit if the HTTP request has no options or is already being captured
+    if (!options || (options.headers && (options.headers['X-Amzn-Trace-Id']))) {
       return baseFunc(...args);
     }
 

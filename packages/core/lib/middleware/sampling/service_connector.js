@@ -24,8 +24,9 @@ var ServiceConnector = {
   fetchSamplingRules: function fetchSamplingRules(callback) {
     const body = '{}';  // Payload needed for GetSamplingRules POST request
     const options = getOptions(this.samplingRulesPath, body.length);
+    const httpReq = this.httpClient.__request ? this.httpClient.__request : this.httpClient.request;
     
-    const req = this.httpClient.request(options, res => {
+    const req = httpReq(options, res => {
       var data = '';
       res.on('data', d => {
         data += d;
@@ -65,8 +66,9 @@ var ServiceConnector = {
   fetchTargets: function fetchTargets(rules, callback) {
     const body = JSON.stringify(constructStatisticsDocs(rules));
     const options = getOptions(this.samplingTargetsPath, body.length);
+    const httpReq = this.httpClient.__request ? this.httpClient.__request : this.httpClient.request;
     
-    const req = this.httpClient.request(options, res => {
+    const req = httpReq(options, res => {
       var data = '';
       res.on('data', d => {
         data += d;
