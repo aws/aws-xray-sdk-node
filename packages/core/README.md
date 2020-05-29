@@ -460,6 +460,28 @@ This creates 5 nested subsegments on the root segment and captures timing data i
     // those used by third party modules, will now be traced
     var http = require('http');
 
+### Capture all outgoing HTTP and HTTPS requests, adding custom subsegment information
+
+    const callback = (subsegment, req, res, err) => {
+      subsegment.addMetadata('accept', req.getHeader('accept'));
+
+      if (err && err.code) {
+        subsegment.addAnnotation('errorCode', err.code);
+      }
+
+      if (res) {
+        subsegment.addMetadata('content-type', res.getHeader('content-type'));
+      }
+    };
+    AWSXRay.captureHTTPsGlobal(require('http'), null, callback);
+    AWSXRay.captureHTTPsGlobal(require('https'), null, callback);
+
+    // Requests with this http client, and any other http/https client including
+    // those used by third party modules, will now be traced
+    // Additional metadata / annotations can be added in the callback based on 
+    // the request, response and any error
+    var http = require('http');
+
 ### Capture outgoing HTTP/S requests with a traced client
 
     //returns a copy of the http module that is patched, can patch https as well

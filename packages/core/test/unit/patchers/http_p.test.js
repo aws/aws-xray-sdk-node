@@ -273,6 +273,18 @@ describe('HTTP/S', function() {
         }, 50);
       });
 
+      it('should call any custom subsegment callback', function(done) {
+        var subsegmentCallback = sandbox.spy();
+        capturedHttp = captureHTTPs(httpClient, true, subsegmentCallback);
+        fakeResponse.statusCode = 200;
+        capturedHttp.request(httpOptions);
+
+        setTimeout(function() {
+          subsegmentCallback.should.have.been.calledWithExactly(subsegment, fakeRequest, fakeResponse);
+          done();
+        }, 50);
+      });
+
       it('should close the subsegment', function(done) {
         fakeResponse.statusCode = 200;
         capturedHttp.request(httpOptions);
@@ -309,13 +321,15 @@ describe('HTTP/S', function() {
     });
 
     describe('when the request "error" event fires', function() {
-      var capturedHttp, error, fakeRequest, httpClient, req, sandbox;
+      var capturedHttp, error, fakeRequest, httpClient, req, sandbox, subsegmentCallback;
 
       beforeEach(function() {
         sandbox = sinon.sandbox.create();
 
         httpClient = { request: function() {} };
-        capturedHttp = captureHTTPs(httpClient);
+
+        subsegmentCallback = sandbox.spy();
+        capturedHttp = captureHTTPs(httpClient, null, subsegmentCallback);
 
         fakeRequest = buildFakeRequest();
 
@@ -340,6 +354,7 @@ describe('HTTP/S', function() {
         setTimeout(function() {
           addRemoteDataStub.should.have.been.calledWith(req);
           closeStub.should.have.been.calledWithExactly(error);
+          subsegmentCallback.should.have.been.calledWithExactly(subsegment, fakeRequest, null, error);
           done();
         }, 50);
       });
@@ -360,6 +375,16 @@ describe('HTTP/S', function() {
 
       it('should re-emit the error if unhandled', function() {
         assert.throws(function() { fakeRequest.emitter.emit('error', error); });
+      });
+
+      it('should call any custom subsegment callback', function(done) {
+        fakeRequest.on('error', function() {});
+        fakeRequest.emit('error', error);
+
+        setTimeout(function() {
+          subsegmentCallback.should.have.been.calledWithExactly(subsegment, fakeRequest, null, error);
+          done();
+        }, 50);
       });
     });
   });
