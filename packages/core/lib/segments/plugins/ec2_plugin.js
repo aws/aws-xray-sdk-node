@@ -24,7 +24,14 @@ var EC2Plugin = {
           return;
         }
 
-        const metadata = { ec2: { instance_id: data.instanceId, availability_zone: data.availabilityZone }};
+        const metadata = {
+          ec2: {
+            instance_id: data.instanceId,
+            availability_zone: data.availabilityZone,
+            instance_size: data.instanceType,
+            ami_id: data.imageId
+          }
+        };
         callback(metadata);
       });
     }
