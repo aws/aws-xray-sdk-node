@@ -82,7 +82,7 @@ describe('HTTP/S', function() {
     const DEFAULT_DAEMON_PORT = 2000;
 
     beforeEach(function() {
-      sandbox = sinon.sandbox.create();
+      sandbox = sinon.createSandbox();
       segment = new Segment('test', traceId);
       subsegment = segment.addNewSubsegment('testSub');
 
@@ -108,7 +108,7 @@ describe('HTTP/S', function() {
       var capturedHttp, fakeRequest, fakeResponse, httpClient, requestSpy, sandbox;
 
       beforeEach(function() {
-        sandbox = sinon.sandbox.create();
+        sandbox = sinon.createSandbox();
         segment = new Segment('test', traceId);
 
         fakeRequest = buildFakeRequest();
@@ -186,7 +186,7 @@ describe('HTTP/S', function() {
       if (process.version.startsWith('v') && process.version >= 'v10') {
         it('should inject the tracing headers into the options if a URL is also provided', function() {
           capturedHttp.request(`http://${httpOptions.host}${httpOptions.path}`, httpOptions);
-  
+
           // example: 'Root=1-59138384-82ff54d5ba9282f0c680adb3;Parent=53af362e4e4efeb8;Sampled=1'
           var xAmznTraceId = new RegExp('^Root=' + traceId + ';Parent=([a-f0-9]{16});Sampled=1$');
           var options = requestSpy.firstCall.args[1];
@@ -228,7 +228,7 @@ describe('HTTP/S', function() {
       var capturedHttp, fakeRequest, fakeResponse, httpClient, sandbox;
 
       beforeEach(function() {
-        sandbox = sinon.sandbox.create();
+        sandbox = sinon.createSandbox();
 
         fakeRequest = buildFakeRequest();
         fakeResponse = buildFakeResponse();
@@ -312,7 +312,7 @@ describe('HTTP/S', function() {
       var capturedHttp, error, fakeRequest, httpClient, req, sandbox;
 
       beforeEach(function() {
-        sandbox = sinon.sandbox.create();
+        sandbox = sinon.createSandbox();
 
         httpClient = { request: function() {} };
         capturedHttp = captureHTTPs(httpClient);

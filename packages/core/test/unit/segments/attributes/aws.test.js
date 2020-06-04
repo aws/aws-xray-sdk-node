@@ -26,7 +26,7 @@ describe('Aws', function() {
     var sandbox, addDataStub;
 
     beforeEach(function() {
-      sandbox = sinon.sandbox.create();
+      sandbox = sinon.createSandbox();
       addDataStub = sandbox.stub(Aws.prototype, 'addData');
     });
 
@@ -83,7 +83,7 @@ describe('Aws', function() {
     var capturerAppendStub, capturerInitStub, sandbox;
 
     beforeEach(function() {
-      sandbox = sinon.sandbox.create();
+      sandbox = sinon.createSandbox();
       capturerInitStub = sandbox.stub(CallCapturer.prototype, 'init');
       capturerAppendStub = sandbox.stub(CallCapturer.prototype, 'append');
     });

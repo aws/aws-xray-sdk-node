@@ -28,7 +28,7 @@ describe('AWSLambda', function() {
   beforeEach(function() {
     resetState();
 
-    sandbox = sinon.sandbox.create();
+    sandbox = sinon.createSandbox();
     sandbox.stub(contextUtils, 'getNamespace').returns({
       enter: function() {},
       createContext: function() {}
@@ -43,7 +43,7 @@ describe('AWSLambda', function() {
     var disableReusableSocketStub, populateStub, sandbox, setSegmentStub, validateStub;
 
     beforeEach(function() {
-      sandbox = sinon.sandbox.create();
+      sandbox = sinon.createSandbox();
       disableReusableSocketStub = sandbox.stub(SegmentEmitter, 'disableReusableSocket');
       disableCentralizedSamplingStub = sandbox.stub(mwUtils, 'disableCentralizedSampling');
       validateStub = sandbox.stub(LambdaUtils, 'validTraceData').returns(true);
@@ -112,7 +112,7 @@ describe('AWSLambda', function() {
     var populateStub, sandbox, setSegmentStub;
 
     beforeEach(function() {
-      sandbox = sinon.sandbox.create();
+      sandbox = sinon.createSandbox();
       sandbox.stub(SegmentEmitter, 'disableReusableSocket');
 
       sandbox.stub(LambdaUtils, 'validTraceData').returns(true);
@@ -148,7 +148,7 @@ describe('AWSLambda', function() {
       var sandbox, traceId;
 
       beforeEach(function() {
-        sandbox = sinon.sandbox.create();
+        sandbox = sinon.createSandbox();
         traceId = 'xAmznTraceId;xAmznTraceId;xAmznTraceId';
       });
 

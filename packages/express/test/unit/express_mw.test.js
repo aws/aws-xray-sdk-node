@@ -40,7 +40,7 @@ describe('Express middleware', function() {
     var open = expressMW.openSegment(defaultName);
 
     beforeEach(function() {
-      sandbox = sinon.sandbox.create();
+      sandbox = sinon.createSandbox();
       sandbox.stub(xray, 'isAutomaticMode').returns(false);
 
       req = {
@@ -71,7 +71,7 @@ describe('Express middleware', function() {
       var addReqDataSpy, newSegmentSpy, onEventStub, processHeadersStub, resolveNameStub, sandbox;
 
       beforeEach(function() {
-        sandbox = sinon.sandbox.create();
+        sandbox = sinon.createSandbox();
         newSegmentSpy = sandbox.spy(Segment.prototype, 'init');
         addReqDataSpy = sandbox.spy(Segment.prototype, 'addIncomingRequestData');
 
@@ -129,7 +129,7 @@ describe('Express middleware', function() {
       var sandbox;
 
       beforeEach(function() {
-        sandbox = sinon.sandbox.create();
+        sandbox = sinon.createSandbox();
         sandbox.stub(SegmentEmitter);
         sandbox.stub(ServiceConnector);
       });

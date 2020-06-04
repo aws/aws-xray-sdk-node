@@ -147,7 +147,7 @@ describe('Middleware utils', function() {
     var res, sandbox, segment, shouldSampleStub;
 
     beforeEach(function() {
-      sandbox = sinon.sandbox.create();
+      sandbox = sinon.createSandbox();
       MWUtils.sampler = localSampler;
 
       shouldSampleStub = sandbox.stub(MWUtils.sampler, 'shouldSample').returns(true);
@@ -274,7 +274,7 @@ describe('Middleware utils', function() {
     var samplerStub, sandbox;
 
     beforeEach(function() {
-      sandbox = sinon.sandbox.create();
+      sandbox = sinon.createSandbox();
       samplerStub = sandbox.stub(MWUtils.sampler, 'setLocalRules');
     });
 

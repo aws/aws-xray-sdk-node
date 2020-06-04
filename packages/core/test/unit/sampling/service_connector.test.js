@@ -52,7 +52,7 @@ function buildFakeHttpClient(req, res) {
 describe('ServiceConnector', function() {
   var sandbox;
   this.beforeEach(function() {
-    sandbox = sinon.sandbox.create();
+    sandbox = sinon.createSandbox();
   });
 
   this.afterEach(function() {
@@ -261,11 +261,11 @@ describe('ServiceConnector', function() {
       sandbox.spy(ServiceConnector.logger, 'getLogger');
       sandbox.stub(ServiceConnector, 'httpClient')
         .value(buildFakeHttpClient(request, response));
-      
+
       ServiceConnector.fetchSamplingRules(function() {});
       request.emit('error', new Error('Fake ECONNREFUSED error'));
 
-      expect(ServiceConnector.logger.getLogger).to.be.calledOnce;      
+      expect(ServiceConnector.logger.getLogger).to.be.calledOnce;
     });
   });
 });

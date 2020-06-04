@@ -57,7 +57,7 @@ describe('captureMySQL', function() {
       });
 
       beforeEach(function() {
-        sandbox = sinon.sandbox.create();
+        sandbox = sinon.createSandbox();
         segment = new Segment('test');
         subsegment = segment.addNewSubsegment('testSub');
 
@@ -65,7 +65,7 @@ describe('captureMySQL', function() {
         queryObj.sql = 'sql statement here';
         queryObj.values = ['hello', 'there'];
 
-        sandbox = sinon.sandbox.create();
+        sandbox = sinon.createSandbox();
         stubBaseQuery = sandbox.stub(connectionObj, '__query').returns(queryObj);
         sandbox.stub(AWSXRay, 'getSegment').returns(segment);
         stubAddNew = sandbox.stub(segment, 'addNewSubsegment').returns(subsegment);
@@ -203,7 +203,7 @@ describe('captureMySQL', function() {
       });
 
       beforeEach(function(done) {
-        sandbox = sinon.sandbox.create();
+        sandbox = sinon.createSandbox();
         segment = new Segment('test');
         subsegment = segment.addNewSubsegment('testSub');
 
@@ -211,7 +211,7 @@ describe('captureMySQL', function() {
         queryObj.sql = 'sql statement here';
         queryObj.values = ['hello', 'there'];
 
-        sandbox = sinon.sandbox.create();
+        sandbox = sinon.createSandbox();
         sandbox.stub(AWSXRay, 'getSegment').returns(segment);
         stubAddNew = sandbox.stub(segment, 'addNewSubsegment').returns(subsegment);
         sandbox.stub(AWSXRay, 'isAutomaticMode').returns(true);
@@ -310,7 +310,7 @@ describe('captureMySQL', function() {
       });
 
       beforeEach(function() {
-        sandbox = sinon.sandbox.create();
+        sandbox = sinon.createSandbox();
         segment = new Segment('test');
         subsegment = segment.addNewSubsegment('testSub');
 
@@ -318,7 +318,7 @@ describe('captureMySQL', function() {
         queryObj.sql = 'sql statement here';
         queryObj.values = ['hello', 'there'];
 
-        sandbox = sinon.sandbox.create();
+        sandbox = sinon.createSandbox();
         stubBaseQuery = sandbox.stub(connectionObj, '__query').returns(queryObj);
         sandbox.stub(AWSXRay, 'getSegment').returns(segment);
         stubAddNew = sandbox.stub(segment, 'addNewSubsegment').returns(subsegment);
@@ -400,7 +400,7 @@ describe('captureMySQL', function() {
       });
 
       beforeEach(function() {
-        sandbox = sinon.sandbox.create();
+        sandbox = sinon.createSandbox();
         segment = new Segment('test');
         subsegment = segment.addNewSubsegment('testSub');
 
@@ -408,7 +408,7 @@ describe('captureMySQL', function() {
         queryObj.sql = 'sql statement here';
         queryObj.values = ['hello', 'there'];
 
-        sandbox = sinon.sandbox.create();
+        sandbox = sinon.createSandbox();
         stubBaseQuery = sandbox.stub(connectionObj, '__query').returns(queryObj);
         sandbox.stub(AWSXRay, 'getSegment').returns(segment);
         stubAddNew = sandbox.stub(segment, 'addNewSubsegment').returns(subsegment);
@@ -531,7 +531,7 @@ describe('captureMySQL', function() {
       });
 
       beforeEach(function() {
-        sandbox = sinon.sandbox.create();
+        sandbox = sinon.createSandbox();
         segment = new Segment('test');
         subsegment = segment.addNewSubsegment('testSub');
 
@@ -539,7 +539,7 @@ describe('captureMySQL', function() {
         queryObj.sql = 'sql statement here';
         queryObj.values = ['hello', 'there'];
 
-        sandbox = sinon.sandbox.create();
+        sandbox = sinon.createSandbox();
         stubBaseQuery = sandbox.stub(connectionObj, '__query').returns(queryObj);
         sandbox.stub(AWSXRay, 'getSegment').returns(segment);
         stubAddNew = sandbox.stub(segment, 'addNewSubsegment').returns(subsegment);

@@ -22,11 +22,11 @@
   },
   "devDependencies": {
     "aws-xray-sdk-core": "^3.0.1",
-    "chai": "^3.5.0",
-    "eslint": "^4.19.1",
-    "mocha": "^6.2.0",
-    "sinon": "^4.5.0",
-    "sinon-chai": "^2.8.0",
+    "chai": "^4.2.0",
+    "eslint": "^7.1.0",
+    "mocha": "^7.2.0",
+    "sinon": "^9.0.2",
+    "sinon-chai":"^3.5.0",
     "tsd": "^0.10.0"
   },
   "scripts": {

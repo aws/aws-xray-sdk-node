@@ -21,7 +21,7 @@ describe('ContextUtils', function() {
     var sandbox;
 
     beforeEach(function() {
-      sandbox = sinon.sandbox.create();
+      sandbox = sinon.createSandbox();
     });
 
     afterEach(function() {
@@ -50,7 +50,7 @@ describe('ContextUtils', function() {
     var autoModeStub, params, sandbox;
 
     beforeEach(function() {
-      sandbox = sinon.sandbox.create();
+      sandbox = sinon.createSandbox();
       autoModeStub = sandbox.stub(ContextUtils, 'isAutomaticMode').returns(false);
       params = {
         Bucket: 'moop',
@@ -131,7 +131,7 @@ describe('ContextUtils', function() {
 
     beforeEach(function() {
       reloadContextUtils();
-      sandbox = sinon.sandbox.create();
+      sandbox = sinon.createSandbox();
     });
 
     afterEach(function() {

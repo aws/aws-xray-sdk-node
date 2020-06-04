@@ -5,9 +5,9 @@ var Plugin = require('../../../../lib/segments/plugins/plugin');
 
 describe('Plugin', function() {
   const METADATA_HOST = 'http://localhost';
-  
+
   describe('#getPluginMetadata', function() {
-    var data = { data: 1234 };
+    var data = { data: '1234' };
     var getPluginMetadata = Plugin.getPluginMetadata;
     const METADATA_PATH = '/metadata';
     const OPTIONS = {
@@ -23,7 +23,7 @@ describe('Plugin', function() {
         .reply(200, data);
 
       getPluginMetadata(OPTIONS, function(err, data) {
-        expect(data.data).not.to.be.empty;
+        expect(data.data).to.be.ok
         getMetadata.done();
         done();
       });
@@ -38,7 +38,7 @@ describe('Plugin', function() {
         .reply(200, data);
 
       getPluginMetadata(OPTIONS, function(err, data) {
-        expect(data.data).not.to.be.empty;
+        expect(data.data).to.be.ok;
         getMetadata.done();
         done();
       });
@@ -54,7 +54,7 @@ describe('Plugin', function() {
         .reply(504); // Ensure retry on different 5xx codes
 
       getPluginMetadata(OPTIONS, function(err, data) {
-        expect(data).to.be.empty;
+        expect(data).to.be.not.ok;
         getMetadata.done();
         done();
       });
@@ -66,7 +66,7 @@ describe('Plugin', function() {
         .reply(400);
 
       getPluginMetadata(OPTIONS, function(err, data) {
-        expect(data).to.be.empty;
+        expect(data).to.be.not.ok;
         getMetadata.done();
         done();
       });

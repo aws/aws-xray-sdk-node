@@ -29,7 +29,7 @@ describe('Express middleware', function() {
   beforeEach(function() {
     server = new TestEmitter();
     server.use = function(fcn) { this.open = fcn; };
-    sandbox = sinon.sandbox.create();
+    sandbox = sinon.createSandbox();
   });
 
   afterEach(function() {
@@ -63,7 +63,7 @@ describe('Express middleware', function() {
     var req, res, modeStub, sandbox, setStub;
 
     beforeEach(function() {
-      sandbox = sinon.sandbox.create();
+      sandbox = sinon.createSandbox();
       modeStub = sandbox.stub(xray, 'isAutomaticMode').returns(true);
       setStub = sandbox.stub(xray, 'setSegment');
 
@@ -104,7 +104,7 @@ describe('Express middleware', function() {
       var addReqDataSpy, newSegmentSpy, onEventStub, processHeadersStub, resolveNameStub, sandbox;
 
       beforeEach(function() {
-        sandbox = sinon.sandbox.create();
+        sandbox = sinon.createSandbox();
         newSegmentSpy = sandbox.spy(Segment.prototype, 'init');
         addReqDataSpy = sandbox.spy(Segment.prototype, 'addIncomingRequestData');
 
@@ -194,7 +194,7 @@ describe('Express middleware', function() {
       var sandbox;
 
       beforeEach(function() {
-        sandbox = sinon.sandbox.create();
+        sandbox = sinon.createSandbox();
         sandbox.stub(SegmentEmitter);
         sandbox.stub(ServiceConnector);
 

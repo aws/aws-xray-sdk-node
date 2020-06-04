@@ -22,15 +22,15 @@
   },
   "devDependencies": {
     "aws-xray-sdk-core": "^3.0.1",
-    "chai": "^3.5.0",
-    "eslint": "^4.19.1",
+    "chai": "^4.2.0",
+    "eslint": "^7.1.0",
     "grunt": "^1.0.4",
     "grunt-contrib-clean": "^1.0.0",
     "grunt-jsdoc": "^2.4.0",
-    "mocha": "^6.2.0",
-    "nock": "^10.0.6",
-    "sinon": "^4.5.0",
-    "sinon-chai": "^2.8.0",
+    "mocha": "^7.2.0",
+    "nock": "^12.0.3",
+    "sinon": "^9.0.2",
+    "sinon-chai": "^3.5.0",
     "tsd": "^0.10.0"
   },
   "scripts": {
