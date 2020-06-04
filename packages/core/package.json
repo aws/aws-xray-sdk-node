@@ -36,9 +36,9 @@
     "upath": "^1.2.0"
   },
   "scripts": {
-    "test": "mocha --recursive ./test/ -R spec && tsd && mocha --recursive ./test_async/ -R spec",
+    "test": "mocha --exit --recursive ./test/ -R spec && tsd && mocha --recursive ./test_async/ -R spec",
     "test-d": "tsd",
-    "test-async": "mocha --recursive ./test_async/ -R spec"
+    "test-async": "mocha --exit --recursive ./test_async/ -R spec"
   },
   "keywords": [
     "amazon",

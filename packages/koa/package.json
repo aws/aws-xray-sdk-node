@@ -14,7 +14,7 @@
   "scripts": {
     "lint": "eslint .",
     "lint:fix": "eslint --fix ./src",
-    "test": "mocha --recursive"
+    "test": "mocha --recursive --exit"
   },
   "engines": {
     "node": ">= 10.x"

@@ -34,7 +34,7 @@
     "tsd": "^0.10.0"
   },
   "scripts": {
-    "test": "mocha --recursive ./test/ -R spec && tsd",
+    "test": "mocha --exit --recursive ./test/ -R spec && tsd",
     "test-d": "tsd"
   },
   "keywords": [
