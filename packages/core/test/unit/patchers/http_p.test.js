@@ -1,4 +1,5 @@
 var assert = require('chai').assert;
+var expect = require('chai').expect;
 var chai = require('chai');
 var sinon = require('sinon');
 var sinonChai = require('sinon-chai');
@@ -61,6 +62,22 @@ describe('HTTP/S', function() {
     });
 
     describe('#captureHTTPsGlobal', function() {
+      let httpOptions, newSubsegmentStub, sandbox, segment;
+
+      beforeEach(function() {
+        sandbox = sinon.sandbox.create();
+        segment = new Segment('test');
+        newSubsegmentStub = sandbox.spy(segment, 'addNewSubsegment');
+        httpOptions = {
+          host: 'myhost',
+          path: '/'
+        };
+      });
+  
+      afterEach(function() {
+        sandbox.restore();
+      });
+
       it('should stub out the request method for the capture one', function() {
         captureHTTPsGlobal(httpClient, true);
         assert.equal(httpClient.request.name, 'captureHTTPsRequest');
@@ -72,14 +89,20 @@ describe('HTTP/S', function() {
         assert.equal(httpClient.get.name, 'captureHTTPsGet');
         assert.equal(httpClient.__get.name, 'get');
       });
+
+      it('should not create a subsegment when using uninstrumented client', function() {
+        captureHTTPsGlobal(httpClient, true);
+
+        httpClient.__request(httpOptions, (res) => {});
+
+        expect(newSubsegmentStub).not.to.be.called;
+      });
     });
   });
 
   describe('#captureHTTPsRequest', function() {
     var addRemoteDataStub, closeStub, httpOptions, newSubsegmentStub, resolveManualStub, sandbox, segment, subsegment;
     var traceId = '1-57fbe041-2c7ad569f5d6ff149137be86';
-    const DEFAULT_DAEMON_ADDRESS = '127.0.0.1';
-    const DEFAULT_DAEMON_PORT = 2000;
 
     beforeEach(function() {
       sandbox = sinon.sandbox.create();
@@ -197,30 +220,6 @@ describe('HTTP/S', function() {
       it('should return the request object', function() {
         var request = capturedHttp.request(httpOptions);
         assert.equal(request, fakeRequest);
-      });
-
-      it('should not add header to get sampling rules calls', function() {
-        var options = {
-          hostname: DEFAULT_DAEMON_ADDRESS,
-          port: DEFAULT_DAEMON_PORT,
-          path: '/GetSamplingRules'
-        };
-
-        capturedHttp.request(options, (res) => {});
-
-        sinon.assert.notCalled(newSubsegmentStub);
-      });
-
-      it('should not create subsegment for sampling targets calls', function() {
-        var options = {
-          hostname: DEFAULT_DAEMON_ADDRESS,
-          port: DEFAULT_DAEMON_PORT,
-          path: '/SamplingTargets'
-        };
-
-        capturedHttp.request(options, (res) => {});
-
-        sinon.assert.notCalled(newSubsegmentStub);
       });
     });
 

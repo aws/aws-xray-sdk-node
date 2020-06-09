@@ -24,8 +24,9 @@ var ServiceConnector = {
   fetchSamplingRules: function fetchSamplingRules(callback) {
     const body = '{}';  // Payload needed for GetSamplingRules POST request
     const options = getOptions(this.samplingRulesPath, body.length);
+    const httpReq = this.httpClient.__request ? this.httpClient.__request : this.httpClient.request;
     
-    const req = this.httpClient.request(options, res => {
+    const req = httpReq(options, res => {
       var data = '';
       res.on('data', d => {
         data += d;
@@ -41,10 +42,12 @@ var ServiceConnector = {
           dataObj = JSON.parse(data);
         } catch (err) {
           callback(err);
+          return;
         }
 
-        if (dataObj === null) {
-          callback(new Error('AWS X-Ray GetSamplingRules API returned null response'));
+        if (!dataObj) {
+          callback(new Error('AWS X-Ray GetSamplingRules API returned empty response'));
+          return;
         }
 
         var newRules = assembleRules(dataObj);
@@ -53,8 +56,7 @@ var ServiceConnector = {
     });
 
     req.on('error', (err) => {
-      this.logger.getLogger().error(`Failed to connect to X-Ray daemon at ${options.hostname}:${options.port} to get sampling rules.`);
-      callback(err);
+      callback(new Error(`Failed to connect to X-Ray daemon at ${options.hostname}:${options.port} to get sampling rules.`));
     });
     
     req.write(body);
@@ -64,8 +66,9 @@ var ServiceConnector = {
   fetchTargets: function fetchTargets(rules, callback) {
     const body = JSON.stringify(constructStatisticsDocs(rules));
     const options = getOptions(this.samplingTargetsPath, body.length);
+    const httpReq = this.httpClient.__request ? this.httpClient.__request : this.httpClient.request;
     
-    const req = this.httpClient.request(options, res => {
+    const req = httpReq(options, res => {
       var data = '';
       res.on('data', d => {
         data += d;
@@ -81,10 +84,12 @@ var ServiceConnector = {
           dataObj = JSON.parse(data);
         } catch (err) {
           callback(err);
+          return;
         }
 
-        if (dataObj === null || !dataObj['LastRuleModification']) {
+        if (!dataObj || !dataObj['LastRuleModification']) {
           callback(new Error('AWS X-Ray SamplingTargets API returned invalid response'));
+          return;
         }
 
         var targetsMapping = assembleTargets(dataObj);
@@ -94,8 +99,7 @@ var ServiceConnector = {
     });
 
     req.on('error', (err) => {
-      this.logger.getLogger().error(`Failed to connect to X-Ray daemon at ${options.hostname}:${options.port} to get sampling targets.`);
-      callback(err);
+      callback(new Error(`Failed to connect to X-Ray daemon at ${options.hostname}:${options.port} to get sampling targets.`));
     });
     
     req.write(body);
