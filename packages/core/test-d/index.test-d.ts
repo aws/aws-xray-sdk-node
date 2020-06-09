@@ -64,11 +64,19 @@ function callback(param0: any, param1: any) {
 tracedFcn(AWSXRay.captureCallbackFunc('callback', callback));
 tracedFcn(AWSXRay.captureCallbackFunc('callback', callback, segment));
 
+function httpSubsegmentCallback(subsegment: AWSXRay.Subsegment, req: http.ClientRequest, res: http.IncomingMessage | null, error: Error) {
+  console.log({ subsegment, req, res, error })
+}
+
 expectType<typeof http>(AWSXRay.captureHTTPs(http, true));
 expectType<typeof https>(AWSXRay.captureHTTPs(https, true));
+expectType<typeof http>(AWSXRay.captureHTTPs(http, true, httpSubsegmentCallback));
+expectType<typeof https>(AWSXRay.captureHTTPs(https, true, httpSubsegmentCallback));
 
 expectType<void>(AWSXRay.captureHTTPsGlobal(http, true));
 expectType<void>(AWSXRay.captureHTTPsGlobal(https, true));
+expectType<void>(AWSXRay.captureHTTPsGlobal(http, true, httpSubsegmentCallback));
+expectType<void>(AWSXRay.captureHTTPsGlobal(https, true, httpSubsegmentCallback));
 
 expectType<void>(AWSXRay.capturePromise());
 expectType<void>(AWSXRay.capturePromise.patchThirdPartyPromise(Promise));

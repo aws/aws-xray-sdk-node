@@ -23,12 +23,16 @@ var logger = require('../logger');
  * @param {http|https} module - The built in Node.js HTTP or HTTPS module.
  * @param {boolean} downstreamXRayEnabled - when true, adds a "traced:true" property to the subsegment
  *   so the AWS X-Ray service expects a corresponding segment from the downstream service.
+ * @param {function} subsegmentCallback - a callback that is called with the subsegment, the Node.js
+ *   http.ClientRequest, the Node.js http.IncomingMessage (if a response was received) and any error issued,
+ *   allowing custom annotations and metadata to be added.
+ *   to be added to the subsegment.
  * @alias module:http_p.captureHTTPsGlobal
  */
 
-var captureHTTPsGlobal = function captureHTTPsGlobal(module, downstreamXRayEnabled) {
+var captureHTTPsGlobal = function captureHTTPsGlobal(module, downstreamXRayEnabled, subsegmentCallback) {
   if (!module.__request)
-    enableCapture(module, downstreamXRayEnabled);
+    enableCapture(module, downstreamXRayEnabled, subsegmentCallback);
 };
 
 /**
@@ -37,11 +41,14 @@ var captureHTTPsGlobal = function captureHTTPsGlobal(module, downstreamXRayEnabl
  * @param {http|https} module - The built in Node.js HTTP or HTTPS module.
  * @param {boolean} downstreamXRayEnabled - when true, adds a "traced:true" property to the subsegment
  *   so the AWS X-Ray service expects a corresponding segment from the downstream service.
+ * @param {function} subsegmentCallback - a callback that is called with the subsegment, the Node.js
+ *   http.ClientRequest, and the Node.js http.IncomingMessage to allow custom annotations and metadata
+ *   to be added to the subsegment.
  * @alias module:http_p.captureHTTPs
  * @returns {http|https}
  */
 
-var captureHTTPs = function captureHTTPs(module, downstreamXRayEnabled) {
+var captureHTTPs = function captureHTTPs(module, downstreamXRayEnabled, subsegmentCallback) {
   if (module.__request)
     return module;
 
@@ -51,11 +58,11 @@ var captureHTTPs = function captureHTTPs(module, downstreamXRayEnabled) {
     tracedModule[val] = module[val];
   });
 
-  enableCapture(tracedModule, downstreamXRayEnabled);
+  enableCapture(tracedModule, downstreamXRayEnabled, subsegmentCallback);
   return tracedModule;
 };
 
-function enableCapture(module, downstreamXRayEnabled) {
+function enableCapture(module, downstreamXRayEnabled, subsegmentCallback) {
   function captureOutgoingHTTPs(baseFunc, ...args) {
     let options;
     let callback;
@@ -125,6 +132,9 @@ function enableCapture(module, downstreamXRayEnabled) {
       ';Sampled=' + (!root.notTraced ? '1' : '0');
 
     var errorCapturer = function errorCapturer(e) {
+      if (subsegmentCallback)
+        subsegmentCallback(subsegment, this, null, e);
+
       if (subsegment.http && subsegment.http.response) {
         if (Utils.getCauseTypeFromHttpStatus(subsegment.http.response.status) === 'error') {
           subsegment.addErrorFlag();
@@ -147,6 +157,9 @@ function enableCapture(module, downstreamXRayEnabled) {
 
     var req = baseFunc(...(hasUrl ? [arg0, optionsCopy] : [options]), function(res) {
       res.on('end', function() {
+        if (subsegmentCallback)
+          subsegmentCallback(subsegment, this.req, res);
+
         if (res.statusCode === 429)
           subsegment.addThrottleFlag();
 
