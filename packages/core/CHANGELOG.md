@@ -1,6 +1,13 @@
 # Changelog for AWS X-Ray Core SDK for JavaScript
-<!--LATEST=3.0.1-->
+<!--LATEST=3.1.0-->
 <!--ENTRYINSERT-->
+## 3.1.0
+* bugfix: Fix trace header behavior [#PR 284](https://github.com/aws/aws-xray-sdk-node/pull/284)
+* bugfix: Improved service connector error handling [#ISSUE 285](https://github.com/aws/aws-xray-sdk-node/issues/285)
+* improvement: Add support for IMDSv2 [#PR 297](https://github.com/aws/aws-xray-sdk-node/pull/297)
+* improvement: Added ami_id and instance_size metadata [#PR 300](https://github.com/aws/aws-xray-sdk-node/pull/300)
+* improvement: Add callback to allow custom subsegment interaction when captureHTTPs is used [#ISSUE 162](https://github.com/aws/aws-xray-sdk-node/issues/162)
+
 ## 3.0.1
 * bugfix: Gracefully handle invalid sampling API responses [#ISSUE285](https://github.com/aws/aws-xray-sdk-node/issues/285)
 
