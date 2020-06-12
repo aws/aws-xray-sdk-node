@@ -5,6 +5,10 @@
  * @module mw_utils
  */
 
+var Segment = require('../segments/segment');
+var IncomingRequestData = require('./incoming_request_data');
+var coreUtils = require('../utils');
+
 var wildcardMatch = require('../utils').wildcardMatch;
 var processTraceData = require('../utils').processTraceData;
 
@@ -134,6 +138,56 @@ var utils = {
       throw new Error('Please specify a path to the local sampling rules file, or supply an object containing the rules.');
 
     this.sampler.setLocalRules(source);
+  },
+
+  /**
+   * Traces the request/response cycle of an http.IncomingMessage / http.ServerResponse pair.
+   * Resolves sampling rules, creates a segment, adds the core request / response data adding
+   * throttling / error / fault flags based on the response status code.
+   * @param {http.IncomingMessage} req - The incoming request.
+   * @param {http.ServerResponse} res - The server response.
+   * @returns {Segment}
+   * @memberof AWSXRay
+   */
+  traceRequestResponseCycle: function traceRequestResponseCycle(req, res) {
+    var amznTraceHeader = this.processHeaders(req);
+    var name = this.resolveName(req.headers.host);
+    var segment = new Segment(name, amznTraceHeader.root, amznTraceHeader.parent);
+
+    var responseWithEmbeddedRequest = Object.assign({}, res, { req: req });
+    this.resolveSampling(amznTraceHeader, segment, responseWithEmbeddedRequest);
+
+    segment.addIncomingRequestData(new IncomingRequestData(req));
+
+    var didEnd = false;
+    var endSegment = function () {
+      // ensure `endSegment` is only called once
+      // in some versions of node.js 10.x and in all versions of node.js 11.x and higher,
+      // the 'finish' and 'close' event are BOTH triggered.
+      // Previously, only one or the other was triggered:
+      // https://github.com/nodejs/node/pull/20611
+      if (didEnd) return;
+      didEnd = true;
+
+      if (res.statusCode === 429) {
+        segment.addThrottleFlag();
+      }
+
+      const cause = coreUtils.getCauseTypeFromHttpStatus(
+        res.statusCode
+      );
+
+      if (cause) {
+        segment[cause] = true;
+      }
+
+      segment.http.close(res);
+      segment.close();
+    };
+
+    res.on('finish', endSegment);
+    res.on('close', endSegment);
+    return segment;
   }
 };
 

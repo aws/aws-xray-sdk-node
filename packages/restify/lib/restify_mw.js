@@ -12,8 +12,6 @@
 var AWSXRay = require('aws-xray-sdk-core');
 
 var mwUtils = AWSXRay.middleware;
-var IncomingRequestData = mwUtils.IncomingRequestData;
-var Segment = AWSXRay.Segment;
 
 var restifyMW = {
 
@@ -40,22 +38,7 @@ var restifyMW = {
     var segment;
 
     server.use(function open(req, res, next) {
-      var amznTraceHeader = mwUtils.processHeaders(req);
-      var name = mwUtils.resolveName(req.headers.host);
-      segment = new Segment(name, amznTraceHeader.root, amznTraceHeader.parent);
-
-      mwUtils.resolveSampling(amznTraceHeader, segment, res);
-      segment.addIncomingRequestData(new IncomingRequestData(req));
-
-      res.on('finish', function() {
-        if (this.statusCode === 429)
-          segment.addThrottleFlag();
-        if (AWSXRay.utils.getCauseTypeFromHttpStatus(this.statusCode))
-          segment[AWSXRay.utils.getCauseTypeFromHttpStatus(this.statusCode)] = true;
-
-        segment.http.close(this);
-        segment.close();
-      });
+      segment = mwUtils.traceRequestResponseCycle(req, res);
 
       if (AWSXRay.isAutomaticMode()) {
         var ns = AWSXRay.getNamespace();
@@ -85,7 +68,7 @@ var restifyMW = {
 
     server.on('after', function handledError(req, res, route, err) {
       if (segment && err) {
-        segment.addError(err);
+        segment.close(err);
       }
     });
   }
