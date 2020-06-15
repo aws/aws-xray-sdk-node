@@ -67,6 +67,27 @@ This monorepo hosts the following npm packages for the SDK:
 - [aws-xray-sdk-mysql](https://www.npmjs.com/package/aws-xray-sdk-mysql)
 - [aws-xray-sdk-postgres](https://www.npmjs.com/package/aws-xray-sdk-postgres)
 - [aws-xray-sdk-restify](https://www.npmjs.com/package/aws-xray-sdk-restify)
+- [Community contributed packages](https://github.com/aws/aws-xray-sdk-node/tree/master/sdk_contrib)
+
+## Community contributions for new Middleware
+If you'd like to add support for a new web framework by writing middleware for X-Ray, 
+please do so by creating a new package within the `sdk_contrib` 
+[directory](https://github.com/aws/aws-xray-sdk-node/tree/master/sdk_contrib).
+We are not accepting pull requests for first-party packages at this time, 
+but will be more than happy to host them as community contributions. This means that AWS will:
+
+- Host them in this repository
+- Publish them to NPM
+- Consider them the officially recommended way of using X-Ray with that framework
+- Review & merge pull requests made against them by the community
+- Allow issues related to them on this repo for visibility to the community
+
+AWS will not:
+
+- Provide first party support through GitHub Issues for things like questions & debugging help
+- Actively develop on them (e.g. if we add a feature to the Express middleware, it will not necessarily be added to middleware in `sdk_contrib`)
+
+## Testing from Source
 
 This repo uses [Lerna](https://lernajs.io) to manage multiple packages. To install Lerna:
 ```
