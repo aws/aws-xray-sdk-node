@@ -84,7 +84,7 @@ but will be more than happy to host them as community contributions. This means 
 
 AWS will not:
 
-- Provide first party support through GitHub Issues, AWS Forums, AWS customer support, etc for things like questions & debugging help
+- Provide first party support through AWS Forums, AWS customer support, etc for things like questions & debugging help
 - Actively develop on them (e.g. if we add a feature to the Express middleware, it will not necessarily be added to middleware in `sdk_contrib`)
 
 ## Testing from Source
