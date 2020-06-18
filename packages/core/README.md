@@ -31,7 +31,7 @@ By default, the SDK is in automatic mode. You can flip the mode of the SDK using
 Automatic mode is designed for use with Express, Restify, and Lambda
 applications, but can be used outside of such applications.
 For more information about developing your own middleware or using automatic mode without middleware, see the [developing custom solutions
-using automatic mode](https://github.com/aws/aws-xray-sdk-node/tree/master/packages/core#developing-custom-solutions-using-automatic-mode) section below.
+using automatic mode](https://github.com/aws/aws-xray-sdk-node/tree/master/packages/core#developing-custom-solutions-without-middleware) section below.
 
 Automatic mode uses the `cls-hooked` package and automatically tracks
 the current segment or subsegment when using the built-in capture functions or any
