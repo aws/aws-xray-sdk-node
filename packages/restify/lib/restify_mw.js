@@ -68,7 +68,7 @@ var restifyMW = {
 
     server.on('after', function handledError(req, res, route, err) {
       if (segment && err) {
-        segment.close(err);
+        segment.addError(err);
       }
     });
   }
