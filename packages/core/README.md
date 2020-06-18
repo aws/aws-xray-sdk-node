@@ -293,22 +293,27 @@ that generated it. This creates a new nested subsegment and exposes it by append
 always call your captured callbacks with the full parameter list. The subsegment closes
 automatically when the function finishes executing.
 
-### Developing custom solutions using automatic mode
+### Developing custom solutions without middleware
 
 If your application isn't using a supported framework, you have to create the
 new segment and set this on the SDK.
-You need to create a new level of CLS, and you can do so by using the CLS namespace object. We expose this via the following.
+You need to create a new context using CLS and store your segment in it so that 
+the SDK can retrieve it for automatic capturing. 
+You can do so by using the CLS namespace object. We expose this via the following API:
 
     AWSXRay.getNamespace();
 
-CLS provides several methods of setting the context. Here is an example usage.
+The `cls-hooked` library provides several methods of setting the context. Here is an example usage.
 
     var segment = new AWSXRay.Segment(name, [optional root ID], [optional parent ID]);
     var ns = AWSXRay.getNamespace();
 
     ns.run(function () {
       AWSXRay.setSegment(segment);
-      ....
+      
+      // Requests using AWS SDK, HTTP calls, SQL queries...
+      
+      segment.close();
     });
 
 If you are using a different web framework and want to set up automatic capturing,
