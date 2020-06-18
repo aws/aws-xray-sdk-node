@@ -24,6 +24,10 @@ export function setDefaultName(name: string): void;
 
 export function disableCentralizedSampling(): void;
 
+export function middlewareLog(message: string, url: string, segment: Segment): void;
+
+export function traceRequestResponseCycle(req: http.IncomingMessage, res: http.ServerResponse): Segment;
+
 export interface BaseRuleConfig {
   http_method: string;
   url_path: string;

@@ -5,6 +5,7 @@ import { Socket } from 'net';
 import { expectType, expectError } from 'tsd';
 import * as url from 'url';
 import * as AWSXRay from '../lib';
+import { Segment } from '../lib';
 
 expectType<void>(AWSXRay.plugins.EC2Plugin.getData((metadata?: AWSXRay.plugins.EC2Metadata) => { }));
 expectType<void>(AWSXRay.plugins.ECSPlugin.getData((metadata?: AWSXRay.plugins.ECSMetadata) => { }));
@@ -135,6 +136,7 @@ const rulesConfig: AWSXRay.middleware.RulesConfig = {
   }
 };
 expectType<void>(AWSXRay.middleware.setSamplingRules(rulesConfig));
+expectType<void>(AWSXRay.middleware.middlewareLog('log-message', 'https://example.org', segment));
 
 expectType<Namespace>(AWSXRay.getNamespace());
 expectType<AWSXRay.Segment | AWSXRay.Subsegment | undefined>(AWSXRay.resolveSegment(segment));
@@ -163,7 +165,9 @@ expectType<void>(segment.setMatchedSamplingRule('rule'));
 expectType<void>(segment.setServiceData({ version: '2.3.0', package: 'sample-app' }));
 expectType<void>(segment.addPluginData({ elastic_beanstalk: { environment: 'my_environment_name' } }));
 const incomingMessage = new http.IncomingMessage(new Socket());
+const serverResponse = new http.ServerResponse(incomingMessage);
 expectType<void>(segment.addIncomingRequestData(new AWSXRay.middleware.IncomingRequestData(incomingMessage)));
+expectType<Segment>(AWSXRay.middleware.traceRequestResponseCycle(incomingMessage, serverResponse))
 
 function testSegmentLike(segmentLike: AWSXRay.Segment | AWSXRay.Subsegment) {
   expectType<void>(segmentLike.addAnnotation('key', true));

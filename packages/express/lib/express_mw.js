@@ -12,8 +12,6 @@
 var AWSXRay = require('aws-xray-sdk-core');
 
 var mwUtils = AWSXRay.middleware;
-var IncomingRequestData = mwUtils.IncomingRequestData;
-var Segment = AWSXRay.Segment;
 
 var expressMW = {
 
@@ -32,40 +30,8 @@ var expressMW = {
 
     mwUtils.setDefaultName(defaultName);
 
-    return function open(req, res, next) {
-      var amznTraceHeader = mwUtils.processHeaders(req);
-      var name = mwUtils.resolveName(req.headers.host);
-      var segment = new Segment(name, amznTraceHeader.root, amznTraceHeader.parent);
-
-      mwUtils.resolveSampling(amznTraceHeader, segment, res);
-      segment.addIncomingRequestData(new IncomingRequestData(req));
-
-      AWSXRay.getLogger().debug('Starting express segment: { url: ' + req.url + ', name: ' + segment.name + ', trace_id: ' +
-        segment.trace_id + ', id: ' + segment.id + ', sampled: ' + !segment.notTraced + ' }');
-
-      var didEnd = false;
-      var endSegment = function () {
-        // ensure `endSegment` is only called once
-        // in some versions of node.js 10.x and in all versions of node.js 11.x and higher,
-        // the 'finish' and 'close' event are BOTH triggered.
-        // Previously, only one or the other was triggered:
-        // https://github.com/nodejs/node/pull/20611
-        if (didEnd) return;
-        didEnd = true;
-        if (this.statusCode === 429)
-          segment.addThrottleFlag();
-        if (AWSXRay.utils.getCauseTypeFromHttpStatus(this.statusCode))
-          segment[AWSXRay.utils.getCauseTypeFromHttpStatus(this.statusCode)] = true;
-
-        segment.http.close(this);
-        segment.close();
-
-        AWSXRay.getLogger().debug('Closed express segment successfully: { url: ' + req.url + ', name: ' + segment.name + ', trace_id: ' +
-          segment.trace_id + ', id: ' + segment.id + ', sampled: ' + !segment.notTraced + ' }');
-      };
-
-      res.on('finish', endSegment);
-      res.on('close', endSegment);
+    return function (req, res, next) {
+      var segment = mwUtils.traceRequestResponseCycle(req, res);
 
       if (AWSXRay.isAutomaticMode()) {
         var ns = AWSXRay.getNamespace();
@@ -97,14 +63,12 @@ var expressMW = {
       if (segment && err) {
         segment.close(err);
 
-        AWSXRay.getLogger().debug('Closed express segment with error: { url: ' + req.url + ', name: ' + segment.name + ', trace_id: ' +
-          segment.trace_id + ', id: ' + segment.id + ', sampled: ' + !segment.notTraced + ' }');
+        mwUtils.middlewareLog('Closed express segment with error', req.url, segment);
 
       } else if (segment) {
         segment.close();
 
-        AWSXRay.getLogger().debug('Closed express segment successfully: { url: ' + req.url + ', name: ' + segment.name + ', trace_id: ' +
-          segment.trace_id + ', id: ' + segment.id + ', sampled: ' + !segment.notTraced + ' }');
+        mwUtils.middlewareLog('Closed express segment successfully', req.url, segment);
       }
 
       if (next)

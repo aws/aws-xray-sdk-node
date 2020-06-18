@@ -4,6 +4,7 @@ var sinon = require('sinon');
 var MWUtils = require('../../../lib/middleware/mw_utils');
 var localSampler = require('../../../lib/middleware/sampling/local_sampler');
 var Segment = require('../../../lib/segments/segment');
+var logger = require('../../../lib/logger');
 
 //headers are case-insensitive
 var XRAY_HEADER = 'x-amzn-trace-id';
@@ -15,7 +16,11 @@ describe('Middleware utils', function() {
   var traceId = '1-f9194208-2c7ad569f5d6ff149137be86';
 
   function reloadMWUtils() {
-    var path = '../../../lib/middleware/mw_utils';
+    var path = '../../../lib/logger';
+    delete require.cache[require.resolve(path)];
+    logger = require(path);
+
+    path = '../../../lib/middleware/mw_utils';
     delete require.cache[require.resolve(path)];
     MWUtils = require(path);
   }
@@ -299,6 +304,37 @@ describe('Middleware utils', function() {
       assert.throws(function() { MWUtils.setSamplingRules(null); });
       assert.throws(function() { MWUtils.setSamplingRules(0); });
       assert.throws(function() { MWUtils.setSamplingRules(new String('')); });
+    });
+  });
+
+  describe('#middlewareLog', function () {
+    var sandbox, debugLoggerStub;
+
+    beforeEach(function() {
+      reloadMWUtils();
+      sandbox = sinon.sandbox.create();
+      debugLoggerStub = sandbox.stub(logger.getLogger(), 'debug');
+    });
+
+    afterEach(function() {
+      sandbox.restore();
+    });
+
+    it('should log the correct message', function () {
+
+      var message = 'Some message to be logged';
+      var url = 'https://example.org/some-path';
+      var segment = {
+        name: 'segment-name',
+        trace_id: 'some-trace-id',
+        id: 'segment-id',
+        notTraced: false
+      };
+      MWUtils.middlewareLog(message, url, segment);
+
+      var expectedMessage = message + ': { url: ' + url + ', name: ' + segment.name + ', trace_id: ' +
+        segment.trace_id + ', id: ' + segment.id + ', sampled: ' + !segment.notTraced + ' }';
+      debugLoggerStub.should.have.been.calledWithExactly(expectedMessage);
     });
   });
 });

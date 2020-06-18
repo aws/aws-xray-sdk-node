@@ -19,7 +19,7 @@ chai.use(sinonChai);
 
 var utils = require('../test_utils');
 
-describe('Express middleware', function() {
+describe('Restify middleware', function() {
   var sandbox, server;
   var defaultName = 'defaultName';
   var hostName = 'expressMiddlewareTest';
@@ -152,8 +152,13 @@ describe('Express middleware', function() {
       it('should add a finish event to the response', function() {
         server.open(req, res);
 
-        onEventStub.should.have.been.calledOnce;
         onEventStub.should.have.been.calledWithExactly('finish', sinon.match.typeOf('function'));
+      });
+
+      it('should add a close event to the response', function() {
+        server.open(req, res);
+
+        onEventStub.should.have.been.calledWithExactly('close', sinon.match.typeOf('function'));
       });
 
       describe('in automatic mode', function() {
@@ -185,8 +190,13 @@ describe('Express middleware', function() {
       it('should add a finish event to the response', function() {
         server.open(req, res);
 
-        onEventStub.should.have.been.calledOnce;
         onEventStub.should.have.been.calledWithExactly('finish', sinon.match.typeOf('function'));
+      });
+
+      it('should add a close event to the response', function() {
+        server.open(req, res);
+
+        onEventStub.should.have.been.calledWithExactly('close', sinon.match.typeOf('function'));
       });
     });
 
