@@ -33,9 +33,6 @@ var expressMW = {
     return function (req, res, next) {
       var segment = mwUtils.traceRequestResponseCycle(req, res);
 
-      AWSXRay.getLogger().debug('Starting express segment: { url: ' + req.url + ', name: ' + segment.name + ', trace_id: ' +
-        segment.trace_id + ', id: ' + segment.id + ', sampled: ' + !segment.notTraced + ' }');
-
       if (AWSXRay.isAutomaticMode()) {
         var ns = AWSXRay.getNamespace();
         ns.bindEmitter(req);
@@ -66,14 +63,12 @@ var expressMW = {
       if (segment && err) {
         segment.close(err);
 
-        AWSXRay.getLogger().debug('Closed express segment with error: { url: ' + req.url + ', name: ' + segment.name + ', trace_id: ' +
-          segment.trace_id + ', id: ' + segment.id + ', sampled: ' + !segment.notTraced + ' }');
+        mwUtils.middlewareLog('Closed express segment with error', req.url, segment);
 
       } else if (segment) {
         segment.close();
 
-        AWSXRay.getLogger().debug('Closed express segment successfully: { url: ' + req.url + ', name: ' + segment.name + ', trace_id: ' +
-          segment.trace_id + ', id: ' + segment.id + ', sampled: ' + !segment.notTraced + ' }');
+        mwUtils.middlewareLog('Closed express segment successfully', req.url, segment);
       }
 
       if (next)

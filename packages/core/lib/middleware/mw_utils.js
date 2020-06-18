@@ -171,6 +171,8 @@ var utils = {
 
     segment.addIncomingRequestData(new IncomingRequestData(req));
 
+    this.middlewareLog('Starting middleware segment', req.url, segment);
+
     var middlewareLog = this.middlewareLog;
     var didEnd = false;
     var endSegment = function () {
