@@ -7,6 +7,7 @@
 
 var Segment = require('../segments/segment');
 var IncomingRequestData = require('./incoming_request_data');
+var logger = require('../logger');
 var coreUtils = require('../utils');
 
 var wildcardMatch = require('../utils').wildcardMatch;
@@ -141,6 +142,17 @@ var utils = {
   },
 
   /**
+   * Logs a debug message including core request and segment information
+   * @param {string} message - The message to be logged
+   * @param {string} url - The request url being traced
+   * @param {Segment} - The current segment
+   */
+  middlewareLog: function middlewareLog(message, url, segment) {
+    logger.getLogger().debug(message + ': { url: ' + url + ', name: ' + segment.name + ', trace_id: ' +
+      segment.trace_id + ', id: ' + segment.id + ', sampled: ' + !segment.notTraced + ' }');
+  },
+
+  /**
    * Traces the request/response cycle of an http.IncomingMessage / http.ServerResponse pair.
    * Resolves sampling rules, creates a segment, adds the core request / response data adding
    * throttling / error / fault flags based on the response status code.
@@ -159,6 +171,7 @@ var utils = {
 
     segment.addIncomingRequestData(new IncomingRequestData(req));
 
+    var middlewareLog = this.middlewareLog;
     var didEnd = false;
     var endSegment = function () {
       // ensure `endSegment` is only called once
@@ -183,6 +196,8 @@ var utils = {
 
       segment.http.close(res);
       segment.close();
+
+      middlewareLog('Closed middleware segment successfully', req.url, segment);
     };
 
     res.on('finish', endSegment);
