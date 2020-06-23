@@ -41,5 +41,14 @@ describe('RemoteRequestData', function() {
         'https://host.com/path/to/resource'
       );
     });
+    it('should return empty url if request agent is missing', function() {
+      const requestWithoutAgent = {};
+      
+      assert.propertyVal(
+        new RemoteRequestData(requestWithoutAgent, response, true).request,
+        'url',
+        ''
+      );
+    });
   });
 });
