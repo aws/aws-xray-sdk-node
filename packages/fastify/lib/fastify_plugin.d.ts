@@ -1,5 +1,9 @@
-import { ErrorRequestHandler, RequestHandler, Request } from 'express';
+import * as fastify from "fastify";
 
-export function openSegment(defaultName: string): RequestHandler;
-
-export function closeSegment(): ErrorRequestHandler;
+export function capture({
+  fastify,
+  defaultName,
+}: {
+  fastify: fastify.FastifyInstance;
+  defaultName: string;
+}): void;
