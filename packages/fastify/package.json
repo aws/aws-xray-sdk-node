@@ -1,0 +1,50 @@
+{
+  "name": "aws-xray-sdk-fastify",
+  "version": "3.1.0",
+  "description": "AWS X-Ray Middleware for fastify (Javascript)",
+  "author": "Amazon Web Services",
+  "contributors": [
+    "Mirco Bartels <mirco@techlish.de>"
+  ],
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "engines": {
+    "node": ">= 10.x"
+  },
+  "directories": {
+    "test": "test"
+  },
+  "peerDependencies": {
+    "aws-xray-sdk-core": "^3.1.0",
+    "fastify": "^2.15.0"
+  },
+  "devDependencies": {
+    "aws-xray-sdk-core": "3.1.0",
+    "chai": "^3.5.0",
+    "eslint": "^4.19.1",
+    "fastify": "^2.15.0",
+    "grunt": "^1.0.4",
+    "grunt-contrib-clean": "^1.0.0",
+    "grunt-jsdoc": "^2.4.0",
+    "mocha": "^6.2.0",
+    "nock": "^10.0.6",
+    "sinon": "^4.5.0",
+    "sinon-chai": "^2.8.0",
+    "tsd": "^0.10.0"
+  },
+  "scripts": {
+    "test": "mocha --recursive ./test/ -R spec && tsd",
+    "test-d": "tsd"
+  },
+  "keywords": [
+    "amazon",
+    "api",
+    "aws",
+    "fastify",
+    "xray",
+    "x-ray",
+    "x ray"
+  ],
+  "license": "Apache-2.0",
+  "repository": "https://github.com/aws/aws-xray-sdk-node/tree/master/packages/fastify"
+}
