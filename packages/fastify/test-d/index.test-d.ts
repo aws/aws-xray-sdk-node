@@ -1,13 +1,13 @@
-import * as AWSXRay from 'aws-xray-sdk-core';
+import * as AWSXRay from "aws-xray-sdk-core";
 import * as fastify from "fastify";
-import { expectType } from 'tsd';
-import * as xrayFastify from '../lib';
+import { expectType } from "tsd";
+import * as xrayFastify from "../lib";
 
 const app = fastify();
 
-app.register(xrayFastify({ defaultName: 'defaultName' }));
+xrayFastify({ fastify: app, defaultName: "defaultName" });
 
-app.get('/', function(req, res) {
+app.get("/", function (req, res) {
   expectType<AWSXRay.Segment | undefined>(req.segment);
-  res.render('index');
+  res.render("index");
 });
