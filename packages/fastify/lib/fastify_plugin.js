@@ -1,9 +1,8 @@
 /**
- * Express middleware module.
+ * Fastify hooks.
  *
- * Exposes Express middleware functions to enable automated data capturing on a web service. To enable on a Node.js/Express application,
- * use 'app.use(AWSXRayExpress.openSegment())' before defining your routes.  After your routes, before any extra error
- * handling middleware, use 'app.use(AWSXRayExpress.closeSegment())'.
+ * Hooks into a provided fastify instance to enable automated data capturing on a web service. To enable on a Node.js/Fastify application,
+ * use 'AWSXRayFastify({ fastify: app, defaultName: 'default' })'. 
  * Use AWSXRay.getSegment() to access the current sub/segment.
  * Otherwise, for manual mode, this appends the Segment object to the request object as req.segment.
  * @module express_mw
@@ -14,7 +13,7 @@ var AWSXRay = require("aws-xray-sdk-core");
 var mwUtils = AWSXRay.middleware;
 
 /**
- * Use 'app.register(AWSXRayFastify({ defaultName: 'default' }))' before defining your routes.
+ * Use 'AWSXRayFastify({ fastify: app, defaultName: 'default' })' before defining your routes.
  * Use AWSXRay.getSegment() to access the current sub/segment.
  * Otherwise, for manual mode, this appends the Segment object to the request object as req.segment.
  * @param {{ defaultName: string }} options - The options to use.
