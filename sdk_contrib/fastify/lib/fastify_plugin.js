@@ -54,7 +54,7 @@ module.exports = {
       segment.close();
 
       mwUtils.middlewareLog(
-        "Closed express segment successfully",
+        "Closed fastify segment successfully",
         request.url,
         segment
       );
@@ -68,7 +68,7 @@ module.exports = {
       segment.close(error);
 
       mwUtils.middlewareLog(
-        "Closed express segment with error",
+        "Closed fastify segment with error",
         request.url,
         segment
       );
