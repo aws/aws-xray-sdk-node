@@ -5,7 +5,7 @@
  * use 'AWSXRayFastify.capture({ fastify: app, defaultName: 'default' })'.
  * Use AWSXRay.getSegment() to access the current sub/segment.
  * Otherwise, for manual mode, this appends the Segment object to the request object as req.segment.
- * @module express_mw
+ * @module fastify_plugin
  */
 
 var AWSXRay = require("aws-xray-sdk-core");
