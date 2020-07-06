@@ -45,8 +45,9 @@ the following:
 
 #### Manual mode
 
-Manual mode requires that you pass around the segment reference. See the examples
-in the [express package](https://github.com/aws/aws-xray-sdk-node/tree/master/packages/express) for the different usages.
+Manual mode requires that you pass around the segment reference. See the 
+[manual mode examples](https://github.com/aws/aws-xray-sdk-node/tree/master/packages/core#Manual-Mode-Examples) 
+section for different usages.
 
 ### Environment variables
 
@@ -305,16 +306,18 @@ You can do so by using the CLS namespace object. We expose this via the followin
 
 The `cls-hooked` library provides several methods of setting the context. Here is an example usage.
 
-    var segment = new AWSXRay.Segment(name, [optional root ID], [optional parent ID]);
-    var ns = AWSXRay.getNamespace();
+```js
+var segment = new AWSXRay.Segment(name, [optional root ID], [optional parent ID]);
+var ns = AWSXRay.getNamespace();
 
-    ns.run(function () {
-      AWSXRay.setSegment(segment);
-      
-      // Requests using AWS SDK, HTTP calls, SQL queries...
-      
-      segment.close();
-    });
+ns.run(function () {
+  AWSXRay.setSegment(segment);
+  
+  // Requests using AWS SDK, HTTP calls, SQL queries...
+  
+  segment.close();
+});
+```
 
 If you are using a different web framework and want to set up automatic capturing,
 the X-Ray SDK provides helper functions under `AWSXRay.middleware`.
@@ -339,7 +342,8 @@ By default in Lambda, the streaming threshold is set to 0 (immediate subsegment 
 
 For an example function, see [tracing node.js functions](https://docs.aws.amazon.com/lambda/latest/dg/nodejs-tracing.html).
 
-## Example code
+## General Example Code
+This can be used with either automatic or manual mode.
 
 ### Version capturing
 
@@ -347,166 +351,313 @@ For an example function, see [tracing node.js functions](https://docs.aws.amazon
 
 ### Configure AWSXRay to automatically capture EC2 instance data
 
-    var AWSXRay = require('aws-xray-sdk');
-    AWSXRay.config([AWSXRay.plugins.EC2Plugin]);
+```js
+var AWSXRay = require('aws-xray-sdk');
+AWSXRay.config([AWSXRay.plugins.EC2Plugin]);
+```
 
 ### Add annotations
 
-    var key = 'hello';
-    var value = 'there';        // must be string, boolean or finite number
+```js
+var key = 'hello';
+var value = 'there';        // must be string, boolean or finite number
 
-    subsegment.addAnnotation(key, value);
+subsegment.addAnnotation(key, value);
+```
 
 ### Add metadata
 
-    var key = 'hello';
-    var value = 'there';
+```js
+var key = 'hello';
+var value = 'there';
 
-    subsegment.addMetadata(key, value);
-    subsegment.addMetadata(key, value, 'greeting');   //custom namespace
+subsegment.addMetadata(key, value);               // default namespace 'default'
+subsegment.addMetadata(key, value, 'greeting');   // custom namespace 'greeting'
+```
     
 ### Set user
 
 Note that this operation will not work in Lambda functions, because the segment object is immutable. `setUser()` can only be applied to segments, not subsegments. 
 
-    var user = 'john123';
-    
-    AWSXRay.getSegment().setUser(user);
+```js
+var user = 'john123';
+
+AWSXRay.getSegment().setUser(user);
+```
 
 ### Create new subsegment
 
-    var newSubseg = subsegment.addNewSubsegment(name);
-    ...
-    newSubseg.close();
+```js
+var newSubseg = subsegment.addNewSubsegment(name);
+// Do something
+newSubseg.close();
 
-    // Or
+// Or
 
-    var newSubseg = new Subsegment(name);
-    subsegment.addSubsegment(newSubseg);
-    ...
-    newSubseg.close();
+var newSubseg = new Subsegment(name);
+subsegment.addSubsegment(newSubseg);
+// Do something
+newSubseg.close();
+```
+
+## Automatic Mode Examples
 
 ### Capture through function calls
 
 This creates 5 nested subsegments on the root segment and captures timing data individually for each subsegment. This example assumes an automatic mode environment.
 
-    captureFunc('1', function(subsegment1) {
-      //Exposing the subsegment in the function is optional, and is listed here as an example
-      //You can also use:
-      //var subsegment1 = AWSXRay.getSegment();
+```js
+captureFunc('1', function(subsegment1) {
+  //Exposing the subsegment in the function is optional, and is listed here as an example
+  //You can also use:
+  var subsegment1 = AWSXRay.getSegment();
 
-      captureFunc('2', function(subsegment2) {
-        captureFunc('3', function(subsegment3) {
-          captureFunc('4', function(subsegment4) {
-            captureFunc('5', function() {
-              //exposing the subsegment is optional
-              res.render('index');
-            });
-          });
+  captureFunc('2', function(subsegment2) {
+    captureFunc('3', function(subsegment3) {
+      captureFunc('4', function(subsegment4) {
+        captureFunc('5', function() {
+          //exposing the subsegment is optional
+          res.render('index');
         });
       });
     });
+  });
+});
+```
 
 ### Capture through async function calls
 
-    var host = 'samplego-env.us-east-1.elasticbeanstalk.com';
+```js
+var host = 'samplego-env.us-east-1.elasticbeanstalk.com';
 
-    AWSXRay.captureAsyncFunc('send', function(subsegment) {
-      //'subsegment' here is the newly created and exposed subsegment for the async
-      //request, and must be closed manually (this ensures timing data is correct)
+AWSXRay.captureAsyncFunc('send', function(subsegment) {
+  //'subsegment' here is the newly created and exposed subsegment for the async
+  //request, and must be closed manually (this ensures timing data is correct)
 
-      sendRequest(host, function() {
-        console.log("Request sent!");
-        subsegment.close();
-      });
+  sendRequest(host, function() {
+    console.log("Request sent!");
+    subsegment.close();
+  });
+});
+
+function sendRequest(host, cb) {
+  var options = {
+    host: host,
+    path: '/',
+  };
+
+  var callback = function(response) {
+    var str = '';
+
+    response.on('data', function (chunk) {
+      str += chunk;
     });
 
-    function sendRequest(host, cb) {
-      var options = {
-        host: host,
-        path: '/',
-      };
+    response.on('end', function () {
+      cb();
+    });
+  }
 
-      var callback = function(response) {
-        var str = '';
-
-        response.on('data', function (chunk) {
-          str += chunk;
-        });
-
-        response.on('end', function () {
-          cb();
-        });
-      }
-
-      http.request(options, callback).end();
-    };
+  http.request(options, callback).end();
+};
+```
 
 ### Capture all outgoing AWS requests
 
-    var AWS = captureAWS(require('aws-sdk'));
+```js
+var AWS = captureAWS(require('aws-sdk'));
 
-    // Create new AWS clients as usual.
+// Create new AWS clients as usual.
+```
 
 ### Capture outgoing AWS requests on a single client
 
-    var s3 = AWSXRay.captureAWSClient(new AWS.S3());
+```js
+var s3 = AWSXRay.captureAWSClient(new AWS.S3());
 
-    //Use client as usual
-    //Be sure any outgoing calls that are dependent on another async
-    //function are wrapped with captureAsyncFunc, or duplicate segments might leak
+//Use client as usual
+//Be sure any outgoing calls that are dependent on another async
+//function are wrapped with captureAsyncFunc, or duplicate segments might leak
+```
 
 ### Capture all outgoing HTTP and HTTPS requests
 
-    AWSXRay.captureHTTPsGlobal(require('http'));
-    AWSXRay.captureHTTPsGlobal(require('https'));
+```js
+AWSXRay.captureHTTPsGlobal(require('http'));
+AWSXRay.captureHTTPsGlobal(require('https'));
 
-    // Requests with this http client, and any other http/https client including
-    // those used by third party modules, will now be traced
-    var http = require('http');
+// Requests with this http client, and any other http/https client including
+// those used by third party modules, will now be traced
+var http = require('http');
+```
 
 ### Capture all outgoing HTTP and HTTPS requests, adding custom subsegment information
 
-    const callback = (subsegment, req, res, err) => {
-      subsegment.addMetadata('accept', req.getHeader('accept'));
+```js
+const callback = (subsegment, req, res, err) => {
+  subsegment.addMetadata('accept', req.getHeader('accept'));
 
-      if (err && err.code) {
-        subsegment.addAnnotation('errorCode', err.code);
-      }
+  if (err && err.code) {
+    subsegment.addAnnotation('errorCode', err.code);
+  }
 
-      if (res) {
-        subsegment.addMetadata('content-type', res.getHeader('content-type'));
-      }
-    };
-    AWSXRay.captureHTTPsGlobal(require('http'), null, callback);
-    AWSXRay.captureHTTPsGlobal(require('https'), null, callback);
+  if (res) {
+    subsegment.addMetadata('content-type', res.getHeader('content-type'));
+  }
+};
+AWSXRay.captureHTTPsGlobal(require('http'), null, callback);
+AWSXRay.captureHTTPsGlobal(require('https'), null, callback);
 
-    // Requests with this http client, and any other http/https client including
-    // those used by third party modules, will now be traced
-    // Additional metadata / annotations can be added in the callback based on 
-    // the request, response and any error
-    var http = require('http');
+// Requests with this http client, and any other http/https client including
+// those used by third party modules, will now be traced
+// Additional metadata / annotations can be added in the callback based on 
+// the request, response and any error
+var http = require('http');
+```
 
 ### Capture outgoing HTTP/S requests with a traced client
 
-    //returns a copy of the http module that is patched, can patch https as well
-    var tracedHttp = AWSXRay.captureHTTPs(require('http'));     
+```js
+//returns a copy of the http module that is patched, can patch https as well
+var tracedHttp = AWSXRay.captureHTTPs(require('http'));     
 
-    var options = {
-      ...
-    }
+var options = {
+  ...
+}
 
-    tracedHttp.request(options, callback).end();
+tracedHttp.request(options, callback).end();
 
-    //Create new requests as usual
-    //Be sure any outgoing calls that are dependent on another async
-    //function are wrapped with captureAsyncFunc, or duplicate segments might leak
+//Create new requests as usual
+//Be sure any outgoing calls that are dependent on another async
+//function are wrapped with captureAsyncFunc, or duplicate segments might leak
+```
 
 ### Capture all outgoing Axios requests
 
 This sample code works with any promise-based HTTP client.
 
-    const AWSXRay = require('aws-xray-sdk');
-    AWSXRay.captureHTTPsGlobal(require('http'));
-    AWSXRay.capturePromise();
-    const AxiosWithXray = require('axios');
+```js
+const AWSXRay = require('aws-xray-sdk');
+AWSXRay.captureHTTPsGlobal(require('http'));
+AWSXRay.capturePromise();
+const AxiosWithXray = require('axios');
+```
+
+## Manual Mode Examples
+Note that in all these examples, a segment must be manually created and closed
+because they do not use middleware. If you are using middleware, or are on Lambda,
+the calls to create, close, and flush segments are not necessary.
+
+### Capture through function calls
+Here, the root segment is created manually and 5 nested subsegments are attached
+to it. Note that the parent (sub)segment must be passed to each captured function
+as the last argument.
+
+```js
+var AWSXRay = require('aws-xray-sdk');
+
+AWSXRay.enableManualMode();
+
+var segment = new AWSXRay.Segment('myApplication');
+
+captureFunc('1', function(subsegment1) {
+  captureFunc('2', function(subsegment2) {
+    captureFunc('3', function(subsegment3) {
+      captureFunc('4', function(subsegment4) {
+        captureFunc('5', function() {
+          //subsegment need not be exposed here since we're not doing anything with it
+
+          console.log('hello world');
+        }, subsegment4);
+      }, subsegment3);
+    }, subsegment2);
+  }, subsegment1);
+}, segment);
+
+segment.close();
+segment.flush();
+```
+
+### Capture through async function calls
+
+```js
+var AWSXRay = require('aws-xray-sdk');
+
+AWSXRay.enableManualMode();
+
+var segment = new AWSXRay.Segment('myApplication');
+var host = 'samplego-env.us-east-1.elasticbeanstalk.com';
+
+AWSXRay.captureAsyncFunc('send', function(subsegment) {
+  sendRequest(host, function() {
+    console.log("Got response!");
+    subsegment.close();
+  }, subsegment);
+}, segment);
+
+function sendRequest(host, cb, subsegment) {
+  var options = {
+    host: host,
+    path: '/',
+    XRaySegment: subsegment            //required 'XRaySegment' param
+  };
+
+  var callback = function(response) {
+    var str = '';
+
+    //The whole response has been received, so we just print it out here
+    //Another chunk of data has been received, so append it to `str`
+    response.on('data', function (chunk) {
+      str += chunk;
+    });
+
+    response.on('end', function () {
+      cb();
+    });
+  }
+
+  http.request(options, callback).end();
+};
+```
+
+### Capture outgoing AWS requests on a single client
+
+```js
+var s3 = AWSXRay.captureAWSClient(new AWS.S3());
+var params = {
+  Bucket: bucketName,
+  Key: keyName,
+  Body: 'Hello!',
+  XRaySegment: subsegment             //required 'XRaySegment' param
+};
+
+s3.putObject(params, function(err, data) {
+  // ...
+});
+```
+
+### Capture all outgoing AWS requests
+
+```js
+var AWS = captureAWS(require('aws-sdk'));
+
+//Create new clients as usual
+//Be sure any outgoing calls that are dependent on another async
+//function are wrapped, or duplicate segments might leak
+```
+
+### Capture all outgoing HTTP/S requests
+
+```js
+var tracedHttp = AWSXRay.captureHTTPs(require('http'));     //returns a copy of the http module that is patched, can patch https as well.
+
+...
+
+//Include sub/segment reference in options as 'XRaySegment'
+var options = {
+  ...
+  XRaySegment: subsegment             //required 'XRaySegment' param
+}
+
+tracedHttp.request(options, callback).end();
+```
