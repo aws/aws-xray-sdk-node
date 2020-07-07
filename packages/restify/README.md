@@ -32,44 +32,48 @@ The X-Ray SDK provides a single Restify middleware:
 
 ## Automatic mode examples
 
-For more automatic mode examples, see the [example code](https://github.com/aws/aws-xray-sdk-node/tree/master/packages/core#example-code).
+For more automatic mode examples, see the [example code](https://github.com/aws/aws-xray-sdk-node/tree/master/packages/core#Automatic-Mode-Examples).
 
-    var AWSXRayRestify = require('aws-xray-sdk-restify');
-    var restify = require('restify');
-    var server = restify.createServer();
+```js
+var AWSXRayRestify = require('aws-xray-sdk-restify');
+var restify = require('restify');
+var server = restify.createServer();
+
+//...
+
+AWSXRayRestify.enable(server, 'defaultName');
+
+server.get('/', function (req, res) {
+    var segment = AWSXRay.getSegment();
 
     //...
 
-    AWSXRayRestify.enable(server, 'defaultName');
+    res.send('hello');
+});
 
-    server.get('/', function (req, res) {
-      var segment = AWSXRay.getSegment();
-
-      //...
-
-      res.send('hello');
-    });
-
-    //Error capturing is attached to the server's uncaughtException and after events (for both handled and unhandled errors)
+//Error capturing is attached to the server's uncaughtException and after events (for both handled and unhandled errors)
+```
 
 ## Manual mode examples
 
-For more manual mode examples, see [manual mode examples for Express](https://github.com/aws/aws-xray-sdk-node/tree/master/packages/express#manual-mode-examples). The X-Ray SDK can be used identically inside Restify routes.
+For more manual mode examples, see [manual mode examples](https://github.com/aws/aws-xray-sdk-node/tree/master/packages/core#Manual-Mode-Examples). The X-Ray SDK can be used identically inside Restify routes. Note that you don't have to manually start or close the segments since that is handled by the X-Ray middleware.
 
-    var AWSXRayRestify = require('aws-xray-sdk-restify');
-    var restify = require('restify');
-    var server = restify.createServer();
+```js
+var AWSXRayRestify = require('aws-xray-sdk-restify');
+var restify = require('restify');
+var server = restify.createServer();
 
-    //...
+//...
 
-    AWSXRayRestify.enable(server, 'defaultName');          //Required at the start of your routes
+AWSXRayRestify.enable(server, 'defaultName');          //Required at the start of your routes
 
-    server.get('/', function (req, res) {
-      var segment = req.segment;
+server.get('/', function (req, res) {
+var segment = req.segment;
 
-      //...
+//...
 
-      res.send('hello');
-    });
+res.send('hello');
+});
 
-    //Error capturing is attached to the server's uncaughtException and after events (for both handled and unhandled errors)
+//Error capturing is attached to the server's uncaughtException and after events (for both handled and unhandled errors)
+```
