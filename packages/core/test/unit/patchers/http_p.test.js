@@ -4,6 +4,7 @@ var chai = require('chai');
 var sinon = require('sinon');
 var sinonChai = require('sinon-chai');
 var URL = require('url');
+var events = require('events');
 
 var captureHTTPs = require('../../../lib/patchers/http_p').captureHTTPs;
 var captureHTTPsGlobal = require('../../../lib/patchers/http_p').captureHTTPsGlobal;
@@ -206,16 +207,14 @@ describe('HTTP/S', function() {
         assert.match(options.headers['X-Amzn-Trace-Id'], xAmznTraceId);
       });
 
-      if (process.version.startsWith('v') && process.version >= 'v10') {
-        it('should inject the tracing headers into the options if a URL is also provided', function() {
-          capturedHttp.request(`http://${httpOptions.host}${httpOptions.path}`, httpOptions);
-  
-          // example: 'Root=1-59138384-82ff54d5ba9282f0c680adb3;Parent=53af362e4e4efeb8;Sampled=1'
-          var xAmznTraceId = new RegExp('^Root=' + traceId + ';Parent=([a-f0-9]{16});Sampled=1$');
-          var options = requestSpy.firstCall.args[1];
-          assert.match(options.headers['X-Amzn-Trace-Id'], xAmznTraceId);
-        });
-      }
+      it('should inject the tracing headers into the options if a URL is also provided', function() {
+        capturedHttp.request(`http://${httpOptions.host}${httpOptions.path}`, httpOptions);
+
+        // example: 'Root=1-59138384-82ff54d5ba9282f0c680adb3;Parent=53af362e4e4efeb8;Sampled=1'
+        var xAmznTraceId = new RegExp('^Root=' + traceId + ';Parent=([a-f0-9]{16});Sampled=1$');
+        var options = requestSpy.firstCall.args[1];
+        assert.match(options.headers['X-Amzn-Trace-Id'], xAmznTraceId);
+      });
 
       it('should return the request object', function() {
         var request = capturedHttp.request(httpOptions);
@@ -385,6 +384,15 @@ describe('HTTP/S', function() {
           done();
         }, 50);
       });
+
+      if (process.version.startsWith('v') && process.version >= 'v12') {
+        it('should still re-emit if there are multiple errorMonitors attached', function() {
+          fakeRequest.on(events.errorMonitor, function() {});
+          fakeRequest.on(events.errorMonitor, function() {});
+
+          assert.throws(function() { fakeRequest.emitter.emit('error', error); });
+        });
+      }
     });
   });
 });

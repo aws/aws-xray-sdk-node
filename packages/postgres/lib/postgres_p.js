@@ -3,6 +3,7 @@
  */
 
 var AWSXRay = require('aws-xray-sdk-core');
+var events = require('events');
 var SqlData = AWSXRay.database.SqlData;
 
 var DATABASE_VERS = process.env.POSTGRES_DATABASE_VERSION;
@@ -106,13 +107,14 @@ function captureQuery() {
       var errorCapturer = function (err) {
         subsegment.close(err);
 
-        if (this._events && this._events.error && this._events.error.length === 1) {
+        // TODO: Remove this logic once Node 10 is deprecated
+        if (!events.errorMonitor && this.listenerCount('error') <= 1) {
           this.removeListener('error', errorCapturer);
           this.emit('error', err);
         }
       };
 
-      query.on('error', errorCapturer);
+      query.on(events.errorMonitor || 'error', errorCapturer);
     }
 
     subsegment.addSqlData(createSqlData(this.connectionParameters, query));

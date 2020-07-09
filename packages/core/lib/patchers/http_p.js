@@ -12,6 +12,7 @@ var contextUtils = require('../context_utils');
 var Utils = require('../utils');
 
 var logger = require('../logger');
+var events = require('events');
 
 /**
  * Wraps the http/https.request() and .get() calls to automatically capture information for the segment.
@@ -138,7 +139,11 @@ function enableCapture(module, downstreamXRayEnabled, subsegmentCallback) {
         subsegment.close(e);
       }
 
-      if (this._events && this._events.error && this._events.error.length === 1) {
+      // Only need to remove our listener & re-emit if we're not listening using the errorMonitor,
+      // e.g. the app is running on Node 10. Otherwise the errorMonitor will re-emit automatically.
+      // See: https://github.com/aws/aws-xray-sdk-node/issues/318
+      // TODO: Remove this logic when the 'error' listener is removed once node 10 support is deprecated
+      if (!events.errorMonitor && this.listenerCount('error') <= 1) {
         this.removeListener('error', errorCapturer);
         this.emit('error', e);
       }
@@ -179,7 +184,11 @@ function enableCapture(module, downstreamXRayEnabled, subsegmentCallback) {
       } else if (res && res.listenerCount('end') === 1) {
         res.resume();
       }
-    }).on('error', errorCapturer);
+    });
+
+    // Use errorMonitor if available (in Node 12+), otherwise fall back to standard error listener
+    // See: https://nodejs.org/dist/latest-v12.x/docs/api/events.html#events_eventemitter_errormonitor
+    req.on(events.errorMonitor || 'error', errorCapturer);
 
     return req;
   }
