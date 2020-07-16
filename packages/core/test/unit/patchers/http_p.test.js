@@ -129,7 +129,7 @@ describe('HTTP/S', function() {
     });
 
     describe('on invocation', function() {
-      var capturedHttp, fakeRequest, fakeResponse, httpClient, requestSpy, sandbox;
+      var capturedHttp, fakeRequest, fakeResponse, httpClient, requestSpy, resumeSpy, sandbox;
 
       beforeEach(function() {
         sandbox = sinon.sandbox.create();
@@ -145,8 +145,10 @@ describe('HTTP/S', function() {
         }};
         httpClient.get = httpClient.request;
 
+        resumeSpy = sandbox.spy(fakeResponse, 'resume');
         requestSpy = sandbox.spy(httpClient, 'request');
-        capturedHttp = captureHTTPs(httpClient, true); });
+        capturedHttp = captureHTTPs(httpClient, true);
+      });
 
       afterEach(function() {
         sandbox.restore();
@@ -157,6 +159,16 @@ describe('HTTP/S', function() {
         capturedHttp.request(options);
 
         resolveManualStub.should.have.been.calledWith(options);
+      });
+
+      it('should consume the response if no callback is provided by user', function() {
+        capturedHttp.request(httpOptions);  // no callback
+        resumeSpy.should.have.been.calledOnce;
+      });
+
+      it('should not consume the response if a callback is provided by user', function() {
+        capturedHttp.request(httpOptions, () => {});
+        resumeSpy.should.not.have.been.called;
       });
 
       it('should create a new subsegment with name as hostname', function() {
@@ -385,7 +397,7 @@ describe('HTTP/S', function() {
         }, 50);
       });
 
-      if (process.version.startsWith('v') && process.version >= 'v12') {
+      if (process.version.startsWith('v') && process.version >= 'v12.17') {
         it('should still re-emit if there are multiple errorMonitors attached', function() {
           fakeRequest.on(events.errorMonitor, function() {});
           fakeRequest.on(events.errorMonitor, function() {});

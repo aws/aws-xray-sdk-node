@@ -142,7 +142,7 @@ function enableCapture(module, downstreamXRayEnabled, subsegmentCallback) {
       // Only need to remove our listener & re-emit if we're not listening using the errorMonitor,
       // e.g. the app is running on Node 10. Otherwise the errorMonitor will re-emit automatically.
       // See: https://github.com/aws/aws-xray-sdk-node/issues/318
-      // TODO: Remove this logic when the 'error' listener is removed once node 10 support is deprecated
+      // TODO: Remove this logic once node 12 support is deprecated
       if (!events.errorMonitor && this.listenerCount('error') <= 1) {
         this.removeListener('error', errorCapturer);
         this.emit('error', e);
@@ -179,14 +179,15 @@ function enableCapture(module, downstreamXRayEnabled, subsegmentCallback) {
         } else {
           callback(res);
         }
-        // if no callback provided and there is only SDK added response listener,
-        // we consume the response so the actual end can fire.
-      } else if (res && res.listenerCount('end') === 1) {
+        // if no callback provided by user application, then we consume the response
+        // so the 'end' event fires
+        // See: https://nodejs.org/api/http.html#http_class_http_clientrequest
+      } else {
         res.resume();
       }
     });
 
-    // Use errorMonitor if available (in Node 12+), otherwise fall back to standard error listener
+    // Use errorMonitor if available (in Node 12.17+), otherwise fall back to standard error listener
     // See: https://nodejs.org/dist/latest-v12.x/docs/api/events.html#events_eventemitter_errormonitor
     req.on(events.errorMonitor || 'error', errorCapturer);
 
