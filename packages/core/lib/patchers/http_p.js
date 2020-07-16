@@ -161,16 +161,12 @@ function enableCapture(module, downstreamXRayEnabled, subsegmentCallback) {
 
         var cause = Utils.getCauseTypeFromHttpStatus(res.statusCode);
 
-        console.log('closing!!');
-
         if (cause)
           subsegment[cause] = true;
 
         subsegment.addRemoteRequestData(res.req, res, !!downstreamXRayEnabled);
         subsegment.close();
       });
-
-      // console.log(res.req.listenerCount('response'));
 
       if (typeof callback === 'function') {
         if (contextUtils.isAutomaticMode()) {
@@ -187,7 +183,6 @@ function enableCapture(module, downstreamXRayEnabled, subsegmentCallback) {
         // added by user application, then we consume the response so the 'end' event fires
         // See: https://nodejs.org/api/http.html#http_class_http_clientrequest
       } else if (res.req && res.req.listenerCount('response') === 0) {
-        console.log('resuming!');
         res.resume();
       }
     });
