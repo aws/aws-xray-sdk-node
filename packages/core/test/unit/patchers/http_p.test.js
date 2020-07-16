@@ -137,6 +137,7 @@ describe('HTTP/S', function() {
 
         fakeRequest = buildFakeRequest();
         fakeResponse = buildFakeResponse();
+        fakeResponse.req = fakeRequest;
 
         httpClient = { request: function(...args) {
           const callback = args[typeof args[1] === 'object' ? 2 : 1];
@@ -168,6 +169,12 @@ describe('HTTP/S', function() {
 
       it('should not consume the response if a callback is provided by user', function() {
         capturedHttp.request(httpOptions, () => {});
+        resumeSpy.should.not.have.been.called;
+      });
+
+      it('should not consume the response if a response listener is provided by user', function() {
+        fakeRequest.on('response', () => {});
+        capturedHttp.request(httpOptions);
         resumeSpy.should.not.have.been.called;
       });
 
