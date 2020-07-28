@@ -11,29 +11,31 @@
   "files": [
     "lib"
   ],
+  "types": "lib/index.d.ts",
   "scripts": {
     "lint": "eslint .",
     "lint:fix": "eslint --fix ./src",
-    "test": "mocha --recursive --exit"
+    "test": "mocha --recursive --exit ./test/ -R spec && tsd",
+    "test-d": "tsd"
   },
   "engines": {
     "node": ">= 10.x"
   },
   "peerDependencies": {
-    "aws-xray-sdk-core": "^3.1.0",
+    "aws-xray-sdk-core": "^3.2.0",
     "koa": "^2.0.0"
   },
   "devDependencies": {
-    "@types/chai": "^4.2.11",
+    "@types/chai": "^4.2.12",
     "@types/koa": "^2.11.3",
-    "@types/node": "^10.17.26",
-    "@types/mocha": "^7.0.2",
+    "@types/node": "^10.17.28",
+    "@types/mocha": "^8.0.0",
     "@types/sinon": "^9.0.4",
     "@types/sinon-chai": "^3.2.4",
     "aws-sdk": "^2.304.0",
-    "aws-xray-sdk-core": "^3.1.0",
+    "aws-xray-sdk-core": "file:../../packages/core",
     "chai": "^4.2.0",
-    "eslint": "^7.3.1",
+    "eslint": "^7.5.0",
     "eslint-config-prettier": "^6.11.0",
     "eslint-config-semistandard": "^15.0.1",
     "eslint-config-standard": "^14.1.1",
@@ -48,7 +50,7 @@
     "prettier": "^2.0.5",
     "sinon": "^9.0.2",
     "sinon-chai": "^3.5.0",
-    "tsd": "^0.12.0"
+    "tsd": "^0.13.1"
   },
   "keywords": [
     "amazon",
@@ -63,5 +65,5 @@
     "lib": "lib"
   },
   "license": "Apache-2.0",
-  "repository": "https://github.com/unbill/aws-xray-sdk-koa"
+  "repository": "https://github.com/aws/aws-xray-sdk-node/tree/sdk_contrib/koa"
 }

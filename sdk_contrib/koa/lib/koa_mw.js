@@ -44,7 +44,7 @@ const koaMW = {
       mwUtils.resolveSampling(amznTraceHeader, segment, ctx);
       segment.addIncomingRequestData(new IncomingRequestData(ctx.req));
 
-      exports._logToXRay("Starting koa segment", ctx, segment);
+      mwUtils.middlewareLog("Starting koa segment", ctx.url, segment);
 
       if (AWSXRay.isAutomaticMode()) {
         const ns = AWSXRay.getNamespace();
@@ -92,22 +92,11 @@ exports._processResponse = (ctx, segment, err) => {
     segment.http.close(ctx.res);
   }
   segment.close(err);
-  exports._logToXRay(
-    err ? "Closed koa segment with error" : "Closed koa segment successfully",
-    ctx,
-    segment
-  );
+  const message = err ? "Closed koa segment with error" : "Closed koa segment successfully";
+  mwUtils.middlewareLog(message, ctx.url, segment);
   if (err) {
     throw err;
   }
-};
-
-exports._logToXRay = (message, ctx, segment) => {
-  AWSXRay.getLogger().debug(
-    `${message}: { url: ${ctx.url}, name: ${segment.name}, trace_id: ${
-      segment.trace_id
-    }, id: ${segment.id}, sampled: ${!segment.notTraced} }`
-  );
 };
 
 module.exports = koaMW;

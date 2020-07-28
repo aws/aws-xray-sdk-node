@@ -30,30 +30,36 @@ before defining routes, otherwise issues with the `cls-hooked`
 context may occur.
 
 ## Automatic mode examples
+```js
+var AWSXRay = require('aws-xray-sdk-core');
+var xrayKoa = require('aws-xray-sdk-koa2');
+var app = new Koa();
 
-    var AWSXRay = require('aws-xray-sdk-core');
-    var xrayKoa = require('aws-xray-sdk-koa2');
-    var app = new Koa();
+//...
 
-    //...
+app.use(xrayKoa.openSegment('defaultName'));
 
-    app.use(xrayKoa.openSegment('defaultName'));
+router.get('/myRoute', (ctx) => {
+    const segment = AWSXRay.getSegment();
+    //Do whatever 
+});
+```
 
 ## Manual mode examples
+```js
+var AWSXRay = require('aws-xray-sdk-core');
+var xrayKoa = require('aws-xray-sdk-koa2');
+var app = new Koa();
 
-    var AWSXRay = require('aws-xray-sdk-core');
-    var xrayKoa = require('aws-xray-sdk-koa2');
-    var app = new Koa();
+//...
 
-    //...
+var AWSXRay = require('aws-xray-sdk');
 
-    var AWSXRay = require('aws-xray-sdk');
+app.use(xrayKoa.openSegment('defaultName')); //Required at the start of your routes
 
-    app.use(xrayKoa.openSegment('defaultName'));               //Required at the start of your routes
-    
-    router.get('/myRoute', (ctx) => {
-        const segment = ctx.segment;
-        //Do whatever 
-    }
-    
+router.get('/myRoute', (ctx) => {
+    const segment = ctx.segment;
+    //Do whatever 
+});
+```
 
