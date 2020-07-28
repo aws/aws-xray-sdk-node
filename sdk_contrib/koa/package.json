@@ -1,0 +1,69 @@
+{
+  "name": "aws-xray-sdk-koa2",
+  "version": "3.1.0",
+  "description": "AWS X-Ray Middleware for koa (Javascript)",
+  "author": "Amazon Web Services",
+  "contributors": [
+    "Sandra McMullen <mcmuls@amazon.com>",
+    "Eric Swann <eric.swann@q2ebanking.com>"
+  ],
+  "main": "lib/index.js",
+  "files": [
+    "lib"
+  ],
+  "types": "lib/index.d.ts",
+  "scripts": {
+    "lint": "eslint .",
+    "lint:fix": "eslint --fix ./src",
+    "test": "mocha --recursive --exit ./test/ -R spec && tsd",
+    "test-d": "tsd"
+  },
+  "engines": {
+    "node": ">= 10.x"
+  },
+  "peerDependencies": {
+    "aws-xray-sdk-core": "^3.1.0",
+    "koa": "^2.0.0"
+  },
+  "devDependencies": {
+    "@types/chai": "^4.2.12",
+    "@types/koa": "^2.11.3",
+    "@types/node": "^10.17.28",
+    "@types/mocha": "^8.0.0",
+    "@types/sinon": "^9.0.4",
+    "@types/sinon-chai": "^3.2.4",
+    "aws-sdk": "^2.304.0",
+    "aws-xray-sdk-core": "3.1.0",
+    "chai": "^4.2.0",
+    "eslint": "^7.5.0",
+    "eslint-config-prettier": "^6.11.0",
+    "eslint-config-semistandard": "^15.0.1",
+    "eslint-config-standard": "^14.1.1",
+    "eslint-plugin-import": "^2.22.0",
+    "eslint-plugin-mocha": "^7.0.1",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-prettier": "^3.1.4",
+    "eslint-plugin-promise": "^4.2.1",
+    "eslint-plugin-standard": "^4.0.1",
+    "koa": "^2.13.0",
+    "mocha": "^8.0.1",
+    "prettier": "^2.0.5",
+    "sinon": "^9.0.2",
+    "sinon-chai": "^3.5.0",
+    "tsd": "^0.13.1"
+  },
+  "keywords": [
+    "amazon",
+    "api",
+    "aws",
+    "koa",
+    "xray",
+    "x-ray",
+    "x ray"
+  ],
+  "directories": {
+    "lib": "lib"
+  },
+  "license": "Apache-2.0",
+  "repository": "https://github.com/aws/aws-xray-sdk-node/tree/sdk_contrib/koa"
+}
