@@ -90,7 +90,7 @@ function patchOf(poolCluster) {
 
     var resultPool = poolCluster[baseFcn].apply(poolCluster, args);
     return patchObject(resultPool);
-  }
+  };
 }
 
 function patchGetConnection(pool) {
@@ -105,13 +105,13 @@ function patchGetConnection(pool) {
       args[args.length-1] = (err, connection) => {
         if(connection) patchObject(connection);
         return callback(err, connection);
-      }
+      };
     }
 
     var result = pool[baseFcn].apply(pool, args);
     if (result && result.then instanceof Function) return result.then(patchObject);
     else return result;
-  }
+  };
 }
 
 function patchObject(connection) {
@@ -208,10 +208,6 @@ function captureOperation(name) {
     command = originalOperation.call(this, sql, args.values, args.callback);
 
     if (!args.callback) {
-      command.on('end', function() {
-        subsegment.close();
-      });
-
       var errorCapturer = function (err) {
         subsegment.close(err);
 
@@ -222,14 +218,26 @@ function captureOperation(name) {
         }
       };
 
-      command.on(events.errorMonitor || 'error', errorCapturer);
+      if (command.then instanceof Function) {
+        command.then(() => {
+          subsegment.close();
+        });
+
+        command.catch(errorCapturer);
+      } else {
+        command.on('end', function() {
+          subsegment.close();
+        });
+
+        command.on(events.errorMonitor || 'error', errorCapturer);
+      }
     }
 
     subsegment.addSqlData(createSqlData(config, command));
     subsegment.namespace = 'remote';
 
     return command;
-  }
+  };
 }
 
 function createSqlData(config, command) {
