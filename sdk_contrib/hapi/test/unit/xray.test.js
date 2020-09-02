@@ -28,6 +28,7 @@ describe('Hapi plugin', function() {
 
   describe('#plugin', function() {
     it('should set up xray with options specified in the plugin', function() {
+      this.timeout(3000); //On rare occasion this test times out...adding more time
       const testLogger = { error: () => 'error', debug: () => 'debug' };
       const captureAwsSpy = sinon.spy(xray, 'captureAWS');
       const captureHttpSpy = sinon.spy(xray, 'captureHTTPsGlobal');

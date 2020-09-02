@@ -57,6 +57,15 @@ server.route({
 - `capturePromises` Enables AWS X-Ray to capture all promises
 - `logger` Bind AWS X-Ray to compatible logging interface `({ trace, debug, info })`
 
+## Sample App
+A naive hapi server with X-Ray enabled is available in the "sample" directory. 
+The sample can be started from the sdk_contrib/hapi directory with: `npm run sample`
+
+The sample will run but throw errors connecting to X-Ray if a local X-Ray daemon is not running.
+
+For more information on running the XRay daemon locally:
+https://docs.aws.amazon.com/xray/latest/devguide/xray-daemon-local.html
+
 ## Thanks
 
 Based on the hard work @[AWS X-Ray Express Middleware](https://github.com/aws/aws-xray-sdk-node/tree/master/packages/express)

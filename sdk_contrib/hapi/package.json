@@ -16,39 +16,39 @@
     "lint": "eslint .",
     "lint:fix": "eslint --fix ./src",
     "test": "mocha --recursive --exit ./test/ -R spec && tsd",
-    "test-d": "tsd"
+    "test-d": "tsd",
+    "sample": "node sample"
   },
   "engines": {
     "node": ">= 10.x"
   },
   "peerDependencies": {
     "aws-xray-sdk-core": "^3.1.0",
-    "hapi": "*"
+    "hapi": "^17.0.0"
   },
   "devDependencies": {
     "@types/chai": "^4.2.12",
-    "@types/hapi": "^17.6.1",
     "@types/node": "^10.17.28",
-    "@types/mocha": "^8.0.0",
-    "@types/sinon": "^9.0.4",
+    "@types/mocha": "^8.0.3",
+    "@types/sinon": "^9.0.5",
     "@types/sinon-chai": "^3.2.4",
     "aws-sdk": "^2.304.0",
     "aws-xray-sdk-core": "3.1.0",
     "chai": "^4.2.0",
-    "eslint": "^7.5.0",
+    "eslint": "^7.8.1",
     "eslint-config-prettier": "^6.11.0",
     "eslint-config-semistandard": "^15.0.1",
     "eslint-config-standard": "^14.1.1",
     "eslint-plugin-import": "^2.22.0",
-    "eslint-plugin-mocha": "^7.0.1",
+    "eslint-plugin-mocha": "^8.0.0",
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-prettier": "^3.1.4",
     "eslint-plugin-promise": "^4.2.1",
     "eslint-plugin-standard": "^4.0.1",
-    "hapi": "^18.1.0",
-    "mocha": "^8.0.1",
-    "prettier": "^2.0.5",
-    "sinon": "^9.0.2",
+    "@hapi/hapi": "^20.0.0",
+    "mocha":"^8.1.3",
+    "prettier": "^2.1.1",
+    "sinon": "^9.0.3",
     "sinon-chai": "^3.5.0",
     "tsd": "^0.13.1"
   },
