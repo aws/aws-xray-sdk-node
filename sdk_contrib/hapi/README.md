@@ -61,6 +61,8 @@ server.route({
 A naive hapi server with X-Ray enabled is available in the "sample" directory. 
 The sample can be started from the sdk_contrib/hapi directory with: `npm run sample`
 
+Once running, a "hello world" GET endpoint will be available at `http://localhost:3010/`
+
 The sample will run but throw errors connecting to X-Ray if a local X-Ray daemon is not running.
 
 For more information on running the XRay daemon locally:
