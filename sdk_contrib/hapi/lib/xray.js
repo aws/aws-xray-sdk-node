@@ -1,12 +1,12 @@
-const fs = require('fs');
-const path = require('path');
+const fs = require("fs");
+const path = require("path");
 
-const AWSXray = require('aws-xray-sdk-core');
+const AWSXray = require("aws-xray-sdk-core");
 const { middleware: mwUtils } = AWSXray;
 
 const defaultOptions = {
   automaticMode: true,
-  logger: console
+  logger: console,
 };
 
 /**
@@ -20,7 +20,7 @@ const defaultOptions = {
  * @param {Boolean} [options.automaticMode] Puts xray into automatic or manual mode. Default is true (automatic)
  * @param {Object[]} [options.plugins] Array of AWS plugins to pass to xray
  */
-exports.setup = options => {
+exports.setup = (options) => {
   const localOptions = { ...defaultOptions, ...options };
 
   if (localOptions.logger) {
@@ -42,12 +42,12 @@ exports.setup = options => {
   }
 
   if (localOptions.captureAWS) {
-    AWSXray.captureAWS(require('aws-sdk'));
+    AWSXray.captureAWS(require("aws-sdk"));
   }
 
   if (localOptions.captureHTTP) {
-    AWSXray.captureHTTPsGlobal(require('http'), true);
-    AWSXray.captureHTTPsGlobal(require('https'), true);
+    AWSXray.captureHTTPsGlobal(require("http"), true);
+    AWSXray.captureHTTPsGlobal(require("https"), true);
   }
 
   if (localOptions.capturePromises) {
@@ -75,18 +75,20 @@ exports.handleRequest = async (request, h) => {
 
   segment.addIncomingRequestData(new mwUtils.IncomingRequestData(req));
 
-  mwUtils.middlewareLog('Starting Hapi XRay segment', request.url, segment);
+  mwUtils.middlewareLog("Starting Hapi XRay segment", request.url, segment);
 
   if (AWSXray.isAutomaticMode()) {
     const ns = AWSXray.getNamespace();
-    if (!request.app) {
-      request.app = {};
+    if (!request.plugins) {
+      request.plugins = {};
     }
-    request.app.xrayNamespace = ns;
-    request.app.xrayContext = ns.createContext();
+    request.plugins.hapiXray = {
+      xrayNamespace: ns,
+      xrayContext: ns.createContext(),
+    };
     ns.bindEmitter(req);
     ns.bindEmitter(res);
-    ns.enter(request.app.xrayContext);
+    ns.enter(request.plugins.hapiXray.xrayContext);
     AWSXray.setSegment(segment);
   }
   request.segment = segment;
@@ -94,12 +96,12 @@ exports.handleRequest = async (request, h) => {
   return h.continue;
 };
 
-exports.handleResponse = request => {
+exports.handleResponse = (request) => {
   try {
     exports._internals.endSegment(request);
   } finally {
-    if (request.app) {
-      const { xrayNamespace, xrayContext } = request.app;
+    if (request.plugins && request.plugins.hapiXray) {
+      const { xrayNamespace, xrayContext } = request.plugins.hapiXray;
 
       if (xrayNamespace && xrayContext) {
         xrayNamespace.exit(xrayContext);
@@ -113,12 +115,16 @@ exports.handleError = (request, error) => {
 
   if (segment) {
     segment.addError(error);
-    mwUtils.middlewareLog('Hapi XRay segment encountered an error', request.url, segment);
+    mwUtils.middlewareLog(
+      "Hapi XRay segment encountered an error",
+      request.url,
+      segment
+    );
   }
 };
 
 exports._internals = {
-  endSegment: function(request) {
+  endSegment: function (request) {
     const { segment, response } = request;
 
     if (!segment || segment.isClosed()) {
@@ -141,7 +147,11 @@ exports._internals = {
     }
 
     segment.close();
-    mwUtils.middlewareLog('Closed Hapi XRay segment successfully', request.url, segment);
+    mwUtils.middlewareLog(
+      "Closed Hapi XRay segment successfully",
+      request.url,
+      segment
+    );
   },
 
   /**
@@ -149,13 +159,13 @@ exports._internals = {
    * @returns {String}
    * @private
    */
-  createSegmentName: function() {
-    let segmentName = 'service';
-    const pkgPath = path.join(process.cwd(), 'package.json');
+  createSegmentName: function () {
+    let segmentName = "service";
+    const pkgPath = path.join(process.cwd(), "package.json");
     if (fs.existsSync(pkgPath)) {
       const pjson = require(pkgPath);
-      segmentName = `${pjson.name || 'service'}_${pjson.version || 'v1'}`;
+      segmentName = `${pjson.name || "service"}_${pjson.version || "v1"}`;
     }
     return segmentName;
-  }
+  },
 };

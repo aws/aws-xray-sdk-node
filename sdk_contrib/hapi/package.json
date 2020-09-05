@@ -24,7 +24,7 @@
   },
   "peerDependencies": {
     "aws-xray-sdk-core": "^3.1.0",
-    "hapi": "^17.0.0"
+    "@hapi/hapi": ">=18.x"
   },
   "devDependencies": {
     "@types/chai": "^4.2.12",
@@ -46,7 +46,7 @@
     "eslint-plugin-promise": "^4.2.1",
     "eslint-plugin-standard": "^4.0.1",
     "@hapi/hapi": "^20.0.0",
-    "mocha":"^8.1.3",
+    "mocha": "^8.1.3",
     "prettier": "^2.1.1",
     "sinon": "^9.0.3",
     "sinon-chai": "^3.5.0",
