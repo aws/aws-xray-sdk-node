@@ -1,0 +1,69 @@
+{
+  "name": "aws-xray-sdk-hapi",
+  "version": "3.1.0",
+  "description": "AWS X-Ray plugin for Hapi.JS",
+  "author": "Amazon Web Services",
+  "contributors": [
+    "Alex Coulcher<alex@polyglot.rodeo>",
+    "Eric Swann <eric.swann@q2.com>"
+  ],
+  "main": "lib/index.js",
+  "files": [
+    "lib"
+  ],
+  "types": "lib/index.d.ts",
+  "scripts": {
+    "lint": "eslint .",
+    "lint:fix": "eslint --fix ./src",
+    "test": "mocha --recursive --exit ./test/ -R spec && tsd",
+    "test-d": "tsd",
+    "sample": "node sample"
+  },
+  "engines": {
+    "node": ">= 10.x"
+  },
+  "peerDependencies": {
+    "aws-xray-sdk-core": "^3.1.0",
+    "@hapi/hapi": ">=18.x"
+  },
+  "devDependencies": {
+    "@types/chai": "^4.2.12",
+    "@types/node": "^10.17.28",
+    "@types/mocha": "^8.0.3",
+    "@types/sinon": "^9.0.5",
+    "@types/sinon-chai": "^3.2.4",
+    "aws-sdk": "^2.304.0",
+    "aws-xray-sdk-core": "3.1.0",
+    "chai": "^4.2.0",
+    "eslint": "^7.8.1",
+    "eslint-config-prettier": "^6.11.0",
+    "eslint-config-semistandard": "^15.0.1",
+    "eslint-config-standard": "^14.1.1",
+    "eslint-plugin-import": "^2.22.0",
+    "eslint-plugin-mocha": "^8.0.0",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-prettier": "^3.1.4",
+    "eslint-plugin-promise": "^4.2.1",
+    "eslint-plugin-standard": "^4.0.1",
+    "@hapi/hapi": "^20.0.0",
+    "mocha": "^8.1.3",
+    "prettier": "^2.1.1",
+    "sinon": "^9.0.3",
+    "sinon-chai": "^3.5.0",
+    "tsd": "^0.13.1"
+  },
+  "keywords": [
+    "amazon",
+    "api",
+    "aws",
+    "hapi",
+    "xray",
+    "x-ray",
+    "x ray"
+  ],
+  "directories": {
+    "lib": "lib"
+  },
+  "license": "Apache-2.0",
+  "repository": "https://github.com/aws/aws-xray-sdk-node/tree/sdk_contrib/koa"
+}
