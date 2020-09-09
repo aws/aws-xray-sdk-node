@@ -1,6 +1,6 @@
 {
   "name": "aws-xray-sdk-koa2",
-  "version": "3.1.0",
+  "version": "3.2.0",
   "description": "AWS X-Ray Middleware for koa (Javascript)",
   "author": "Amazon Web Services",
   "contributors": [
@@ -22,7 +22,7 @@
     "node": ">= 10.x"
   },
   "peerDependencies": {
-    "aws-xray-sdk-core": "^3.1.0",
+    "aws-xray-sdk-core": "^3.2.0",
     "koa": "^2.0.0"
   },
   "devDependencies": {
@@ -33,7 +33,7 @@
     "@types/sinon": "^9.0.4",
     "@types/sinon-chai": "^3.2.4",
     "aws-sdk": "^2.304.0",
-    "aws-xray-sdk-core": "3.1.0",
+    "aws-xray-sdk-core": "3.2.0",
     "chai": "^4.2.0",
     "eslint": "^7.5.0",
     "eslint-config-prettier": "^6.11.0",

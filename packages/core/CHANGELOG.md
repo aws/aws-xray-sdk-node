@@ -1,6 +1,11 @@
 # Changelog for AWS X-Ray Core SDK for JavaScript
-<!--LATEST=3.1.0-->
+<!--LATEST=3.2.0-->
 <!--ENTRYINSERT-->
+## 3.2.0
+* bugfix: Guard against undefined req.agent in HTTP patcher [PR #313](https://github.com/aws/aws-xray-sdk-node/pull/313)
+* bugfix: Imrpoved error and end event listening logic [PR #321](https://github.com/aws/aws-xray-sdk-node/pull/321)
+* improvement: Refactored common middleware utility code into core package [PR #306](https://github.com/aws/aws-xray-sdk-node/pull/306)
+
 ## 3.1.0
 * bugfix: Fix trace header behavior [#PR 284](https://github.com/aws/aws-xray-sdk-node/pull/284)
 * bugfix: Improved service connector error handling [#ISSUE 285](https://github.com/aws/aws-xray-sdk-node/issues/285)
