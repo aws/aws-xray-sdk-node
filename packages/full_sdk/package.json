@@ -4,7 +4,8 @@
   "description": "AWS X-Ray SDK for Javascript",
   "author": "Amazon Web Services",
   "contributors": [
-    "Sandra McMullen <mcmuls@amazon.com>"
+    "Sandra McMullen <mcmuls@amazon.com>",
+    "William Armiros <armiros@amazon.com>"
   ],
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
