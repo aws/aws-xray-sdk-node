@@ -13,8 +13,11 @@ function RemoteRequestData(req, res, downstreamXRayEnabled) {
 }
 
 RemoteRequestData.prototype.init = function init(req, res, downstreamXRayEnabled) {
+  // Not all requests have "agent"
+  const protocol = req.agent ? req.agent.protocol: req.protocol + ':'
+  
   this.request = {
-    url: (req.agent && req.agent.protocol) ? (req.agent.protocol + '//' + req.getHeader('host') +  stripQueryStringFromPath(req.path)) : '',
+    url: protocol + '//' + req.getHeader('host') +  stripQueryStringFromPath(req.path),
     method: req.method || '',
   };
 

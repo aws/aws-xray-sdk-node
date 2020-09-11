@@ -7,6 +7,7 @@ chai.should();
 
 describe('RemoteRequestData', function() {
   const defaultRequest = {
+    protocol: 'https',
     agent: {
       protocol: 'https:'
     },
@@ -41,13 +42,16 @@ describe('RemoteRequestData', function() {
         'https://host.com/path/to/resource'
       );
     });
-    it('should return empty url if request agent is missing', function() {
-      const requestWithoutAgent = {};
+    it('should use req.protocol if agent is unavailable', function() {
+      const requestWithoutAgent = Object.assign(request, {
+        protocol: 'ftp'
+      });
+      delete requestWithoutAgent.agent
       
       assert.propertyVal(
         new RemoteRequestData(requestWithoutAgent, response, true).request,
         'url',
-        ''
+        'ftp://host.com/path/to/resource'
       );
     });
   });
