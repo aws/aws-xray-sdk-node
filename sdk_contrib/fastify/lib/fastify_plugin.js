@@ -50,28 +50,30 @@ module.exports = {
 
     fastify.addHook("onResponse", (request, reply, done) => {
       var segment = AWSXRay.resolveSegment(request.segment);
+      if (segment) {
+        segment.close();
 
-      segment.close();
-
-      mwUtils.middlewareLog(
-        "Closed fastify segment successfully",
-        request.url,
-        segment
-      );
+        mwUtils.middlewareLog(
+          "Closed fastify segment successfully",
+          request.url,
+          segment
+        );
+      }
 
       done();
     });
 
     fastify.addHook("onError", (request, reply, error, done) => {
       var segment = AWSXRay.resolveSegment(request.segment);
+      if (segment) {
+        segment.close(error);
 
-      segment.close(error);
-
-      mwUtils.middlewareLog(
-        "Closed fastify segment with error",
-        request.url,
-        segment
-      );
+        mwUtils.middlewareLog(
+          "Closed fastify segment with error",
+          request.url,
+          segment
+        );
+      }
 
       done();
     });
