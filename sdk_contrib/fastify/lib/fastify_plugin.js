@@ -49,31 +49,37 @@ module.exports = {
     });
 
     fastify.addHook("onResponse", (request, reply, done) => {
-      var segment = AWSXRay.resolveSegment(request.segment);
-      if (segment) {
-        segment.close();
-
-        mwUtils.middlewareLog(
-          "Closed fastify segment successfully",
-          request.url,
-          segment
-        );
+      if (!request.segment) {
+        return done();
       }
+
+      var segment = AWSXRay.resolveSegment(request.segment);
+
+      segment.close();
+
+      mwUtils.middlewareLog(
+        "Closed fastify segment successfully",
+        request.url,
+        segment
+      );
 
       done();
     });
 
     fastify.addHook("onError", (request, reply, error, done) => {
-      var segment = AWSXRay.resolveSegment(request.segment);
-      if (segment) {
-        segment.close(error);
-
-        mwUtils.middlewareLog(
-          "Closed fastify segment with error",
-          request.url,
-          segment
-        );
+      if (!request.segment) {
+        return done();
       }
+
+      var segment = AWSXRay.resolveSegment(request.segment);
+
+      segment.close(error);
+
+      mwUtils.middlewareLog(
+        "Closed fastify segment with error",
+        request.url,
+        segment
+      );
 
       done();
     });
