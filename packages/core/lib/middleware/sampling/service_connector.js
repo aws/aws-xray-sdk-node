@@ -87,7 +87,7 @@ var ServiceConnector = {
           return;
         }
 
-        if (!dataObj || !dataObj['LastRuleModification']) {
+        if (!dataObj || typeof dataObj['LastRuleModification'] != 'number') {
           callback(new Error('AWS X-Ray SamplingTargets API returned invalid response'));
           return;
         }

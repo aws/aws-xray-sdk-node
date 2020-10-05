@@ -15,11 +15,16 @@ function buildFakeResponse() {
   return response;
 };
 
-function buildFakeRequest(res, rules, invalid) {
-  var rulesObj = {
-    'SamplingRuleRecords': rules,
-    'NextToken': null
-  };
+function buildFakeRequest(res, data, invalid, isRulesRequest) {
+  var requestObj;
+  if (isRulesRequest) {
+    requestObj = {
+      'SamplingRuleRecords': data,
+      'NextToken': null
+    };
+  } else {
+    requestObj = data;
+  }
 
   var request = new TestEmitter();
   request.method = 'GET';
@@ -30,18 +35,24 @@ function buildFakeRequest(res, rules, invalid) {
     if (invalid)
       res.emit('data', 'nonJsonResponse');
     else
-      res.emit('data', JSON.stringify(rulesObj));
+      res.emit('data', JSON.stringify(requestObj));
 
     res.emit('end');
   };
   return request;
 };
 
-function generateMockClient(samplingRules, invalidResponse) {
+function generateMockRulesClient(samplingRules, invalidResponse) {
   var res = buildFakeResponse();
-  var req = buildFakeRequest(res, samplingRules, invalidResponse);
+  var req = buildFakeRequest(res, samplingRules, invalidResponse, true);
   return buildFakeHttpClient(req, res);
 };
+
+function generateMockTargetClient(targetResponse, invalidResponse) {
+  var res = buildFakeResponse();
+  var req = buildFakeRequest(res, targetResponse, invalidResponse, false);
+  return buildFakeHttpClient(req, res);
+}
 
 function buildFakeHttpClient(req, res) {
   return {
@@ -132,7 +143,7 @@ describe('ServiceConnector', function() {
     };
 
     it('filters invalid rules', function(done) {
-      sandbox.stub(ServiceConnector, 'httpClient').value(generateMockClient([
+      sandbox.stub(ServiceConnector, 'httpClient').value(generateMockRulesClient([
         noSamplingRule,
         invalidRule,
         defaultSamplingRule
@@ -170,7 +181,7 @@ describe('ServiceConnector', function() {
     });
 
     it('respects a fixed rate of 0', function(done) {
-      sandbox.stub(ServiceConnector, 'httpClient').value(generateMockClient([
+      sandbox.stub(ServiceConnector, 'httpClient').value(generateMockRulesClient([
         noSamplingRule,
         defaultSamplingRule
       ]));
@@ -203,7 +214,7 @@ describe('ServiceConnector', function() {
 
     it('catches request errors and does not crash', function() {
       let response = buildFakeResponse();
-      let request = buildFakeRequest(response, []);
+      let request = buildFakeRequest(response, [], false, true);
       let onSpy = sandbox.spy(response, 'on');
       sandbox.stub(ServiceConnector, 'httpClient')
         .value(buildFakeHttpClient(request, response));
@@ -214,7 +225,7 @@ describe('ServiceConnector', function() {
 
     it('Only calls callback once after getting an invalid API response', function() {
       // Generates a client that returns an invalid (non-JSON) response
-      sandbox.stub(ServiceConnector, 'httpClient').value(generateMockClient(null, true));
+      sandbox.stub(ServiceConnector, 'httpClient').value(generateMockRulesClient(null, true));
       
       ServiceConnector.fetchSamplingRules(callbackObj.errCallback);
 
@@ -233,7 +244,7 @@ describe('ServiceConnector', function() {
 
     it('catches request errors and does not crash', function() {
       let response = buildFakeResponse();
-      let request = buildFakeRequest(response, []);
+      let request = buildFakeRequest(response, [], false, false);
       sandbox.stub(ServiceConnector, 'httpClient')
         .value(buildFakeHttpClient(request, response));
 
@@ -243,11 +254,37 @@ describe('ServiceConnector', function() {
 
     it('Only calls callback once after getting an invalid API response', function() {
       // Generates a client that returns an invalid (non-JSON) response
-      sandbox.stub(ServiceConnector, 'httpClient').value(generateMockClient(null, true));
+      sandbox.stub(ServiceConnector, 'httpClient').value(generateMockRulesClient(null, true));
       
       ServiceConnector.fetchTargets([], callbackObj.errCallback);
 
       callbackObj.errCallback.should.have.been.calledOnce;
+    });
+
+    it('Allows LastModificationDate to be 0', function(done) {
+      const responseObj = {
+        LastRuleModification: 0,
+        SamplingTargetDocuments: [
+          {
+            FixedRate: 0.05,
+            Interval: 10,
+            ReservoirQuota: 0,
+            ReservoirQuotaTTL: 1601894236,
+            RuleName: 'Default'
+          }
+        ],
+        UnprocessedStatistics: []
+      };
+      
+      sandbox.stub(ServiceConnector, 'httpClient').value(generateMockTargetClient(responseObj, false));
+
+      ServiceConnector.fetchTargets([], (err, mapping, freshness) => {
+        assert.isNull(err);
+        assert.isObject(mapping);
+        assert.isNotNull(freshness);
+        assert.isDefined(freshness);
+        done()
+      });
     });
   });
 
