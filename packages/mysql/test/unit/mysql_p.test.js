@@ -115,15 +115,16 @@ describe('captureMySQL', function() {
         }, 50);
       });
 
-      it('should pass timeout to basequery if supplied', function (done) {
+      it('should pass any additional query options if supplied', function (done) {
         var stubClose = sandbox.stub(subsegment, 'close');
         var session = { run: function (fcn) { fcn(); } };
         var stubRun = sandbox.stub(session, 'run');
+        var typeCast = sinon.stub();
 
         sandbox.stub(AWSXRay, 'getNamespace').returns(session);
-        query.call(connectionObj, {sql: 'sql here', timeout: 234}, function () { });
+        query.call(connectionObj, { sql: 'sql here', timeout: 234, typeCast, nestTables: true }, function () { });
 
-        stubBaseQuery.should.have.been.calledWith(sinon.match({ sql: 'sql here', timeout: 234 }), undefined, sinon.match.func);
+        stubBaseQuery.should.have.been.calledWith({ sql: 'sql here', timeout: 234, typeCast, nestTables: true }, undefined, sinon.match.func);
         stubBaseQuery.args[0][2].call(queryObj);
 
         setTimeout(function () {
