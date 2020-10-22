@@ -9,6 +9,8 @@ var LOG_ERROR = 'LOG_ERROR';
 var LOG_ERROR_FCN_NAME = 'contextMissingLogError';
 var RUNTIME_ERROR = 'RUNTIME_ERROR';
 var RUNTIME_ERROR_FCN_NAME = 'contextMissingRuntimeError';
+var IGNORE_ERROR = 'IGNORE_ERROR';
+var IGNORE_ERROR_FCN_NAME = 'contextMissingIgnoreError';
 
 describe('ContextUtils', function() {
   function reloadContextUtils() {
@@ -146,7 +148,12 @@ describe('ContextUtils', function() {
 
     it('should accept and set the RUNTIME_ERROR strategy', function() {
       ContextUtils.setContextMissingStrategy(RUNTIME_ERROR);
-      assert.notEqual(ContextUtils.contextMissingStrategy.contextMissing, RUNTIME_ERROR_FCN_NAME);
+      assert.equal(ContextUtils.contextMissingStrategy.contextMissing.name, RUNTIME_ERROR_FCN_NAME);
+    });
+
+    it('should accept and set the IGNORE_ERROR strategy', function() {
+      ContextUtils.setContextMissingStrategy(IGNORE_ERROR);
+      assert.equal(ContextUtils.contextMissingStrategy.contextMissing.name, IGNORE_ERROR_FCN_NAME);
     });
 
     it('should accept and set a custom strategy', function() {
