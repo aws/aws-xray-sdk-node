@@ -5,6 +5,7 @@ declare class Segment {
   id: string;
   name: string;
   start_time: number;
+  end_time?: number;
   in_progress?: boolean;
   trace_id: string;
   parent_id?: string;
