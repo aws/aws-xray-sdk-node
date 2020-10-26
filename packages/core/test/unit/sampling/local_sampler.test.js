@@ -41,7 +41,7 @@ describe('localSampler', function() {
   };
 
   beforeEach(function() {
-    sandbox = sinon.sandbox.create();
+    sandbox = sinon.createSandbox();
     stubIsSampled = sandbox.stub(LocalReservoir.prototype, 'isSampled').returns(true);
   });
 
@@ -53,7 +53,7 @@ describe('localSampler', function() {
     var sandbox;
 
     beforeEach(function() {
-      sandbox = sinon.sandbox.create();
+      sandbox = sinon.createSandbox();
     });
 
     afterEach(function() {
@@ -130,7 +130,7 @@ describe('localSampler', function() {
       var sandbox;
 
       beforeEach(function() {
-        sandbox = sinon.sandbox.create();
+        sandbox = sinon.createSandbox();
       });
 
       afterEach(function() {
@@ -262,7 +262,7 @@ describe('localSampler', function() {
     var sandbox, fakeReservoir;
 
     beforeEach(function() {
-      sandbox = sinon.sandbox.create();
+      sandbox = sinon.createSandbox();
       fakeReservoir = new LocalReservoir(10, 0.05);
     });
 

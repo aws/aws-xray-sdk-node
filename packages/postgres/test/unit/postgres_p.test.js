@@ -60,7 +60,7 @@ describe('capturePostgres', function() {
         return queryObj;
       };
 
-      sandbox = sinon.sandbox.create();
+      sandbox = sinon.createSandbox();
       sandbox.stub(AWSXRay, 'getSegment').returns(segment);
       stubAddNew = sandbox.stub(segment, 'addNewSubsegment').returns(subsegment);
       sandbox.stub(AWSXRay, 'isAutomaticMode').returns(true);
@@ -184,7 +184,7 @@ describe('capturePostgres', function() {
         return result;
       };
 
-      sandbox = sinon.sandbox.create();
+      sandbox = sinon.createSandbox();
       sandbox.stub(AWSXRay, 'getSegment').returns(segment);
       stubAddNew = sandbox.stub(segment, 'addNewSubsegment').returns(subsegment);
       sandbox.stub(AWSXRay, 'isAutomaticMode').returns(true);
