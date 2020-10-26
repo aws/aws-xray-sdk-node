@@ -261,7 +261,7 @@ describe('ServiceConnector', function() {
       callbackObj.errCallback.should.have.been.calledOnce;
     });
 
-    it('Allows LastModificationDate to be 0', function(done) {
+    it('Allows LastRuleModification to be 0', function(done) {
       const responseObj = {
         LastRuleModification: 0,
         SamplingTargetDocuments: [
