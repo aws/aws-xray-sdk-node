@@ -15,7 +15,7 @@
     "test": "test"
   },
   "scripts": {
-    "test": "mocha --recursive ./test/ -R spec"
+    "test": "mocha --recursive --exit ./test/ -R spec"
   },
   "keywords": [
     "amazon",
