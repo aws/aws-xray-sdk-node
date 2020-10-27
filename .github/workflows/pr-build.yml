@@ -1,8 +1,10 @@
 name: Node.js SDK Continuous Build
+
 on:
+  push:
+    branches: [ master ]
   pull_request:
-    branches:
-      - master
+    branches: [ master ]
 
 jobs:
   build:
@@ -27,8 +29,9 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
       - name: Execute tests with Lerna
-        run: lerna bootstrap --hoist
-        run: lerna run test
+        run: |
+          lerna bootstrap --hoist
+          lerna run test
         shell: bash
         env:
           CI: true
