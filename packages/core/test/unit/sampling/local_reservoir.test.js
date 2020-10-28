@@ -29,7 +29,7 @@ describe('LocalReservoir', function() {
     var fixedTarget = 5;
 
     before(function() {
-      sandbox = sinon.sandbox.create();
+      sandbox = sinon.createSandbox();
       sandbox.stub(Math, 'round').returns(1);
     });
 

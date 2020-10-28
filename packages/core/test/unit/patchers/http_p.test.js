@@ -66,7 +66,7 @@ describe('HTTP/S', function() {
       let httpOptions, newSubsegmentStub, sandbox, segment;
 
       beforeEach(function() {
-        sandbox = sinon.sandbox.create();
+        sandbox = sinon.createSandbox();
         segment = new Segment('test');
         newSubsegmentStub = sandbox.spy(segment, 'addNewSubsegment');
         httpOptions = {
@@ -106,7 +106,7 @@ describe('HTTP/S', function() {
     var traceId = '1-57fbe041-2c7ad569f5d6ff149137be86';
 
     beforeEach(function() {
-      sandbox = sinon.sandbox.create();
+      sandbox = sinon.createSandbox();
       segment = new Segment('test', traceId);
       subsegment = segment.addNewSubsegment('testSub');
 
@@ -132,7 +132,7 @@ describe('HTTP/S', function() {
       var capturedHttp, fakeRequest, fakeResponse, httpClient, requestSpy, resumeSpy, sandbox;
 
       beforeEach(function() {
-        sandbox = sinon.sandbox.create();
+        sandbox = sinon.createSandbox();
         segment = new Segment('test', traceId);
 
         fakeRequest = buildFakeRequest();
@@ -245,7 +245,7 @@ describe('HTTP/S', function() {
       var capturedHttp, fakeRequest, fakeResponse, httpClient, sandbox;
 
       beforeEach(function() {
-        sandbox = sinon.sandbox.create();
+        sandbox = sinon.createSandbox();
 
         fakeRequest = buildFakeRequest();
         fakeResponse = buildFakeResponse();
@@ -341,7 +341,7 @@ describe('HTTP/S', function() {
       var capturedHttp, error, fakeRequest, httpClient, req, sandbox, subsegmentCallback;
 
       beforeEach(function() {
-        sandbox = sinon.sandbox.create();
+        sandbox = sinon.createSandbox();
 
         httpClient = { request: function() {} };
 

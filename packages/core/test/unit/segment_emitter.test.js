@@ -23,7 +23,7 @@ describe('SegmentEmitter', function() {
   }
 
   beforeEach(function() {
-    sandbox = sinon.sandbox.create();
+    sandbox = sinon.createSandbox();
 
     delete process.env.AWS_XRAY_DAEMON_ADDRESS;
     SegmentEmitter = getUncachedEmitter();

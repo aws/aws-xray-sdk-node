@@ -16,7 +16,7 @@ describe('AWSXRay', function() {
     var sandbox, setSDKDataStub, setServiceDataStub;
 
     beforeEach(function() {
-      sandbox = sinon.sandbox.create();
+      sandbox = sinon.createSandbox();
 
       setSDKDataStub = sandbox.stub(segmentUtils, 'setSDKData');
       setServiceDataStub = sandbox.stub(segmentUtils, 'setServiceData');
@@ -57,7 +57,7 @@ describe('AWSXRay', function() {
     var sandbox, setOriginStub, setPluginDataStub;
 
     beforeEach(function() {
-      sandbox = sinon.sandbox.create();
+      sandbox = sinon.createSandbox();
 
       setPluginDataStub = sandbox.stub(segmentUtils, 'setPluginData');
       setOriginStub = sandbox.stub(segmentUtils, 'setOrigin');

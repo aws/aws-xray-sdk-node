@@ -53,7 +53,7 @@ describe('Subsegment', function() {
     var child, incrementStub, subsegment, sandbox;
 
     beforeEach(function() {
-      sandbox = sinon.sandbox.create();
+      sandbox = sinon.createSandbox();
 
       subsegment = new Subsegment('test');
       child = new Subsegment('child');
@@ -99,7 +99,7 @@ describe('Subsegment', function() {
     var err, exceptionStub, sandbox, subsegment;
 
     beforeEach(function() {
-      sandbox = sinon.sandbox.create();
+      sandbox = sinon.createSandbox();
       exceptionStub = sandbox.stub(CapturedException.prototype, 'init');
 
       subsegment = new Subsegment('test');
@@ -140,7 +140,7 @@ describe('Subsegment', function() {
     var sandbox, stubIncrementParent, subsegment;
 
     beforeEach(function() {
-      sandbox = sinon.sandbox.create();
+      sandbox = sinon.createSandbox();
       subsegment = new Subsegment('test');
       subsegment.parent = { incrementCounter: function() {} };
 
@@ -171,7 +171,7 @@ describe('Subsegment', function() {
     var sandbox, segment, stubSegmentDecrement, stubSegmentRemove, stubSubsegmentStream, subsegment;
 
     beforeEach(function() {
-      sandbox = sinon.sandbox.create();
+      sandbox = sinon.createSandbox();
 
       segment = {
         parent_id: '12345abc3456def',
@@ -232,7 +232,7 @@ describe('Subsegment', function() {
     emitStub = sinon.stub();
 
     beforeEach(function() {
-      sandbox = sinon.sandbox.create();
+      sandbox = sinon.createSandbox();
 
       segment = { trace_id: '1-58c835af-cf6bfe9f8f2c5b84a6d1f50c', parent_id: '12345abc3456def' };
       parent = new Subsegment('test');
@@ -284,7 +284,7 @@ describe('Subsegment', function() {
     var child1, parent, sandbox, stubFlush, stubStream1;
 
     beforeEach(function() {
-      sandbox = sinon.sandbox.create();
+      sandbox = sinon.createSandbox();
 
       parent = new Subsegment('parent');
       child1 = parent.addNewSubsegment('child');

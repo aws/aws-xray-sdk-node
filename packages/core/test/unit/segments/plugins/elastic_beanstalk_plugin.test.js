@@ -19,7 +19,7 @@ describe('ElasticBeanstalkPlugin', function() {
   var readStub, sandbox;
 
   beforeEach(function() {
-    sandbox = sinon.sandbox.create();
+    sandbox = sinon.createSandbox();
   });
 
   afterEach(function() {
