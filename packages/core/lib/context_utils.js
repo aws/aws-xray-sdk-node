@@ -26,6 +26,11 @@ var contextUtils = {
         var err = new Error(message);
         logger.getLogger().error(err.stack);
       }
+    },
+    IGNORE_ERROR: {
+      contextMissing: function contextMissingIgnoreError(message) {
+        
+      }
     }
   },
 

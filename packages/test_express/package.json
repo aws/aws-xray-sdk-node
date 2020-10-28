@@ -14,18 +14,8 @@
   "directories": {
     "test": "test"
   },
-  "devDependencies": {
-    "aws-sdk": "^2.304.0",
-    "aws-xray-sdk-core": "3.2.0",
-    "aws-xray-sdk-express": "3.2.0",
-    "chai": "^3.5.0",
-    "cls-hooked": "^4.2.2",
-    "eslint": "^4.18.2",
-    "express": "^4.16.4",
-    "mocha": "^3.5.3"
-  },
   "scripts": {
-    "test": "mocha --recursive ./test/ -R spec"
+    "test": "mocha --recursive --exit ./test/ -R spec"
   },
   "keywords": [
     "amazon",

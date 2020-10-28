@@ -19,7 +19,7 @@ describe('Capture', function() {
   var traceId = '1-57fbe041-2c7ad569f5d6ff149137be86';
 
   before(function() {
-    sandbox = sinon.sandbox.create();
+    sandbox = sinon.createSandbox();
     sandbox.stub(Segment.prototype, 'flush');
   });
 
@@ -32,7 +32,7 @@ describe('Capture', function() {
       var sandbox, segment;
 
       beforeEach(function() {
-        sandbox = sinon.sandbox.create();
+        sandbox = sinon.createSandbox();
         segment = new Segment('test', traceId);
 
         sandbox.stub(contextUtils, 'resolveSegment').returns(segment);
@@ -91,7 +91,7 @@ describe('Capture', function() {
       var sandbox, segment;
 
       beforeEach(function() {
-        sandbox = sinon.sandbox.create();
+        sandbox = sinon.createSandbox();
         segment = new Segment('test', traceId);
 
         sandbox.stub(contextUtils, 'resolveSegment').returns(segment);
@@ -157,7 +157,7 @@ describe('Capture', function() {
       var params, sandbox, segment;
 
       beforeEach(function() {
-        sandbox = sinon.sandbox.create();
+        sandbox = sinon.createSandbox();
         params = ['hello', 'there'];
         segment = new Segment('test', traceId);
 
@@ -188,7 +188,7 @@ describe('Capture', function() {
       var sandbox, segment;
 
       beforeEach(function() {
-        sandbox = sinon.sandbox.create();
+        sandbox = sinon.createSandbox();
         segment = new Segment('test', traceId);
 
         sandbox.stub(contextUtils, 'resolveSegment').returns(segment);
@@ -247,7 +247,7 @@ describe('Capture', function() {
       var sandbox, segment;
 
       beforeEach(function() {
-        sandbox = sinon.sandbox.create();
+        sandbox = sinon.createSandbox();
         segment = new Segment('test', traceId);
 
         sandbox.stub(contextUtils, 'resolveSegment').returns(segment);
@@ -313,7 +313,7 @@ describe('Capture', function() {
       var params, sandbox, segment;
 
       beforeEach(function() {
-        sandbox = sinon.sandbox.create();
+        sandbox = sinon.createSandbox();
         params = ['hello', 'there'];
         segment = new Segment('test', traceId);
 
