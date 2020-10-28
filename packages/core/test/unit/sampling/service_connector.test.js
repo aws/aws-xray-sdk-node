@@ -63,7 +63,7 @@ describe('ServiceConnector', function() {
   }
   
   this.beforeEach(function() {
-    sandbox = sinon.sandbox.create();
+    sandbox = sinon.createSandbox();
     sandbox.spy(callbackObj, 'errCallback');
   });
 

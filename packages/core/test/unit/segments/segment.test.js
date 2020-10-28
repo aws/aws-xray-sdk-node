@@ -20,7 +20,7 @@ describe('Segment', function() {
     var sandbox;
 
     beforeEach(function() {
-      sandbox = sinon.sandbox.create();
+      sandbox = sinon.createSandbox();
     });
 
     afterEach(function() {
@@ -212,7 +212,7 @@ describe('Segment', function() {
     var incrementStub, subsegment, sandbox, segment;
 
     beforeEach(function() {
-      sandbox = sinon.sandbox.create();
+      sandbox = sinon.createSandbox();
       segment = new Segment('test');
 
       subsegment = new Subsegment('new');
@@ -255,7 +255,7 @@ describe('Segment', function() {
     var err, exceptionStub, sandbox, segment;
 
     beforeEach(function() {
-      sandbox = sinon.sandbox.create();
+      sandbox = sinon.createSandbox();
 
       exceptionStub = sandbox.stub(CapturedException.prototype, 'init');
 
@@ -300,7 +300,7 @@ describe('Segment', function() {
     var err, addErrorStub, flushStub, sandbox, segment;
 
     beforeEach(function() {
-      sandbox = sinon.sandbox.create();
+      sandbox = sinon.createSandbox();
       segment = new Segment('test');
 
       addErrorStub = sandbox.stub(segment, 'addError');
@@ -356,7 +356,7 @@ describe('Segment', function() {
     var sandbox, segment;
 
     beforeEach(function() {
-      sandbox = sinon.sandbox.create();
+      sandbox = sinon.createSandbox();
       segment = new Segment('test');
     });
 
@@ -409,7 +409,7 @@ describe('Segment', function() {
     var err, sandbox, segment;
 
     beforeEach(function() {
-      sandbox = sinon.sandbox.create();
+      sandbox = sinon.createSandbox();
       segment = new Segment('test');
       err = new Error('Test error');
     });

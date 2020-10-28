@@ -20,15 +20,6 @@
   "peerDependencies": {
     "aws-xray-sdk-core": "^3.2.0"
   },
-  "devDependencies": {
-    "aws-xray-sdk-core": "3.2.0",
-    "chai": "^3.5.0",
-    "eslint": "^4.19.1",
-    "mocha": "^6.2.0",
-    "sinon": "^4.5.0",
-    "sinon-chai": "^2.8.0",
-    "tsd": "^0.10.0"
-  },
   "scripts": {
     "test": "mocha --recursive ./test/ -R spec && tsd",
     "test-d": "tsd"

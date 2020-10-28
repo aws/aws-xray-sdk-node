@@ -128,7 +128,7 @@ describe('Utils', function() {
       var headerData, processStub, sandbox, xAmznTraceId;
 
       beforeEach(function() {
-        sandbox = sinon.sandbox.create();
+        sandbox = sinon.createSandbox();
         xAmznTraceId = 'moop';
         headerData = {
           root: '1-58e8017e-fd7f0e6deaf6ce16a4841b44',
@@ -167,7 +167,7 @@ describe('Utils', function() {
       var segmentId = 'b2f698e3dae16fb6';
 
       beforeEach(function() {
-        sandbox = sinon.sandbox.create();
+        sandbox = sinon.createSandbox();
         segment = {};
         headerData = {
           root: '1-58e8017e-fd7f0e6deaf6ce16a4841b44',

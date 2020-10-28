@@ -33,7 +33,7 @@ describe('AWS patcher', function() {
     };
 
     beforeEach(function() {
-      sandbox = sinon.sandbox.create();
+      sandbox = sinon.createSandbox();
       customStub = sandbox.stub(awssdk.s3.prototype, 'customizeRequests');
     });
 
@@ -61,7 +61,7 @@ describe('AWS patcher', function() {
     };
 
     beforeEach(function() {
-      sandbox = sinon.sandbox.create();
+      sandbox = sinon.createSandbox();
       customStub = sandbox.stub(awsClient, 'customizeRequests');
     });
 
@@ -94,7 +94,7 @@ describe('AWS patcher', function() {
     });
 
     beforeEach(function() {
-      sandbox = sinon.sandbox.create();
+      sandbox = sinon.createSandbox();
 
       awsRequest = {
         httpRequest: {

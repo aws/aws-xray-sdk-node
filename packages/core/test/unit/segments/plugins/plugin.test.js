@@ -1,4 +1,5 @@
 var expect = require('chai').expect;
+var assert = require('chai').assert;
 var nock = require('nock');
 
 var Plugin = require('../../../../lib/segments/plugins/plugin');
@@ -23,7 +24,7 @@ describe('Plugin', function() {
         .reply(200, data);
 
       getPluginMetadata(OPTIONS, function(err, data) {
-        expect(data.data).not.to.be.empty;
+        expect(data.data).to.equal(1234);
         getMetadata.done();
         done();
       });
@@ -38,7 +39,7 @@ describe('Plugin', function() {
         .reply(200, data);
 
       getPluginMetadata(OPTIONS, function(err, data) {
-        expect(data.data).not.to.be.empty;
+        expect(data.data).to.equal(1234);
         getMetadata.done();
         done();
       });
@@ -54,7 +55,7 @@ describe('Plugin', function() {
         .reply(504); // Ensure retry on different 5xx codes
 
       getPluginMetadata(OPTIONS, function(err, data) {
-        expect(data).to.be.empty;
+        assert.isUndefined(data);
         getMetadata.done();
         done();
       });
@@ -66,7 +67,7 @@ describe('Plugin', function() {
         .reply(400);
 
       getPluginMetadata(OPTIONS, function(err, data) {
-        expect(data).to.be.empty;
+        assert.isUndefined(data);
         getMetadata.done();
         done();
       });
