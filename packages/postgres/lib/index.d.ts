@@ -1,2 +1,1 @@
-import capturePostgres = require('./postgres_p');
-export = capturePostgres;
+export * from './postgres_p';
