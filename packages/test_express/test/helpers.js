@@ -50,7 +50,7 @@ function createS3Service(body) {
 }
 
 function createDaemon() {
-    return dgram.createSocket('udp4');
+    return dgram.createSocket('udp4').unref();
 }
 
 function messageCounter(expectedCount, callback) {
