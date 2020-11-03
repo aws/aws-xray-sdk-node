@@ -40,10 +40,12 @@ describe('Express', () => {
   beforeEach((done) => {
     daemon = createDaemon();
     daemon.bind({
-      address: '0.0.0.0',
+      address: 'localhost',
       port: 0
     }, () => {
-      xray.setDaemonAddress('0.0.0.0:' + daemon.address().port);
+      const address = daemon.address().address + ':' + daemon.address().port;
+      console.log("address is: " + address);
+      xray.setDaemonAddress(address);
       done()
     });
   });
