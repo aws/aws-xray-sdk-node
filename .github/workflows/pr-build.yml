@@ -1,0 +1,45 @@
+name: Node.js SDK Continuous Build
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+jobs:
+  build:
+    name: Build Node ${{ matrix.node-version }} on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os:
+          - macos-latest
+          - ubuntu-latest
+          - windows-latest
+        node-version:
+          - 10.x
+          - 12.x
+          - 14.x
+          - 15.x
+    steps:
+      - name: Checkout AWS XRay SDK Node Repository @ default branch latest
+        uses: actions/checkout@v2
+      - name: Setup Node ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: Cache NPM modules
+        uses: actions/cache@v2
+        with:
+          path: |
+            node_modules
+            */*/node_modules
+          key: ${{ matrix.os }}-${{ hashFiles('**/package.json') }}
+      - name: Execute tests with Lerna
+        run: |
+          npm install
+          npx lerna bootstrap --hoist
+          npx lerna run test
+        shell: bash
+        env:
+          CI: true
