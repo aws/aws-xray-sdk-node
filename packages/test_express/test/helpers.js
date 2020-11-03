@@ -49,8 +49,18 @@ function createS3Service(body) {
     }, body);
 }
 
-function createDaemon() {
-    return dgram.createSocket('udp4');
+function createDaemon(callback) {
+    const daemon = dgram.createSocket('udp4').unref();
+    daemon.bind({
+        address: 'localhost',
+        port: 0
+    }, () => {
+        const address = daemon.address().address + ':' + daemon.address().port;
+        xray.setDaemonAddress(address);
+        callback()
+    });
+    
+    return daemon;
 }
 
 function messageCounter(expectedCount, callback) {

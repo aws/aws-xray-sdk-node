@@ -1,2 +1,1 @@
-import captureMySQL = require('./mysql_p');
-export = captureMySQL;
+export * from './mysql_p';

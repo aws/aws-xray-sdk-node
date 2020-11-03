@@ -44,5 +44,17 @@
   "engines": {
     "node": ">= 10.x",
     "npm": ">= 2.x"
+  },
+  "dependencies": {
+    "aws-xray-sdk": "file:packages/full_sdk",
+    "aws-xray-sdk-core": "file:packages/core",
+    "aws-xray-sdk-express": "file:packages/express",
+    "aws-xray-sdk-hapi": "file:sdk_contrib/hapi",
+    "aws-xray-sdk-koa2": "file:sdk_contrib/koa",
+    "aws-xray-sdk-mysql": "file:packages/mysql",
+    "aws-xray-sdk-node": "file:",
+    "aws-xray-sdk-postgres": "file:packages/postgres",
+    "aws-xray-sdk-restify": "file:packages/restify",
+    "test-aws-xray-sdk-express": "file:packages/test_express"
   }
 }

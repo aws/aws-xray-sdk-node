@@ -1,7 +1,7 @@
 import * as AWSXRay from 'aws-xray-sdk-core';
 import * as PG from 'pg';
 
-declare function capturePostgres(pg: typeof PG): capturePostgres.PatchedPostgres;
+export function capturePostgres(pg: typeof PG): capturePostgres.PatchedPostgres;
 
 declare namespace capturePostgres {
   interface CaptureQueryMethod {
@@ -108,5 +108,3 @@ declare namespace capturePostgres {
     : T[K];
   };
 }
-
-export = capturePostgres;

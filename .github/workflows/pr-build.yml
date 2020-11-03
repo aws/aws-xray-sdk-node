@@ -25,7 +25,7 @@ jobs:
       - name: Checkout AWS XRay SDK Node Repository @ default branch latest
         uses: actions/checkout@v2
       - name: Setup Node ${{ matrix.node-version }}
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v1
         with:
           node-version: ${{ matrix.node-version }}
       - name: Cache NPM modules
@@ -37,8 +37,9 @@ jobs:
           key: ${{ matrix.os }}-${{ hashFiles('**/package.json') }}
       - name: Execute tests with Lerna
         run: |
-          lerna bootstrap --hoist
-          lerna run test
+          npm install
+          npx lerna bootstrap --hoist
+          npx lerna run test
         shell: bash
         env:
           CI: true
