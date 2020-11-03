@@ -38,12 +38,7 @@ describe('Aws', () => {
 
   beforeEach((done) => {
     // start test daemon
-    daemon = createDaemon();
-    daemon.bind(() => {
-      var address = daemon.address().address + ':' + daemon.address().port;
-      xray.setDaemonAddress(address);
-      done()
-    });
+    daemon = createDaemon(done);
   });
 
   afterEach((done) => {
