@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/aws/aws-xray-sdk-node.svg?branch=master)](https://travis-ci.org/aws/aws-xray-sdk-node)
+![Continuous Build](https://github.com/aws/aws-xray-sdk-node/workflows/Node.js%20SDK%20Continuous%20Build/badge.svg)
 
 # AWS X-Ray SDK for Node.js
 
