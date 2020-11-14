@@ -69,11 +69,15 @@ function httpSubsegmentCallback(subsegment: AWSXRay.Subsegment, req: http.Client
   console.log({ subsegment, req, res, error })
 }
 
+expectType<typeof http>(AWSXRay.captureHTTPs(http));
+expectType<typeof https>(AWSXRay.captureHTTPs(https));
 expectType<typeof http>(AWSXRay.captureHTTPs(http, true));
 expectType<typeof https>(AWSXRay.captureHTTPs(https, true));
 expectType<typeof http>(AWSXRay.captureHTTPs(http, true, httpSubsegmentCallback));
 expectType<typeof https>(AWSXRay.captureHTTPs(https, true, httpSubsegmentCallback));
 
+expectType<void>(AWSXRay.captureHTTPsGlobal(http));
+expectType<void>(AWSXRay.captureHTTPsGlobal(https));
 expectType<void>(AWSXRay.captureHTTPsGlobal(http, true));
 expectType<void>(AWSXRay.captureHTTPsGlobal(https, true));
 expectType<void>(AWSXRay.captureHTTPsGlobal(http, true, httpSubsegmentCallback));
@@ -207,6 +211,7 @@ expectType<void>(subsegment.addAttribute('name', 'value'));
 expectType<void>(subsegment.addPrecursorId('id'));
 expectType<void>(subsegment.addSqlData({}));
 const clientRequest = new http.ClientRequest('http://localhost');
+expectType<void>(subsegment.addRemoteRequestData(clientRequest, incomingMessage));
 expectType<void>(subsegment.addRemoteRequestData(clientRequest, incomingMessage, true));
 expectType<true | undefined>(subsegment.streamSubsegments());
 expectType<{ [key: string]: any }>(subsegment.toJSON());

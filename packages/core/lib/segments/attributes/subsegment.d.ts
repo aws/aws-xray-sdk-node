@@ -27,7 +27,7 @@ declare class Subsegment {
 
   addError(err: Error | string, remote?: boolean): void;
 
-  addRemoteRequestData(req: http.ClientRequest, res: http.IncomingMessage, downstreamXRayEnabled: boolean): void;
+  addRemoteRequestData(req: http.ClientRequest, res: http.IncomingMessage, downstreamXRayEnabled?: boolean): void;
 
   addFaultFlag(): void;
 
