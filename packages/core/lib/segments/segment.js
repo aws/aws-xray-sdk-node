@@ -16,7 +16,6 @@ var logger = require('../logger');
  * @param {string} [rootId] - The trace ID of the spawning parent, included in the 'X-Amzn-Trace-Id' header of the incoming request.  If one is not supplied, it will be generated.
  * @param {string} [parentId] - The sub/segment ID of the spawning parent, included in the 'X-Amzn-Trace-Id' header of the incoming request.
  */
-
 function Segment(name, rootId, parentId) {
   this.init(name, rootId, parentId);
 }
