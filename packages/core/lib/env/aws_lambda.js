@@ -90,18 +90,16 @@ var facadeSegment = function facadeSegment() {
     }
     else {
       this.reset();
-      contextUtils.contextMissingStrategy.contextMissing('Missing AWS Lambda trace data for X-Ray. Expected _X_AMZN_TRACE_ID to be set.');
+      contextUtils.contextMissingStrategy.contextMissing('Missing AWS Lambda trace data for X-Ray. ' +
+          'Ensure Active Tracing is enabled and no subsegments are created outside the function handler.');
     }
   };
 
-  console.log('In init. _X_AMZN_TRACE_ID contains data: ' + xAmznTraceId);
-
-  // Test for valid trace data during SDK startup. It's possible we're outside the handler and don't have access to
+  // Test for valid trace data during SDK startup. It's likely we're still in the cold-start portion of the
+  // code at this point and a valid trace header has not been set
   if (LambdaUtils.validTraceData(xAmznTraceId)) {
     if (LambdaUtils.populateTraceData(segment, xAmznTraceId))
       xAmznTraceIdPrev = xAmznTraceId;
-  } else {
-    logger.getLogger().warn('Entering no-op mode. _X_AMZN_TRACE_ID contained incomplete data: ' + xAmznTraceId);
   }
 
   return segment;
