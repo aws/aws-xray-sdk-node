@@ -7,6 +7,7 @@ import * as middleware from './middleware/mw_utils';
 import Segment = require('./segments/segment');
 import Subsegment = require('./segments/attributes/subsegment');
 import sqlData = require('./database/sql_data');
+import TraceID = require('./segments/attributes/trace_id');
 
 export namespace plugins {
   const EC2Plugin: typeof ec2Plugin;
@@ -65,6 +66,7 @@ export {
 export {
   Segment,
   Subsegment,
+  TraceID,
   segmentUtils as SegmentUtils
 }
 

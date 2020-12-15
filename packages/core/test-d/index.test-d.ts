@@ -5,8 +5,7 @@ import { Socket } from 'net';
 import { expectType, expectError } from 'tsd';
 import * as url from 'url';
 import * as AWSXRay from '../lib';
-import { Segment } from '../lib';
-import TraceID from '../lib/segments/attributes/trace_id';
+import { Segment, TraceID } from '../lib';
 
 expectType<void>(AWSXRay.plugins.EC2Plugin.getData((metadata?: AWSXRay.plugins.EC2Metadata) => { }));
 expectType<void>(AWSXRay.plugins.ECSPlugin.getData((metadata?: AWSXRay.plugins.ECSMetadata) => { }));
