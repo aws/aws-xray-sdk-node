@@ -182,4 +182,32 @@ describe('Express middleware', function() {
       });
     });
   });
+
+  describe('#close', function() {
+    var segment, close;
+    beforeEach(function() {
+      xray.enableManualMode();
+      segment = new Segment('test');
+      sandbox = sinon.createSandbox();
+      close = expressMW.closeSegment();
+
+      req = {
+        segment: segment
+      };
+      res = {};
+    });
+
+    afterEach(function() {
+      xray.enableAutomaticMode();
+      sandbox.restore();
+    });
+    
+    it('should add error using express middleware', function() {
+      const segment = req.segment;
+      close(new Error(), req, res);
+
+      assert.property(segment, 'cause');
+      assert.property(segment.cause, 'exceptions');
+    });
+  })
 });

@@ -16,13 +16,14 @@ var ShakyStream = require('./shaky_stream').ShakyStream;
 
 var chai = require('chai');
 var assert = chai.assert;
+var sinon = require('sinon');
 chai.should();
 
 describe('Express', () => {
   /**
    * @type {dgram.Socket}
    */
-  var daemon;
+  var daemon, sandbox;
 
   before(() => {
     // force all requests to be sampled
@@ -39,6 +40,7 @@ describe('Express', () => {
 
   beforeEach((done) => {
     daemon = createDaemon(done);
+    sandbox = sinon.createSandbox();
   });
 
   afterEach((done) => {
@@ -47,6 +49,7 @@ describe('Express', () => {
     xray.middleware.hostPattern = null;
 
     daemon.close(done);
+    sandbox.restore();
   });
 
   it('should generate fix-named segments', (done) => {
@@ -134,6 +137,54 @@ describe('Express', () => {
 
         done();
       }).catch(done);
+    });
+  });
+
+  it('should close segments with server faults properly', (done) => {
+    sandbox.spy(xray.Segment.prototype, 'close');
+    const daemonMessagesResolved = new Promise((resolve) => {
+      daemon.on('message', messageCounter(1, (resolve)));
+    });
+
+    const route = '/';
+    const name = 'test';
+
+    // Create express app that has a fault
+    const expressApp = createAppWithRoute({
+      name: name,
+      route: route,
+      handler: function(req, res) {
+        throw new Error('My test error');
+      }
+    });
+
+    const server = expressApp.listen(0, () => {
+      const url = 'http://127.0.0.1:' + server.address().port + route;
+
+      // wait for the express response, and the daemon to receive messages
+      Promise.all([triggerEndpoint(url), daemonMessagesResolved])
+      .then((data) => {
+        const result = data[0];
+        const messages = data[1];
+
+        assert.equal(result.status, 500);
+        assert.equal(messages.length, 1);
+        
+        // verify the Segment has status code & exception populated, and that close is called once
+        const segment = parseMessage(messages[0]);
+        validateExpressSegment(segment, {
+          name: name,
+          responseStatus: result.status,
+          url: url
+        });
+        assert.property(segment, 'cause');
+        assert.property(segment.cause, 'exceptions');
+        assert(xray.Segment.prototype.close.calledOnce);
+        done();
+      }).catch(() => {
+        assert.fail();
+        done();
+      });
     });
   });
 
