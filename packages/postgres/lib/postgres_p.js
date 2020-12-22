@@ -36,11 +36,12 @@ function resolveArguments(argsObj) {
 
   if (argsObj && argsObj.length > 0) {
     if (argsObj[0] instanceof Object) {
-      args.sql = argsObj[0].text;
-      args.values = argsObj[0].values;
+      Object.assign(args, argsObj[0]);
+      args.sql = args.text;
       args.callback = typeof argsObj[1] === 'function' ? argsObj[1] : (typeof argsObj[2] === 'function' ? argsObj[2] :  argsObj[0].callback);
     } else {
       args.sql = argsObj[0];
+      args.text = argsObj[0];
       args.values = typeof argsObj[1] !== 'function' ? argsObj[1] : null;
       args.callback = typeof argsObj[1] === 'function' ? argsObj[1] : (typeof argsObj[2] === 'function' ? argsObj[2] : undefined);
     }
@@ -86,7 +87,7 @@ function captureQuery() {
     }
   }
 
-  var result = this.__query.call(this, args.sql, args.values, args.callback);
+  var result = this.__query.call(this, args, undefined, args.callback);
 
   if (this._queryable && !this._ending) {
     var query;
