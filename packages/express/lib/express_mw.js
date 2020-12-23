@@ -1,3 +1,8 @@
+const AWSXRay = require('aws-xray-sdk-core');
+const { logger } = require('aws-xray-sdk-core/lib/middleware/sampling/service_connector');
+
+const mwUtils = AWSXRay.middleware;
+
 /**
  * Express middleware module.
  *
@@ -8,11 +13,6 @@
  * Otherwise, for manual mode, this appends the Segment object to the request object as req.segment.
  * @module express_mw
  */
-
-var AWSXRay = require('aws-xray-sdk-core');
-
-var mwUtils = AWSXRay.middleware;
-
 var expressMW = {
 
   /**
@@ -23,7 +23,6 @@ var expressMW = {
    * @alias module:express_mw.openSegment
    * @returns {function}
    */
-
   openSegment: function openSegment(defaultName) {
     if (!defaultName || typeof defaultName !== 'string')
       throw new Error('Default segment name was not supplied.  Please provide a string.');
@@ -52,23 +51,17 @@ var expressMW = {
 
   /**
    * After your routes, before any extra error handling middleware, use 'app.use(AWSXRayExpress.closeSegment())'.
+   * This is error-handling middleware, so it is called only when there is a server-side fault.
    * @alias module:express_mw.closeSegment
    * @returns {function}
    */
-
   closeSegment: function closeSegment() {
     return function close(err, req, res, next) {
       var segment = AWSXRay.resolveSegment(req.segment);
 
       if (segment && err) {
-        segment.close(err);
-
-        mwUtils.middlewareLog('Closed express segment with error', req.url, segment);
-
-      } else if (segment) {
-        segment.close();
-
-        mwUtils.middlewareLog('Closed express segment successfully', req.url, segment);
+        segment.addError(err);
+        logger.getLogger().debug('Added Express server fault to segment');
       }
 
       if (next)
