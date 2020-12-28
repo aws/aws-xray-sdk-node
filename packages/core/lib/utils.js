@@ -10,7 +10,7 @@ var utils = {
 
   /**
    * Checks a HTTP response code, where 4xx are 'error' and 5xx are 'fault'.
-   * @param {string} status - the HTTP response sattus code.
+   * @param {string} status - the HTTP response status code.
    * @returns [string] - 'error', 'fault' or nothing on no match
    * @alias module:utils.getCauseTypeFromHttpStatus
    */
