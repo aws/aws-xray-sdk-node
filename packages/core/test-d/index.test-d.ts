@@ -5,7 +5,7 @@ import { Socket } from 'net';
 import { expectType, expectError } from 'tsd';
 import * as url from 'url';
 import * as AWSXRay from '../lib';
-import { Segment } from '../lib';
+import { Segment, TraceID } from '../lib';
 
 expectType<void>(AWSXRay.plugins.EC2Plugin.getData((metadata?: AWSXRay.plugins.EC2Metadata) => { }));
 expectType<void>(AWSXRay.plugins.ECSPlugin.getData((metadata?: AWSXRay.plugins.ECSMetadata) => { }));
@@ -39,7 +39,12 @@ AWSXRay.getLogger().error('error');
 expectType<void>(AWSXRay.setDaemonAddress('192.168.0.23:8080'));
 
 const traceId = '1-57fbe041-2c7ad569f5d6ff149137be86';
+const traceId2 = new TraceID();
 const segment = new AWSXRay.Segment('test', traceId);
+
+expectType<TraceID>(TraceID.FromString(traceId));
+expectType<TraceID>(TraceID.Invalid());
+expectType<string>(traceId2.toString());
 
 expectType<string>(AWSXRay.captureFunc('tracedFcn', () => 'OK', segment));
 expectType<void>(AWSXRay.captureFunc('tracedFcn', () => { return; }));

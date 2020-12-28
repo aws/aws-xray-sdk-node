@@ -6,11 +6,7 @@ var SegmentEmitter = require('../segment_emitter');
 var SegmentUtils = require('../segments/segment_utils');
 
 var logger = require('../logger');
-
-/**
-* Used to initialize segments on AWS Lambda with extra data from the context.
-*/
-
+const TraceID = require('../segments/attributes/trace_id');
 
 /**
  * @namespace
@@ -18,6 +14,9 @@ var logger = require('../logger');
  */
 var xAmznTraceIdPrev = null;
 
+/**
+* Used to initialize segments on AWS Lambda with extra data from the context.
+*/
 module.exports.init = function init() {
   contextUtils.enableManualMode = function() {
     logger.getLogger().warn('AWS Lambda does not support AWS X-Ray manual mode.');
@@ -62,7 +61,7 @@ var facadeSegment = function facadeSegment() {
     }
   }
 
-  segment.trace_id = null;
+  segment.trace_id = TraceID.Invalid().toString();
   segment.isClosed = function() { return true; };
   segment.in_progress = false;
   segment.counter = 1;
@@ -70,8 +69,8 @@ var facadeSegment = function facadeSegment() {
   segment.facade = true;
 
   segment.reset = function reset() {
-    this.trace_id = null;
-    this.id = null;
+    this.trace_id = TraceID.Invalid().toString();
+    this.id = '00000000';
     delete this.subsegments;
     this.notTraced = true;
   };
@@ -80,6 +79,8 @@ var facadeSegment = function facadeSegment() {
     var xAmznLambda = process.env._X_AMZN_TRACE_ID;
 
     if (xAmznLambda) {
+
+      // This check resets the trace data whenever a new trace header is read to not leak data between invocations
       if (xAmznLambda != xAmznTraceIdPrev) {
         this.reset();
 
@@ -89,10 +90,13 @@ var facadeSegment = function facadeSegment() {
     }
     else {
       this.reset();
-      contextUtils.contextMissingStrategy.contextMissing('Missing AWS Lambda trace data for X-Ray. Expected _X_AMZN_TRACE_ID to be set.');
+      contextUtils.contextMissingStrategy.contextMissing('Missing AWS Lambda trace data for X-Ray. ' +
+          'Ensure Active Tracing is enabled and no subsegments are created outside the function handler.');
     }
   };
 
+  // Test for valid trace data during SDK startup. It's likely we're still in the cold-start portion of the
+  // code at this point and a valid trace header has not been set
   if (LambdaUtils.validTraceData(xAmznTraceId)) {
     if (LambdaUtils.populateTraceData(segment, xAmznTraceId))
       xAmznTraceIdPrev = xAmznTraceId;

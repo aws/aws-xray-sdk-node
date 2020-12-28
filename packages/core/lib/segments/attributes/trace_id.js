@@ -8,12 +8,21 @@ var logger = require('../../logger');
 class TraceID {
   /**
    * Constructs a new trace ID using the current time.
+   * @param {string} [tsHex] - time stamp to use for trace ID in hexadecimal format
+   * @param {string} [numberhex] - string of hexadecimal characters for random portion of Trace ID
    * @constructor
    */ 
-  constructor() {
+  constructor(tsHex, numberhex) {
     this.version = 1;
-    this.timestamp = Math.round(new Date().getTime() / 1000).toString(16);
-    this.id = crypto.randomBytes(12).toString('hex');
+    this.timestamp = tsHex || Math.round(new Date().getTime() / 1000).toString(16);
+    this.id = numberhex || crypto.randomBytes(12).toString('hex');
+  }
+
+  /**
+   * @returns {TraceID} - a hardcoded trace ID using zeroed timestamp and random ID
+   */
+  static Invalid() {
+    return new TraceID('00000000', '000000000000000000000000');
   }
 
   /**

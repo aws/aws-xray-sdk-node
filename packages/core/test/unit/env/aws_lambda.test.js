@@ -12,6 +12,7 @@ var LambdaUtils = require('../../../lib/utils').LambdaUtils;
 var Segment = require('../../../lib/segments/segment');
 var SegmentUtils = require('../../../lib/segments/segment_utils');
 var SegmentEmitter = require('../../../lib/segment_emitter');
+const TraceID = require('../../../lib/segments/attributes/trace_id');
 
 describe('AWSLambda', function() {
   var sandbox;
@@ -77,6 +78,7 @@ describe('AWSLambda', function() {
 
       var facade = setSegmentStub.args[0][0];
       assert.equal(facade.name, 'facade');
+      assert.equal(facade.trace_id, TraceID.Invalid().toString());
     });
 
     describe('the facade segment', function() {
@@ -133,12 +135,11 @@ describe('AWSLambda', function() {
         facade.trace_id = 'traceIdHere';
         facade.id = 'parentIdHere';
         facade.subsegments = [ { subsegment: 'here' } ];
-        facade.trace_id = 'traceIdHere';
 
         facade.reset();
 
-        assert.isNull(facade.trace_id);
-        assert.isNull(facade.id);
+        assert.isNotNull(facade.trace_id);
+        assert.isNotNull(facade.id);
         assert.isUndefined(facade.subsegments);
         assert.isTrue(facade.notTraced);
       });

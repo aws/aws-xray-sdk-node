@@ -5,6 +5,8 @@ declare class TraceID {
 
   constructor();
 
+  static Invalid(): TraceID;
+
   static FromString(rawId: string): TraceID;
 
   toString(): string;
