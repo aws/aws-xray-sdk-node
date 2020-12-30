@@ -23,6 +23,21 @@ function patchPromise(Promise) {
 
     return then.call(this, onFulfilled, onRejected);
   };
+
+  var origCatch = Promise.prototype.catch;
+  if (origCatch) {
+    Promise.prototype.catch = function (onRejected) {
+      if (contextUtils.isAutomaticMode()
+        && tryGetCurrentSegment()
+      ) {
+        var ns = contextUtils.getNamespace();
+
+        onRejected = onRejected && ns.bind(onRejected);
+      }
+
+      return origCatch.call(this, onRejected);
+    };
+  }
 }
 
 function tryGetCurrentSegment() {
