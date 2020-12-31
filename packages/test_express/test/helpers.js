@@ -2,7 +2,7 @@ var dgram = require('dgram');
 var xray = require('aws-xray-sdk-core');
 var xrayExpress = require('aws-xray-sdk-express');
 var express = require('express');
-require('cls-hooked'); // validates compat with continuation-local-storage
+require('cls-hooked/context'); // validates compat with continuation-local-storage
 var http = require('http');
 var assert = require('chai').assert;
 
