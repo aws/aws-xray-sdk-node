@@ -19,7 +19,6 @@
     "@types/cls-hooked": "*",
     "atomic-batcher": "^1.0.2",
     "cls-hooked": "^4.2.2",
-    "pkginfo": "^0.4.0",
     "semver": "^5.3.0"
   },
   "scripts": {
