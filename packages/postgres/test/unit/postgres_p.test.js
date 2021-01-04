@@ -235,7 +235,7 @@ describe('capturePostgres', function() {
 
 
   describe('#passPgParams', function() {
-    var postgres, query, queryObj, sandbox, segment, subsegment;
+    var postgres, query, queryObj, sandbox, segment, subsegment, stubAddNew;
 
     before(function() {
       postgres = { Client: { prototype: {
@@ -271,7 +271,7 @@ describe('capturePostgres', function() {
 
       sandbox = sinon.createSandbox();
       sandbox.stub(AWSXRay, 'getSegment').returns(segment);
-      sandbox.stub(segment, 'addNewSubsegment').returns(subsegment);
+      stubAddNew = sandbox.stub(segment, 'addNewSubsegment').returns(subsegment);
       sandbox.stub(AWSXRay, 'isAutomaticMode').returns(true);
     });
 
@@ -283,6 +283,7 @@ describe('capturePostgres', function() {
       query.call(postgres, 'sql here', ['values']);
       assert.equal(queryObj.text, 'sql here');
       assert.deepEqual(queryObj.values, ['values']);
+      assert(stubAddNew.calledOnce);
     });
 
     it('should pass down parameterized query', function() {
@@ -290,6 +291,7 @@ describe('capturePostgres', function() {
       assert.equal(queryObj.text, 'sql here');
       assert.deepEqual(queryObj.values, ['values']);
       assert.equal(queryObj.rowMode, 'array');
+      assert(stubAddNew.calledOnce);
     });
   });
 });
