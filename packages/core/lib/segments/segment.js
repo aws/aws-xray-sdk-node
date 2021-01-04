@@ -31,7 +31,7 @@ Segment.prototype.init = function init(name, rootId, parentId) {
   } else {
     traceId = new TraceID();
   }
-  
+
   var id = crypto.randomBytes(8).toString('hex');
   var startTime = SegmentUtils.getCurrentTime();
 
@@ -235,7 +235,7 @@ Segment.prototype.removeSubsegment = function removeSubsegment(subsegment) {
  * @param {boolean} [remote] - Flag for whether the exception caught was remote or not.
  */
 
-Segment.prototype.addError = function addError(err, remote) {
+Segment.prototype.addError = function addError(err, remote, id) {
   if (err == null || typeof err !== 'object' && typeof(err) !== 'string') {
     throw new Error('Failed to add error:' + err + ' to subsegment "' + this.name +
       '".  Not an object or string literal.');
@@ -243,20 +243,18 @@ Segment.prototype.addError = function addError(err, remote) {
 
   this.addFaultFlag();
 
-  if (this.exception) {
-    if (err === this.exception.ex) {
-      this.cause = { id: this.exception.cause };
-      delete this.exception;
-      return;
-    }
-    delete this.exception;
-  }
-
   if (this.cause === undefined) {
-    this.cause = {
-      working_directory: process.cwd(),
-      exceptions: []
-    };
+    if (id) {
+      this.cause = {
+        id,
+        exceptions: []
+      };
+    } else {
+      this.cause = {
+        working_directory: process.cwd(),
+        exceptions: []
+      };
+    }
   }
 
   this.cause.exceptions.push(new CapturedException(err, remote));
@@ -342,7 +340,6 @@ Segment.prototype.close = function(err, remote) {
     this.addError(err, remote);
 
   delete this.in_progress;
-  delete this.exception;
 
   if (this.counter <= 0) {
     this.flush();
@@ -355,7 +352,6 @@ Segment.prototype.close = function(err, remote) {
 
 Segment.prototype.flush = function flush() {
   if (this.notTraced !== true) {
-    delete this.exception;
 
     var thisCopy = Utils.objectWithoutProperties(
       this,

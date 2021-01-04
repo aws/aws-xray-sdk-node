@@ -182,20 +182,8 @@ Subsegment.prototype.addError = function addError(err, remote) {
 
   this.addFaultFlag();
 
-  if (this.segment && this.segment.exception) {
-    if (err === this.segment.exception.ex) {
-      this.fault = true;
-      this.cause = { id: this.segment.exception.cause };
-      return;
-    }
-    delete this.segment.exception;
-  }
-
   if (this.segment) {
-    this.segment.exception = {
-      ex: err,
-      cause: this.id
-    };
+    this.segment.addError(err, remote, this.id);
   } else {
     //error, cannot propagate exception if not added to segment
   }
