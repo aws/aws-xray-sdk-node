@@ -192,14 +192,18 @@ describe('ContextUtils', function() {
   });
 
   describe('#enableAutomaticMode', () => {
-    it('should respect existing CLS namespaces', () => {
+    it('should respect existing CLS namespaces', (done) => {
       ContextUtils.enableAutomaticMode();
-      const seg = new Segment();
-      ContextUtils.setSegment(seg);
+      const ns = ContextUtils.getNamespace();
+      const seg = new Segment('test');
+      ns.run(() => {
+        ContextUtils.setSegment(seg);
 
-      // Calling this again should do nothing
-      ContextUtils.enableAutomaticMode();
-      assert.deepEqual(ContextUtils.getSegment(), seg);
+        // Calling this again should do nothing
+        ContextUtils.enableAutomaticMode();
+        assert.deepEqual(ContextUtils.getSegment(), seg);
+        done();
+      });
     });
   });
 });
