@@ -62,6 +62,11 @@ var contextUtils = {
     }
   },
 
+  /**
+   * Gets current CLS namespace for X-Ray SDK or creates one if absent.
+   * @returns {Namespace}
+   * @alias module:context_utils.getNamespace
+   */
   getNamespace: function getNamespace() {
     return cls.getNamespace(NAMESPACE) || cls.createNamespace(NAMESPACE);
   },
@@ -139,7 +144,7 @@ var contextUtils = {
 
   enableAutomaticMode: function enableAutomaticMode() {
     cls_mode = true;
-    cls.createNamespace(NAMESPACE);
+    contextUtils.getNamespace(NAMESPACE);
 
     logger.getLogger().debug('Overriding AWS X-Ray SDK mode. Set to automatic mode.');
   },
@@ -153,7 +158,7 @@ var contextUtils = {
   enableManualMode: function enableManualMode() {
     cls_mode = false;
 
-    if (contextUtils.getNamespace(NAMESPACE))
+    if (cls.getNamespace(NAMESPACE))
       cls.destroyNamespace(NAMESPACE);
 
     logger.getLogger().debug('Overriding AWS X-Ray SDK mode. Set to manual mode.');

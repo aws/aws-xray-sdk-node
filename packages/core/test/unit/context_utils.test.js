@@ -190,4 +190,20 @@ describe('ContextUtils', function() {
       assert.equal(ContextUtils.getNamespace().name, 'AWSXRay');
     });
   });
+
+  describe('#enableAutomaticMode', () => {
+    it('should respect existing CLS namespaces', (done) => {
+      ContextUtils.enableAutomaticMode();
+      const ns = ContextUtils.getNamespace();
+      const seg = new Segment('test');
+      ns.run(() => {
+        ContextUtils.setSegment(seg);
+
+        // Calling this again should do nothing
+        ContextUtils.enableAutomaticMode();
+        assert.deepEqual(ContextUtils.getSegment(), seg);
+        done();
+      });
+    });
+  });
 });
