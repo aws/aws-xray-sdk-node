@@ -56,7 +56,7 @@ describe('capturePostgres', function() {
       postgres.__query = function(args, values, callback) {
         this._queryable = true;
         this.queryQueue = [ null, null, queryObj ];
-        queryObj.callback = callback;
+        queryObj.callback = callback || (typeof args === 'object' ? args.callback : undefined);
         return queryObj;
       };
 
@@ -95,7 +95,7 @@ describe('capturePostgres', function() {
 
       sandbox.stub(AWSXRay, 'getNamespace').returns(session);
 
-      query.call(postgres, { sql: 'sql here', callback: function() {} });
+      query.call(postgres, { text: 'sql here', callback: function() {} });
       assert.equal(queryObj.callback.name, 'autoContext');
       queryObj.callback();
 
@@ -222,13 +222,76 @@ describe('capturePostgres', function() {
 
     it('should capture the error via the event', function() {
       var stubClose = sandbox.stub(subsegment, 'close');
-      query.call(postgres, { sql: 'sql here', values: [] }).then(function() {
+      query.call(postgres, { text: 'sql here', values: [] }).then(function() {
         assert.throws(function() {
           queryObj.emit('error', err);
         });
 
         stubClose.should.have.been.calledWithExactly(err);
       });
+    });
+  });
+
+
+
+  describe('#passPgParams', function() {
+    var postgres, query, queryObj, sandbox, segment, subsegment, stubAddNew;
+
+    before(function() {
+      postgres = { Client: { prototype: {
+        query: function () {},
+        host: 'database.location',
+        database: 'myTestDb',
+        connectionParameters: {
+          user: 'mcmuls',
+          host: 'database.location',
+          port: '8080',
+          database: 'myTestDb'
+        }
+      }}};
+      postgres = capturePostgres(postgres);
+
+      query = postgres.Client.prototype.query;
+      postgres = postgres.Client.prototype;
+    });
+
+    beforeEach(function() {
+      segment = new Segment('test');
+      subsegment = segment.addNewSubsegment('testSub');
+
+      queryObj = {};
+
+      postgres.__query = function(args) {
+        this._queryable = true;
+        this.queryQueue = [ null, null, queryObj ];
+        Object.assign(queryObj, args);
+
+        return queryObj;
+      };
+
+      sandbox = sinon.createSandbox();
+      sandbox.stub(AWSXRay, 'getSegment').returns(segment);
+      stubAddNew = sandbox.stub(segment, 'addNewSubsegment').returns(subsegment);
+      sandbox.stub(AWSXRay, 'isAutomaticMode').returns(true);
+    });
+
+    afterEach(function() {
+      sandbox.restore();
+    });
+
+    it('should pass down raw sql query', function() {
+      query.call(postgres, 'sql here', ['values']);
+      assert.equal(queryObj.text, 'sql here');
+      assert.deepEqual(queryObj.values, ['values']);
+      assert(stubAddNew.calledOnce);
+    });
+
+    it('should pass down parameterized query', function() {
+      query.call(postgres, { text: 'sql here', values: ['values'], rowMode: 'array'});
+      assert.equal(queryObj.text, 'sql here');
+      assert.deepEqual(queryObj.values, ['values']);
+      assert.equal(queryObj.rowMode, 'array');
+      assert(stubAddNew.calledOnce);
     });
   });
 });

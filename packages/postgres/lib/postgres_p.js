@@ -31,35 +31,39 @@ module.exports = function capturePostgres(pg) {
   return pg;
 };
 
-function resolveArguments(argsObj) {
-  var args = {};
-
-  if (argsObj && argsObj.length > 0) {
-    if (argsObj[0] instanceof Object) {
-      args.sql = argsObj[0].text;
-      args.values = argsObj[0].values;
-      args.callback = typeof argsObj[1] === 'function' ? argsObj[1] : (typeof argsObj[2] === 'function' ? argsObj[2] :  argsObj[0].callback);
+// From pg/lib/utils.js
+function pgNormalizeQueryConfig(config, values, callback) {
+  // can take in strings or config objects
+  var argsObj = typeof config === 'string' ? { text: config } : config;
+  if (values) {
+    if (typeof values === 'function') {
+      argsObj.callback = values;
     } else {
-      args.sql = argsObj[0];
-      args.values = typeof argsObj[1] !== 'function' ? argsObj[1] : null;
-      args.callback = typeof argsObj[1] === 'function' ? argsObj[1] : (typeof argsObj[2] === 'function' ? argsObj[2] : undefined);
+      argsObj.values = values;
     }
-
-    args.segment = (argsObj[argsObj.length-1] != null && argsObj[argsObj.length-1].constructor && (argsObj[argsObj.length-1].constructor.name === 'Segment' ||
-      argsObj[argsObj.length-1].constructor.name === 'Subsegment')) ? argsObj[argsObj.length-1] : null;
   }
-
-  return args;
+  if (callback) {
+    argsObj.callback = callback;
+  }
+  return argsObj;
 }
 
 function captureQuery() {
-  var args = resolveArguments(arguments);
-  var parent = AWSXRay.resolveSegment(args.segment);
+  var lastArg = arguments[arguments.length-1];
+  var parent = AWSXRay.resolveSegment(
+    (lastArg != null && lastArg.constructor &&
+      (lastArg.constructor.name === 'Segment' || lastArg.constructor.name === 'Subsegment'))
+      ? lastArg
+      : null
+  );
 
   if (!parent) {
     AWSXRay.getLogger().info('Failed to capture Postgres. Cannot resolve sub/segment.');
     return this.__query.apply(this, arguments);
   }
+
+
+  var args = pgNormalizeQueryConfig.apply(this, arguments) || {};
 
   var subsegment = parent.addNewSubsegment(this.database + '@' + this.host);
   subsegment.namespace = 'remote';
@@ -86,7 +90,7 @@ function captureQuery() {
     }
   }
 
-  var result = this.__query.call(this, args.sql, args.values, args.callback);
+  var result = this.__query.call(this, args);
 
   if (this._queryable && !this._ending) {
     var query;
