@@ -1,0 +1,58 @@
+name: Release X-Ray Node SDK to Github and NPM
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: The version to tag the release with, e.g., 1.2.0, 1.2.1-alpha.1
+        required: true
+
+jobs:
+  publish_xray_node_sdk:
+    name: Test and publish X-Ray Node SDK to NPM registry and Github
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v1
+        with:
+          node-version: '14.x'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Cache NPM modules
+        uses: actions/cache@v2
+        with:
+          path: |
+            node_modules
+            */*/node_modules
+          key: ubuntu-latest-${{ hashFiles('**/package.json') }}
+
+      - name: Execute tests with Lerna
+        run: |
+          npm install
+          npx lerna bootstrap --hoist
+          npx lerna run test
+
+      - name: Publish package to npm
+        run: npx lerna publish from-package --exact
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Intialize git user name and email
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: 'v${{ github.event.inputs.version }}'
+          release_name: 'Release v${{ github.event.inputs.version }}'
+          draft: false
+          prerelease: false
