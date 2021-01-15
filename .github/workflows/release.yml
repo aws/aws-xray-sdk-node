@@ -37,14 +37,9 @@ jobs:
           npx lerna run test
 
       - name: Publish package to npm
-        run: npx lerna publish from-package --exact
+        run: npx lerna publish from-package --yes --exact
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-
-      - name: Intialize git user name and email
-        run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
 
       - name: Create Release
         id: create_release
