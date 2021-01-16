@@ -28,7 +28,7 @@ jobs:
           path: |
             node_modules
             */*/node_modules
-          key: ubuntu-latest-${{ hashFiles('**/package.json') }}
+          key: ${{ runner.os }}-${{ hashFiles('**/package.json') }}
 
       - name: Execute tests with Lerna
         run: |
@@ -49,5 +49,5 @@ jobs:
         with:
           tag_name: 'aws-xray-sdk-node@${{ github.event.inputs.version }}'
           release_name: 'Release ${{ github.event.inputs.version }}'
-          draft: false
+          draft: true
           prerelease: false
