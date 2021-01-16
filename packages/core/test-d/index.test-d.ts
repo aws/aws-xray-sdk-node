@@ -98,8 +98,8 @@ expectType<boolean>(AWSXRay.utils.LambdaUtils.validTraceData());
 expectType<boolean>(AWSXRay.utils.LambdaUtils.populateTraceData(segment, 'moop'));
 expectType<{ [key: string]: string }>(AWSXRay.utils.processTraceData());
 expectType<{ [key: string]: string }>(AWSXRay.utils.processTraceData('Root=1-58ed6027-14afb2e09172c337713486c0;'));
-const urlWithoutQuery: Omit<url.UrlWithStringQuery, 'query'> = AWSXRay.utils.objectWithoutProperties(
-  url.parse('url'), ['query'],
+const urlWithoutQuery: Omit<url.URL, 'hash'> = AWSXRay.utils.objectWithoutProperties(
+  new url.URL('url'), ['hash'],
   true
 );
 expectError(urlWithoutQuery.query);

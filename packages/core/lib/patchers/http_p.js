@@ -71,7 +71,7 @@ function enableCapture(module, downstreamXRayEnabled, subsegmentCallback) {
     let arg0 = args[0];
     if (typeof args[1] === 'object') {
       hasUrl = true;
-      urlObj = typeof arg0 === 'string' ? url.parse(arg0) : arg0;
+      urlObj = typeof arg0 === 'string' ? new url.URL(arg0) : arg0;
       options = args[1],
       callback = args[2];
     } else {
@@ -85,21 +85,22 @@ function enableCapture(module, downstreamXRayEnabled, subsegmentCallback) {
       return baseFunc(...args);
     }
 
+    // Case of calling a string URL without options, e.g.: http.request('http://amazon.com', callback)
     if (typeof options === 'string') {
-      options = url.parse(options);
+      options = new url.URL(options);
     }
 
     if (!hasUrl) {
       urlObj = options;
     }
 
-    var parent = contextUtils.resolveSegment(contextUtils.resolveManualSegmentParams(options));
-    var hostname = options.hostname || options.host || urlObj.hostname || urlObj.host || 'Unknown host';
+    const parent = contextUtils.resolveSegment(contextUtils.resolveManualSegmentParams(options));
+    const hostname = options.hostname || options.host || urlObj.hostname || urlObj.host || 'Unknown host';
 
     if (!parent) {
-      var output = '[ host: ' + hostname;
+      let output = '[ host: ' + hostname;
       output = options.method ? (output + ', method: ' + options.method) : output;
-      output += ', path: ' + Utils.stripQueryStringFromPath(options.path || urlObj.path) + ' ]';
+      output += ', path: ' + (urlObj.pathname || Utils.stripQueryStringFromPath(options.path)) + ' ]';
 
       if (!contextUtils.isAutomaticMode()) {
         logger.getLogger().info('Options for request ' + output +
@@ -113,8 +114,8 @@ function enableCapture(module, downstreamXRayEnabled, subsegmentCallback) {
       return baseFunc(...args);
     }
 
-    var subsegment = parent.addNewSubsegment(hostname);
-    var root = parent.segment ? parent.segment : parent;
+    const subsegment = parent.addNewSubsegment(hostname);
+    const root = parent.segment ? parent.segment : parent;
     subsegment.namespace = 'remote';
 
     if (!options.headers)
@@ -123,7 +124,7 @@ function enableCapture(module, downstreamXRayEnabled, subsegmentCallback) {
     options.headers['X-Amzn-Trace-Id'] = 'Root=' + root.trace_id + ';Parent=' + subsegment.id +
       ';Sampled=' + (!root.notTraced ? '1' : '0');
 
-    var errorCapturer = function errorCapturer(e) {
+    const errorCapturer = function errorCapturer(e) {
       if (subsegmentCallback)
         subsegmentCallback(subsegment, this, null, e);
 
@@ -133,7 +134,7 @@ function enableCapture(module, downstreamXRayEnabled, subsegmentCallback) {
         }
         subsegment.close(e, true);
       } else {
-        var madeItToDownstream = (e.code !== 'ECONNREFUSED');
+        const madeItToDownstream = (e.code !== 'ECONNREFUSED');
 
         subsegment.addRemoteRequestData(this, null, madeItToDownstream && downstreamXRayEnabled);
         subsegment.close(e);
@@ -149,9 +150,9 @@ function enableCapture(module, downstreamXRayEnabled, subsegmentCallback) {
       }
     };
 
-    var optionsCopy = Utils.objectWithoutProperties(options, ['Segment'], true);
+    const optionsCopy = Utils.objectWithoutProperties(options, ['Segment'], true);
 
-    var req = baseFunc(...(hasUrl ? [arg0, optionsCopy] : [options]), function(res) {
+    let req = baseFunc(...(hasUrl ? [arg0, optionsCopy] : [options]), function(res) {
       res.on('end', function() {
         if (subsegmentCallback)
           subsegmentCallback(subsegment, this.req, res);
@@ -159,7 +160,7 @@ function enableCapture(module, downstreamXRayEnabled, subsegmentCallback) {
         if (res.statusCode === 429)
           subsegment.addThrottleFlag();
 
-        var cause = Utils.getCauseTypeFromHttpStatus(res.statusCode);
+        const cause = Utils.getCauseTypeFromHttpStatus(res.statusCode);
 
         if (cause)
           subsegment[cause] = true;
@@ -170,7 +171,7 @@ function enableCapture(module, downstreamXRayEnabled, subsegmentCallback) {
 
       if (typeof callback === 'function') {
         if (contextUtils.isAutomaticMode()) {
-          var session = contextUtils.getNamespace();
+          const session = contextUtils.getNamespace();
 
           session.run(function() {
             contextUtils.setSegment(subsegment);

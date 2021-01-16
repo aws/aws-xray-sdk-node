@@ -37,7 +37,7 @@ var utils = {
    */
 
   stripQueryStringFromPath: function stripQueryStringFromPath(path) {
-    return path.split('?')[0];
+    return path ? path.split('?')[0] : '';
   },
 
   /**
