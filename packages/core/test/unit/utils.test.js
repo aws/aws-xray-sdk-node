@@ -20,12 +20,20 @@ describe('Utils', function() {
   });
 
   describe('#stripQueryStringFromPath', function() {
+    it('should do nothing for pathnames without query string', function() {
+      assert.equal(Utils.stripQueryStringFromPath('/index.html'), '/index.html');
+    });
+
     it('should remove query string for simple path', function() {
       assert.equal(Utils.stripQueryStringFromPath('/index.html?page=12'), '/index.html');
     });
 
     it('should remove query string for complex path', function() {
       assert.equal(Utils.stripQueryStringFromPath('/really/long/path/to/content.html?page=12'), '/really/long/path/to/content.html');
+    });
+
+    it('should return empty string on falsy inputs', function() {
+      assert.equal(Utils.stripQueryStringFromPath(undefined), '');
     });
   });
 
