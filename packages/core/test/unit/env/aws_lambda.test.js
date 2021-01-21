@@ -13,6 +13,7 @@ var Segment = require('../../../lib/segments/segment');
 var SegmentUtils = require('../../../lib/segments/segment_utils');
 var SegmentEmitter = require('../../../lib/segment_emitter');
 const TraceID = require('../../../lib/segments/attributes/trace_id');
+const { captureAsyncFunc } = require('../../../lib');
 
 describe('AWSLambda', function() {
   var sandbox;
@@ -41,7 +42,7 @@ describe('AWSLambda', function() {
   });
 
   describe('#init', function() {
-    var disableReusableSocketStub, populateStub, sandbox, setSegmentStub, validateStub;
+    let disableReusableSocketStub, populateStub, sandbox, setSegmentStub, validateStub, disableCentralizedSamplingStub;
 
     beforeEach(function() {
       sandbox = sinon.createSandbox();
@@ -79,6 +80,19 @@ describe('AWSLambda', function() {
       var facade = setSegmentStub.args[0][0];
       assert.equal(facade.name, 'facade');
       assert.equal(facade.trace_id, TraceID.Invalid().toString());
+    });
+
+    describe('subsegment exceptions are added by method', function () {
+
+      it('can wrap a subsegment', function () {
+        const error = new Error('some error');
+        Lambda.init();
+        var facade = setSegmentStub.args[0][0];
+        const subSegment = facade.addNewSubsegment('subsegment');
+        subSegment.addError(error);
+        const asString = JSON.stringify(error);
+        assert.isDefined(asString);
+      });
     });
 
     describe('the facade segment', function() {

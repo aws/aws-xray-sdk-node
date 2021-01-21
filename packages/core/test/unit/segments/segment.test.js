@@ -336,13 +336,11 @@ describe('Segment', function() {
       addErrorStub.should.have.not.been.called;
     });
 
-    it('should delete properties "in_progress" and "exception"', function() {
+    it('should delete properties "in_progress"', function() {
       segment.in_progress = true;
-      segment.exception = err;
       segment.close();
 
       assert.notProperty(segment, 'in_progress');
-      assert.notProperty(segment, 'exception');
     });
 
     it('should flush the segment on close', function() {
@@ -406,12 +404,11 @@ describe('Segment', function() {
   });
 
   describe('#flush', function() {
-    var err, sandbox, segment;
+    var sandbox, segment;
 
     beforeEach(function() {
       sandbox = sinon.createSandbox();
       segment = new Segment('test');
-      err = new Error('Test error');
     });
 
     afterEach(function() {
@@ -420,18 +417,16 @@ describe('Segment', function() {
     });
 
     describe('if traced', function() {
-      it('should remove properties "notTraced", "counter" and "exception"', function() {
+      it('should remove properties "notTraced", and "counter"', function() {
         var sendStub = sandbox.stub(SegmentEmitter, 'send');
         segment.notTraced = false;
         segment.in_progress = true;
-        segment.exception = err;
         segment.counter = 1;
 
         segment.flush();
 
         sendStub.should.have.been.calledOnce;
         var sentSegment = sendStub.lastCall.args[0];
-        assert.notProperty(sentSegment, 'exception');
         assert.notProperty(sentSegment, 'counter');
         assert.notProperty(sentSegment, 'notTraced');
       });
