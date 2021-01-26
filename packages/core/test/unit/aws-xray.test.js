@@ -44,7 +44,17 @@ describe('AWSXRay', function() {
 
       assert.property(setSDKDataStub.firstCall.args[0], 'sdk');
       assert.property(setSDKDataStub.firstCall.args[0], 'sdk_version');
+      assert.notStrictEqual(
+        setSDKDataStub.firstCall.args[0].sdk_version,
+        'unknown',
+        'Expected sdk_version to not be unknown'
+      );
       assert.property(setSDKDataStub.firstCall.args[0], 'package');
+      assert.notStrictEqual(
+        setSDKDataStub.firstCall.args[0].package,
+        'unknown',
+        'Expected package to not be unknown'
+      );
 
       assert.property(setServiceDataStub.firstCall.args[0], 'runtime');
       assert.property(setServiceDataStub.firstCall.args[0], 'runtime_version');
