@@ -7,31 +7,37 @@ const contextUtils = require('../../../lib/context_utils');
 const origThen = Promise.prototype.then;
 const origCatch = Promise.prototype.catch;
 
-const sandbox = sinon.createSandbox();
-const getNamespaceStub = sandbox.stub(contextUtils, 'getNamespace');
-const isAutomaticModeStub = sandbox.stub(contextUtils, 'isAutomaticMode');
-const getSegmentStub = sandbox.stub(contextUtils, 'getSegment');
-const bindStub = sandbox.stub();
+let getNamespaceStub;
+let isAutomaticModeStub;
+let getSegmentStub;
+let bindStub;
 
 beforeEach(() => {
+  sinon.restore();
+  getNamespaceStub = sinon.stub(contextUtils, 'getNamespace');
+  isAutomaticModeStub = sinon.stub(contextUtils, 'isAutomaticMode');
+  getSegmentStub = sinon.stub(contextUtils, 'getSegment');
+  bindStub = sinon.stub();
   bindStub.returnsArg(0);
   getNamespaceStub.returns({
     bind: bindStub
   });
 });
 
-afterEach(() => {
-  sandbox.reset();
+beforeEach(() => {
+  sinon.restore();
   Promise.prototype.then = origThen;
   Promise.prototype.catch = origCatch;
 });
 
 after(() => {
-  sandbox.restore();
+  sinon.restore();
+  Promise.prototype.then = origThen;
+  Promise.prototype.catch = origCatch;
 });
 
-function verifyBindings (shouldCapture, onFulfilled, onRejected) {
-  if (shouldCapture) {
+function verifyBindings (segment, isAutomaticMode, onFulfilled, onRejected) {
+  if (segment && isAutomaticMode) {
     if (onFulfilled) {
       sinon.assert.calledWith(bindStub, onFulfilled);
     }
@@ -43,33 +49,33 @@ function verifyBindings (shouldCapture, onFulfilled, onRejected) {
   }
 }
 
-function testThenOnFulfilled(shouldCapture) {
+function testThenOnFulfilled(segment, isAutomaticMode) {
   const onFulfilled = result => {
     expect(result).to.equal('resolved');
-    verifyBindings(shouldCapture, onFulfilled);
+    verifyBindings(segment, isAutomaticMode, onFulfilled);
   };
   return new Promise((resolve) => {
     setTimeout(() => resolve('resolved'), 200);
   }).then(onFulfilled);
 }
 
-function testThenOnRejected(shouldCapture, hasOnFulfilled = true) {
+function testThenOnRejected(segment, isAutomaticMode, hasOnFulfilled = true) {
   const onFulfilled = hasOnFulfilled ? () => {
     throw new Error('Not rejected');
   } : undefined;
 
   const onRejected = error => {
     expect(error.message).to.equal('rejected');
-    verifyBindings(shouldCapture, onFulfilled, onRejected);
+    verifyBindings(segment, isAutomaticMode, onFulfilled, onRejected);
   };
   return new Promise((_, reject) => {
     setTimeout(() => reject(new Error('rejected')), 200);
   }).then(onFulfilled, onRejected);
 }
 
-function testCatch(shouldCapture) {
+function testCatch(segment, isAutomaticMode) {
   const onRejected = error => {
-    verifyBindings(shouldCapture, undefined, onRejected);
+    verifyBindings(segment, isAutomaticMode, undefined, onRejected);
     expect(error.message, 'rejected');
   };
   return new Promise((_, reject) => {
@@ -77,19 +83,19 @@ function testCatch(shouldCapture) {
   }).catch(onRejected);
 }
 
-function createTests(shouldCapture) {
+function createTests(segment, isAutomaticMode) {
   it('Promise.prototype.then', async () => {
     capturePromise();
     expect(Promise.prototype.then).not.to.equal(origThen);
-    await testThenOnFulfilled(shouldCapture);
-    await testThenOnRejected(shouldCapture);
-    await testThenOnRejected(shouldCapture, false);
+    await testThenOnFulfilled(segment, isAutomaticMode);
+    await testThenOnRejected(segment, isAutomaticMode);
+    await testThenOnRejected(segment, isAutomaticMode, false);
   });
 
   it('Promise.prototype.catch', async () => {
     capturePromise();
     expect(Promise.prototype.catch).not.to.equal(origCatch);
-    await testCatch(shouldCapture);
+    await testCatch(segment, isAutomaticMode);
   });
 }
 
