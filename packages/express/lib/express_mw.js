@@ -13,7 +13,7 @@ const mwUtils = AWSXRay.middleware;
  * Otherwise, for manual mode, this appends the Segment object to the request object as req.segment.
  * @module express_mw
  */
-var expressMW = {
+const expressMW = {
 
   /**
    * Use 'app.use(AWSXRayExpress.openSegment('defaultName'))' before defining your routes.
@@ -23,28 +23,27 @@ var expressMW = {
    * @alias module:express_mw.openSegment
    * @returns {function}
    */
-  openSegment: function openSegment(defaultName) {
+  openSegment: (defaultName) => {
     if (!defaultName || typeof defaultName !== 'string')
       throw new Error('Default segment name was not supplied.  Please provide a string.');
 
     mwUtils.setDefaultName(defaultName);
 
-    return function (req, res, next) {
-      var segment = mwUtils.traceRequestResponseCycle(req, res);
+    return (req, res, next) => {
+      const segment = mwUtils.traceRequestResponseCycle(req, res);
 
       if (AWSXRay.isAutomaticMode()) {
-        var ns = AWSXRay.getNamespace();
+        const ns = AWSXRay.getNamespace();
         ns.bindEmitter(req);
         ns.bindEmitter(res);
 
-        ns.run(function () {
+        ns.run(() => {
           AWSXRay.setSegment(segment);
-
-          if (next) { next(); }
+          if (next) next();
         });
       } else {
         req.segment = segment;
-        if (next) { next(); }
+        if (next) next();
       }
     };
   },
@@ -55,17 +54,16 @@ var expressMW = {
    * @alias module:express_mw.closeSegment
    * @returns {function}
    */
-  closeSegment: function closeSegment() {
-    return function close(err, req, res, next) {
-      var segment = AWSXRay.resolveSegment(req.segment);
+  closeSegment: () => {
+    return (err, req, res, next) => {
+      const segment = AWSXRay.resolveSegment(req.segment);
 
       if (segment && err) {
         segment.addError(err);
         logger.getLogger().debug('Added Express server fault to segment');
       }
 
-      if (next)
-        next(err);
+      if (next) next(err);
     };
   }
 };
