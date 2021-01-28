@@ -23,13 +23,13 @@ var expressMW = {
    * @alias module:express_mw.openSegment
    * @returns {function}
    */
-  openSegment: function openSegment(defaultName) {
+  openSegment: (defaultName) => {
     if (!defaultName || typeof defaultName !== 'string')
       throw new Error('Default segment name was not supplied.  Please provide a string.');
 
     mwUtils.setDefaultName(defaultName);
 
-    return function (req, res, next) {
+    return (req, res, next) => {
       var segment = mwUtils.traceRequestResponseCycle(req, res);
 
       if (AWSXRay.isAutomaticMode()) {
@@ -37,7 +37,7 @@ var expressMW = {
         ns.bindEmitter(req);
         ns.bindEmitter(res);
 
-        ns.run(function () {
+        ns.run(() => {
           AWSXRay.setSegment(segment);
 
           if (next) { next(); }
@@ -55,8 +55,8 @@ var expressMW = {
    * @alias module:express_mw.closeSegment
    * @returns {function}
    */
-  closeSegment: function closeSegment() {
-    return function close(err, req, res, next) {
+  closeSegment: () => {
+    return (err, req, res, next) => {
       var segment = AWSXRay.resolveSegment(req.segment);
 
       if (segment && err) {
