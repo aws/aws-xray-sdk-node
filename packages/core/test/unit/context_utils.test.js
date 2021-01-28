@@ -24,6 +24,7 @@ describe('ContextUtils', function() {
 
     beforeEach(function() {
       sandbox = sinon.createSandbox();
+      sinon.restore();
     });
 
     afterEach(function() {

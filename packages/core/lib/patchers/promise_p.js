@@ -7,15 +7,15 @@
  * so all subsegments generated within Promise are attached to the correct parent.
  */
 
-var contextUtils = require('../context_utils');
+const contextUtils = require('../context_utils');
 
 function patchPromise(Promise) {
-  var then = Promise.prototype.then;
+  const then = Promise.prototype.then;
   Promise.prototype.then = function(onFulfilled, onRejected) {
     if (contextUtils.isAutomaticMode()
       && tryGetCurrentSegment()
     ) {
-      var ns = contextUtils.getNamespace();
+      const ns = contextUtils.getNamespace();
 
       onFulfilled = onFulfilled && ns.bind(onFulfilled);
       onRejected = onRejected && ns.bind(onRejected);
@@ -23,14 +23,29 @@ function patchPromise(Promise) {
 
     return then.call(this, onFulfilled, onRejected);
   };
+
+  const origCatch = Promise.prototype.catch;
+  if (origCatch) {
+    Promise.prototype.catch = function (onRejected) {
+      if (contextUtils.isAutomaticMode()
+        && tryGetCurrentSegment()
+      ) {
+        const ns = contextUtils.getNamespace();
+
+        onRejected = onRejected && ns.bind(onRejected);
+      }
+
+      return origCatch.call(this, onRejected);
+    };
+  }
 }
 
 function tryGetCurrentSegment() {
-  var segment = null;
   try {
-    segment = contextUtils.getSegment();
-  } catch(e) { /**/ }
-  return segment;
+    return contextUtils.getSegment();
+  } catch(e) {
+    return undefined;
+  }
 }
 
 function capturePromise() {
