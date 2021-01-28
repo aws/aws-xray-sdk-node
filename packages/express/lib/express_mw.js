@@ -13,7 +13,7 @@ const mwUtils = AWSXRay.middleware;
  * Otherwise, for manual mode, this appends the Segment object to the request object as req.segment.
  * @module express_mw
  */
-var expressMW = {
+const expressMW = {
 
   /**
    * Use 'app.use(AWSXRayExpress.openSegment('defaultName'))' before defining your routes.
@@ -30,10 +30,10 @@ var expressMW = {
     mwUtils.setDefaultName(defaultName);
 
     return (req, res, next) => {
-      var segment = mwUtils.traceRequestResponseCycle(req, res);
+      const segment = mwUtils.traceRequestResponseCycle(req, res);
 
       if (AWSXRay.isAutomaticMode()) {
-        var ns = AWSXRay.getNamespace();
+        const ns = AWSXRay.getNamespace();
         ns.bindEmitter(req);
         ns.bindEmitter(res);
 
@@ -57,7 +57,7 @@ var expressMW = {
    */
   closeSegment: () => {
     return (err, req, res, next) => {
-      var segment = AWSXRay.resolveSegment(req.segment);
+      const segment = AWSXRay.resolveSegment(req.segment);
 
       if (segment && err) {
         segment.addError(err);
