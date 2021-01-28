@@ -39,12 +39,11 @@ const expressMW = {
 
         ns.run(() => {
           AWSXRay.setSegment(segment);
-
-          if (next) { next(); }
+          if (next) next();
         });
       } else {
         req.segment = segment;
-        if (next) { next(); }
+        if (next) next();
       }
     };
   },
@@ -64,8 +63,7 @@ const expressMW = {
         logger.getLogger().debug('Added Express server fault to segment');
       }
 
-      if (next)
-        next(err);
+      if (next) next(err);
     };
   }
 };
