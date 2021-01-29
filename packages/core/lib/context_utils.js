@@ -2,7 +2,7 @@
  * @module context_utils
  */
 
-var cls = require('cls-hooked');
+var cls = require('cls-hooked/context');
 
 var logger = require('./logger');
 var Segment = require('./segments/segment');

@@ -4,14 +4,22 @@ AWSXRay.express = require('aws-xray-sdk-express');
 AWSXRay.captureMySQL = require('aws-xray-sdk-mysql');
 AWSXRay.capturePostgres = require('aws-xray-sdk-postgres');
 
+// Import Data from package.json,
+// If the importing of package.json fails leave
+// pkginfo as an empty object
+var pkginfo = {}
+try {
+  pkginfo = require('../package.json');
+} catch (err) {
+  AWSXRay.getLogger().debug('Failed to load SDK data:', err);
+}
+
 var UNKNOWN = 'unknown';
-var pkginfo = module.filename ? require('pkginfo') : function() {};
-pkginfo(module);
 
 (function () {
   var sdkData = AWSXRay.SegmentUtils.sdkData || { sdk: 'X-Ray for Node.js' };
-  sdkData.sdk_version = (module.exports && module.exports.version) ? module.exports.version : UNKNOWN;
-  sdkData.package = (module.exports && module.exports.name) ? module.exports.name : UNKNOWN;
+  sdkData.sdk_version = pkginfo.version ? pkginfo.version : UNKNOWN;
+  sdkData.package = pkginfo.name ? pkginfo.name : UNKNOWN;
   AWSXRay.SegmentUtils.setSDKData(sdkData);
 })();
 

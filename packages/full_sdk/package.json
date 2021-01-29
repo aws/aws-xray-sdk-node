@@ -16,8 +16,7 @@
     "aws-xray-sdk-core": "file:../core",
     "aws-xray-sdk-express": "file:../express",
     "aws-xray-sdk-mysql": "file:../mysql",
-    "aws-xray-sdk-postgres": "file:../postgres",
-    "pkginfo": "^0.4.0"
+    "aws-xray-sdk-postgres": "file:../postgres"
   },
   "scripts": {
     "test": "tsd",

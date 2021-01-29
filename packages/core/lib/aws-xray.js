@@ -4,10 +4,17 @@ var segmentUtils = require('./segments/segment_utils');
 var utils = require('./utils');
 var LambdaEnv = require('./env/aws_lambda');
 
-var UNKNOWN = 'unknown';
+// Import Data from package.json,
+// If the importing of package.json fails leave
+// pkginfo as an empty object
+var pkginfo = {}
+try {
+  pkginfo = require('../package.json');
+} catch (err) {
+  logging.getLogger().debug('Failed to load SDK data:', err);
+}
 
-var pkginfo = module.filename ? require('pkginfo') : function() {};
-pkginfo(module);
+var UNKNOWN = 'unknown';
 
 /**
  * A module representing the AWSXRay SDK.
@@ -351,8 +358,8 @@ AWSXRay.middleware.IncomingRequestData = require('./middleware/incoming_request_
 
   var sdkData = {
     sdk: 'X-Ray for Node.js',
-    sdk_version: (module.exports && module.exports.version) ? module.exports.version : UNKNOWN,
-    package: (module.exports && module.exports.name) ? module.exports.name : UNKNOWN,
+    sdk_version: pkginfo.version ? pkginfo.version : UNKNOWN,
+    package: pkginfo.name ? pkginfo.name : UNKNOWN,
   };
 
   segmentUtils.setSDKData(sdkData);
