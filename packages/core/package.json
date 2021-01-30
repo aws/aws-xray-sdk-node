@@ -15,8 +15,9 @@
   "directories": {
     "test": "test"
   },
+  "//": "@types/cls-hooked is exposed in API so must be in dependencies, not devDependencies",
   "dependencies": {
-    "@types/cls-hooked": "*",
+    "@types/cls-hooked": "^4.2.2",
     "atomic-batcher": "^1.0.2",
     "cls-hooked": "^4.2.2",
     "semver": "^5.3.0"
