@@ -173,20 +173,20 @@ A `*` represents any number of characters, while `?` represents a single charact
       "version": 2
     }
 
-### AWS SDK whitelist configuration
+### AWS SDK allow-list configuration
 
 The AWS X-Ray SDK automatically captures data from AWS SDK calls, including service,
 operation, start time, end time, and any errors returned.
-However, some service operations are whitelisted to capture extra parameters on the request and response.
-These are pulled in via a default whitelisting file in the SDK in the `aws-xray-sdk-core` package under `lib/resources/aws_whitelist.json`.
-Each service is whitelisted by the AWS SDK's `service identifier` and `operation` properties.
+However, some service operations are allow-listed to capture extra parameters on the request and response.
+These are pulled in via a default allow-listing file in the SDK in the `aws-xray-sdk-core` package under `lib/resources/aws_whitelist.json`.
+Each service is allow-listed by the AWS SDK's `service identifier` and `operation` properties.
 
     request_parameters are properties to capture in the request
     request_descriptors are objects to capture, or to process and capture in the request (get_keys, get_count)
     response_parameters are properties to capture in the response data
     response_descriptors are objects to capture, or to process and capture in the response data (get_keys, get_count)
 
-This is an example document that whitelists X-Ray to capture the `Bucket` and `key` request parameters on an s3.getObject call.
+This is an example document that allow-lists X-Ray to capture the `Bucket` and `key` request parameters on an s3.getObject call.
 
     {
       "services": {
@@ -203,12 +203,12 @@ This is an example document that whitelists X-Ray to capture the `Bucket` and `k
       }
     }
 
-You can set a custom AWS whitelist using the following:
+You can set a custom AWS allow-list using the following:
 
-    AWSXRay.setAWSWhitelist(<path to file>);     //Replaces the default whitelist with the given custom one
+    AWSXRay.setAWSWhitelist(<path to file>);     //Replaces the default allow-list with the given custom one
     AWSXRay.setAWSWhitelist(<JSON object>);
 
-    AWSXRay.appendAWSWhitelist(<path to file>);  //Appends to the current whitelist
+    AWSXRay.appendAWSWhitelist(<path to file>);  //Appends to the current allow-list
     AWSXRay.appendAWSWhitelist(<JSON object>);
 
 ### Dynamic and fixed naming modes
