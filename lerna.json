@@ -6,12 +6,9 @@
     "sdk_contrib/*"
   ],
   "version": "independent",
-  "npmClientArgs": [
-    "--no-package-lock"
-  ],
   "command": {
   	"publish": {
-  		"allowBranch": ["master", "2.x"]
+  		"allowBranch": ["master", "2.x", "package-lock"]
   	}
   }
 }
