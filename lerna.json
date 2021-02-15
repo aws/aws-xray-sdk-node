@@ -8,7 +8,7 @@
   "version": "independent",
   "command": {
   	"publish": {
-  		"allowBranch": ["master", "2.x", "package-lock"]
+  		"allowBranch": ["master", "2.x"]
   	}
   }
 }
