@@ -32,7 +32,6 @@ jobs:
 
       - name: Execute tests with Lerna
         run: |
-          npm install
           npx lerna bootstrap --hoist
           npx lerna run test
 
