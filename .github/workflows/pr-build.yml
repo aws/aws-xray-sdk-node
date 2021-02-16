@@ -35,7 +35,7 @@ jobs:
         uses: actions/cache@v2
         with:
           path: $HOME/.npm
-          key: ${{ matrix.os }}-${{ hashFiles('**/package.json') }}
+          key: ${{ matrix.os }}-${{ hashFiles('package-lock.json') }}
 
       - name: Execute tests with Lerna
         run: |

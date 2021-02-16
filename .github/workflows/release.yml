@@ -25,10 +25,8 @@ jobs:
       - name: Cache NPM modules
         uses: actions/cache@v2
         with:
-          path: |
-            node_modules
-            */*/node_modules
-          key: ${{ runner.os }}-${{ hashFiles('**/package.json') }}
+          path: $HOME/.npm
+          key: ${{ matrix.os }}-${{ hashFiles('package-lock.json') }}
 
       - name: Execute tests with Lerna
         run: |
