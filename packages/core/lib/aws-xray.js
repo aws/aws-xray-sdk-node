@@ -182,7 +182,7 @@ var AWSXRay = {
 
   /**
    * @param {AWSv3.Service} service - An instance of a AWS SDK v3 service to wrap.
-   * @param {Segment=} segment - Optional segment for manual mode.
+   * @param {Segment|Subsegment} segment - Optional segment for manual mode.
    * @memberof AWSXRay
    * @function
    * @see module:aws3_p.captureAWSClient
