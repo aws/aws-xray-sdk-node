@@ -1,7 +1,6 @@
 import type {
   MetadataBearer,
   ResponseMetadata,
-  Command,
   Client,
 } from '@aws-sdk/types';
 
@@ -63,7 +62,7 @@ function addFlags(http: HttpResponse, subsegment: Subsegment, err?: SdkError): v
     subsegment.addThrottleFlag();
   }
 
-  const cause = getCauseTypeFromHttpStatus(http.response.status);
+  const cause = getCauseTypeFromHttpStatus(http.response?.status);
   if (cause === 'fault') {
     subsegment.addFaultFlag();
   } else if (cause === 'error') {
@@ -125,20 +124,19 @@ export function captureAWSClient<
       subsegment.close();
       return res;
     } catch (err) {
-      const stack = new Error().stack;
+      if (err.$metadata) {
+        const [aws, http] = await buildAttributesFromMetadata(
+          client,
+          command,
+          err.$metadata,
+        );
 
-      const [aws, http] = await buildAttributesFromMetadata(
-        client,
-        command,
-        err.$metadata,
-      );
+        subsegment.addAttribute('aws', aws);
+        subsegment.addAttribute('http', http);
+        addFlags(http, subsegment, err);
+      }
 
-      subsegment.addAttribute('aws', aws);
-      subsegment.addAttribute('http', http);
-
-      const errObj = { message: err.message, name: err.name, stack };
-
-      addFlags(http, subsegment, err);
+      const errObj = { message: err.message, name: err.name, stack: err.stack || new Error().stack };
 
       subsegment.close(errObj, true);
       throw err;

@@ -643,6 +643,9 @@ function sendRequest(host, cb, subsegment) {
 
 AWS SDK v3
 
+You must re-capture the client every time the subsegment is attached
+to a new parent.
+
 ```js
 import { S3, PutObjectCommand } from '@aws-sdk/client-s3';
 
