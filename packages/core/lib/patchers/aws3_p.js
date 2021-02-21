@@ -13,7 +13,7 @@ var logger = require('../logger');
 const utils_1 = require("../utils");
 async function buildAttributesFromMetadata(client, command, metadata) {
     const { extendedRequestId, requestId, httpStatusCode: statusCode, attempts } = metadata;
-    const serviceIdentifier = client.config.signingName;
+    const serviceIdentifier = client.config.serviceId;
     let operation = command.constructor.name.slice(0, -7);
     const aws = new aws_1.default({
         extendedRequestId,
@@ -32,14 +32,14 @@ async function buildAttributesFromMetadata(client, command, metadata) {
     return [aws, http];
 }
 function addFlags(http, subsegment, err) {
-    var _a;
+    var _a, _b;
     if (err && service_error_classification_1.isThrottlingError(err)) {
         subsegment.addThrottleFlag();
     }
     else if (((_a = http.response) === null || _a === void 0 ? void 0 : _a.status) === 429) {
         subsegment.addThrottleFlag();
     }
-    const cause = utils_1.getCauseTypeFromHttpStatus(http.response.status);
+    const cause = utils_1.getCauseTypeFromHttpStatus((_b = http.response) === null || _b === void 0 ? void 0 : _b.status);
     if (cause === 'fault') {
         subsegment.addFaultFlag();
     }
@@ -50,7 +50,7 @@ function addFlags(http, subsegment, err) {
 function captureAWSClient(client, manualSegment) {
     // create local copy so that we can later call it
     const send = client.send;
-    const serviceIdentifier = client.config.signingName;
+    const serviceIdentifier = client.config.serviceId;
     client.send = async (...args) => {
         const [command] = args;
         const segment = manualSegment || contextUtils.resolveSegment();
@@ -81,12 +81,13 @@ function captureAWSClient(client, manualSegment) {
             return res;
         }
         catch (err) {
-            const stack = new Error().stack;
-            const [aws, http] = await buildAttributesFromMetadata(client, command, err.$metadata);
-            subsegment.addAttribute('aws', aws);
-            subsegment.addAttribute('http', http);
-            const errObj = { message: err.message, name: err.name, stack };
-            addFlags(http, subsegment, err);
+            if (err.$metadata) {
+                const [aws, http] = await buildAttributesFromMetadata(client, command, err.$metadata);
+                subsegment.addAttribute('aws', aws);
+                subsegment.addAttribute('http', http);
+                addFlags(http, subsegment, err);
+            }
+            const errObj = { message: err.message, name: err.name, stack: err.stack || new Error().stack };
             subsegment.close(errObj, true);
             throw err;
         }
