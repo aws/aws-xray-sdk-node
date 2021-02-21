@@ -30,7 +30,7 @@ async function buildAttributesFromMetadata(
   metadata: ResponseMetadata,
 ): Promise<[ServiceSegment, HttpResponse]> {
   const { extendedRequestId, requestId, httpStatusCode: statusCode, attempts } = metadata;
-  const serviceIdentifier = client.config.signingName as string;
+  const serviceIdentifier = client.config.serviceId as string;
 
   let operation: string = command.constructor.name.slice(0, -7);
 
@@ -71,7 +71,7 @@ function addFlags(http: HttpResponse, subsegment: Subsegment, err?: SdkError): v
 }
 
 type DefaultConfiguration = RegionInputConfig & {
-  signingName: string;
+  serviceId: string;
 };
 
 export function captureAWSClient<
@@ -82,7 +82,7 @@ export function captureAWSClient<
   // create local copy so that we can later call it
   const send = client.send;
 
-  const serviceIdentifier = client.config.signingName;
+  const serviceIdentifier = client.config.serviceId;
 
   client.send = async (...args: Parameters<typeof client.send>): Promise<Output> => {
     const [command] = args;
