@@ -21,6 +21,10 @@ jobs:
           - 12.x
           - 14.x
           - 15.x
+        include:
+          - os: ubuntu-latest
+            node-version: 14.x
+            coverage: true
     steps:
       - name: Checkout AWS XRay SDK Node Repository @ default branch latest
         uses: actions/checkout@v2
@@ -36,6 +40,7 @@ jobs:
             */*/node_modules
           key: ${{ matrix.os }}-${{ hashFiles('**/package.json') }}
       - name: Execute tests with Lerna
+        if: '!matrix.coverage'
         run: |
           npm install
           npx lerna bootstrap --hoist
@@ -44,10 +49,14 @@ jobs:
         env:
           CI: true
 
-      # Only need to report coverage once, so only run on Ubuntu on latest stable Node
+      # Only need to report coverage once, so only run instrumented tests on one Node version/OS
       # Use lerna to get reports from all packages
       - name: Report coverage
-        if: matrix.os == 'ubuntu-latest' && matrix.node-version == '14.x'
-        run: npx lerna run coverage
+        if: matrix.coverage
+        run: |
+          npx lerna bootstrap --hoist
+          npx lerna run testcov
+          npx lerna run coverage
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+          CI: true

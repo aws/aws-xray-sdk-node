@@ -26,7 +26,8 @@
     "test": "mocha --recursive ./test/ -R spec && tsd && mocha --recursive ./test_async/ -R spec",
     "test-d": "tsd",
     "test-async": "mocha --recursive ./test_async/ -R spec",
-    "coverage": "nyc report --reporter=text-lcov > coverage.lcov && codecov"
+    "testcov": "nyc npm run test",
+    "reportcov": "nyc report --reporter=text-lcov > coverage.lcov && codecov"
   },
   "keywords": [
     "amazon",

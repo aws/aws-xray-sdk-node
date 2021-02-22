@@ -3,7 +3,10 @@
   "exclude": [
     "**/Gruntfile.js", 
     "**/.prettierrc.js",
+    "**/*.d.ts",
     "**/sample/**",
-    "**/test-d/**"
+    "**/test/**",
+    "**/test-d/**",
+    "**/test_async/**"
   ]
 }
