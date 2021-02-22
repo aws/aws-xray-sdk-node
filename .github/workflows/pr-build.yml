@@ -44,6 +44,8 @@ jobs:
         env:
           CI: true
 
+      # Only need to report coverage once, so only run on Ubuntu on latest stable Node
+      # Use lerna to get reports from all packages
       - name: Report coverage
         if: matrix.os == 'ubuntu-latest' && matrix.node-version == '14.x'
         run: npx lerna run coverage
