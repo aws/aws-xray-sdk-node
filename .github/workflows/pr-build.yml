@@ -43,3 +43,9 @@ jobs:
         shell: bash
         env:
           CI: true
+
+      - name: Report coverage
+        if: matrix.os == 'ubuntu-lastest' && matrix.node-version == '14.x'
+        run: npx lerna run coverage
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
