@@ -56,7 +56,7 @@ jobs:
         run: |
           npx lerna bootstrap --hoist
           npx lerna run testcov
-          npx lerna run coverage
+          npx lerna run reportcov
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
           CI: true
