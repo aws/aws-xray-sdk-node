@@ -170,6 +170,25 @@ describe('captureMySQL', function() {
 
         assert.equal(stubBaseQuery.args[0][2].name, 'autoContext');
       });
+
+      it('should capture arguments correctly when using mysql2 argument order', function (done) {
+        var stubClose = sandbox.stub(subsegment, 'close');
+        var session = { run: function (fcn) { fcn(); } };
+        var stubRun = sandbox.stub(session, 'run');
+        var typeCast = sinon.stub();
+
+        sandbox.stub(AWSXRay, 'getNamespace').returns(session);
+        query.call(connectionObj, { sql: 'sql with values binding = ?', timeout: 234, typeCast, nestTables: true },['binding value'], function () { });
+
+        stubBaseQuery.should.have.been.calledWith({ sql: 'sql with values binding = ?', timeout: 234, typeCast, nestTables: true }, ['binding value'], sinon.match.func);
+        stubBaseQuery.args[0][2].call(queryObj);
+
+        setTimeout(function () {
+          stubClose.should.always.have.been.calledWith();
+          stubRun.should.have.been.calledOnce;
+          done();
+        }, 50);
+      });
     });
   });
 
