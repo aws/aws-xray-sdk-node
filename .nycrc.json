@@ -1,0 +1,12 @@
+{
+  "all": true,
+  "exclude": [
+    "**/Gruntfile.js", 
+    "**/.prettierrc.js",
+    "**/*.d.ts",
+    "**/sample/**",
+    "**/test/**",
+    "**/test-d/**",
+    "**/test_async/**"
+  ]
+}

@@ -142,8 +142,20 @@ function resolveArguments(argsObj) {
   if (argsObj && argsObj.length > 0) {
     if (argsObj[0] instanceof Object) {
       args.sql = argsObj[0];
-      args.values = argsObj[0].values;
-      args.callback = argsObj[1];
+      
+      // Patch for mysql2
+      if (argsObj[0].values) {
+        args.values = argsObj[0].values; // mysql implementation
+      } else if(typeof argsObj[2] === 'function'){
+        args.values = typeof argsObj[1] !== 'function' ? argsObj[1] : null; // mysql2 implementation
+      }
+      args.callback = typeof argsObj[1] === 'function'
+        ? argsObj[1] 
+        : (
+          typeof argsObj[2] === 'function'
+            ? argsObj[2] 
+            : undefined
+          );
       if (!argsObj[1] && argsObj[0].on instanceof Function) args.sql = argsObj[0];
     } else {
       args.sql = argsObj[0];
