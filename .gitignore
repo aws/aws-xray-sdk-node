@@ -3,3 +3,5 @@ node_modules
 docs
 package-lock.json
 .idea/
+.nyc_output/
+*.lcov
