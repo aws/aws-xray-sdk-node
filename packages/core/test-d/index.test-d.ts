@@ -159,6 +159,7 @@ expectType<void>(AWSXRay.enableAutomaticMode());
 expectType<void>(AWSXRay.enableManualMode());
 expectType<void>(AWSXRay.setContextMissingStrategy('LOG_ERROR'));
 expectType<void>(AWSXRay.setContextMissingStrategy('RUNTIME_ERROR'));
+expectType<void>(AWSXRay.setContextMissingStrategy('IGNORE_ERROR'));
 expectType<void>(AWSXRay.setContextMissingStrategy(function() { }));
 expectError(AWSXRay.setContextMissingStrategy('moop'));
 expectError(AWSXRay.setContextMissingStrategy({}));

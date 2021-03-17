@@ -16,6 +16,6 @@ export function enableAutomaticMode(): void;
 
 export function enableManualMode(): void;
 
-export type ContextMissingStrategy = 'LOG_ERROR' | 'RUNTIME_ERROR' | ((msg: string) => void);
+export type ContextMissingStrategy = 'LOG_ERROR' | 'RUNTIME_ERROR' | 'IGNORE_ERROR' | ((msg: string) => void);
 
 export function setContextMissingStrategy(strategy: ContextMissingStrategy): void;
