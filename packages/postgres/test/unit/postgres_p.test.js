@@ -46,6 +46,8 @@ describe('capturePostgres', function() {
     });
 
     beforeEach(function() {
+      process.env.AWS_XRAY_COLLECT_SQL_QUERIES = false;
+
       segment = new Segment('test');
       subsegment = segment.addNewSubsegment('testSub');
 
@@ -86,6 +88,21 @@ describe('capturePostgres', function() {
       stubDataInit.should.have.been.calledWithExactly(undefined, undefined, conParam.user,
         conParam.host + ':' + conParam.port + '/' + conParam.database, undefined);
       stubAddSql.should.have.been.calledWithExactly(sinon.match.instanceOf(SqlData));
+    });
+
+    it('should add query to the subsegments sql data when AWS_XRAY_COLLECT_SQL_QUERIES is true', function() {
+      process.env.AWS_XRAY_COLLECT_SQL_QUERIES = true;
+
+      var stubAddSql = sandbox.stub(subsegment, 'addSqlData');
+      var stubDataInit = sandbox.stub(SqlData.prototype, 'init');
+      var conParam = postgres.connectionParameters;
+
+      query.call(postgres, 'sql here');
+
+      stubDataInit.should.have.been.calledWithExactly(undefined, undefined, conParam.user,
+        conParam.host + ':' + conParam.port + '/' + conParam.database, undefined);
+      stubAddSql.should.have.been.calledWithExactly(sinon.match.instanceOf(SqlData));
+      stubAddSql.should.have.been.calledWithExactly(sinon.match.has('sanitized_query', 'sql statement here'));
     });
 
     it('should start a new automatic context and close the subsegment via the callback if supplied', function(done) {
