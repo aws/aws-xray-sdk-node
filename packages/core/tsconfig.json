@@ -1,0 +1,11 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "target": "es2019",
+    "strict": true,
+    "strictNullChecks": true,
+    "declaration": true,
+    "esModuleInterop": true
+  },
+  "files": ["lib/patchers/aws3_p.ts"]
+}
