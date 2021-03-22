@@ -25,7 +25,7 @@ describe('AWS v3 patcher', function() {
     var awsClient = {
       send: function() {},
       config: {
-        signingName: 's3',
+        serviceId: 's3',
       },
       middlewareStack: constructStack(),
     };
@@ -48,7 +48,7 @@ describe('AWS v3 patcher', function() {
   });
 
   describe('#captureAWSRequest', function() {
-    var awsClient, awsRequest, sandbox, segment, stubResolve, stubResolveManual, sub;
+    var awsClient, awsRequest, sandbox, segment, stubResolve, stubResolveManual, addNewSubsegmentStub, sub;
 
     before(function() {
       awsClient = {
@@ -65,7 +65,7 @@ describe('AWS v3 patcher', function() {
           return req.response;
         },
         config: {
-          signingName: 's3',
+          serviceId: 's3',
           region: async () => 'us-east-1',
         },
         middlewareStack: constructStack(),
@@ -97,7 +97,7 @@ describe('AWS v3 patcher', function() {
 
       stubResolveManual = sandbox.stub(contextUtils, 'resolveManualSegmentParams');
       stubResolve = sandbox.stub(contextUtils, 'resolveSegment').returns(segment);
-      sandbox.stub(segment, 'addNewSubsegment').returns(sub);
+      addNewSubsegmentStub = sandbox.stub(segment, 'addNewSubsegment').returns(sub);
     });
 
     afterEach(function() {
@@ -132,6 +132,8 @@ describe('AWS v3 patcher', function() {
       }, { step: 'build', priority: 'high' });
 
       await awsClient.send(awsRequest);
+
+      assert.isTrue(addNewSubsegmentStub.calledWith('s3'));
 
       var expected = new RegExp('^Root=' + traceId + ';Parent=' + sub.id + ';Sampled=1$');
       assert.match(awsRequest.request.headers['X-Amzn-Trace-Id'], expected);
