@@ -1,0 +1,40 @@
+name: Continuous monitoring of distribution channels
+
+on:
+  workflow_dispatch:
+    schedule:
+      - cron: '0 */1 * * *'
+
+jobs:
+  smoke-tests:
+    name: Run smoke tests for Node ${{ matrix.node-version }} on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os:
+          - macos-latest
+          - ubuntu-latest
+          - windows-latest
+        node-version:
+          - 10.x
+          - 12.x
+          - 14.x
+          - 15.x
+        include:
+          - os: ubuntu-latest
+            node-version: 14.x
+            coverage: true
+    steps:
+      - name: Checkout AWS XRay SDK Node Repository @ default branch latest
+        uses: actions/checkout@v2
+
+      - name: Setup Node ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+          
+      - name: Run smoke test
+        run: |
+          cd smoke_test
+          npm install
+          npm run test-smoke
