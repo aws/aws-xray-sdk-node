@@ -2,8 +2,8 @@ name: Continuous monitoring of distribution channels
 
 on:
   workflow_dispatch:
-    schedule:
-      - cron: '0 */1 * * *'
+  schedule:
+    - cron: '0 */1 * * *'
 
 jobs:
   smoke-tests:
@@ -23,7 +23,6 @@ jobs:
         include:
           - os: ubuntu-latest
             node-version: 14.x
-            coverage: true
     steps:
       - name: Checkout AWS XRay SDK Node Repository @ default branch latest
         uses: actions/checkout@v2
