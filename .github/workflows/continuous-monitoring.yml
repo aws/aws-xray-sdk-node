@@ -12,6 +12,13 @@ jobs:
     steps:
       - name: Checkout AWS XRay SDK Node Repository @ default branch latest
         uses: actions/checkout@v2
+        
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
 
       - name: Setup Node
         uses: actions/setup-node@v1
@@ -19,7 +26,17 @@ jobs:
           node-version: '15.x'
 
       - name: Run smoke test
+        id: distribution-availability
         run: |
           cd smoke_test
           npm install
           npm run test-smoke
+      
+      - name: Publish metric on X-Ray Node SDK distribution availability
+        if: ${{ always() }}
+        run: |
+          if [[ "${{ steps.distribution-availability.outcome }}" == "failure" ]]; then
+            aws cloudwatch put-metric-data --metric-name XRayNodeSDKDistributionUnavailability --dimensions failure=rate --namespace MonitorSDK --value 1 --timestamp $(date +%s)
+          else
+            aws cloudwatch put-metric-data --metric-name XRayNodeSDKDistributionUnavailability --dimensions failure=rate --namespace MonitorSDK --value 0 --timestamp $(date +%s)
+          fi
