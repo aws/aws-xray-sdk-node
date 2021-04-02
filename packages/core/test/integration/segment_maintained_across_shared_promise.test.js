@@ -70,3 +70,6 @@ function sendRequest(address, cb) {
     .on('error', cb)
     .end();
 }
+
+// Cancel the patch because it doesn't affect other tests
+require('../../lib/patchers/promise_p').uncapturePromise();

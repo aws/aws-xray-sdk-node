@@ -125,6 +125,20 @@ describe('capturePromise', () => {
     });
     createTests(true);
   });
+
+  it('should be idempotent', async () => {
+    capturePromise();
+    const thenFirst = Promise.prototype.then;
+    const catchFirst = Promise.prototype.catch;
+    capturePromise();
+    const thenSecond = Promise.prototype.then;
+    const catchSecond = Promise.prototype.catch;
+    capturePromise();
+    expect(Promise.prototype.then).to.equal(thenFirst);
+    expect(Promise.prototype.catch).to.equal(catchFirst);
+    expect(Promise.prototype.then).to.equal(thenSecond);
+    expect(Promise.prototype.catch).to.equal(catchSecond);
+  });
 });
 
 describe('capturePromise.patchThirdPartyPromise', () => {
