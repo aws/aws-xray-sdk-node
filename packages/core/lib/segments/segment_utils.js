@@ -1,3 +1,4 @@
+const { safeParseInt } = require('../utils');
 var logger = require('../logger');
 
 var DEFAULT_STREAMING_THRESHOLD = 100;
@@ -45,6 +46,27 @@ var utils = {
 
   getStreamingThreshold: function getStreamingThreshold() {
     return utils.streamingThreshold;
+  },
+
+  /**
+   * Parses an HTTP response object to return an X-Ray compliant HTTP response object.
+   * @param {http.ServerResponse} res
+   * @returns {Object} - X-Ray response object to be added to (sub)segment
+   */
+  getHttpResponseData: (res) => {
+    const ret = {};
+    if (!res) {
+      return ret;
+    }
+    
+    const status = safeParseInt(res.statusCode);
+    if (status !== 0) {
+      ret.status = status;
+    }
+    if (res.headers && res.headers['content-length']) {
+      ret.content_length = safeParseInt(res.headers['content-length']);
+    }
+    return ret;
   }
 };
 

@@ -1,3 +1,5 @@
+import * as http from 'http';
+
 export const streamingThreshold: number;
 
 export function getCurrentTime(): number;
@@ -13,3 +15,5 @@ export function setServiceData(serviceData: any): void;
 export function setStreamingThreshold(threshold: number): void;
 
 export function getStreamingThreshold(): number;
+
+export function getHttpResponseData(res: http.ServerResponse): object;
