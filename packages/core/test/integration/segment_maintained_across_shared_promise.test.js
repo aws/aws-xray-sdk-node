@@ -37,6 +37,8 @@ var server = http
         // setTimeout so the assertion isn't caught by the promise
         setTimeout(function() {
           assert.equal(segment.id, retrievedSegment.id);
+          // Cancel the patch because it doesn't affect other tests
+          require('../../lib/patchers/promise_p').uncapturePromise();
         });
       });
     });
@@ -70,6 +72,3 @@ function sendRequest(address, cb) {
     .on('error', cb)
     .end();
 }
-
-// Cancel the patch because it doesn't affect other tests
-require('../../lib/patchers/promise_p').uncapturePromise();
