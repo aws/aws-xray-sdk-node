@@ -1,12 +1,11 @@
 const expect = require('chai').expect;
 const sinon = require('sinon');
 
-const { capturePromise } = require('../../../lib/patchers/promise_p');
+const { capturePromise, uncapturePromise } = require('../../../lib/patchers/promise_p');
 const contextUtils = require('../../../lib/context_utils');
 
-const origThen = Promise.prototype.then;
-const origCatch = Promise.prototype.catch;
-
+let origThen;
+let origCatch;
 let getNamespaceStub;
 let isAutomaticModeStub;
 let getSegmentStub;
@@ -26,14 +25,16 @@ beforeEach(() => {
 
 beforeEach(() => {
   sinon.restore();
-  Promise.prototype.then = origThen;
-  Promise.prototype.catch = origCatch;
+  uncapturePromise();
+  origThen = Promise.prototype.then;
+  origCatch = Promise.prototype.catch;
 });
 
 after(() => {
   sinon.restore();
-  Promise.prototype.then = origThen;
-  Promise.prototype.catch = origCatch;
+  uncapturePromise();
+  origThen = Promise.prototype.then;
+  origCatch = Promise.prototype.catch;
 });
 
 function verifyBindings (segment, isAutomaticMode, onFulfilled, onRejected) {
@@ -124,6 +125,20 @@ describe('capturePromise', () => {
       isAutomaticModeStub.returns(true);
     });
     createTests(true);
+  });
+
+  it('should be idempotent', async () => {
+    capturePromise();
+    const thenFirst = Promise.prototype.then;
+    const catchFirst = Promise.prototype.catch;
+    capturePromise();
+    const thenSecond = Promise.prototype.then;
+    const catchSecond = Promise.prototype.catch;
+    capturePromise();
+    expect(Promise.prototype.then).to.equal(thenFirst);
+    expect(Promise.prototype.catch).to.equal(catchFirst);
+    expect(Promise.prototype.then).to.equal(thenSecond);
+    expect(Promise.prototype.catch).to.equal(catchSecond);
   });
 });
 
