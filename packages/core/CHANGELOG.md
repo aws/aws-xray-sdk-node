@@ -1,4 +1,7 @@
 # Changelog for AWS X-Ray Core SDK for JavaScript
+
+**Beginning after v3.2.0, ChangeLog entries for this package are recorded in the [top-level CHANGELOG file](../../CHANGELOG.md).**
+
 <!--LATEST=3.2.0-->
 <!--ENTRYINSERT-->
 ## 3.2.0
