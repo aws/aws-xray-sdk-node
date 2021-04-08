@@ -1,6 +1,31 @@
 # Changelog for AWS X-Ray SDK for JavaScript
-<!--LATEST=3.2.0-->
+<!--LATEST=3.3.0-->
 <!--ENTRYINSERT-->
+## 3.3.0
+* change: Updated aws-xray-sdk-core to 3.3.0.
+  * improvement: add IGNORE_ERROR context missing strategy [PR #345](https://github.com/aws/aws-xray-sdk-node/pull/345)
+  * improvement: also instrument Promise.catch in promise patcher [PR #367](https://github.com/aws/aws-xray-sdk-node/pull/367)
+  * improvement: adds AWS SDK V3 instrumentation [PR #386](https://github.com/aws/aws-xray-sdk-node/pull/386)
+  * fix: add end_time to segment type def [PR #350](https://github.com/aws/aws-xray-sdk-node/pull/350)
+  * fix: fix validation issues in service connector [PR #339](https://github.com/aws/aws-xray-sdk-node/pull/339)
+  * fix: add downstreamXRayEnabled to type defs [PR #357](https://github.com/aws/aws-xray-sdk-node/pull/357)
+  * fix: ensure trace IDs are never `null` in Lambda [PR #361](https://github.com/aws/aws-xray-sdk-node/pull/361)
+  * fix: make setting context modes idempotent [PR #371](https://github.com/aws/aws-xray-sdk-node/pull/371)
+  * fix: replace deprecated `url.parse` with WHATWG URLs [PR #373](https://github.com/aws/aws-xray-sdk-node/pull/373)
+  * fix: make capture promise idempotent [PR #400](https://github.com/aws/aws-xray-sdk-node/pull/400)
+* change: Updated aws-xray-sdk-express to 3.3.0.
+  * fix: fixed a bug causing segments to be closed twice in Express [PR #362](https://github.com/aws/aws-xray-sdk-node/pull/362) 
+* change: Updated aws-xray-sdk-mysql to 3.3.0.
+  * fix: fixes mysql query config object being changed by instrumentation [PR #340](https://github.com/aws/aws-xray-sdk-node/pull/340)
+  * fix: fixes argument parsing to be compatible with mysql2 [PR #381](https://github.com/aws/aws-xray-sdk-node/pull/381)
+* change: Updated aws-xray-sdk-postgres to 3.3.0.
+  * improvement: add opt-in ability to capture SQL query [PR #390](https://github.com/aws/aws-xray-sdk-node/pull/390)
+  * fix: support queryConfig object in postgres patcher [PR #337](https://github.com/aws/aws-xray-sdk-node/pull/337)
+  * fix: prevent instrumentation from stripping config attributes [PR #363](https://github.com/aws/aws-xray-sdk-node/pull/363)
+* change: Updated aws-xray-sdk-restify to 3.3.0. No further changes.
+* change: Updated aws-xray-sdk-koa2 to 3.3.0. No further changes.
+* change: Updated aws-xray-sdk-hapi to 3.3.0. No further changes.
+
 ## 3.2.0
 * change: Updated aws-xray-sdk-core to 3.2.0. See aws-xray-sdk-core's CHANGELOG.md for package changes.
 * change: Updated aws-xray-sdk-express to 3.2.0. No further changes.
