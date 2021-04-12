@@ -180,6 +180,9 @@ var AWSXRay = {
 
   captureAWSClient: require('./patchers/aws_p').captureAWSClient,
 
+
+  captureAWSv3Client: (client) => client,
+
   /**
    * @param {http|https} module - The built in Node.js HTTP or HTTPS module.
    * @memberof AWSXRay
