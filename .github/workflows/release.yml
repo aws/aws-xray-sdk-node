@@ -46,5 +46,6 @@ jobs:
         with:
           tag_name: 'aws-xray-sdk-node@${{ github.event.inputs.version }}'
           release_name: 'Release ${{ github.event.inputs.version }}'
+          body: 'Please see [CHANGELOG](https://github.com/aws/aws-xray-sdk-node/blob/master/CHANGELOG.md) for details.'
           draft: true
           prerelease: false
