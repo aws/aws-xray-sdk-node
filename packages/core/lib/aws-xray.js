@@ -181,16 +181,6 @@ var AWSXRay = {
   captureAWSClient: require('./patchers/aws_p').captureAWSClient,
 
   /**
-   * @param {AWSv3.Service} service - An instance of a AWS SDK v3 service to wrap.
-   * @param {Segment|Subsegment} segment - Optional segment for manual mode.
-   * @memberof AWSXRay
-   * @function
-   * @see module:aws3_p.captureAWSClient
-   */
-
-  captureAWSv3Client: require('./patchers/aws3_p').captureAWSClient,
-
-  /**
    * @param {http|https} module - The built in Node.js HTTP or HTTPS module.
    * @memberof AWSXRay
    * @function

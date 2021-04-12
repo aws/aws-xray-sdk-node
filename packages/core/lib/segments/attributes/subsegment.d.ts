@@ -1,5 +1,4 @@
 import * as http from 'http';
-import { Segment, SegmentLike } from '../../aws-xray';
 
 declare class Subsegment {
   id: string;
@@ -7,8 +6,6 @@ declare class Subsegment {
   start_time: number;
   in_progress?: boolean;
   subsegments?: Array<Subsegment>;
-  parent: SegmentLike;
-  segment: Segment;
 
   constructor(name: string);
 

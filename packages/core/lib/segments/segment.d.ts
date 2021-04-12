@@ -11,7 +11,6 @@ declare class Segment {
   parent_id?: string;
   origin?: string;
   subsegments?: Array<Subsegment>;
-  notTraced?: boolean;
 
   constructor(name: string, rootId?: string | null, parentId?: string | null);
 
