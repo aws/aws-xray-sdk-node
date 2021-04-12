@@ -34,7 +34,7 @@ jobs:
           npx lerna run test
 
       - name: Publish package to npm
-        run: npx lerna publish from-package --yes --exact
+        run: npx lerna publish from-package --yes --exact --no-verify-access
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
