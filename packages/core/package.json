@@ -5,8 +5,7 @@
   "author": "Amazon Web Services",
   "contributors": [
     "Sandra McMullen <mcmuls@amazon.com>",
-    "William Armiros <armiros@amazon.com>",
-    "Moritz Onken <onken@netcubed.de>"
+    "William Armiros <armiros@amazon.com>"
   ],
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
@@ -18,7 +17,6 @@
   },
   "//": "@types/cls-hooked is exposed in API so must be in dependencies, not devDependencies",
   "dependencies": {
-    "@aws-sdk/service-error-classification": "^3.4.1",
     "@types/cls-hooked": "^4.2.2",
     "atomic-batcher": "^1.0.2",
     "cls-hooked": "^4.2.2",

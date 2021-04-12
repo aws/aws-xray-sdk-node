@@ -1,5 +1,5 @@
 import * as AWSXRay from 'aws-xray-sdk-core';
-import express from 'express';
+import * as express from 'express';
 import { expectType } from 'tsd';
 import * as xrayExpress from '../lib';
 
