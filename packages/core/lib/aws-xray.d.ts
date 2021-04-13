@@ -39,7 +39,7 @@ export { captureAsyncFunc, captureCallbackFunc, captureFunc } from './capture'
 
 export { captureAWS, captureAWSClient } from './patchers/aws_p';
 
-export function captureAWSv3Client<T>(client: T, manualSeg?: SegmentLike): T;
+export type { captureAWSClient as captureAWSv3Client } from './patchers/aws3_p';
 
 export { captureHTTPs, captureHTTPsGlobal } from './patchers/http_p';
 
