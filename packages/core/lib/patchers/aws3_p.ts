@@ -1,10 +1,10 @@
-import type {
+import {
   MetadataBearer,
   ResponseMetadata,
   Client,
 } from '@aws-sdk/types';
 
-import type { RegionInputConfig } from '@aws-sdk/config-resolver';
+import { RegionInputConfig } from '@aws-sdk/config-resolver';
 
 import { isThrottlingError } from '@aws-sdk/service-error-classification';
 

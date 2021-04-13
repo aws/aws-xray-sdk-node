@@ -1,5 +1,5 @@
-import type { MetadataBearer, Client } from '@aws-sdk/types';
-import type { RegionInputConfig } from '@aws-sdk/config-resolver';
+import { MetadataBearer, Client } from '@aws-sdk/types';
+import { RegionInputConfig } from '@aws-sdk/config-resolver';
 import { SegmentLike } from '../aws-xray';
 declare type DefaultConfiguration = RegionInputConfig & {
     serviceId: string;
