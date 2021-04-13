@@ -18,7 +18,11 @@
   },
   "//": "@types/cls-hooked is exposed in API so must be in dependencies, not devDependencies",
   "dependencies": {
-    "@aws-sdk/service-error-classification": "^3.4.1",
+    "@aws-sdk/service-error-classification": "^3.3.0",
+    "@aws-sdk/node-config-provider": "^3.3.0",
+    "@aws-sdk/config-resolver": "^3.3.0",
+    "@aws-sdk/smithy-client": "^3.3.0",
+    "@aws-sdk/types": "^3.3.0",
     "@types/cls-hooked": "^4.2.2",
     "atomic-batcher": "^1.0.2",
     "cls-hooked": "^4.2.2",
