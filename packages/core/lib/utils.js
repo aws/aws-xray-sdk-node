@@ -240,6 +240,18 @@ var utils = {
       target[property] = obj[property];
     }
     return target;
+  },
+
+  /**
+   * Safely gets an integer from a string or number
+   * @param {String | Number} - input to cast to integer
+   * @returns {Number} - Integer representation of input, or 0 if input is not castable to int
+   */
+  safeParseInt: (val) => {
+    if (!val || isNaN(val)) {
+      return 0;
+    }
+    return parseInt(val);
   }
 };
 

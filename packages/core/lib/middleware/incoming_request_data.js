@@ -1,3 +1,4 @@
+var { getHttpResponseData } = require('../segments/segment_utils');
 
 /**
  * Represents an incoming HTTP/HTTPS call.
@@ -49,12 +50,7 @@ var getClientIp = function getClientIp(req) {
  */
 
 IncomingRequestData.prototype.close = function close(res) {
-  this.response = {
-    status: res.statusCode || ''
-  };
-
-  if (res.headers && res.headers['content-length'])
-    this.response.content_length = res.headers['content-length'];
+  this.response = getHttpResponseData(res);
 };
 
 module.exports = IncomingRequestData;

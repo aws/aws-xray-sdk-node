@@ -19,3 +19,5 @@ export function objectWithoutProperties<T extends object, K extends keyof T>(
   keys: K[],
   preservePrototype?: boolean
 ): Omit<T, K>;
+
+export function safeParseInt(val: number | string): number;
