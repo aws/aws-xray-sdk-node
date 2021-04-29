@@ -1,7 +1,8 @@
 import {
   MetadataBearer,
   ResponseMetadata,
-  Client,
+  Pluggable,
+  // Client,
 } from '@aws-sdk/types';
 
 import { RegionInputConfig } from '@aws-sdk/config-resolver';
@@ -19,20 +20,29 @@ var contextUtils = require('../context_utils');
 var logger = require('../logger');
 
 import { getCauseTypeFromHttpStatus } from '../utils';
-import { SdkError } from '@aws-sdk/smithy-client';
+import { Client, Command, SdkError } from '@aws-sdk/smithy-client';
 import { SegmentLike } from '../aws-xray';
 
-type HttpResponse = { response: { status: number } };
+interface HttpResponse {
+  response: {
+    status?: number,
+    content_length?: number
+  }
+};
+
+interface ResponseObj extends MetadataBearer {
+  headers: {
+    [key: string]: string,
+  }
+};
 
 async function buildAttributesFromMetadata(
-  client: any,
-  command: any,
-  metadata: ResponseMetadata,
+  service: string,
+  region: string,
+  operation: string,
+  response: ResponseObj,
 ): Promise<[ServiceSegment, HttpResponse]> {
-  const { extendedRequestId, requestId, httpStatusCode: statusCode, attempts } = metadata;
-  const serviceIdentifier = client.config.serviceId as string;
-
-  let operation: string = command.constructor.name.slice(0, -7);
+  const { extendedRequestId, requestId, httpStatusCode: statusCode, attempts } = response.$metadata;
 
   const aws = new ServiceSegment(
     {
@@ -42,16 +52,25 @@ async function buildAttributesFromMetadata(
       request: {
         operation,
         httpRequest: {
-          region: await client.config.region(),
+          // region: await client.config.region(),
+          region,
           statusCode,
         },
-        params: command.input,
       },
     },
-    serviceIdentifier,
+    service,
   );
 
-  const http = { response: { status: statusCode || 0 } };
+  const http: HttpResponse = {
+    response: {}
+  };
+
+  if (statusCode) {
+    http.response.status = statusCode;
+  }
+  if (response.headers && response.headers['content-length'] !== undefined) {
+    http.response.content_length = response.headers['content-length'];
+  }
   return [aws, http];
 }
 
@@ -74,11 +93,19 @@ type DefaultConfiguration = RegionInputConfig & {
   serviceId: string;
 };
 
-export function captureAWSClient<
-  Input extends object,
-  Output extends MetadataBearer,
-  Configuration extends DefaultConfiguration
->(client: Client<Input, Output, Configuration>, manualSegment?: SegmentLike): Client<Input, Output, Configuration> {
+/**
+import { Client } from "@aws-sdk/smithy-client" ;
+import { S3 } from "@aws-sdk/client-s3";
+export const captureAWSClient = <T extends Client<any, any, any, any>> (client: T): T => {
+    return client;
+} 
+ */
+
+function captureAWSClient<T extends Client<any, any, any, any>
+  // Input extends object,
+  // Output extends MetadataBearer,
+  // Configuration extends DefaultConfiguration
+>(client: T, manualSegment?: SegmentLike): T {
   // create local copy so that we can later call it
   const send = client.send;
 
@@ -143,29 +170,97 @@ export function captureAWSClient<
     }
   };
 
-  client.middlewareStack.add(
-    (next) => async (args: any) => {
-      const segment = manualSegment || contextUtils.resolveSegment();
-      if (!segment) return next(args);
-
-      const parent = (segment instanceof Subsegment
-        ? segment.segment
-        : segment);
-
-      args.request.headers['X-Amzn-Trace-Id'] = stringify(
-        {
-          Root: parent.trace_id,
-          Parent: segment.id,
-          Sampled: parent.notTraced ? '0' : '1',
-        },
-        ';',
-      );
-      return next(args);
-    },
-    {
-      step: 'build',
-    },
-  );
-
   return client;
+}
+
+interface XRayPlugin extends Pluggable<object, object> {
+  manualSegment: SegmentLike | null,
+  setManualSegment: (seg: SegmentLike) => void
+}
+
+const XRayPluginImpl: XRayPlugin = {
+  manualSegment: null,
+
+  applyToStack: (stack) => {
+    stack.add(
+      (next: any, context: any) => async (args: any) => {
+        const segment =  contextUtils.isAutomaticMode() ? contextUtils.resolveSegment() : XRayPluginImpl.manualSegment;
+        const {clientName, commandName} = context;
+        const operation = commandName.slice(0, -7); // Strip trailing "command" string
+        const service = clientName.slice(0, -6);    // Strip trailing "client" string
+
+        if (!segment) {
+          const output = service + '.' + operation;
+    
+          if (!contextUtils.isAutomaticMode()) {
+            logger.getLogger().info('Call ' + output + ' requires a segment object' +
+              ' on the request params as "XRaySegment" for tracing in manual mode. Ignoring.');
+          } else {
+            logger.getLogger().info('Call ' + output +
+              ' is missing the sub/segment context for automatic mode. Ignoring.');
+          }
+          return next(args);
+        }
+
+        const subsegment = segment.addNewSubsegment(service);
+        subsegment.addAttribute('namespace', 'aws');
+
+        const parent = (segment instanceof Subsegment
+          ? segment.segment
+          : segment);
+      
+        args.request.headers['X-Amzn-Trace-Id'] = stringify(
+          {
+            Root: parent.trace_id,
+            Parent: subsegment.id,
+            Sampled: parent.notTraced ? '0' : '1',
+          },
+          ';',
+        );
+
+        let res: ResponseObj;
+
+        try {
+          res = next(args);
+          if (!res) throw new Error('Failed to get response from instrumented AWS Client.');
+
+          // TODO: Figure out how to get region obj
+          const [aws, http] = await buildAttributesFromMetadata(
+            service,
+            '',
+            operation,
+            res,
+          );
+
+          subsegment.addAttribute('aws', aws);
+          subsegment.addAttribute('http', http);
+
+          addFlags(http, subsegment);
+          subsegment.close();
+          return res;
+        } catch (err) {
+          if (err.$metadata) {
+            const [aws, http] = await buildAttributesFromMetadata(
+              service,
+              operation,
+              '',
+              err,
+            );
+    
+            subsegment.addAttribute('aws', aws);
+            subsegment.addAttribute('http', http);
+            addFlags(http, subsegment, err);
+          }
+        }
+      },
+      {
+        name: 'xrayInstrumentation',
+        step: 'build',
+      },
+    )
+  },
+
+  setManualSegment: (seg: SegmentLike) => {
+    XRayPluginImpl.manualSegment = seg;
+  }
 }
