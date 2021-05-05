@@ -93,8 +93,8 @@ function addFlags(http: HttpResponse, subsegment: Subsegment, err?: SdkError): v
 const getXRayMiddleware = (config: RegionResolvedConfig, manualSegment?: SegmentLike): BuildMiddleware<any, any> => (next: any, context: any) => async (args: any) => {
   const segment = contextUtils.isAutomaticMode() ? contextUtils.resolveSegment() : manualSegment;
   const {clientName, commandName} = context;
-  const operation: string = commandName.slice(0, -7); // Strip trailing "command" string
-  const service: string = clientName.slice(0, -6);    // Strip trailing "client" string
+  const operation: string = commandName.slice(0, -7); // Strip trailing "Command" string
+  const service: string = clientName.slice(0, -6);    // Strip trailing "Client" string
 
   if (!segment) {
     const output = service + '.' + operation.charAt(0).toLowerCase() + operation.slice(1);
@@ -111,10 +111,7 @@ const getXRayMiddleware = (config: RegionResolvedConfig, manualSegment?: Segment
 
   const subsegment: Subsegment = segment.addNewSubsegment(service);
   subsegment.addAttribute('namespace', 'aws');
-
-  const parent = (segment instanceof Subsegment
-    ? segment.segment
-    : segment);
+  const parent = (segment instanceof Subsegment ? segment.segment : segment);
 
   args.request.headers['X-Amzn-Trace-Id'] = stringify(
     {
