@@ -19,11 +19,15 @@ function Aws(res, serviceName) {
 Aws.prototype.init = function init(res, serviceName) {
   //TODO: account ID
   this.operation = formatOperation(res.request.operation) || '';
-  this.region = res.request.httpRequest.region || '';
-  this.request_id = res.requestId || '';
+  if (res && res.request && res.request.httpRequest && res.request.httpRequest.region) {
+    this.region = res.request.httpRequest.region;
+  }
+  if (res && res.requestId) {
+    this.request_id = res.requestId;
+  }
   this.retries = res.retryCount || 0;
 
-  if (res.extendedRequestId && serviceName === 's3')
+  if (res.extendedRequestId && serviceName && serviceName.toLowerCase() === 's3')
     this.id_2 = res.extendedRequestId;
 
   this.addData(capturer.capture(serviceName, res));
