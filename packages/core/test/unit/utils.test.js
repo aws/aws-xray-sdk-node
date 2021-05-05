@@ -368,4 +368,21 @@ describe('Utils', function() {
       assert.equal(Utils.wildcardMatch('?a?b*b?c?.?*.com', '1a2bjkdwfjkewb3c4.myelasticbeanstalkenv.org'), false);
     });
   });
+
+  describe('#safeParseInt', () => {
+    it('should cast string to int', () => {
+      assert.equal(Utils.safeParseInt('42'), 42);
+      assert.equal(Utils.safeParseInt('15.0'), 15);
+    });
+
+    it('should cast numbers to int', () => {
+      assert.equal(Utils.safeParseInt(42), 42);
+      assert.equal(Utils.safeParseInt(15.0), 15);
+    });
+
+    it('should coerce NaN to zero', () => {
+      assert.equal(Utils.safeParseInt('not a number'), 0);
+      assert.equal(Utils.safeParseInt(NaN), 0);
+    });
+  });
 });

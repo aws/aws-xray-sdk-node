@@ -1,3 +1,4 @@
+const { getHttpResponseData } = require('../segment_utils');
 var { stripQueryStringFromPath } = require('../../utils');
 
 /**
@@ -23,10 +24,7 @@ RemoteRequestData.prototype.init = function init(req, res, downstreamXRayEnabled
   }
 
   if (res) {
-    this.response = {
-      status: res.statusCode || '',
-      content_length: (res.headers && res.headers['content-length']) ? res.headers['content-length'] : 0
-    };
+    this.response = getHttpResponseData(res);
   }
 };
 
