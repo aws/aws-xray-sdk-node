@@ -41,7 +41,7 @@ describe('AWSLambda', function() {
   });
 
   describe('#init', function() {
-    var disableReusableSocketStub, populateStub, sandbox, setSegmentStub, validateStub;
+    var disableReusableSocketStub, disableCentralizedSamplingStub, populateStub, sandbox, setSegmentStub, validateStub;
 
     beforeEach(function() {
       sandbox = sinon.createSandbox();

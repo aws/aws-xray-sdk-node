@@ -25,7 +25,9 @@
     "semver": "^5.3.0"
   },
   "scripts": {
-    "compile": "tsc && rsync -a --prune-empty-dirs --include '*/' --include '*.d.ts'  --include '*.json' --exclude '*' lib/ dist/lib/",
+    "compile": "tsc && npm run copy-lib && npm run copy-test && cp package.json dist/",
+    "copy-lib": "rsync -a --include '*/' --include '*.d.ts'  --include '*.json' --exclude '*' lib/ dist/lib/",
+    "copy-test": "rsync -a --include '*/' --include '*.json' --exclude '*' test/ dist/test/",
     "test": "mocha --recursive ./dist/test/ -R spec && tsd && mocha --recursive ./dist/test_async/ -R spec",
     "test-d": "tsd",
     "test-async": "mocha --recursive ./dist/test_async/ -R spec",
