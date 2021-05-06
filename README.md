@@ -89,13 +89,17 @@ AWS will not:
 
 ## Testing from Source
 
-This repo uses [Lerna](https://lernajs.io) to manage multiple packages. To install Lerna:
+This repo uses [Lerna](https://lernajs.io) to manage multiple packages. To install Lerna as a CLI:
 ```
-npm install lerna
+npm install -g lerna
 ```
 To install devDependencies and peerDependencies for all packages:
 ```
 lerna bootstrap --hoist
+```
+This repo has a combination of TypeScript and JavaScript source files. To transpile the TypeScript files for testing, run:
+```
+lerna run compile
 ```
 To run tests for all packages:
 ```
