@@ -43,6 +43,7 @@ jobs:
       - name: Install rsync on Windows
         if: matrix.os == 'windows-latest'
         run: |
+          ls "C:/Program Files/Git/usr/bin/"
           echo "performing curl!"
           curl -sLO http://repo.msys2.org/msys/x86_64/rsync-3.2.3-1-x86_64.pkg.tar.zst
           echo "decompressing!"
