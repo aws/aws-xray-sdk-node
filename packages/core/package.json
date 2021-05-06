@@ -26,8 +26,8 @@
   },
   "scripts": {
     "compile": "tsc && npm run copy-lib && npm run copy-test && cp package.json dist/",
-    "copy-lib": "rsync -a --include '*/' --include '*.d.ts'  --include '*.json' --exclude '*' lib/ dist/lib/",
-    "copy-test": "rsync -a --include '*/' --include '*.json' --exclude '*' test/ dist/test/",
+    "copy-lib": "find lib -type f \\( -name '*.d.ts' -o -name '*.json' \\) -exec ../../scripts/cp-with-structure.sh \\{\\} dist/lib \\;",
+    "copy-test": "find test -name '*.json' -exec ../../scripts/cp-with-structure.sh \\{\\} dist/test \\;",
     "test": "mocha --recursive ./dist/test/ -R spec && tsd && mocha --recursive ./dist/test_async/ -R spec",
     "test-d": "tsd",
     "test-async": "mocha --recursive ./dist/test_async/ -R spec",
