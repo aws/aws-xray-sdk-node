@@ -25,9 +25,11 @@
     "semver": "^5.3.0"
   },
   "scripts": {
-    "test": "mocha --recursive ./test/ -R spec && tsd && mocha --recursive ./test_async/ -R spec",
+    "compile": "tsc && rsync -a --prune-empty-dirs --include '*/' --include '*.d.ts'  --include '*.json' --exclude '*' lib/ dist/lib/",
+    "test": "mocha --recursive ./dist/test/ -R spec && tsd && mocha --recursive ./dist/test_async/ -R spec",
     "test-d": "tsd",
-    "test-async": "mocha --recursive ./test_async/ -R spec",
+    "test-async": "mocha --recursive ./dist/test_async/ -R spec",
+    "clean": "rm -rf dist && rm -rf node_modules",
     "testcov": "nyc npm run test",
     "reportcov": "nyc report --reporter=text-lcov > coverage.lcov && codecov"
   },
