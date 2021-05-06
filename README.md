@@ -89,8 +89,6 @@ AWS will not:
 
 ## Testing from Source
 
-[rsync](https://linux.die.net/man/1/rsync) is used for builds and is a prerequisite for building the SDK.
-
 This repo uses [Lerna](https://lernajs.io) to manage multiple packages. To install Lerna as a CLI:
 ```
 npm install -g lerna
