@@ -4,3 +4,4 @@ docs
 .idea/
 .nyc_output/
 *.lcov
+dist

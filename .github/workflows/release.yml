@@ -31,6 +31,7 @@ jobs:
       - name: Execute tests with Lerna
         run: |
           npx lerna bootstrap --hoist
+          npx lerna run compile
           npx lerna run test
 
       - name: Publish package to npm
