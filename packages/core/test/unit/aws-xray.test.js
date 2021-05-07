@@ -2,7 +2,6 @@ var assert = require('chai').assert;
 var chai = require('chai');
 var sinon = require('sinon');
 var sinonChai = require('sinon-chai');
-var upath = require('upath');
 
 var segmentUtils = require('../../lib/segments/segment_utils');
 
@@ -30,14 +29,12 @@ describe('AWSXRay', function() {
       // This test requires both index.js and aws-xray.js are first time required.
       // We should always clear the require cache for these two files so this test
       // could run independently.
-      Object.keys(require.cache).forEach(function(key) {
-        var normalisedPath = upath.toUnix(key);
-        if(normalisedPath.includes('core/lib/index.js') || normalisedPath.includes('core/lib/aws-xray.js')) {
-          delete require.cache[key];
-        }
-      });
+      const indexPath = '../../lib/index';
+      const xrayPath = '../../lib/aws-xray';
+      delete require.cache[require.resolve(indexPath)];
+      delete require.cache[require.resolve(xrayPath)];
 
-      AWSXRay = require('../../lib/index');
+      AWSXRay = require(indexPath);
 
       setSDKDataStub.should.have.been.calledWithExactly(sinon.match.object);
       setServiceDataStub.should.have.been.calledWithExactly(sinon.match.object);

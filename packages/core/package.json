@@ -8,8 +8,13 @@
     "William Armiros <armiros@amazon.com>",
     "Moritz Onken <onken@netcubed.de>"
   ],
-  "main": "lib/index.js",
-  "types": "lib/index.d.ts",
+  "files": [
+    "dist/lib/**/*",
+    "LICENSE",
+    "README.md"
+  ],
+  "main": "dist/lib/index.js",
+  "types": "dist/lib/index.d.ts",
   "engines": {
     "node": ">= 10.x"
   },
@@ -25,9 +30,14 @@
     "semver": "^5.3.0"
   },
   "scripts": {
-    "test": "mocha --recursive ./test/ -R spec && tsd && mocha --recursive ./test_async/ -R spec",
+    "prepare": "npm run compile",
+    "compile": "tsc && npm run copy-lib && npm run copy-test",
+    "copy-lib": "find lib -type f \\( -name '*.d.ts' -o -name '*.json' \\) | xargs -I % ../../scripts/cp-with-structure.sh % dist",
+    "copy-test": "find test -name '*.json' | xargs -I % ../../scripts/cp-with-structure.sh % dist",
+    "test": "mocha --recursive ./dist/test/ -R spec && tsd && mocha --recursive ./dist/test_async/ -R spec",
     "test-d": "tsd",
-    "test-async": "mocha --recursive ./test_async/ -R spec",
+    "test-async": "mocha --recursive ./dist/test_async/ -R spec",
+    "clean": "rm -rf dist && rm -rf node_modules",
     "testcov": "nyc npm run test",
     "reportcov": "nyc report --reporter=text-lcov > coverage.lcov && codecov"
   },

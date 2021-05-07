@@ -9,7 +9,7 @@ var LambdaEnv = require('./env/aws_lambda');
 // pkginfo as an empty object
 var pkginfo = {}
 try {
-  pkginfo = require('../package.json');
+  pkginfo = require('../../package.json');
 } catch (err) {
   logging.getLogger().debug('Failed to load SDK data:', err);
 }

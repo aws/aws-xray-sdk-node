@@ -1,6 +1,6 @@
 var assert = require('chai').assert;
 var http = require('http');
-var AWSXRay = require('../../');
+var AWSXRay = require('../../lib');
 var Segment = AWSXRay.Segment;
 
 AWSXRay.enableAutomaticMode();
