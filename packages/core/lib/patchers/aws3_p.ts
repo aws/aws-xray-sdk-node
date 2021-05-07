@@ -40,9 +40,10 @@ const buildAttributesFromMetadata = async (
   service: string,
   operation: string,
   region: string,
-  res: any,
+  res: any | null,
+  error: SdkError | null,
 ): Promise<[ServiceSegment, HttpResponse]> => {
-  const { extendedRequestId, requestId, httpStatusCode: statusCode, attempts } = res.output?.$metadata || res.$metadata;
+  const { extendedRequestId, requestId, httpStatusCode: statusCode, attempts } = res?.output?.$metadata || error?.$metadata;
 
   const aws = new ServiceSegment(
     {
@@ -66,7 +67,7 @@ const buildAttributesFromMetadata = async (
     http.response = {};
     http.response.status = statusCode;
   }
-  if (res.response && res.response.headers && res.response.headers['content-length'] !== undefined) {
+  if (res?.response?.headers && res?.response?.headers['content-length'] !== undefined) {
     if (!http.response) {
       http.response = {};
     }
@@ -132,6 +133,7 @@ const getXRayMiddleware = (config: RegionResolvedConfig, manualSegment?: Segment
       operation,
       await config.region(),
       res,
+      null,
     );
 
     subsegment.addAttribute('aws', aws);
@@ -145,7 +147,8 @@ const getXRayMiddleware = (config: RegionResolvedConfig, manualSegment?: Segment
       const [aws, http] = await buildAttributesFromMetadata(
         service,
         operation,
-        '',
+        await config.region(),
+        null,
         err,
       );
 
