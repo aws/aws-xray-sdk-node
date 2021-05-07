@@ -127,7 +127,6 @@ const getXRayMiddleware = (config: RegionResolvedConfig, manualSegment?: Segment
     res = await next(args);
     if (!res) throw new Error('Failed to get response from instrumented AWS Client.');
 
-    // TODO: Figure out how to get region string. Should look like 'await options.region()'
     const [aws, http] = await buildAttributesFromMetadata(
       service,
       operation,
