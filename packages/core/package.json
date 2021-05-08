@@ -38,9 +38,9 @@
     "compile": "tsc && npm run copy-lib && npm run copy-test",
     "copy-lib": "find lib -type f \\( -name '*.d.ts' -o -name '*.json' \\) | xargs -I % ../../scripts/cp-with-structure.sh % dist",
     "copy-test": "find test -name '*.json' | xargs -I % ../../scripts/cp-with-structure.sh % dist",
-    "test": "mocha --recursive ./dist/test/ -R spec && tsd && mocha --recursive ./dist/test_async/ -R spec",
+    "test": "npm run compile && mocha --recursive ./dist/test/ -R spec && tsd && mocha --recursive ./dist/test_async/ -R spec",
     "test-d": "tsd",
-    "test-async": "mocha --recursive ./dist/test_async/ -R spec",
+    "test-async": "npm run compile && mocha --recursive ./dist/test_async/ -R spec",
     "clean": "rm -rf dist && rm -rf node_modules",
     "testcov": "nyc npm run test",
     "reportcov": "nyc report --reporter=text-lcov > coverage.lcov && codecov"

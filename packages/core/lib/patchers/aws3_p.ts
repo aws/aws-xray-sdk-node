@@ -102,7 +102,7 @@ const getXRayMiddleware = (config: RegionResolvedConfig, manualSegment?: Segment
 
     if (!contextUtils.isAutomaticMode()) {
       logger.getLogger().info('Call ' + output + ' requires a segment object' +
-        ' on the request params as "XRaySegment" for tracing in manual mode. Ignoring.');
+        ' passed to captureAWSv3Client for tracing in manual mode. Ignoring.');
     } else {
       logger.getLogger().info('Call ' + output +
         ' is missing the sub/segment context for automatic mode. Ignoring.');
