@@ -27,7 +27,7 @@
     "@aws-sdk/node-config-provider": "^3.4.1",
     "@aws-sdk/config-resolver": "^3.4.1",
     "@aws-sdk/smithy-client": "^3.4.1",
-    "@aws-sdk/types": "^3.4.1",
+    "@aws-sdk/types": "3.6.1",
     "@types/cls-hooked": "^4.3.3",
     "atomic-batcher": "^1.0.2",
     "cls-hooked": "^4.2.2",
