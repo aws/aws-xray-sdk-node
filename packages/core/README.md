@@ -490,6 +490,21 @@ await s3.send(new PutObjectCommand({
 }));
 ```
 
+Note that some TypeScript users may have to cast their clients to `any` when patching to avoid type errors. This is just for compatibility with the patcher, and will not impact the end client type if captured as shown below.
+
+```ts
+import { S3, PutObjectCommand } from '@aws-sdk/client-s3';
+
+const s3 = new S3({});
+AWSXRay.captureAWSv3Client(s3 as any);
+
+await s3.send(new PutObjectCommand({
+  Bucket: bucketName,
+  Key: keyName,
+  Body: 'Hello!',
+}));
+```
+
 AWS SDK v2
 
 ```js
@@ -644,8 +659,7 @@ function sendRequest(host, cb, subsegment) {
 
 AWS SDK v3
 
-You must re-capture the client every time the subsegment is attached
-to a new parent.
+You must re-capture the client every time the subsegment is attached to a new parent.
 
 ```js
 import { S3, PutObjectCommand } from '@aws-sdk/client-s3';
@@ -653,6 +667,21 @@ import { S3, PutObjectCommand } from '@aws-sdk/client-s3';
 // subsegment is an optional parameter that is required for manual mode
 // and can be omitted in automatic mode (e.g. inside a Lambda function).
 const s3 = AWSXRay.captureAWSv3Client(new S3({}), subsegment);
+
+await s3.send(new PutObjectCommand({
+  Bucket: bucketName,
+  Key: keyName,
+  Body: 'Hello!',
+}));
+```
+
+Note that some TypeScript users may have to cast their clients to `any` when patching to avoid type errors. This is just for compatibility with the patcher, and will not impact the end client type if captured as shown below.
+
+```ts
+import { S3, PutObjectCommand } from '@aws-sdk/client-s3';
+
+const s3 = new S3({});
+AWSXRay.captureAWSv3Client(s3 as any, subsegment);
 
 await s3.send(new PutObjectCommand({
   Bucket: bucketName,

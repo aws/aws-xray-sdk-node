@@ -171,23 +171,6 @@ describe('AWS v3 patcher', function() {
         assert.isTrue(sub.error);
       });
 
-      it('should mark the subsegment as throttled and error if code service.throttledError returns true, regardless of status code', async function() {
-        const throttleStub = sandbox.stub(sub, 'addThrottleFlag').returns();
-
-        sandbox.stub(sub, 'addAttribute').returns();
-        sandbox.stub(Aws.prototype, 'init').returns();
-
-        awsRequest.response = {
-          error: { message: 'throttling', code: 'ProvisionedThroughputExceededException' },
-          $metadata: { httpStatusCode: 400 },
-        };
-
-        await awsClient.send(awsRequest).catch(() => null);
-
-        throttleStub.should.have.been.calledOnce;
-        assert.isTrue(sub.error);
-      });
-
       it('should capture an error on the response and mark exception as remote', async function() {
         const closeStub = sandbox.stub(sub, 'close').returns();
         const getCauseStub = sandbox.stub(Utils, 'getCauseTypeFromHttpStatus').returns();

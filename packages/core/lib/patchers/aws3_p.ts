@@ -9,8 +9,6 @@ import {
 
 import { RegionResolvedConfig } from '@aws-sdk/config-resolver';
 
-import { isThrottlingError } from '@aws-sdk/service-error-classification';
-
 import ServiceSegment from '../segments/attributes/aws';
 
 import { stringify } from 'querystring';
@@ -24,7 +22,6 @@ const logger = require('../logger');
 const { safeParseInt } = require('../utils');
 
 import { getCauseTypeFromHttpStatus } from '../utils';
-import { SdkError } from '@aws-sdk/smithy-client';
 import { SegmentLike } from '../aws-xray';
 
 const XRAY_PLUGIN_NAME: string = 'XRaySDKInstrumentation';
@@ -41,7 +38,7 @@ const buildAttributesFromMetadata = async (
   operation: string,
   region: string,
   res: any | null,
-  error: SdkError | null,
+  error: MetadataBearer | null,
 ): Promise<[ServiceSegment, HttpResponse]> => {
   const { extendedRequestId, requestId, httpStatusCode: statusCode, attempts } = res?.output?.$metadata || error?.$metadata;
 
@@ -76,10 +73,10 @@ const buildAttributesFromMetadata = async (
   return [aws, http];
 }
 
-function addFlags(http: HttpResponse, subsegment: Subsegment, err?: SdkError): void {
-  if (err && isThrottlingError(err)) {
+function addFlags(http: HttpResponse, subsegment: Subsegment, err?: MetadataBearer): void {
+  if (safeParseInt(err?.$metadata?.httpStatusCode) === 429) {
     subsegment.addThrottleFlag();
-  } else if (http.response?.status === 429) {
+  } else if (safeParseInt(http.response?.status) === 429) {
     subsegment.addThrottleFlag();
   }
 
