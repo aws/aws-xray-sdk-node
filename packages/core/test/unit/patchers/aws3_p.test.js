@@ -20,7 +20,7 @@ var traceId = '1-57fbe041-2c7ad569f5d6ff149137be86';
 
 describe('AWS v3 patcher', function() {
   describe('#captureAWSClient', function() {
-    var customStub, sandbox, addMiddleware;
+    var customStub, sandbox, useMiddleware;
 
     var awsClient = {
       send: function() {},
@@ -33,44 +33,48 @@ describe('AWS v3 patcher', function() {
     beforeEach(function() {
       sandbox = sinon.createSandbox();
       customStub = sandbox.stub(awsClient, 'send');
-      addMiddleware = sandbox.stub(awsClient.middlewareStack, 'add');
+      useMiddleware = sandbox.stub(awsClient.middlewareStack, 'use');
     });
 
     afterEach(function() {
       sandbox.restore();
     });
 
-    it('should call middlewareStack.add and return the service', function() {
-      var patched = awsPatcher.captureAWSClient(awsClient);
-      addMiddleware.should.have.been.calledOnce;
+    it('should call middlewareStack.use and return the service', function() {
+      const patched = awsPatcher.captureAWSClient(awsClient);
+      useMiddleware.should.have.been.calledOnce;
       assert.equal(patched, awsClient);
     });
   });
 
   describe('#captureAWSRequest', function() {
-    var awsClient, awsRequest, sandbox, segment, stubResolve, stubResolveManual, addNewSubsegmentStub, sub;
+    var awsClient, awsRequest, sandbox, segment, stubResolve, addNewSubsegmentStub, sub;
 
     before(function() {
       awsClient = {
         send: async (req) => {
-          const handler = awsClient.middlewareStack.resolve((args) => args);
+          const context = {
+            clientName: 'S3Client',
+            commandName: 'ListBucketsCommand',
+          };
+          const handler = awsClient.middlewareStack.resolve((args) => {
+            const error = req.response.error;
+            if (error) {
+              const err = new Error(error.message);
+              err.name = error.code;
+              err.$metadata = req.response.$metadata;
+              throw err;
+            }
+            return args;
+          }, context);
           await handler(req);
-          const error = req.response.error;
-          if (error) {
-            const err = new Error(error.message);
-            err.name = error.code;
-            err.$metadata = req.response.$metadata;
-            throw err;
-          }
           return req.response;
         },
         config: {
-          serviceId: 's3',
           region: async () => 'us-east-1',
         },
         middlewareStack: constructStack(),
       };
-      awsClient = awsPatcher.captureAWSClient(awsClient);
     });
 
     beforeEach(function() {
@@ -86,16 +90,18 @@ describe('AWS v3 patcher', function() {
             },
             headers: {}
           };
-          this.response = {
-            $metadata: {}
+          this.response = {};
+          this.output = {
+            $metadata: {
+              requestId: '123',
+              extendedRequestId: '456',
+            }
           };
         }
       })();
 
       segment = new Segment('testSegment', traceId);
       sub = segment.addNewSubsegment('subseg');
-
-      stubResolveManual = sandbox.stub(contextUtils, 'resolveManualSegmentParams');
       stubResolve = sandbox.stub(contextUtils, 'resolveSegment').returns(segment);
       addNewSubsegmentStub = sandbox.stub(segment, 'addNewSubsegment').returns(sub);
     });
@@ -104,111 +110,142 @@ describe('AWS v3 patcher', function() {
       sandbox.restore();
     });
 
-    it.skip('should call to resolve any manual params', function() {
-      awsClient.send(awsRequest);
+    describe('#automaticMode', () => {
+      beforeEach(() => {
+        sandbox.stub(contextUtils, 'isAutomaticMode').returns(true);
+      });
 
-      stubResolveManual.should.have.been.calledWith(awsRequest.params);
+      before(() => {
+        awsClient = awsPatcher.captureAWSClient(awsClient);
+      });
+
+      it('should log an info statement and exit if parent is not found in the context for automatic mode', (done) => {
+        stubResolve.returns();
+        const logStub = sandbox.stub(logger, 'info');
+
+        awsClient.send(awsRequest);
+
+        setTimeout(function() {
+          logStub.should.have.been.calledOnce;
+          done();
+        }, 50);
+      });
+
+      it('should inject the tracing headers', async function() {
+        await awsClient.send(awsRequest);
+
+        assert.isTrue(addNewSubsegmentStub.calledWith('S3'));
+
+        const expected = new RegExp('^Root=' + traceId + ';Parent=' + sub.id + ';Sampled=1$');
+        assert.match(awsRequest.request.headers['X-Amzn-Trace-Id'], expected);
+      });
+
+      it('should close on complete with no errors when code 200 is seen', async function() {
+        const closeStub = sandbox.stub(sub, 'close').returns();
+        sandbox.stub(sub, 'addAttribute').returns();
+        sandbox.stub(Aws.prototype, 'init').returns();
+
+        awsRequest.response = {
+          $metadata: { httpStatusCode: 200 },
+        };
+
+        await awsClient.send(awsRequest);
+
+        closeStub.should.have.been.calledWithExactly();
+      });
+
+      it('should mark the subsegment as throttled and error if code 429 is seen', async function() {
+        const throttleStub = sandbox.stub(sub, 'addThrottleFlag').returns();
+
+        sandbox.stub(sub, 'addAttribute').returns();
+        sandbox.stub(Aws.prototype, 'init').returns();
+
+        awsRequest.response = {
+          error: { message: 'throttling', code: 'ThrottlingError' },
+          $metadata: { httpStatusCode: 429 },
+        };
+
+        await awsClient.send(awsRequest).catch(() => null);
+
+        throttleStub.should.have.been.calledOnce;
+        assert.isTrue(sub.error);
+      });
+
+      it('should mark the subsegment as throttled and error if code service.throttledError returns true, regardless of status code', async function() {
+        const throttleStub = sandbox.stub(sub, 'addThrottleFlag').returns();
+
+        sandbox.stub(sub, 'addAttribute').returns();
+        sandbox.stub(Aws.prototype, 'init').returns();
+
+        awsRequest.response = {
+          error: { message: 'throttling', code: 'ProvisionedThroughputExceededException' },
+          $metadata: { httpStatusCode: 400 },
+        };
+
+        await awsClient.send(awsRequest).catch(() => null);
+
+        throttleStub.should.have.been.calledOnce;
+        assert.isTrue(sub.error);
+      });
+
+      it('should capture an error on the response and mark exception as remote', async function() {
+        const closeStub = sandbox.stub(sub, 'close').returns();
+        const getCauseStub = sandbox.stub(Utils, 'getCauseTypeFromHttpStatus').returns();
+
+        sandbox.stub(sub, 'addAttribute').returns();
+        sandbox.stub(Aws.prototype, 'init').returns();
+
+        const error = { message: 'big error', code: 'Error' };
+
+        awsRequest.response = {
+          error,
+          $metadata: { httpStatusCode: 500 },
+        };
+
+        await awsClient.send(awsRequest).catch(() => null);
+
+        getCauseStub.should.have.been.calledWithExactly(500);
+        closeStub.should.have.been.calledWithExactly(sinon.match({ message: error.message, name: error.code}), true);
+      });
     });
 
-    it('should log an info statement and exit if parent is not found on the context or on the call params', function(done) {
-      stubResolve.returns();
-      var logStub = sandbox.stub(logger, 'info');
+    describe('#manualMode', () => {
+      beforeEach(() => {
+        sandbox.stub(contextUtils, 'isAutomaticMode').returns(false);
+      });
 
-      awsClient.send(awsRequest);
+      it('should log an info statement and exit if parent is not found in the context for manual mode', (done) => {
+        awsClient = awsPatcher.captureAWSClient(awsClient);
+        var logStub = sandbox.stub(logger, 'info');
 
-      setTimeout(function() {
-        logStub.should.have.been.calledOnce;
-        done();
-      }, 50);
-    });
+        awsClient.send(awsRequest);
 
-    it('should inject the tracing headers', async function() {
-      sandbox.stub(contextUtils, 'isAutomaticMode').returns(true);
+        setTimeout(function() {
+          logStub.should.have.been.calledOnce;
+          done();
+        }, 50);
+      });
 
-      awsClient.middlewareStack.add((next) => (args) => {
-        stubResolve.returns(sub);
-        next(args);
-        stubResolve.returns(segment);
-      }, { step: 'build', priority: 'high' });
+      it('should use the provided parent segment', () => {
+        awsClient = awsPatcher.captureAWSClient(awsClient, segment);
 
-      await awsClient.send(awsRequest);
+        awsClient.send(awsRequest);
 
-      assert.isTrue(addNewSubsegmentStub.calledWith('s3'));
+        assert.isTrue(addNewSubsegmentStub.calledWith('S3'));
+      });
 
-      var expected = new RegExp('^Root=' + traceId + ';Parent=' + sub.id + ';Sampled=1$');
-      assert.match(awsRequest.request.headers['X-Amzn-Trace-Id'], expected);
-    });
+      it('should handle several calls to capture', () => {
+        const otherSeg = new Segment('otherTest');
+        const otherAddNewStub = sandbox.stub(otherSeg, 'addNewSubsegment');
 
-    it('should close on complete with no errors when code 200 is seen', async function() {
-      var closeStub = sandbox.stub(sub, 'close').returns();
-      sandbox.stub(contextUtils, 'isAutomaticMode').returns(true);
-      sandbox.stub(sub, 'addAttribute').returns();
-      sandbox.stub(Aws.prototype, 'init').returns();
+        awsClient = awsPatcher.captureAWSClient(awsClient, segment);
+        awsClient.send(awsRequest);
+        assert.isTrue(addNewSubsegmentStub.calledWith('S3'));
 
-      awsRequest.response = {
-        $metadata: { httpStatusCode: 200 },
-      };
-
-      await awsClient.send(awsRequest);
-
-      closeStub.should.have.been.calledWithExactly();
-    });
-
-    it('should mark the subsegment as throttled and error if code 429 is seen', async function() {
-      var throttleStub = sandbox.stub(sub, 'addThrottleFlag').returns();
-
-      sandbox.stub(contextUtils, 'isAutomaticMode').returns(true);
-      sandbox.stub(sub, 'addAttribute').returns();
-      sandbox.stub(Aws.prototype, 'init').returns();
-
-      awsRequest.response = {
-        error: { message: 'throttling', code: 'ThrottlingError' },
-        $metadata: { httpStatusCode: 429 },
-      };
-
-      await awsClient.send(awsRequest).catch(() => null);
-
-      throttleStub.should.have.been.calledOnce;
-      assert.isTrue(sub.error);
-    });
-
-    it('should mark the subsegment as throttled and error if code service.throttledError returns true, regardless of status code', async function() {
-      var throttleStub = sandbox.stub(sub, 'addThrottleFlag').returns();
-
-      sandbox.stub(contextUtils, 'isAutomaticMode').returns(true);
-      sandbox.stub(sub, 'addAttribute').returns();
-      sandbox.stub(Aws.prototype, 'init').returns();
-
-      awsRequest.response = {
-        error: { message: 'throttling', code: 'ProvisionedThroughputExceededException' },
-        $metadata: { httpStatusCode: 400 },
-      };
-
-      await awsClient.send(awsRequest).catch(() => null);
-
-      throttleStub.should.have.been.calledOnce;
-      assert.isTrue(sub.error);
-    });
-
-    it('should capture an error on the response and mark exception as remote', async function() {
-      var closeStub = sandbox.stub(sub, 'close').returns();
-      var getCauseStub = sandbox.stub(Utils, 'getCauseTypeFromHttpStatus').returns();
-
-      sandbox.stub(contextUtils, 'isAutomaticMode').returns(true);
-      sandbox.stub(sub, 'addAttribute').returns();
-      sandbox.stub(Aws.prototype, 'init').returns();
-
-      var error = { message: 'big error', code: 'Error' };
-
-      awsRequest.response = {
-        error,
-        $metadata: { httpStatusCode: 500 },
-      };
-
-      await awsClient.send(awsRequest).catch(() => null);
-
-      getCauseStub.should.have.been.calledWithExactly(500);
-      closeStub.should.have.been.calledWithExactly(sinon.match({ message: error.message, name: error.code}), true);
+        awsClient = awsPatcher.captureAWSClient(awsClient, otherSeg);
+        awsClient.send(awsRequest);
+        assert.isTrue(otherAddNewStub.calledWith('S3'));
+      });
     });
   });
 });

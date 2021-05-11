@@ -56,7 +56,6 @@ jobs:
         if: matrix.coverage
         run: |
           npx lerna bootstrap --hoist
-          npx lerna run compile
           npx lerna run testcov
           npx lerna run reportcov
           echo test
