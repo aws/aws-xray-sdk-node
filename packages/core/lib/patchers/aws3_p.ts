@@ -9,6 +9,10 @@ import {
 
 import { RegionResolvedConfig } from '@aws-sdk/config-resolver';
 
+import { isThrottlingError } from '@aws-sdk/service-error-classification';
+
+import { SdkError } from '@aws-sdk/smithy-client';
+
 import ServiceSegment from '../segments/attributes/aws';
 
 import { stringify } from 'querystring';
@@ -38,7 +42,7 @@ const buildAttributesFromMetadata = async (
   operation: string,
   region: string,
   res: any | null,
-  error: MetadataBearer | null,
+  error: SdkError | null,
 ): Promise<[ServiceSegment, HttpResponse]> => {
   const { extendedRequestId, requestId, httpStatusCode: statusCode, attempts } = res?.output?.$metadata || error?.$metadata;
 
@@ -73,10 +77,10 @@ const buildAttributesFromMetadata = async (
   return [aws, http];
 }
 
-function addFlags(http: HttpResponse, subsegment: Subsegment, err?: MetadataBearer): void {
-  if (safeParseInt(err?.$metadata?.httpStatusCode) === 429) {
+function addFlags(http: HttpResponse, subsegment: Subsegment, err?: SdkError): void {
+  if (err && isThrottlingError(err)) {
     subsegment.addThrottleFlag();
-  } else if (safeParseInt(http.response?.status) === 429) {
+  } else if (safeParseInt(http.response?.status) === 429 || safeParseInt(err?.$metadata?.httpStatusCode) === 429) {
     subsegment.addThrottleFlag();
   }
 
@@ -178,11 +182,7 @@ const getXRayPlugin = (config: RegionResolvedConfig, manualSegment?: SegmentLike
  * @param manualSegment - Parent segment or subsegment that is passed in for manual mode users
  * @returns - the client with the X-Ray instrumentation middleware added to its middleware stack
  */
-export function captureAWSClient<
-  Input extends object,
-  Output extends MetadataBearer,
-  Configuration extends RegionResolvedConfig,
-> (client: Client<Input, Output, Configuration>, manualSegment?: SegmentLike): Client<Input, Output, Configuration> {
+export function captureAWSClient<T extends Client<any, any, any>>(client: T, manualSegment?: SegmentLike): T {
   // Remove existing middleware to ensure operation is idempotent
   client.middlewareStack.remove(XRAY_PLUGIN_NAME);
   client.middlewareStack.use(getXRayPlugin(client.config, manualSegment));
