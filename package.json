@@ -1,6 +1,6 @@
 {
   "name": "aws-xray-sdk-node",
-  "version": "3.3.1",
+  "version": "3.3.2",
   "private": true,
   "license": "Apache-2.0",
   "devDependencies": {
@@ -16,8 +16,8 @@
     "@types/sinon": "^9.0.4",
     "@types/sinon-chai": "^3.2.4",
     "aws-sdk": "^2.304.0",
-    "aws-xray-sdk-core": "3.3.1",
-    "aws-xray-sdk-express": "3.3.1",
+    "aws-xray-sdk-core": "3.3.2",
+    "aws-xray-sdk-express": "3.3.2",
     "chai": "^4.2.0",
     "cls-hooked": "^4.2.2",
     "codecov": "^3.8.1",

@@ -1,6 +1,18 @@
 # Changelog for AWS X-Ray SDK for JavaScript
-<!--LATEST=3.3.1-->
+<!--LATEST=3.3.2-->
 <!--ENTRYINSERT-->
+## 3.3.2
+* change: Updated aws-xray-sdk-core to 3.3.2.
+  * bugfix: coerce content_length and status to ints [PR #402](https://github.com/aws/aws-xray-sdk-node/pull/402)
+  * bugfix: re-implement AWS SDK V3 instrumentation with middleware [PR #416](https://github.com/aws/aws-xray-sdk-node/pull/416)
+  * bugfix: fix TypeScript publishing mechanism [PR #417](https://github.com/aws/aws-xray-sdk-node/pull/417)
+* change: Updated aws-xray-sdk-express to 3.3.2. No further changes.
+* change: Updated aws-xray-sdk-mysql to 3.3.2. No further changes.
+* change: Updated aws-xray-sdk-postgres to 3.3.2. No further changes.
+* change: Updated aws-xray-sdk-restify to 3.3.2. No further changes.
+* change: Updated aws-xray-sdk-koa2 to 3.3.2. No further changes.
+* change: Updated aws-xray-sdk-hapi to 3.3.2. No further changes.
+
 ## 3.3.1
 * change: Updated aws-xray-sdk-core to 3.3.1.
   * rollback: reverted instrumentation for AWS SDK V3 clients [PR #412](https://github.com/aws/aws-xray-sdk-node/pull/412)
