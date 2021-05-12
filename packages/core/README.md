@@ -465,7 +465,7 @@ function sendRequest(host, cb) {
 
 ### Capture all outgoing AWS requests
 
-This is only available for AWS SDK v2 due to the service-oriented architecture of AWS SDK v3.
+This is only available for AWS SDK v2 due to the modular architecture of AWS SDK v3. For more details on the difference between AWS SDK v2 and v3, see this [blog post](https://aws.amazon.com/blogs/developer/modular-aws-sdk-for-javascript-is-now-generally-available/).
 
 ```js
 var AWS = captureAWS(require('aws-sdk'));
@@ -678,7 +678,7 @@ s3.putObject(params, function(err, data) {
 
 ### Capture all outgoing AWS requests
 
-This is only available for AWS SDK v2 due to the service-oriented architecture of AWS SDK v3.
+This is only available for AWS SDK v2 due to the modular architecture of AWS SDK v3. For more details on the difference between AWS SDK v2 and v3, see this [blog post](https://aws.amazon.com/blogs/developer/modular-aws-sdk-for-javascript-is-now-generally-available/).
 
 ```js
 var AWS = captureAWS(require('aws-sdk'));
