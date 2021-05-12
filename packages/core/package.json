@@ -5,10 +5,16 @@
   "author": "Amazon Web Services",
   "contributors": [
     "Sandra McMullen <mcmuls@amazon.com>",
-    "William Armiros <armiros@amazon.com>"
+    "William Armiros <armiros@amazon.com>",
+    "Moritz Onken <onken@netcubed.de>"
   ],
-  "main": "lib/index.js",
-  "types": "lib/index.d.ts",
+  "files": [
+    "dist/lib/**/*",
+    "LICENSE",
+    "README.md"
+  ],
+  "main": "dist/lib/index.js",
+  "types": "dist/lib/index.d.ts",
   "engines": {
     "node": ">= 10.x"
   },
@@ -17,15 +23,22 @@
   },
   "//": "@types/cls-hooked is exposed in API so must be in dependencies, not devDependencies",
   "dependencies": {
-    "@types/cls-hooked": "^4.2.2",
+    "@aws-sdk/types": "^3.4.1",
+    "@aws-sdk/service-error-classification": "^3.4.1",
+    "@types/cls-hooked": "^4.3.3",
     "atomic-batcher": "^1.0.2",
     "cls-hooked": "^4.2.2",
     "semver": "^5.3.0"
   },
   "scripts": {
-    "test": "mocha --recursive ./test/ -R spec && tsd && mocha --recursive ./test_async/ -R spec",
+    "prepare": "npm run compile",
+    "compile": "tsc && npm run copy-lib && npm run copy-test",
+    "copy-lib": "find lib -type f \\( -name '*.d.ts' -o -name '*.json' \\) | xargs -I % ../../scripts/cp-with-structure.sh % dist",
+    "copy-test": "find test -name '*.json' | xargs -I % ../../scripts/cp-with-structure.sh % dist",
+    "test": "npm run compile && mocha --recursive ./dist/test/ -R spec && tsd && mocha --recursive ./dist/test_async/ -R spec",
     "test-d": "tsd",
-    "test-async": "mocha --recursive ./test_async/ -R spec",
+    "test-async": "npm run compile && mocha --recursive ./dist/test_async/ -R spec",
+    "clean": "rm -rf dist && rm -rf node_modules",
     "testcov": "nyc npm run test",
     "reportcov": "nyc report --reporter=text-lcov > coverage.lcov && codecov"
   },

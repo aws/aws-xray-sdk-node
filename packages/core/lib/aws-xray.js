@@ -9,7 +9,7 @@ var LambdaEnv = require('./env/aws_lambda');
 // pkginfo as an empty object
 var pkginfo = {}
 try {
-  pkginfo = require('../package.json');
+  pkginfo = require('../../package.json');
 } catch (err) {
   logging.getLogger().debug('Failed to load SDK data:', err);
 }
@@ -180,8 +180,15 @@ var AWSXRay = {
 
   captureAWSClient: require('./patchers/aws_p').captureAWSClient,
 
+  /**
+   * @param {AWSv3.Service} service - An instance of a AWS SDK v3 service to wrap.
+   * @param {Segment|Subsegment} segment - Optional segment for manual mode.
+   * @memberof AWSXRay
+   * @function
+   * @see module:aws3_p.captureAWSClient
+   */
 
-  captureAWSv3Client: (client) => client,
+  captureAWSv3Client: require('./patchers/aws3_p').captureAWSClient,
 
   /**
    * @param {http|https} module - The built in Node.js HTTP or HTTPS module.

@@ -465,6 +465,8 @@ function sendRequest(host, cb) {
 
 ### Capture all outgoing AWS requests
 
+This is only available for AWS SDK v2 due to the modular architecture of AWS SDK v3. For more details on the difference between AWS SDK v2 and v3, see this [blog post](https://aws.amazon.com/blogs/developer/modular-aws-sdk-for-javascript-is-now-generally-available/).
+
 ```js
 var AWS = captureAWS(require('aws-sdk'));
 
@@ -472,6 +474,23 @@ var AWS = captureAWS(require('aws-sdk'));
 ```
 
 ### Capture outgoing AWS requests on a single client
+
+
+AWS SDK v3
+
+```js
+import { S3, PutObjectCommand } from '@aws-sdk/client-s3';
+
+const s3 = AWSXRay.captureAWSv3Client(new S3({}));
+
+await s3.send(new PutObjectCommand({
+  Bucket: bucketName,
+  Key: keyName,
+  Body: 'Hello!',
+}));
+```
+
+AWS SDK v2
 
 ```js
 var s3 = AWSXRay.captureAWSClient(new AWS.S3());
@@ -623,6 +642,26 @@ function sendRequest(host, cb, subsegment) {
 
 ### Capture outgoing AWS requests on a single client
 
+AWS SDK v3
+
+You must re-capture the client every time the subsegment is attached to a new parent.
+
+```js
+import { S3, PutObjectCommand } from '@aws-sdk/client-s3';
+
+// subsegment is an optional parameter that is required for manual mode
+// and can be omitted in automatic mode (e.g. inside a Lambda function).
+const s3 = AWSXRay.captureAWSv3Client(new S3({}), subsegment);
+
+await s3.send(new PutObjectCommand({
+  Bucket: bucketName,
+  Key: keyName,
+  Body: 'Hello!',
+}));
+```
+
+AWS SDK v2
+
 ```js
 var s3 = AWSXRay.captureAWSClient(new AWS.S3());
 var params = {
@@ -638,6 +677,8 @@ s3.putObject(params, function(err, data) {
 ```
 
 ### Capture all outgoing AWS requests
+
+This is only available for AWS SDK v2 due to the modular architecture of AWS SDK v3. For more details on the difference between AWS SDK v2 and v3, see this [blog post](https://aws.amazon.com/blogs/developer/modular-aws-sdk-for-javascript-is-now-generally-available/).
 
 ```js
 var AWS = captureAWS(require('aws-sdk'));
