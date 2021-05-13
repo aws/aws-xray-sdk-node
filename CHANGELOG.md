@@ -1,6 +1,16 @@
 # Changelog for AWS X-Ray SDK for JavaScript
-<!--LATEST=3.3.2-->
+<!--LATEST=3.3.3-->
 <!--ENTRYINSERT-->
+## 3.3.3
+* change: Updated aws-xray-sdk-core to 3.3.3.
+  * bugfix: corrected require paths that did not reference dist [PR #428](https://github.com/aws/aws-xray-sdk-node/pull/428)
+* change: Updated aws-xray-sdk-express to 3.3.3. No further changes.
+* change: Updated aws-xray-sdk-mysql to 3.3.3. No further changes.
+* change: Updated aws-xray-sdk-postgres to 3.3.3. No further changes.
+* change: Updated aws-xray-sdk-restify to 3.3.3. No further changes.
+* change: Updated aws-xray-sdk-koa2 to 3.3.3. No further changes.
+* change: Updated aws-xray-sdk-hapi to 3.3.3. No further changes.
+
 ## 3.3.2
 * change: Updated aws-xray-sdk-core to 3.3.2.
   * bugfix: coerce content_length and status to ints [PR #402](https://github.com/aws/aws-xray-sdk-node/pull/402)
