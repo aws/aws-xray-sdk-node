@@ -5,8 +5,8 @@ var sinon = require('sinon');
 var sinonChai = require('sinon-chai');
 
 var expressMW = require('../../lib/express_mw');
-var SegmentEmitter = require('../../../core/lib/segment_emitter.js');
-var ServiceConnector = require('../../../core/lib/middleware/sampling/service_connector.js');
+var SegmentEmitter = require('../../../core/dist/lib/segment_emitter.js');
+var ServiceConnector = require('../../../core/dist/lib/middleware/sampling/service_connector.js');
 
 var mwUtils = xray.middleware;
 var IncomingRequestData = xray.middleware.IncomingRequestData;

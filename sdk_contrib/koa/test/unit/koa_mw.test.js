@@ -5,8 +5,8 @@ const sinon = require("sinon").createSandbox();
 const sinonChai = require("sinon-chai");
 
 const { openSegment } = require("../../lib/koa_mw");
-const SegmentEmitter = require("aws-xray-sdk-core/lib/segment_emitter.js");
-const ServiceConnector = require("aws-xray-sdk-core/lib/middleware/sampling/service_connector.js");
+const SegmentEmitter = require("aws-xray-sdk-core/dist/lib/segment_emitter.js");
+const ServiceConnector = require("aws-xray-sdk-core/dist/lib/middleware/sampling/service_connector.js");
 
 const mwUtils = xray.middleware;
 const IncomingRequestData = xray.middleware.IncomingRequestData;

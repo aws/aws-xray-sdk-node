@@ -1,5 +1,4 @@
 const AWSXRay = require('aws-xray-sdk-core');
-const { logger } = require('aws-xray-sdk-core/lib/middleware/sampling/service_connector');
 
 const mwUtils = AWSXRay.middleware;
 
@@ -60,7 +59,7 @@ const expressMW = {
 
       if (segment && err) {
         segment.addError(err);
-        logger.getLogger().debug('Added Express server fault to segment');
+        AWSXRay.getLogger().debug('Added Express server fault to segment');
       }
 
       if (next) next(err);
