@@ -7,8 +7,8 @@ var xray = require('aws-xray-sdk-core');
 var TestEmitter = require('../test_utils').TestEmitter;
 
 var restifyMW = require('../../lib/restify_mw');
-var SegmentEmitter = require('../../../core/lib/segment_emitter.js');
-var ServiceConnector = require('../../../core/lib/middleware/sampling/service_connector.js');
+var SegmentEmitter = require('../../../core/dist/lib/segment_emitter.js');
+var ServiceConnector = require('../../../core/dist/lib/middleware/sampling/service_connector.js');
 
 var mwUtils = xray.middleware;
 var IncomingRequestData = xray.middleware.IncomingRequestData;
