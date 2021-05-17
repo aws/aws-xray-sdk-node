@@ -219,6 +219,7 @@ expectType<void>(subsegment.addSqlData({}));
 const clientRequest = new http.ClientRequest('http://localhost');
 expectType<void>(subsegment.addRemoteRequestData(clientRequest, incomingMessage));
 expectType<void>(subsegment.addRemoteRequestData(clientRequest, incomingMessage, true));
+expectType<void>(subsegment.addRemoteRequestData(clientRequest, incomingMessage, false, {}));
 expectType<true | undefined>(subsegment.streamSubsegments());
 expectType<{ [key: string]: any }>(subsegment.toJSON());
 

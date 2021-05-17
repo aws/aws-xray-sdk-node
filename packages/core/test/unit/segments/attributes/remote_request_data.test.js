@@ -50,5 +50,16 @@ describe('RemoteRequestData', function() {
         ''
       );
     });
+    it('should use the host from the options', () => {
+      const options = {
+        hostname: 'different-site.com'
+      };
+      
+      assert.propertyVal(
+        new RemoteRequestData(request, response, true, options).request,
+        'url',
+        'https://different-site.com/path/to/resource'
+      );
+    });
   });
 });
