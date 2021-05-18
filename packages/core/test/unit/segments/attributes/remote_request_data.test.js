@@ -50,13 +50,11 @@ describe('RemoteRequestData', function() {
         ''
       );
     });
-    it('should use the host from the options', () => {
-      const options = {
-        hostname: 'different-site.com'
-      };
+    it('should use the host from the request object over headers', () => {
+      const requestWithHost = Object.assign(request, { host: 'different-site.com' });
       
       assert.propertyVal(
-        new RemoteRequestData(request, response, true, options).request,
+        new RemoteRequestData(requestWithHost, response, true).request,
         'url',
         'https://different-site.com/path/to/resource'
       );

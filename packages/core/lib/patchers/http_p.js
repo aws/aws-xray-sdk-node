@@ -136,7 +136,7 @@ function enableCapture(module, downstreamXRayEnabled, subsegmentCallback) {
       } else {
         const madeItToDownstream = (e.code !== 'ECONNREFUSED');
 
-        subsegment.addRemoteRequestData(this, null, madeItToDownstream && downstreamXRayEnabled, options);
+        subsegment.addRemoteRequestData(this, null, madeItToDownstream && downstreamXRayEnabled);
         subsegment.close(e);
       }
 
@@ -165,7 +165,7 @@ function enableCapture(module, downstreamXRayEnabled, subsegmentCallback) {
         if (cause)
           subsegment[cause] = true;
 
-        subsegment.addRemoteRequestData(res.req, res, !!downstreamXRayEnabled, options);
+        subsegment.addRemoteRequestData(res.req, res, !!downstreamXRayEnabled);
         subsegment.close();
       });
 

@@ -215,11 +215,10 @@ Subsegment.prototype.addError = function addError(err, remote) {
  * @param {http.ClientRequest/https.ClientRequest} req - The request object from the HTTP/HTTPS call.
  * @param {http.IncomingMessage/https.IncomingMessage} res - The response object from the HTTP/HTTPS call.
  * @param {boolean} downstreamXRayEnabled - when true, adds a "traced": true hint to generated subsegments such that the AWS X-Ray service expects a corresponding segment from the downstream service.
- * @param {object} [options] - Optional HTTP Request options, which will take precedence over header data to populate request metadata.
  */
 
-Subsegment.prototype.addRemoteRequestData = function addRemoteRequestData(req, res, downstreamXRayEnabled, options) {
-  this.http = new RemoteRequestData(req, res, downstreamXRayEnabled, options);
+Subsegment.prototype.addRemoteRequestData = function addRemoteRequestData(req, res, downstreamXRayEnabled) {
+  this.http = new RemoteRequestData(req, res, downstreamXRayEnabled);
   if ('traced' in this.http.request) {
     this.traced = this.http.request.traced;
     delete this.http.request.traced;

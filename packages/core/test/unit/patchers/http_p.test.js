@@ -282,7 +282,7 @@ describe('HTTP/S', function() {
           capturedHttp.request(httpOptions);
 
           setTimeout(function() {
-            addRemoteDataStub.should.have.been.calledWithExactly(fakeRequest, fakeResponse, false, httpOptions);
+            addRemoteDataStub.should.have.been.calledWithExactly(fakeRequest, fakeResponse, false);
             done();
           }, 50);
         });
@@ -293,7 +293,7 @@ describe('HTTP/S', function() {
           capturedHttp.request(httpOptions);
 
           setTimeout(function() {
-            addRemoteDataStub.should.have.been.calledWithExactly(fakeRequest, fakeResponse, true, httpOptions);
+            addRemoteDataStub.should.have.been.calledWithExactly(fakeRequest, fakeResponse, true);
             done();
           }, 50);
         });
