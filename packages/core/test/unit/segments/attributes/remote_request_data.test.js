@@ -10,8 +10,11 @@ describe('RemoteRequestData', function() {
     agent: {
       protocol: 'https:'
     },
-    getHeader: function() {
-      return 'host.com';
+    getHeader: (key) => {
+      if (key === 'host') {
+        return 'host.com';
+      }
+      return undefined;
     },
     path: '/path/to/resource'
   };
@@ -48,6 +51,15 @@ describe('RemoteRequestData', function() {
         new RemoteRequestData(requestWithoutAgent, response, true).request,
         'url',
         ''
+      );
+    });
+    it('should use the host from the request object over headers', () => {
+      const requestWithHost = Object.assign(request, { host: 'different-site.com' });
+      
+      assert.propertyVal(
+        new RemoteRequestData(requestWithHost, response, true).request,
+        'url',
+        'https://different-site.com/path/to/resource'
       );
     });
   });
