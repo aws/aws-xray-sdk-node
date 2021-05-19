@@ -10,8 +10,11 @@ describe('RemoteRequestData', function() {
     agent: {
       protocol: 'https:'
     },
-    getHeader: function() {
-      return 'host.com';
+    getHeader: (key) => {
+      if (key === 'host') {
+        return 'host.com';
+      }
+      return undefined;
     },
     path: '/path/to/resource'
   };
