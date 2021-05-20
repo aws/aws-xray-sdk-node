@@ -20,6 +20,7 @@ jobs:
       - name: Pack SDK packages
         id: package
         run: |
+          npm install typescript
           core_tar=$(cd packages/core && npm pack | tail -1)
           echo "::set-output name=core::$core_tar"
           express_tar=$(cd packages/express && npm pack | tail -1)
