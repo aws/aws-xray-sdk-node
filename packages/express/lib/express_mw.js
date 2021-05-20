@@ -1,4 +1,5 @@
 const AWSXRay = require('aws-xray-sdk-core');
+const { logger } = require('aws-xray-sdk-core/lib/middleware/sampling/service_connector');
 
 const mwUtils = AWSXRay.middleware;
 
