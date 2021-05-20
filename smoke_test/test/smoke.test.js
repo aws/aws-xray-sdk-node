@@ -3,8 +3,8 @@ const AWSXRay = require('aws-xray-sdk');
 const Segment = AWSXRay.Segment;
 
 describe('Smoke Test', () => {
-	it('Segment', () => {
-		const segment = new Segment('test');
-		assert.equal(segment.name, 'test');
-	});
+  it('Segment', () => {
+    const segment = new Segment('test');
+    assert.equal(segment.name, 'test');
+  });
 });
