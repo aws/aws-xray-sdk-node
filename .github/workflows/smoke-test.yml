@@ -22,24 +22,23 @@ jobs:
         run: |
           npm install typescript
           core_tar=$(cd packages/core && npm pack | tail -1)
-          echo "::set-output name=core::$core_tar"
           express_tar=$(cd packages/express && npm pack | tail -1)
-          echo "::set-output name=express::$express_tar"
           mysql_tar=$(cd packages/mysql && npm pack | tail -1)
-          echo "::set-output name=mysql::$mysql_tar"
           postgres_tar=$(cd packages/postgres && npm pack | tail -1)
-          echo "::set-output name=postgres::$postgres_tar"
-          full_tar=$(cd packages/full_sdk && npm pack | tail -1)
-          echo "::set-output name=full::$full_tar"
+          cd packages/full_sdk
+          npm install ../core/$core_tar
+          npm install ../express/$express_tar
+          npm install ../mysql/$mysql_tar
+          npm install ../postgres/$postgres_tar
+          full_tar=$(npm pack | tail -1)
+          echo "::set-output name=full_sdk::$full_tar"
 
       # Manually install the locally bundled packages first, then pull in other test dependencies from NPM
+      # Remove the entire source code directory to force smoke test to depend on packed tarball
       - name: Run smoke test
         run: |
           cd smoke_test
-          npm install ../packages/core/${{ steps.package.outputs.core }}
-          npm install ../packages/express/${{ steps.package.outputs.express }}
-          npm install ../packages/mysql/${{ steps.package.outputs.mysql }}
-          npm install ../packages/postgres/${{ steps.package.outputs.postgres }}
-          npm install ../packages/full_sdk/${{ steps.package.outputs.full }}
+          npm install ../packages/full_sdk/${{ steps.package.outputs.full_sdk }}
           npm install
+          rm -rf ../packages/
           npm run test-smoke
