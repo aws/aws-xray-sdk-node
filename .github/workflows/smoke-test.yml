@@ -1,0 +1,44 @@
+name: Node.js Continuous Integration Smoke Test
+
+on:
+  pull_request:
+    branches: [master]
+
+jobs:
+  smoke-test:
+    name: Run smoke test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout AWS XRay SDK Node Repository @ default branch latest
+        uses: actions/checkout@v2
+
+      - name: Setup Node
+        uses: actions/setup-node@v1
+        with:
+          node-version: '14.x'
+
+      - name: Pack SDK packages
+        id: package
+        run: |
+          core_tar=$(cd packages/core && npm pack | tail -1)
+          echo "::set-output name=core::$core_tar"
+          express_tar=$(cd packages/express && npm pack | tail -1)
+          echo "::set-output name=express::$express_tar"
+          mysql_tar=$(cd packages/mysql && npm pack | tail -1)
+          echo "::set-output name=mysql::$mysql_tar"
+          postgres_tar=$(cd packages/postgres && npm pack | tail -1)
+          echo "::set-output name=postgres::$postgres_tar"
+          full_tar=$(cd packages/full_sdk && npm pack | tail -1)
+          echo "::set-output name=full::$full_tar"
+
+      # Manually install the locally bundled packages first, then pull in other test dependencies from NPM
+      - name: Run smoke test
+        run: |
+          cd smoke_test
+          npm install ../packages/core/${{ steps.package.outputs.core }}
+          npm install ../packages/express/${{ steps.package.outputs.express }}
+          npm install ../packages/mysql/${{ steps.package.outputs.mysql }}
+          npm install ../packages/postgres/${{ steps.package.outputs.postgres }}
+          npm install ../packages/full_sdk/${{ steps.package.outputs.full }}
+          npm install
+          npm run test-smoke
