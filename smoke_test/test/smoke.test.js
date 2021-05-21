@@ -1,10 +1,10 @@
-var assert = require('chai').assert;
-var AWSXRay = require('aws-xray-sdk');
-var Segment = AWSXRay.Segment;
+const assert = require('chai').assert;
+const AWSXRay = require('aws-xray-sdk');
+const Segment = AWSXRay.Segment;
 
-describe('Smoke Test', function() {
-	it('Segment', function() {
-		var segment = new Segment('test');
-        assert.equal(segment.name, 'test');
-	});
+describe('Smoke Test', () => {
+  it('Segment', () => {
+    const segment = new Segment('test');
+    assert.equal(segment.name, 'test');
+  });
 });
