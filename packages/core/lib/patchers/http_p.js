@@ -196,14 +196,19 @@ function enableCapture(module, downstreamXRayEnabled, subsegmentCallback) {
   }
 
   module.__request = module.request;
-  module.request = function captureHTTPsRequest(...args) {
+  function captureHTTPsRequest(...args) {
     return captureOutgoingHTTPs(module.__request, ...args);
-  };
+  }
 
   module.__get = module.get;
-  module.get = function captureHTTPsGet(...args) {
+  function captureHTTPsGet(...args) {
     return captureOutgoingHTTPs(module.__get, ...args);
-  };
+  }
+
+  Object.defineProperties(module, {
+    request: { value: captureHTTPsRequest, configurable: true, enumerable: true, writable: true },
+    get: { value: captureHTTPsGet, configurable: true, enumerable: true, writable: true },
+  });
 }
 
 module.exports.captureHTTPsGlobal = captureHTTPsGlobal;
