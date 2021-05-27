@@ -33,7 +33,7 @@ var Plugin = {
               callback(e);
               return;
             }
-            
+
             callback(null, body);
           } else if (retries > 0 && Math.floor(this.statusCode / 100) === 5) {
             retries--;

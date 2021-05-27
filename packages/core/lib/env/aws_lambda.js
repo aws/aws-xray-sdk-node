@@ -25,10 +25,10 @@ module.exports.init = function init() {
   SegmentEmitter.disableReusableSocket();
   SegmentUtils.setStreamingThreshold(0);
 
-  /** 
+  /**
    * Disabling all centralized sampling in Lambda environments. The sampling decisions would be
    * uselessly applied to the facade segment, and the sampling pollers were causing errors.
-   * 
+   *
    * See: https://github.com/aws/aws-xray-sdk-node/issues/217
    */
   logger.getLogger().info('Disabling centralized sampling in Lambda environment.');

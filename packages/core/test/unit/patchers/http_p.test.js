@@ -74,7 +74,7 @@ describe('HTTP/S', function() {
           path: '/'
         };
       });
-  
+
       afterEach(function() {
         sandbox.restore();
       });
@@ -94,7 +94,7 @@ describe('HTTP/S', function() {
       it('should not create a subsegment when using uninstrumented client', function() {
         captureHTTPsGlobal(httpClient, true);
 
-        httpClient.__request(httpOptions, (res) => {});
+        httpClient.__request(httpOptions, () => {});
 
         expect(newSubsegmentStub).not.to.be.called;
       });

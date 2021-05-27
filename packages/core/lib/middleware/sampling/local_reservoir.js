@@ -7,7 +7,7 @@
  * @param {number} fixedTarget - An integer value to specify the maximum number of traces per second to sample.
  * @param {number} fallbackRate - A value between 0 and 1 indicating the sampling rate after the maximum traces per second has been hit.
  */
- 
+
 function LocalReservoir (fixedTarget, fallbackRate) {
   this.init(fixedTarget, fallbackRate);
 }

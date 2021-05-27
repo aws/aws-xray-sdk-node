@@ -7,7 +7,7 @@ var LambdaEnv = require('./env/aws_lambda');
 // Import Data from package.json,
 // If the importing of package.json fails leave
 // pkginfo as an empty object
-var pkginfo = {}
+var pkginfo = {};
 try {
   pkginfo = require('../../package.json');
 } catch (err) {

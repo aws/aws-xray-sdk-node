@@ -192,10 +192,10 @@ describe('capturePostgres', function() {
       queryObj.text = 'sql statement here';
       queryObj.values = ['hello', 'there'];
 
-      postgres.__query = function(args, values) {
+      postgres.__query = function() {
         this._queryable = true;
         this.queryQueue = [ null, null, queryObj ];
-        var result = new Promise(function(resolve, reject) {
+        var result = new Promise(function(resolve) {
           resolve();
         });
         return result;

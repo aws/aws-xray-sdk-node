@@ -31,7 +31,7 @@ Segment.prototype.init = function init(name, rootId, parentId) {
   } else {
     traceId = new TraceID();
   }
-  
+
   var id = crypto.randomBytes(8).toString('hex');
   var startTime = SegmentUtils.getCurrentTime();
 

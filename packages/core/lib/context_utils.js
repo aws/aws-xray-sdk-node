@@ -28,8 +28,7 @@ var contextUtils = {
       }
     },
     IGNORE_ERROR: {
-      contextMissing: function contextMissingIgnoreError(message) {
-        
+      contextMissing: function contextMissingIgnoreError() {
       }
     }
   },

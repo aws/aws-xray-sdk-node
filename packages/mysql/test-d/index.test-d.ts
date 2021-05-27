@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import * as AWSXRay from 'aws-xray-sdk-core';
 import * as MySQL from 'mysql';
 import { expectType } from 'tsd';
@@ -14,10 +15,10 @@ const pool: captureMySQL.PatchedPool = mysql.createPool(config);
 const poolCluster: captureMySQL.PatchedPoolCluster = mysql.createPoolCluster(config);
 
 const queryCallback: MySQL.queryCallback = function(err: MySQL.MysqlError | null, rows: any) {
-}
+};
 
 const getConnectionCallback = function(err: MySQL.MysqlError, conn: captureMySQL.PatchedConnection) {
-}
+};
 
 expectType<MySQL.Query>(connection.query('SELECT * FROM cats', queryCallback));
 expectType<MySQL.Query>(connection.query('SELECT * FROM cats', queryCallback, segment));

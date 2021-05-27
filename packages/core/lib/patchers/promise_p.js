@@ -20,11 +20,11 @@ function patchPromise(Promise) {
         && tryGetCurrentSegment()
       ) {
         const ns = contextUtils.getNamespace();
-  
+
         onFulfilled = onFulfilled && ns.bind(onFulfilled);
         onRejected = onRejected && ns.bind(onRejected);
       }
-  
+
       return then.call(this, onFulfilled, onRejected);
     };
     Promise.prototype.then[originalThen] = then;

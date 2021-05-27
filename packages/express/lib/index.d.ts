@@ -1,4 +1,4 @@
-import * as AWSXRay from 'aws-xray-sdk-core'
+import * as AWSXRay from 'aws-xray-sdk-core';
 
 declare global {
   namespace Express {

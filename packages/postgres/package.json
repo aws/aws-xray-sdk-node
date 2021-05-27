@@ -22,7 +22,9 @@
   },
   "scripts": {
     "test": "mocha --recursive ./test/ -R spec && tsd",
-    "test-d": "tsd"
+    "test-d": "tsd",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix"
   },
   "keywords": [
     "amazon",

@@ -55,7 +55,7 @@ var RuleCache = {
       if(v !== 0) return v;
       if(a.getName() > b.getName())
         return 1;
-      else 
+      else
         return -1;
     });
   },

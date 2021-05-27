@@ -8,7 +8,7 @@
  * @module koa_mw
  */
 
-const AWSXRay = require("aws-xray-sdk-core");
+const AWSXRay = require('aws-xray-sdk-core');
 
 const mwUtils = AWSXRay.middleware;
 const IncomingRequestData = mwUtils.IncomingRequestData;
@@ -25,9 +25,9 @@ const koaMW = {
    */
 
   openSegment: function openSegment(defaultName) {
-    if (!defaultName || typeof defaultName !== "string")
+    if (!defaultName || typeof defaultName !== 'string')
       throw new Error(
-        "Default segment name was not supplied.  Please provide a string."
+        'Default segment name was not supplied.  Please provide a string.'
       );
 
     mwUtils.setDefaultName(defaultName);
@@ -44,7 +44,7 @@ const koaMW = {
       mwUtils.resolveSampling(amznTraceHeader, segment, ctx);
       segment.addIncomingRequestData(new IncomingRequestData(ctx.req));
 
-      mwUtils.middlewareLog("Starting koa segment", ctx.url, segment);
+      mwUtils.middlewareLog('Starting koa segment', ctx.url, segment);
 
       if (AWSXRay.isAutomaticMode()) {
         const ns = AWSXRay.getNamespace();
@@ -92,7 +92,7 @@ exports._processResponse = (ctx, segment, err) => {
     segment.http.close(ctx.res);
   }
   segment.close(err);
-  const message = err ? "Closed koa segment with error" : "Closed koa segment successfully";
+  const message = err ? 'Closed koa segment with error' : 'Closed koa segment successfully';
   mwUtils.middlewareLog(message, ctx.url, segment);
   if (err) {
     throw err;

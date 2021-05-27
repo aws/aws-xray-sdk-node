@@ -62,3 +62,26 @@ jobs:
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
           CI: true
+
+  lint:
+    name: Check code style
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout AWS XRay SDK Node Repository @ default branch latest
+        uses: actions/checkout@v2
+
+      - name: Setup Node
+        uses: actions/setup-node@v1
+        with:
+          node-version: 14.x
+
+      - name: Cache NPM modules
+        uses: actions/cache@v2
+        with:
+          path: $HOME/.npm
+          key: ${{ hashFiles('package-lock.json') }}
+
+      - name: Lint repository
+        run: |
+          npx lerna bootstrap --hoist
+          npx lerna run lint

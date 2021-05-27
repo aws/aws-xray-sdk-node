@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import * as AWSXRay from 'aws-xray-sdk-core';
 import * as PG from 'pg';
 import { expectType } from 'tsd';
@@ -23,10 +24,10 @@ pool.on('error', (err: Error, client: capturePostgres.PatchedPoolClient) => { })
 
 function testQuery(client: capturePostgres.PatchedClient | capturePostgres.PatchedPoolClient): void {
   const queryCallback = (err: Error, result: PG.QueryResult) => void {
-  }
+  };
 
   const queryArrayCallback = (err: Error, result: PG.QueryArrayResult) => void {
-  }
+  };
 
   const queryStream = new PG.Query();
   expectType<PG.Query>(client.query(queryStream));

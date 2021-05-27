@@ -115,7 +115,7 @@ describe('localSampler', function() {
       assert.equal(rule0.url_path, v1SamplingRules.rules[0].url_path);
       assert.equal(rule0.description, v1SamplingRules.rules[0].description);
       assert.instanceOf(rule0.reservoir, LocalReservoir);
-      
+
       assert.equal(rule1.host, v1SamplingRules.rules[1].service_name);
       assert.equal(rule1.http_method, v1SamplingRules.rules[1].http_method);
       assert.equal(rule1.url_path, v1SamplingRules.rules[1].url_path);

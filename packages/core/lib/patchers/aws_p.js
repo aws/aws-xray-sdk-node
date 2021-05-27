@@ -23,7 +23,7 @@ var throttledErrorDefault = function throttledErrorDefault() {
  * for additional details.
  * @param {AWS} awssdk - The Javascript AWS SDK.
  * @alias module:aws_p.captureAWS
- * @returns {AWS} 
+ * @returns {AWS}
  * @see https://github.com/aws/aws-sdk-js
  */
 
@@ -77,7 +77,7 @@ function captureAWSRequest(req) {
   var stack = (new Error()).stack;
   var subsegment = parent.addNewSubsegment(this.serviceIdentifier);
   var traceId = parent.segment ? parent.segment.trace_id : parent.trace_id;
-  
+
   var buildListener = function(req) {
     req.httpRequest.headers['X-Amzn-Trace-Id'] = 'Root=' + traceId + ';Parent=' + subsegment.id +
       ';Sampled=' + (subsegment.segment.notTraced ? '0' : '1');

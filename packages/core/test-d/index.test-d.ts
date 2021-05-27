@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { Namespace } from 'cls-hooked';
 import * as http from 'http';
 import * as https from 'https';
@@ -71,7 +72,7 @@ tracedFcn(AWSXRay.captureCallbackFunc('callback', callback));
 tracedFcn(AWSXRay.captureCallbackFunc('callback', callback, segment));
 
 function httpSubsegmentCallback(subsegment: AWSXRay.Subsegment, req: http.ClientRequest, res: http.IncomingMessage | null, error: Error) {
-  console.log({ subsegment, req, res, error })
+  console.log({ subsegment, req, res, error });
 }
 
 expectType<typeof http>(AWSXRay.captureHTTPs(http));
@@ -177,7 +178,7 @@ expectType<void>(segment.addPluginData({ elastic_beanstalk: { environment: 'my_e
 const incomingMessage = new http.IncomingMessage(new Socket());
 const serverResponse = new http.ServerResponse(incomingMessage);
 expectType<void>(segment.addIncomingRequestData(new AWSXRay.middleware.IncomingRequestData(incomingMessage)));
-expectType<Segment>(AWSXRay.middleware.traceRequestResponseCycle(incomingMessage, serverResponse))
+expectType<Segment>(AWSXRay.middleware.traceRequestResponseCycle(incomingMessage, serverResponse));
 
 function testSegmentLike(segmentLike: AWSXRay.Segment | AWSXRay.Subsegment) {
   expectType<void>(segmentLike.addAnnotation('key', true));

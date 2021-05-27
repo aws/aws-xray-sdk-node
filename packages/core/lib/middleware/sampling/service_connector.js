@@ -25,17 +25,17 @@ var ServiceConnector = {
     const body = '{}';  // Payload needed for GetSamplingRules POST request
     const options = getOptions(this.samplingRulesPath, body.length);
     const httpReq = this.httpClient.__request ? this.httpClient.__request : this.httpClient.request;
-    
+
     const req = httpReq(options, res => {
       var data = '';
       res.on('data', d => {
         data += d;
       });
-        
+
       res.on('error', error => {
         callback(error);
       });
-  
+
       res.on('end', () => {
         var dataObj;
         try {
@@ -55,10 +55,10 @@ var ServiceConnector = {
       });
     });
 
-    req.on('error', (err) => {
+    req.on('error', () => {
       callback(new Error(`Failed to connect to X-Ray daemon at ${options.hostname}:${options.port} to get sampling rules.`));
     });
-    
+
     req.write(body);
     req.end();
   },
@@ -67,17 +67,17 @@ var ServiceConnector = {
     const body = JSON.stringify(constructStatisticsDocs(rules));
     const options = getOptions(this.samplingTargetsPath, body.length);
     const httpReq = this.httpClient.__request ? this.httpClient.__request : this.httpClient.request;
-    
+
     const req = httpReq(options, res => {
       var data = '';
       res.on('data', d => {
         data += d;
       });
-        
+
       res.on('error', error => {
-        callback(error)
+        callback(error);
       });
-  
+
       res.on('end', () => {
         var dataObj;
         try {
@@ -98,10 +98,10 @@ var ServiceConnector = {
       });
     });
 
-    req.on('error', (err) => {
+    req.on('error', () => {
       callback(new Error(`Failed to connect to X-Ray daemon at ${options.hostname}:${options.port} to get sampling targets.`));
     });
-    
+
     req.write(body);
     req.end();
   }
@@ -180,7 +180,7 @@ var isRuleValid = function isRuleValid(record) {
 };
 
 var dateToEpoch = function dateToEpoch(date) {
-  return new Date(date).getTime() / 1000; 
+  return new Date(date).getTime() / 1000;
 };
 
 var getOptions = function getOptions(path, contentLength) {

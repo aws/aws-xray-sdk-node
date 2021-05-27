@@ -1,5 +1,4 @@
 import * as AWSXRay from 'aws-xray-sdk-core';
-import { Request } from 'restify';
 
 declare module 'restify' {
   interface Request {

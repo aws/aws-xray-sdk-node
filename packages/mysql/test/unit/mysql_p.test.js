@@ -194,10 +194,10 @@ describe('captureMySQL', function() {
 
   describe('#capturePromiseQuery', function() {
     describe('for basic connections', function() {
-      var conn, resolvedConn, mysql, queryObj, sandbox, segment, stubAddNew, stubBaseQuery, subsegment;
+      var conn, resolvedConn, mysql, queryObj, sandbox, segment, stubAddNew, subsegment;
 
       before(function() {
-        conn = new Promise(function(resolve, reject) {
+        conn = new Promise(function(resolve) {
           resolve({
             connection: {
               config: {
@@ -209,9 +209,9 @@ describe('captureMySQL', function() {
               query: function() {}
             },
             query: function() {
-              var self = this, args = arguments;
-              return new Promise(function(resolve, reject) {
-                self.connection.query.apply(self.connection, args);
+              var args = arguments;
+              return new Promise((resolve) => {
+                this.connection.query.apply(this.connection, args);
                 resolve();
               });
             }
@@ -238,7 +238,7 @@ describe('captureMySQL', function() {
 
         mysql.createConnection().then(function (result) {
           resolvedConn = result;
-          stubBaseQuery = sandbox.stub(resolvedConn.connection, '__query').returns(queryObj);
+          sandbox.stub(resolvedConn.connection, '__query').returns(queryObj);
           done();
         });
       });

@@ -38,7 +38,7 @@ declare namespace capturePostgres {
 
     <R extends PG.QueryResultRow = any, I extends any[] = any[]>(
       queryText: string,
-      values: any[],
+      values: I,
       callback: (err: Error, result: PG.QueryResult<R>) => void,
       segment?: AWSXRay.SegmentLike
     ): void;
@@ -66,8 +66,8 @@ declare namespace capturePostgres {
   }
 
   interface PatchedPoolOnMethod {
-    (event: "error", listener: (err: Error, client: PatchedPoolClient) => void): PatchedPool;
-    (event: "connect" | "acquire" | "remove", listener: (client: PatchedPoolClient) => void): PatchedPool;
+    (event: 'error', listener: (err: Error, client: PatchedPoolClient) => void): PatchedPool;
+    (event: 'connect' | 'acquire' | 'remove', listener: (client: PatchedPoolClient) => void): PatchedPool;
   }
 
   type PatchedPool<T = PG.Pool> = {
@@ -83,7 +83,7 @@ declare namespace capturePostgres {
   }
 
   interface PatchedEventsOnMethod {
-    (event: "error", listener: (err: Error, client: PatchedClient) => void): PatchedEvents;
+    (event: 'error', listener: (err: Error, client: PatchedClient) => void): PatchedEvents;
   }
 
   type PatchedEvents<T = PG.Events> = {

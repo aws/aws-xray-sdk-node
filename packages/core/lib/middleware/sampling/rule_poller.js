@@ -46,7 +46,7 @@ var refreshCache = function refreshCache() {
   var now = Math.floor(new Date().getTime() / 1000);
 
   // Pass a callback that only runs when the new rules are
-  // successfully fetched. 
+  // successfully fetched.
   ServiceConnector.fetchSamplingRules(function(err, newRules) {
     if (err) {
       logger.getLogger().warn('Failed to retrieve sampling rules from X-Ray service:', err);

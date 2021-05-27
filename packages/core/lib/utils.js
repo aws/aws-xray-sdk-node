@@ -26,11 +26,11 @@ var utils = {
   /**
    * Removes the query string parameters from a given http request path
    * as it may contain sensitive information
-   * 
+   *
    * Related issue: https://github.com/aws/aws-xray-sdk-node/issues/246
-   * 
+   *
    * Node documentation: https://nodejs.org/api/http.html#http_http_request_url_options_callback
-   * 
+   *
    * @param {string} path - options.path in a http.request callback
    * @returns [string] - removes query string element from path
    * @alias module:utils.stripQueryStringFromPath
@@ -156,7 +156,7 @@ var utils = {
       logger.getLogger().debug('Lambda trace data found: ' + xAmznTraceId);
       var data = utils.processTraceData(xAmznTraceId);
       var valid = false;
-      
+
       if (!data) {
         data = {};
         logger.getLogger().error('_X_AMZN_TRACE_ID is empty or has an invalid format');
@@ -173,7 +173,7 @@ var utils = {
         logger.getLogger().error('_X_AMZN_TRACE_ID contains invalid trace ID');
         valid = false;
       }
-        
+
       if (!parseInt(data.sampled))
         segment.notTraced = true;
       else

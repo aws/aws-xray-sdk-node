@@ -4,7 +4,6 @@ var sinon = require('sinon');
 var sinonChai = require('sinon-chai');
 
 var CapturedException = require('../../../../lib/segments/attributes/captured_exception');
-var SegmentEmitter = require('../../../../lib/segment_emitter');
 var SegmentUtils = require('../../../../lib/segments/segment_utils');
 var Subsegment = require('../../../../lib/segments/attributes/subsegment');
 
