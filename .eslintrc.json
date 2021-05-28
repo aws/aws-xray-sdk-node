@@ -6,7 +6,9 @@
     },
     "parser": "@typescript-eslint/parser",
     "extends": [
-        "plugin:@typescript-eslint/recommended"
+        "plugin:@typescript-eslint/recommended",
+        "plugin:import/recommended",
+        "plugin:import/typescript"
     ],
     "rules": {
         "indent": [
@@ -44,6 +46,6 @@
         "@typescript-eslint/no-non-null-assertion": "off"
     },
     "parserOptions": {
-        "ecmaVersion": 2017
+        "ecmaVersion": 2020
     }
 }
