@@ -16,6 +16,7 @@
             2
         ],
         "no-console": "off",
+        "import/no-unresolved": "off",
         "linebreak-style": [
             "error",
             "unix"
