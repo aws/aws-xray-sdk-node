@@ -7,7 +7,7 @@ AWSXRay.capturePostgres = require('aws-xray-sdk-postgres');
 // Import Data from package.json,
 // If the importing of package.json fails leave
 // pkginfo as an empty object
-var pkginfo = {}
+var pkginfo = {};
 try {
   pkginfo = require('../package.json');
 } catch (err) {

@@ -30,8 +30,9 @@ var events = require('events');
  */
 
 var captureHTTPsGlobal = function captureHTTPsGlobal(module, downstreamXRayEnabled, subsegmentCallback) {
-  if (!module.__request)
+  if (!module.__request) {
     enableCapture(module, downstreamXRayEnabled, subsegmentCallback);
+  }
 };
 
 /**
@@ -48,8 +49,9 @@ var captureHTTPsGlobal = function captureHTTPsGlobal(module, downstreamXRayEnabl
  */
 
 var captureHTTPs = function captureHTTPs(module, downstreamXRayEnabled, subsegmentCallback) {
-  if (module.__request)
+  if (module.__request) {
     return module;
+  }
 
   var tracedModule = {};
 
@@ -118,15 +120,17 @@ function enableCapture(module, downstreamXRayEnabled, subsegmentCallback) {
     const root = parent.segment ? parent.segment : parent;
     subsegment.namespace = 'remote';
 
-    if (!options.headers)
+    if (!options.headers) {
       options.headers = {};
+    }
 
     options.headers['X-Amzn-Trace-Id'] = 'Root=' + root.trace_id + ';Parent=' + subsegment.id +
       ';Sampled=' + (!root.notTraced ? '1' : '0');
 
     const errorCapturer = function errorCapturer(e) {
-      if (subsegmentCallback)
+      if (subsegmentCallback) {
         subsegmentCallback(subsegment, this, null, e);
+      }
 
       if (subsegment.http && subsegment.http.response) {
         if (Utils.getCauseTypeFromHttpStatus(subsegment.http.response.status) === 'error') {
@@ -154,16 +158,19 @@ function enableCapture(module, downstreamXRayEnabled, subsegmentCallback) {
 
     let req = baseFunc(...(hasUrl ? [arg0, optionsCopy] : [options]), function(res) {
       res.on('end', function() {
-        if (subsegmentCallback)
+        if (subsegmentCallback) {
           subsegmentCallback(subsegment, this.req, res);
+        }
 
-        if (res.statusCode === 429)
+        if (res.statusCode === 429) {
           subsegment.addThrottleFlag();
+        }
 
         const cause = Utils.getCauseTypeFromHttpStatus(res.statusCode);
 
-        if (cause)
+        if (cause) {
           subsegment[cause] = true;
+        }
 
         subsegment.addRemoteRequestData(res.req, res, !!downstreamXRayEnabled);
         subsegment.close();

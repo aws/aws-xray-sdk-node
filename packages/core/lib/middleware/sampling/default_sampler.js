@@ -22,15 +22,18 @@ var DefaultSampler = {
    */
   shouldSample: function shouldSample(sampleRequest) {
     try {
-      if (!this.started) this.start();
-      if (!sampleRequest.serviceType) sampleRequest.serviceType = SegmentUtils.origin;
+      if (!this.started) {
+        this.start();
+      }
+      if (!sampleRequest.serviceType) {
+        sampleRequest.serviceType = SegmentUtils.origin;
+      }
       var now = Math.floor(new Date().getTime() / 1000);
       var matchedRule = this.ruleCache.getMatchedRule(sampleRequest, now);
-      if(matchedRule) {
+      if (matchedRule) {
         logger.getLogger().debug(util.format('Rule %s is matched.', matchedRule.getName()));
         return processMatchedRule(matchedRule, now);
-      }
-      else {
+      } else {
         logger.getLogger().info('No effective centralized sampling rule match. Fallback to local rules.');
         return this.localSampler.shouldSample(sampleRequest);
       }
@@ -54,7 +57,7 @@ var DefaultSampler = {
    * @function start
    */
   start: function start() {
-    if(!this.started) {
+    if (!this.started) {
       this.rulePoller.start();
       this.targetPoller.start();
       this.started = true;
@@ -69,20 +72,22 @@ var processMatchedRule = function processMatchedRule(rule, now) {
   var sample = true;
   // We check if we can borrow or take from reservoir first.
   var decision = reservoir.borrowOrTake(now, rule.canBorrow());
-  if(decision === 'borrow')
+  if (decision === 'borrow') {
     rule.incrementBorrowCount();
-  else if (decision === 'take')
+  } else if (decision === 'take') {
     rule.incrementSampledCount();
-  // Otherwise we compute based on FixedRate of this sampling rule.
-  else if (Math.random() <= rule.getRate())
+  } else if (Math.random() <= rule.getRate()) {
+    // Otherwise we compute based on FixedRate of this sampling rule.
     rule.incrementSampledCount();
-  else
+  } else {
     sample = false;
+  }
 
-  if(sample)
+  if (sample) {
     return rule.getName();
-  else
+  } else {
     return false;
+  }
 };
 
 module.exports = DefaultSampler;

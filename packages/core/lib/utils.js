@@ -17,20 +17,21 @@ var utils = {
 
   getCauseTypeFromHttpStatus: function getCauseTypeFromHttpStatus(status) {
     var stat = status.toString();
-    if (stat.match(/^[4][0-9]{2}$/) !== null)
+    if (stat.match(/^[4][0-9]{2}$/) !== null) {
       return 'error';
-    else if (stat.match(/^[5][0-9]{2}$/) !== null)
+    } else if (stat.match(/^[5][0-9]{2}$/) !== null) {
       return 'fault';
+    }
   },
 
   /**
    * Removes the query string parameters from a given http request path
    * as it may contain sensitive information
-   * 
+   *
    * Related issue: https://github.com/aws/aws-xray-sdk-node/issues/246
-   * 
+   *
    * Node documentation: https://nodejs.org/api/http.html#http_http_request_url_options_callback
-   * 
+   *
    * @param {string} path - options.path in a http.request callback
    * @returns [string] - removes query string element from path
    * @alias module:utils.stripQueryStringFromPath
@@ -52,11 +53,13 @@ var utils = {
    */
 
   wildcardMatch: function wildcardMatch(pattern, text) {
-    if (pattern === undefined || text === undefined)
+    if (pattern === undefined || text === undefined) {
       return false;
+    }
 
-    if (pattern.length === 1 && pattern.charAt(0) === '*')
+    if (pattern.length === 1 && pattern.charAt(0) === '*') {
       return true;
+    }
 
     var patternLength = pattern.length;
     var textLength = text.length;
@@ -71,19 +74,21 @@ var utils = {
       var match = function simpleWildcardMatch() {
         var j = 0;
 
-        for(var i = 0; i < patternLength; i++) {
+        for (var i = 0; i < patternLength; i++) {
           var patternChar = pattern.charAt(i);
-          if(patternChar === '*') {
+          if (patternChar === '*') {
             // Presumption for this method is that globs only occur at end
             return true;
           } else if (patternChar === '?') {
-            if(j === textLength)
-              return false; // No character to match
+            if (j === textLength) {
+              return false;
+            } // No character to match
 
             j++;
           } else {
-            if (j >= textLength || patternChar != text.charAt(j))
+            if (j >= textLength || patternChar != text.charAt(j)) {
               return false;
+            }
 
             j++;
           }
@@ -115,16 +120,19 @@ var utils = {
       var patternChar = pattern.charAt(j);
 
       if (patternChar != '*') {
-        for(i = textLength - 1; i >= 0; i--)
+        for (i = textLength - 1; i >= 0; i--) {
           matchArray[i+1] = !!matchArray[i] && (patternChar === '?' || (patternChar === text.charAt(i)));
+        }
       } else {
         i = 0;
 
-        while (i <= textLength && !matchArray[i])
+        while (i <= textLength && !matchArray[i]) {
           i++;
+        }
 
-        for(i; i <= textLength; i++)
+        for (i; i <= textLength; i++) {
           matchArray[i] = true;
+        }
       }
       matchArray[0] = (matchArray[0] && patternChar === '*');
     }
@@ -156,7 +164,7 @@ var utils = {
       logger.getLogger().debug('Lambda trace data found: ' + xAmznTraceId);
       var data = utils.processTraceData(xAmznTraceId);
       var valid = false;
-      
+
       if (!data) {
         data = {};
         logger.getLogger().error('_X_AMZN_TRACE_ID is empty or has an invalid format');
@@ -173,11 +181,12 @@ var utils = {
         logger.getLogger().error('_X_AMZN_TRACE_ID contains invalid trace ID');
         valid = false;
       }
-        
-      if (!parseInt(data.sampled))
+
+      if (!parseInt(data.sampled)) {
         segment.notTraced = true;
-      else
+      } else {
         delete segment.notTraced;
+      }
 
       logger.getLogger().debug('Segment started: ' + JSON.stringify(data));
       return valid;
@@ -196,12 +205,14 @@ var utils = {
     var reservedKeywords = ['root', 'parent', 'sampled', 'self'];
     var remainingBytes = 256;
 
-    if (!(typeof traceData === 'string' && traceData))
+    if (!(typeof traceData === 'string' && traceData)) {
       return amznTraceData;
+    }
 
     traceData.split(';').forEach(function(header) {
-      if (!header)
+      if (!header) {
         return;
+      }
 
       var pair = header.split('=');
 
@@ -235,8 +246,12 @@ var utils = {
     preservePrototype = typeof preservePrototype === 'boolean' ? preservePrototype : false;
     var target = preservePrototype ? Object.create(Object.getPrototypeOf(obj))  : {};
     for (var property in obj) {
-      if (keys.indexOf(property) >= 0) continue;
-      if (!Object.prototype.hasOwnProperty.call(obj, property)) continue;
+      if (keys.indexOf(property) >= 0) {
+        continue;
+      }
+      if (!Object.prototype.hasOwnProperty.call(obj, property)) {
+        continue;
+      }
       target[property] = obj[property];
     }
     return target;

@@ -21,8 +21,7 @@ CapturedException.prototype.init = function init(err, remote) {
     var stack = e.stack.split('\n');
     stack.shift();
 
-    var self = this;
-    stack.forEach(function(stackline) {
+    stack.forEach((stackline) => {
       var line = stackline.trim().replace(/\(|\)/g, '');
       line = line.substring(line.indexOf(' ') + 1);
 
@@ -36,8 +35,8 @@ CapturedException.prototype.init = function init(err, remote) {
         label: label || 'anonymous'
       };
 
-      self.stack.push(entry);
-    });
+      this.stack.push(entry);
+    }, this);
   }
 };
 

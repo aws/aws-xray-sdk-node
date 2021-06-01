@@ -12,14 +12,17 @@ function SqlData(databaseVer, driverVer, user, url, queryType) {
 }
 
 SqlData.prototype.init = function init(databaseVer, driverVer, user, url, queryType) {
-  if (databaseVer)
+  if (databaseVer) {
     this.database_version = databaseVer;
+  }
 
-  if (driverVer)
+  if (driverVer) {
     this.driver_version = driverVer;
+  }
 
-  if (queryType)
+  if (queryType) {
     this.preparation = queryType;
+  }
 
   this.url = url;
   this.user = user;

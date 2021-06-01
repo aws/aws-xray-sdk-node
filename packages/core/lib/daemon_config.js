@@ -11,7 +11,7 @@ var DaemonConfig = {
   tcp_port: 2000,
 
   setDaemonAddress: function setDaemonAddress(address) {
-    if(!process.env.AWS_XRAY_DAEMON_ADDRESS) {
+    if (!process.env.AWS_XRAY_DAEMON_ADDRESS) {
       processAddress(address);
       logger.getLogger().info('Configured daemon address to ' + address + '.');
     } else {
@@ -22,23 +22,24 @@ var DaemonConfig = {
 };
 
 var processAddress = function processAddress(address) {
-  if(address.indexOf(':') === -1) {
+  if (address.indexOf(':') === -1) {
     throw new Error('Invalid Daemon Address. You must specify an ip and port.');
   } else {
     var splitAddress = address.split(' ');
     if (splitAddress.length === 1) {
       // in format of 127.0.0.1:2000
-      if(address.indexOf('udp') > -1 || address.indexOf('tcp') > -1) {
+      if (address.indexOf('udp') > -1 || address.indexOf('tcp') > -1) {
         throw new Error('Invalid Daemon Address. You must specify both tcp and udp addresses.');
       }
       var addr = address.split(':');
-      if(!addr[0]) throw new Error('Invalid Daemon Address. You must specify an ip.');
+      if (!addr[0]) {
+        throw new Error('Invalid Daemon Address. You must specify an ip.');
+      }
       DaemonConfig.udp_ip = addr[0];
       DaemonConfig.tcp_ip = addr[0];
       DaemonConfig.udp_port = addr[1];
       DaemonConfig.tcp_port = addr[1];
-    }
-    else if(splitAddress.length === 2) {
+    } else if (splitAddress.length === 2) {
       // in format of udp:127.0.0.1:2000 tcp:127.0.0.1:2001
       var part_1 = splitAddress[0].split(':');
       var part_2 = splitAddress[1].split(':');
@@ -51,13 +52,14 @@ var processAddress = function processAddress(address) {
       DaemonConfig.tcp_ip = addr_map['tcp'][1];
       DaemonConfig.tcp_port = parseInt(addr_map['tcp'][2]);
 
-      if(!DaemonConfig.udp_port || !DaemonConfig.tcp_port) {
+      if (!DaemonConfig.udp_port || !DaemonConfig.tcp_port) {
         throw new Error('Invalid Daemon Address. You must specify port number.');
       }
     }
   }
 };
 
-if(process.env.AWS_XRAY_DAEMON_ADDRESS)
+if (process.env.AWS_XRAY_DAEMON_ADDRESS) {
   processAddress(process.env.AWS_XRAY_DAEMON_ADDRESS);
+}
 module.exports = DaemonConfig;

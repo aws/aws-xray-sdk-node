@@ -49,7 +49,9 @@ describe('AWS patcher', function() {
 
     it('should throw an error if the AWSSDK is below the minimum required version', function() {
       awssdk.VERSION = '1.2.5';
-      assert.throws(function() { awsPatcher.captureAWS(awssdk); }, Error);
+      assert.throws(function() {
+        awsPatcher.captureAWS(awssdk);
+      }, Error);
     });
   });
 
@@ -85,7 +87,9 @@ describe('AWS patcher', function() {
       };
 
       awsClient = {
-        customizeRequests: function customizeRequests(captureAWSRequest) { this.call = captureAWSRequest; },
+        customizeRequests: function customizeRequests(captureAWSRequest) {
+          this.call = captureAWSRequest;
+        },
         throttledError: function throttledError() {}
       };
       awsClient = awsPatcher.captureAWSClient(awsClient);
@@ -109,10 +113,11 @@ describe('AWS patcher', function() {
       };
 
       awsRequest.on = function(event, fcn) {
-        if (event === 'complete')
+        if (event === 'complete') {
           this.emitter.on(event, fcn.bind(this, this.response));
-        else
+        } else {
           this.emitter.on(event, fcn.bind(this, this));
+        }
         return this;
       };
 

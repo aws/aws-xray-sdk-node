@@ -58,7 +58,7 @@ var utils = {
     if (!res) {
       return ret;
     }
-    
+
     const status = safeParseInt(res.statusCode);
     if (status !== 0) {
       ret.status = status;

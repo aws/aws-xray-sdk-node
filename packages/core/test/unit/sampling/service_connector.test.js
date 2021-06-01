@@ -13,7 +13,7 @@ chai.use(require('sinon-chai'));
 function buildFakeResponse() {
   var response = new TestEmitter();
   return response;
-};
+}
 
 function buildFakeRequest(res, data, invalid, isRulesRequest) {
   var requestObj;
@@ -32,21 +32,22 @@ function buildFakeRequest(res, data, invalid, isRulesRequest) {
   request.connection = { remoteAddress: 'myhost' };
   request.write = () => {};
   request.end = () => {
-    if (invalid)
+    if (invalid) {
       res.emit('data', 'nonJsonResponse');
-    else
+    } else {
       res.emit('data', JSON.stringify(requestObj));
+    }
 
     res.emit('end');
   };
   return request;
-};
+}
 
 function generateMockRulesClient(samplingRules, invalidResponse) {
   var res = buildFakeResponse();
   var req = buildFakeRequest(res, samplingRules, invalidResponse, true);
   return buildFakeHttpClient(req, res);
-};
+}
 
 function generateMockTargetClient(targetResponse, invalidResponse) {
   var res = buildFakeResponse();
@@ -61,18 +62,18 @@ function buildFakeHttpClient(req, res) {
       return req;
     }
   };
-};
+}
 
 describe('ServiceConnector', function() {
   var sandbox;
 
   // The only way to spy this method is if it's in an object
   var callbackObj = {
-    errCallback: function(err, _) {
+    errCallback: function(err) {
       assert.isNotNull(err);
     }
-  }
-  
+  };
+
   this.beforeEach(function() {
     sandbox = sinon.createSandbox();
     sandbox.spy(callbackObj, 'errCallback');
@@ -215,7 +216,6 @@ describe('ServiceConnector', function() {
     it('catches request errors and does not crash', function() {
       let response = buildFakeResponse();
       let request = buildFakeRequest(response, [], false, true);
-      let onSpy = sandbox.spy(response, 'on');
       sandbox.stub(ServiceConnector, 'httpClient')
         .value(buildFakeHttpClient(request, response));
 
@@ -226,7 +226,7 @@ describe('ServiceConnector', function() {
     it('Only calls callback once after getting an invalid API response', function() {
       // Generates a client that returns an invalid (non-JSON) response
       sandbox.stub(ServiceConnector, 'httpClient').value(generateMockRulesClient(null, true));
-      
+
       ServiceConnector.fetchSamplingRules(callbackObj.errCallback);
 
       callbackObj.errCallback.should.have.been.calledOnce;
@@ -255,7 +255,7 @@ describe('ServiceConnector', function() {
     it('Only calls callback once after getting an invalid API response', function() {
       // Generates a client that returns an invalid (non-JSON) response
       sandbox.stub(ServiceConnector, 'httpClient').value(generateMockRulesClient(null, true));
-      
+
       ServiceConnector.fetchTargets([], callbackObj.errCallback);
 
       callbackObj.errCallback.should.have.been.calledOnce;
@@ -275,7 +275,7 @@ describe('ServiceConnector', function() {
         ],
         UnprocessedStatistics: []
       };
-      
+
       sandbox.stub(ServiceConnector, 'httpClient').value(generateMockTargetClient(responseObj, false));
 
       ServiceConnector.fetchTargets([], (err, mapping, freshness) => {
@@ -283,7 +283,7 @@ describe('ServiceConnector', function() {
         assert.isObject(mapping);
         assert.isNotNull(freshness);
         assert.isDefined(freshness);
-        done()
+        done();
       });
     });
   });
@@ -299,7 +299,7 @@ describe('ServiceConnector', function() {
       requestSpy = sandbox.stub(ServiceConnector.httpClient, 'request').returns({
         write: () => {},
         end: () => {},
-        on: (event, func) => {}
+        on: () => {}
       });
     });
 

@@ -263,8 +263,9 @@ describe('Utils', function() {
 
   describe('#wildcardMatch', function() {
     it('should match anything on "*"', function() {
-      for (var i = 0; i < 10; i++)
+      for (var i = 0; i < 10; i++) {
         assert.equal(Utils.wildcardMatch('*', TestUtils.randomString(50)), true);
+      }
     });
 
     it('should match a single character on "?"', function() {

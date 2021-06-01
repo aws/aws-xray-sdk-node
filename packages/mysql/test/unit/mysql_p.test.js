@@ -51,7 +51,9 @@ describe('captureMySQL', function() {
           query: function() {}
         };
 
-        mysql = { createConnection: function() { return conn; } };
+        mysql = { createConnection: function() {
+          return conn;
+        } };
         mysql = captureMySQL(mysql);
         connectionObj = mysql.createConnection();
       });
@@ -98,7 +100,9 @@ describe('captureMySQL', function() {
 
       it('should start a new automatic context and close the subsegment via the callback if supplied', function(done) {
         var stubClose = sandbox.stub(subsegment, 'close');
-        var session = { run: function(fcn) { fcn(); }};
+        var session = { run: function(fcn) {
+          fcn();
+        }};
         var stubRun = sandbox.stub(session, 'run');
 
         sandbox.stub(AWSXRay, 'getNamespace').returns(session);
@@ -117,7 +121,9 @@ describe('captureMySQL', function() {
 
       it('should pass any additional query options if supplied', function (done) {
         var stubClose = sandbox.stub(subsegment, 'close');
-        var session = { run: function (fcn) { fcn(); } };
+        var session = { run: function (fcn) {
+          fcn();
+        } };
         var stubRun = sandbox.stub(session, 'run');
         var typeCast = sinon.stub();
 
@@ -173,7 +179,9 @@ describe('captureMySQL', function() {
 
       it('should capture arguments correctly when using mysql2 argument order', function (done) {
         var stubClose = sandbox.stub(subsegment, 'close');
-        var session = { run: function (fcn) { fcn(); } };
+        var session = { run: function (fcn) {
+          fcn();
+        } };
         var stubRun = sandbox.stub(session, 'run');
         var typeCast = sinon.stub();
 
@@ -194,10 +202,10 @@ describe('captureMySQL', function() {
 
   describe('#capturePromiseQuery', function() {
     describe('for basic connections', function() {
-      var conn, resolvedConn, mysql, queryObj, sandbox, segment, stubAddNew, stubBaseQuery, subsegment;
+      var conn, resolvedConn, mysql, queryObj, sandbox, segment, stubAddNew, subsegment;
 
       before(function() {
-        conn = new Promise(function(resolve, reject) {
+        conn = new Promise(function(resolve) {
           resolve({
             connection: {
               config: {
@@ -209,16 +217,18 @@ describe('captureMySQL', function() {
               query: function() {}
             },
             query: function() {
-              var self = this, args = arguments;
-              return new Promise(function(resolve, reject) {
-                self.connection.query.apply(self.connection, args);
+              var args = arguments;
+              return new Promise((resolve) => {
+                this.connection.query.apply(this.connection, args);
                 resolve();
               });
             }
           });
         });
 
-        mysql = { createConnection: function() { return conn; } };
+        mysql = { createConnection: function() {
+          return conn;
+        } };
         mysql = captureMySQL(mysql);
       });
 
@@ -238,7 +248,7 @@ describe('captureMySQL', function() {
 
         mysql.createConnection().then(function (result) {
           resolvedConn = result;
-          stubBaseQuery = sandbox.stub(resolvedConn.connection, '__query').returns(queryObj);
+          sandbox.stub(resolvedConn.connection, '__query').returns(queryObj);
           done();
         });
       });
@@ -288,14 +298,16 @@ describe('captureMySQL', function() {
     });
   });
 
-  describe('#capturePool', function(){
-    it('should patch getConnection on the pool', function(){
+  describe('#capturePool', function() {
+    it('should patch getConnection on the pool', function() {
       var pool = {
         query: function() {},
         getConnection: function() {}
       };
       var mysql = {
-        createPool: function() { return pool; }
+        createPool: function() {
+          return pool;
+        }
       };
 
       var mysqlObj = captureMySQL(mysql);
@@ -305,7 +317,7 @@ describe('captureMySQL', function() {
       assert.equal(patched.getConnection.name, 'patchedGetConnection');
     });
 
-    describe('for basic connections', function(){
+    describe('for basic connections', function() {
       var conn, connectionObj, pool, poolObj, mysql, query, queryObj, sandbox, segment, stubAddNew, stubBaseQuery, subsegment;
 
       before(function(done) {
@@ -320,13 +332,19 @@ describe('captureMySQL', function() {
         };
         pool = {
           query: function() {},
-          getConnection: function(callback) { return callback(undefined, conn); }
+          getConnection: function(callback) {
+            return callback(undefined, conn);
+          }
         };
 
-        mysql = { createPool: function() { return pool; } };
+        mysql = { createPool: function() {
+          return pool;
+        } };
         mysql = captureMySQL(mysql);
         poolObj = mysql.createPool();
-        poolObj.getConnection(function (err, connection) {connectionObj = connection; return done();});
+        poolObj.getConnection(function (err, connection) {
+          connectionObj = connection; return done();
+        });
       });
 
       beforeEach(function() {
@@ -371,7 +389,9 @@ describe('captureMySQL', function() {
 
       it('should start a new automatic context and close the subsegment via the callback if supplied', function(done) {
         var stubClose = sandbox.stub(subsegment, 'close');
-        var session = { run: function(fcn) { fcn(); }};
+        var session = { run: function(fcn) {
+          fcn();
+        }};
         var stubRun = sandbox.stub(session, 'run');
 
         sandbox.stub(AWSXRay, 'getNamespace').returns(session);
@@ -390,8 +410,8 @@ describe('captureMySQL', function() {
     });
   });
 
-  describe('#capturePromisePool', function(){
-    describe('for basic connections', function(){
+  describe('#capturePromisePool', function() {
+    describe('for basic connections', function() {
       var conn, connectionObj, pool, poolObj, mysql, query, queryObj, sandbox, segment, stubAddNew, stubBaseQuery, subsegment;
 
       before(function(done) {
@@ -406,10 +426,14 @@ describe('captureMySQL', function() {
         };
         pool = {
           query: function() {},
-          getConnection: function() { return Promise.resolve(conn); }
+          getConnection: function() {
+            return Promise.resolve(conn);
+          }
         };
 
-        mysql = { createPool: function() { return pool; } };
+        mysql = { createPool: function() {
+          return pool;
+        } };
         mysql = captureMySQL(mysql);
         poolObj = mysql.createPool();
         poolObj.getConnection()
@@ -461,7 +485,9 @@ describe('captureMySQL', function() {
 
       it('should start a new automatic context and close the subsegment via the callback if supplied', function(done) {
         var stubClose = sandbox.stub(subsegment, 'close');
-        var session = { run: function(fcn) { fcn(); }};
+        var session = { run: function(fcn) {
+          fcn();
+        }};
         var stubRun = sandbox.stub(session, 'run');
 
         sandbox.stub(AWSXRay, 'getNamespace').returns(session);
@@ -480,15 +506,17 @@ describe('captureMySQL', function() {
     });
   });
 
-  describe('#capturePoolCluster', function(){
-    it('should patch getConnection and of on the poolCluster', function(){
+  describe('#capturePoolCluster', function() {
+    it('should patch getConnection and of on the poolCluster', function() {
       var poolCluster = {
         query: function() {},
         getConnection: function() {},
         of: function() {}
       };
       var mysql = {
-        createPoolCluster: function() { return poolCluster; }
+        createPoolCluster: function() {
+          return poolCluster;
+        }
       };
 
       var mysqlObj = captureMySQL(mysql);
@@ -500,7 +528,7 @@ describe('captureMySQL', function() {
       assert.equal(patched.of.name, 'patchedOf');
     });
 
-    it('should patch the pool returned by of', function(){
+    it('should patch the pool returned by of', function() {
       var pool = {
         query: function() {},
         getConnection: function() {}
@@ -508,10 +536,14 @@ describe('captureMySQL', function() {
       var poolCluster = {
         query: function() {},
         getConnection: function() {},
-        of: function() {return pool;}
+        of: function() {
+          return pool;
+        }
       };
       var mysql = {
-        createPoolCluster: function() { return poolCluster; }
+        createPoolCluster: function() {
+          return poolCluster;
+        }
       };
 
       var mysqlObj = captureMySQL(mysql);
@@ -522,7 +554,7 @@ describe('captureMySQL', function() {
       assert.equal(patchedPool.getConnection.name, 'patchedGetConnection');
     });
 
-    describe('for basic connections', function(){
+    describe('for basic connections', function() {
       var conn, connectionObj, poolCluster, poolClusterObj, mysql, query, queryObj, sandbox, segment, stubAddNew, stubBaseQuery, subsegment;
 
       before(function(done) {
@@ -538,16 +570,24 @@ describe('captureMySQL', function() {
         poolCluster = {
           query: function() {},
           getConnection: function(patternOrCb, selectorOrCb, callback) {
-            if (patternOrCb instanceof Function) return patternOrCb(undefined, conn);
-            else if (selectorOrCb instanceof Function) return selectorOrCb(undefined, conn);
-            else return callback(undefined, conn);
+            if (patternOrCb instanceof Function) {
+              return patternOrCb(undefined, conn);
+            } else if (selectorOrCb instanceof Function) {
+              return selectorOrCb(undefined, conn);
+            } else {
+              return callback(undefined, conn);
+            }
           }
         };
 
-        mysql = { createPoolCluster: function() { return poolCluster; } };
+        mysql = { createPoolCluster: function() {
+          return poolCluster;
+        } };
         mysql = captureMySQL(mysql);
         poolClusterObj = mysql.createPoolCluster();
-        poolClusterObj.getConnection(function (err, connection) {connectionObj = connection; return done();});
+        poolClusterObj.getConnection(function (err, connection) {
+          connectionObj = connection; return done();
+        });
       });
 
       beforeEach(function() {
@@ -592,7 +632,9 @@ describe('captureMySQL', function() {
 
       it('should start a new automatic context and close the subsegment via the callback if supplied', function(done) {
         var stubClose = sandbox.stub(subsegment, 'close');
-        var session = { run: function(fcn) { fcn(); }};
+        var session = { run: function(fcn) {
+          fcn();
+        }};
         var stubRun = sandbox.stub(session, 'run');
 
         sandbox.stub(AWSXRay, 'getNamespace').returns(session);

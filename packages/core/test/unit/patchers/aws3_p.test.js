@@ -20,7 +20,7 @@ var traceId = '1-57fbe041-2c7ad569f5d6ff149137be86';
 
 describe('AWS v3 patcher', function() {
   describe('#captureAWSClient', function() {
-    var customStub, sandbox, useMiddleware;
+    var sandbox, useMiddleware;
 
     var awsClient = {
       send: function() {},
@@ -32,7 +32,6 @@ describe('AWS v3 patcher', function() {
 
     beforeEach(function() {
       sandbox = sinon.createSandbox();
-      customStub = sandbox.stub(awsClient, 'send');
       useMiddleware = sandbox.stub(awsClient.middlewareStack, 'use');
     });
 

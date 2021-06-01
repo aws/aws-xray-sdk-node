@@ -4,7 +4,6 @@ var sinon = require('sinon');
 var sinonChai = require('sinon-chai');
 
 var CapturedException = require('../../../../lib/segments/attributes/captured_exception');
-var SegmentEmitter = require('../../../../lib/segment_emitter');
 var SegmentUtils = require('../../../../lib/segments/segment_utils');
 var Subsegment = require('../../../../lib/segments/attributes/subsegment');
 
@@ -65,7 +64,9 @@ describe('Subsegment', function() {
     });
 
     it('should throw an error if trying to add a non-subsegment', function() {
-      assert.throws( function() { subsegment.addSubsegment({ key: 'x' }); }, Error);
+      assert.throws( function() {
+        subsegment.addSubsegment({ key: 'x' });
+      }, Error);
     });
 
     it('should add the new subsegment to the subsegments array' , function() {
@@ -117,7 +118,9 @@ describe('Subsegment', function() {
     });
 
     it('should throw an error on other types', function() {
-      assert.throws(function() { subsegment.addError(3); });
+      assert.throws(function() {
+        subsegment.addError(3);
+      });
     });
 
     it('should set fault to true by default', function() {
@@ -253,12 +256,16 @@ describe('Subsegment', function() {
 
     it('should throw an error if the subsegment has no parent', function() {
       delete child.parent;
-      assert.throws( function() { child.flush(); }, Error);
+      assert.throws( function() {
+        child.flush();
+      }, Error);
     });
 
     it('should throw an error if the subsegment has no segment', function() {
       delete child.segment;
-      assert.throws( function() { child.flush(); }, Error);
+      assert.throws( function() {
+        child.flush();
+      }, Error);
     });
 
     it('should set the parent_id, trace_id and type properties', function() {

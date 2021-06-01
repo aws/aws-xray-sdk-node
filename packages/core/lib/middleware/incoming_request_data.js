@@ -14,9 +14,10 @@ IncomingRequestData.prototype.init = function init(req) {
   var forwarded = !!req.headers['x-forwarded-for'];
   var url;
 
-  if (req.connection)
+  if (req.connection) {
     url = ((req.connection.secure || req.connection.encrypted) ? 'https://' : 'http://') +
       ((req.headers['host'] || '') + (req.url || ''));
+  }
 
   this.request = {
     method: req.method || '',
@@ -25,21 +26,23 @@ IncomingRequestData.prototype.init = function init(req) {
     url: url || '',
   };
 
-  if (forwarded)
+  if (forwarded) {
     this.request.x_forwarded_for = forwarded;
+  }
 };
 
 var getClientIp = function getClientIp(req) {
   var clientIp;
 
-  if (req.headers['x-forwarded-for'])
+  if (req.headers['x-forwarded-for']) {
     clientIp = (req.headers['x-forwarded-for'] || '').split(',')[0];
-  else if (req.connection && req.connection.remoteAddress)
+  } else if (req.connection && req.connection.remoteAddress) {
     clientIp = req.connection.remoteAddress;
-  else if (req.socket && req.socket.remoteAddress)
+  } else if (req.socket && req.socket.remoteAddress) {
     clientIp = req.socket.remoteAddress;
-  else if (req.connection && req.connection.socket && req.connection.socket.remoteAddress)
+  } else if (req.connection && req.connection.socket && req.connection.socket.remoteAddress) {
     clientIp = req.connection.socket.remoteAddress;
+  }
 
   return clientIp;
 };

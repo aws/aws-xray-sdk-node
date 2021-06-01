@@ -23,8 +23,9 @@ var PREPARED = 'statement';
  */
 
 module.exports = function capturePostgres(pg) {
-  if (pg.Client.prototype.__query)
+  if (pg.Client.prototype.__query) {
     return pg;
+  }
 
   pg.Client.prototype.__query = pg.Client.prototype.query;
   pg.Client.prototype.query = captureQuery;

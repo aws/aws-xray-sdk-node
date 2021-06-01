@@ -8,4 +8,4 @@ export {
   express,
   captureMySQL,
   capturePostgres
-}
+};

@@ -1,0 +1,59 @@
+{
+    "env": {
+        "node": true,
+        "mocha": true,
+        "es6": true
+    },
+    "parser": "@typescript-eslint/parser",
+    "extends": [
+        "plugin:@typescript-eslint/recommended",
+        "plugin:import/recommended",
+        "plugin:import/typescript"
+    ],
+    "rules": {
+        "indent": [
+            "error",
+            2
+        ],
+        "curly": [
+            "error",
+            "all"
+        ],
+        "space-before-blocks": "error",
+        "no-console": "off",
+        "brace-style": "error",
+        "keyword-spacing": "error",
+        "import/no-unresolved": "off",
+        "linebreak-style": [
+            "error",
+            "unix"
+        ],
+        "quotes": [
+            "error",
+            "single"
+        ],
+        "semi": [
+            "error",
+            "always"
+        ],
+        "eol-last": [
+            "error",
+            "always"
+        ],
+        "no-trailing-spaces": "error",
+        
+        /** Turn off enforcement */
+        "@typescript-eslint/ban-types": "off",
+        "@typescript-eslint/ban-ts-comment": "off",
+        "@typescript-eslint/no-var-requires": "off",
+        "@typescript-eslint/no-empty-function": "off",
+        "@typescript-eslint/no-empty-interface": "off",
+        "@typescript-eslint/no-explicit-any": "off",
+        "@typescript-eslint/explicit-module-boundary-types": "off",
+        "prefer-rest-params": "off",
+        "@typescript-eslint/no-non-null-assertion": "off"
+    },
+    "parserOptions": {
+        "ecmaVersion": 2020
+    }
+}

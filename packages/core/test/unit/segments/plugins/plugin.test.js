@@ -6,7 +6,7 @@ var Plugin = require('../../../../lib/segments/plugins/plugin');
 
 describe('Plugin', function() {
   const METADATA_HOST = 'http://localhost';
-  
+
   describe('#getPluginMetadata', function() {
     var data = { data: 1234 };
     var getPluginMetadata = Plugin.getPluginMetadata;

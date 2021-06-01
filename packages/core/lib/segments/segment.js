@@ -21,8 +21,9 @@ function Segment(name, rootId, parentId) {
 }
 
 Segment.prototype.init = function init(name, rootId, parentId) {
-  if (typeof name != 'string')
+  if (typeof name != 'string') {
     throw new Error('Segment name must be of type string.');
+  }
 
   // Validate the Trace ID
   var traceId;
@@ -31,7 +32,7 @@ Segment.prototype.init = function init(name, rootId, parentId) {
   } else {
     traceId = new TraceID();
   }
-  
+
   var id = crypto.randomBytes(8).toString('hex');
   var startTime = SegmentUtils.getCurrentTime();
 
@@ -42,20 +43,25 @@ Segment.prototype.init = function init(name, rootId, parentId) {
   this.in_progress = true;
   this.counter = 0;
 
-  if (parentId)
+  if (parentId) {
     this.parent_id = parentId;
+  }
 
-  if (SegmentUtils.serviceData)
+  if (SegmentUtils.serviceData) {
     this.setServiceData(SegmentUtils.serviceData);
+  }
 
-  if (SegmentUtils.pluginData)
+  if (SegmentUtils.pluginData) {
     this.addPluginData(SegmentUtils.pluginData);
+  }
 
-  if (SegmentUtils.origin)
+  if (SegmentUtils.origin) {
     this.origin = SegmentUtils.origin;
+  }
 
-  if (SegmentUtils.sdkData)
+  if (SegmentUtils.sdkData) {
     this.setSDKData(SegmentUtils.sdkData);
+  }
 };
 
 /**
@@ -81,8 +87,9 @@ Segment.prototype.addAnnotation = function addAnnotation(key, value) {
     return;
   }
 
-  if (this.annotations === undefined)
+  if (this.annotations === undefined) {
     this.annotations = {};
+  }
 
   this.annotations[key] = value;
 };
@@ -141,16 +148,22 @@ Segment.prototype.setSDKData = function setSDKData(data) {
     return;
   }
 
-  if (!this.aws)
+  if (!this.aws) {
     this.aws = {};
+  }
 
   this.aws.xray = data;
 };
 
 Segment.prototype.setMatchedSamplingRule = function setMatchedSamplingRule(ruleName) {
-  if(this.aws) this.aws = JSON.parse(JSON.stringify(this.aws));
-  if(this.aws && this.aws['xray']) this.aws.xray['rule_name'] = ruleName;
-  else this.aws = {xray: {'rule_name': ruleName}};
+  if (this.aws) {
+    this.aws = JSON.parse(JSON.stringify(this.aws));
+  }
+  if (this.aws && this.aws['xray']) {
+    this.aws.xray['rule_name'] = ruleName;
+  } else {
+    this.aws = {xray: {'rule_name': ruleName}};
+  }
 };
 
 /**
@@ -174,8 +187,9 @@ Segment.prototype.setServiceData = function setServiceData(data) {
  */
 
 Segment.prototype.addPluginData = function addPluginData(data) {
-  if (this.aws === undefined)
+  if (this.aws === undefined) {
     this.aws = {};
+  }
 
   Object.assign(this.aws, data);
 };
@@ -197,18 +211,21 @@ Segment.prototype.addNewSubsegment = function addNewSubsegment(name) {
  */
 
 Segment.prototype.addSubsegment = function addSubsegment(subsegment) {
-  if (!(subsegment instanceof Subsegment))
+  if (!(subsegment instanceof Subsegment)) {
     throw new Error('Cannot add subsegment: ' + subsegment + '. Not a subsegment.');
+  }
 
-  if (this.subsegments === undefined)
+  if (this.subsegments === undefined) {
     this.subsegments = [];
+  }
 
   subsegment.segment = this;
   subsegment.parent = this;
   this.subsegments.push(subsegment);
 
-  if (!subsegment.end_time)
+  if (!subsegment.end_time) {
     this.incrementCounter(subsegment.counter);
+  }
 };
 
 /**
@@ -224,8 +241,9 @@ Segment.prototype.removeSubsegment = function removeSubsegment(subsegment) {
   if (this.subsegments !== undefined) {
     var index = this.subsegments.indexOf(subsegment);
 
-    if (index >= 0)
+    if (index >= 0) {
       this.subsegments.splice(index, 1);
+    }
   }
 };
 
@@ -307,8 +325,9 @@ Segment.prototype.incrementCounter = function incrementCounter(additional) {
     var open = [];
 
     this.subsegments.forEach(function(child) {
-      if (!child.streamSubsegments())
+      if (!child.streamSubsegments()) {
         open.push(child);
+      }
     });
 
     this.subsegments = open;
@@ -335,11 +354,13 @@ Segment.prototype.decrementCounter = function decrementCounter() {
  */
 
 Segment.prototype.close = function(err, remote) {
-  if (!this.end_time)
+  if (!this.end_time) {
     this.end_time = SegmentUtils.getCurrentTime();
+  }
 
-  if (err !== undefined)
+  if (err !== undefined) {
     this.addError(err, remote);
+  }
 
   delete this.in_progress;
   delete this.exception;
@@ -370,8 +391,9 @@ Segment.prototype.flush = function flush() {
 Segment.prototype.format = function format() {
   var ignore = ['segment', 'parent', 'counter'];
 
-  if (this.subsegments == null || this.subsegments.length === 0)
+  if (this.subsegments == null || this.subsegments.length === 0) {
     ignore.push('subsegments');
+  }
 
   var thisCopy = Utils.objectWithoutProperties(
     this,

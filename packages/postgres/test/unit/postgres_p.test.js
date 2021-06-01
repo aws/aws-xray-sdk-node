@@ -107,7 +107,9 @@ describe('capturePostgres', function() {
 
     it('should start a new automatic context and close the subsegment via the callback if supplied', function(done) {
       var stubClose = sandbox.stub(subsegment, 'close');
-      var session = { run: function(fcn) { fcn(); }};
+      var session = { run: function(fcn) {
+        fcn();
+      }};
       var stubRun = sandbox.stub(session, 'run');
 
       sandbox.stub(AWSXRay, 'getNamespace').returns(session);
@@ -192,10 +194,10 @@ describe('capturePostgres', function() {
       queryObj.text = 'sql statement here';
       queryObj.values = ['hello', 'there'];
 
-      postgres.__query = function(args, values) {
+      postgres.__query = function() {
         this._queryable = true;
         this.queryQueue = [ null, null, queryObj ];
-        var result = new Promise(function(resolve, reject) {
+        var result = new Promise(function(resolve) {
           resolve();
         });
         return result;

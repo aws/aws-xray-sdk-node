@@ -184,7 +184,7 @@ describe('Express middleware', function() {
   });
 
   describe('#close', function() {
-    var segment, close;
+    var segment, close, sandbox, req, res;
     beforeEach(function() {
       xray.enableManualMode();
       segment = new Segment('test');
@@ -201,7 +201,7 @@ describe('Express middleware', function() {
       xray.enableAutomaticMode();
       sandbox.restore();
     });
-    
+
     it('should add error using express middleware', function() {
       const segment = req.segment;
       close(new Error(), req, res);
@@ -209,5 +209,5 @@ describe('Express middleware', function() {
       assert.property(segment, 'cause');
       assert.property(segment.cause, 'exceptions');
     });
-  })
+  });
 });

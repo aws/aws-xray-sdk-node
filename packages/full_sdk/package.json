@@ -20,7 +20,9 @@
   },
   "scripts": {
     "test": "tsd",
-    "test-d": "tsd"
+    "test-d": "tsd",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix"
   },
   "keywords": [
     "amazon",

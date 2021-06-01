@@ -300,10 +300,18 @@ describe('Middleware utils', function() {
     });
 
     it('should throw an error on bad values', function() {
-      assert.throws(function() { MWUtils.setSamplingRules(); });
-      assert.throws(function() { MWUtils.setSamplingRules(null); });
-      assert.throws(function() { MWUtils.setSamplingRules(0); });
-      assert.throws(function() { MWUtils.setSamplingRules(new String('')); });
+      assert.throws(function() {
+        MWUtils.setSamplingRules();
+      });
+      assert.throws(function() {
+        MWUtils.setSamplingRules(null);
+      });
+      assert.throws(function() {
+        MWUtils.setSamplingRules(0);
+      });
+      assert.throws(function() {
+        MWUtils.setSamplingRules(new String(''));
+      });
     });
   });
 

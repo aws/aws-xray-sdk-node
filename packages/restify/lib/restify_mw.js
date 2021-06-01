@@ -26,11 +26,13 @@ var restifyMW = {
    */
 
   enable: function enable(server, defaultName) {
-    if (!server)
+    if (!server) {
       throw new Error('Restify server instance to enable was not supplied. Please provide a server.');
+    }
 
-    if (!defaultName || typeof defaultName !== 'string')
+    if (!defaultName || typeof defaultName !== 'string') {
       throw new Error('Default segment name was not supplied. Please provide a string.');
+    }
 
     mwUtils.setDefaultName(defaultName);
     AWSXRay.getLogger().debug('Enabling AWS X-Ray for Restify.');
@@ -48,15 +50,20 @@ var restifyMW = {
         ns.run(function() {
           AWSXRay.setSegment(segment);
 
-          if (next) { next(); }
+          if (next) {
+            next();
+          }
         });
       } else {
-        if (req.set)
+        if (req.set) {
           req.set('XRaySegment', segment);
-        else
+        } else {
           req.segment = segment;
+        }
 
-        if (next) { next(); }
+        if (next) {
+          next();
+        }
       }
     });
 

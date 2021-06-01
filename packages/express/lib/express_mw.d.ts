@@ -1,4 +1,4 @@
-import { ErrorRequestHandler, RequestHandler, Request } from 'express';
+import { ErrorRequestHandler, RequestHandler } from 'express';
 
 export function openSegment(defaultName: string): RequestHandler;
 

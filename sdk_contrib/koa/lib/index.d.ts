@@ -1,4 +1,4 @@
-import * as AWSXRay from "aws-xray-sdk-core";
+import * as AWSXRay from 'aws-xray-sdk-core';
 
 declare global {
   namespace Koa {
@@ -8,4 +8,4 @@ declare global {
   }
 }
 
-export * from "./koa_mw";
+export * from './koa_mw';

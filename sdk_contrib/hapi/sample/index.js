@@ -1,30 +1,30 @@
-"use strict";
+'use strict';
 
-const Hapi = require("@hapi/hapi");
-const xrayPlugin = require("./xray-plugin");
+const Hapi = require('@hapi/hapi');
+const xrayPlugin = require('./xray-plugin');
 
 const init = async () => {
   const server = Hapi.server({
     port: 3010,
-    host: "localhost",
+    host: 'localhost',
   });
 
   server.route({
-    method: "GET",
-    path: "/",
-    // eslint-disable-next-line no-unused-vars
+    method: 'GET',
+    path: '/',
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     handler: (request, h) => {
-      return "Hello World!";
+      return 'Hello World!';
     },
   });
 
   await server.register(xrayPlugin);
 
   await server.start();
-  console.log("Server running on %s", server.info.uri);
+  console.log('Server running on %s', server.info.uri);
 };
 
-process.on("unhandledRejection", (err) => {
+process.on('unhandledRejection', (err) => {
   console.log(err);
   process.exit(1);
 });

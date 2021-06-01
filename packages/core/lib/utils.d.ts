@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import Segment = require('./segments/segment');
 
 export function getCauseTypeFromHttpStatus(status: number | string): 'error' | 'fault' | undefined;

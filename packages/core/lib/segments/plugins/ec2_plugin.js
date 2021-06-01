@@ -37,7 +37,7 @@ var EC2Plugin = {
     }
 
     /**
-     * This kicks off a requet to get a token used for requests to IMDSv2. If the request for the token 
+     * This kicks off a requet to get a token used for requests to IMDSv2. If the request for the token
      * fails, we fall back to IMDSv1. Otherwise, the token will be used for an IMDSv2 request.
      */
     getToken(function(token) {

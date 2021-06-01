@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { Namespace } from 'cls-hooked';
 import * as http from 'http';
 import * as https from 'https';
@@ -47,10 +48,16 @@ expectType<TraceID>(TraceID.Invalid());
 expectType<string>(traceId2.toString());
 
 expectType<string>(AWSXRay.captureFunc('tracedFcn', () => 'OK', segment));
-expectType<void>(AWSXRay.captureFunc('tracedFcn', () => { return; }));
-expectType<never>(AWSXRay.captureFunc('tracedFcn', () => { throw new Error(); }));
+expectType<void>(AWSXRay.captureFunc('tracedFcn', () => {
+  return;
+}));
+expectType<never>(AWSXRay.captureFunc('tracedFcn', () => {
+  throw new Error();
+}));
 let subseg: AWSXRay.Subsegment | undefined;
-expectType<void>(AWSXRay.captureFunc('tracedFcn', (sub) => { subseg = sub; }, segment));
+expectType<void>(AWSXRay.captureFunc('tracedFcn', (sub) => {
+  subseg = sub;
+}, segment));
 
 async function fcn(seg?: AWSXRay.Subsegment) {
   if (seg) {
@@ -71,7 +78,7 @@ tracedFcn(AWSXRay.captureCallbackFunc('callback', callback));
 tracedFcn(AWSXRay.captureCallbackFunc('callback', callback, segment));
 
 function httpSubsegmentCallback(subsegment: AWSXRay.Subsegment, req: http.ClientRequest, res: http.IncomingMessage | null, error: Error) {
-  console.log({ subsegment, req, res, error })
+  console.log({ subsegment, req, res, error });
 }
 
 expectType<typeof http>(AWSXRay.captureHTTPs(http));
@@ -177,7 +184,7 @@ expectType<void>(segment.addPluginData({ elastic_beanstalk: { environment: 'my_e
 const incomingMessage = new http.IncomingMessage(new Socket());
 const serverResponse = new http.ServerResponse(incomingMessage);
 expectType<void>(segment.addIncomingRequestData(new AWSXRay.middleware.IncomingRequestData(incomingMessage)));
-expectType<Segment>(AWSXRay.middleware.traceRequestResponseCycle(incomingMessage, serverResponse))
+expectType<Segment>(AWSXRay.middleware.traceRequestResponseCycle(incomingMessage, serverResponse));
 
 function testSegmentLike(segmentLike: AWSXRay.Segment | AWSXRay.Subsegment) {
   expectType<void>(segmentLike.addAnnotation('key', true));

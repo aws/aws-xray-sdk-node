@@ -15,7 +15,7 @@ function createLoggerForLevel(level) {
 
   if (loggerLevel >= logLevel) {
     return (message, meta) => {
-      if(message || meta) {
+      if (message || meta) {
         consoleMethod(formatLogMessage(level, message, meta));
       }
     };

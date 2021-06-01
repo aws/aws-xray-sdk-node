@@ -11,7 +11,9 @@ var DEFAULT_INTERVAL = 5 * 60 * 1000; // 5 minutes on sampling rules fetch
 var RulePoller = {
 
   start: function start() {
-    if(this.poller) clearInterval(this.poller);
+    if (this.poller) {
+      clearInterval(this.poller);
+    }
 
     // Refresh sampling rules cache with no jitter upon start.
     refresh(false);
@@ -20,16 +22,16 @@ var RulePoller = {
   },
 };
 
-var refresh = function refresh(jitter){
+var refresh = function refresh(jitter) {
   // Add jitter by default unless explicitly told not to.
   jitter = typeof jitter === 'undefined' ? true : jitter;
 
-  if(jitter) {
+  if (jitter) {
     var delay = getJitter();
     setTimeout(refreshWithFirewall, delay);
-  }
-  else
+  } else {
     refreshWithFirewall();
+  }
 };
 
 var refreshWithFirewall = function refreshWithFirewall() {
@@ -46,11 +48,11 @@ var refreshCache = function refreshCache() {
   var now = Math.floor(new Date().getTime() / 1000);
 
   // Pass a callback that only runs when the new rules are
-  // successfully fetched. 
+  // successfully fetched.
   ServiceConnector.fetchSamplingRules(function(err, newRules) {
     if (err) {
       logger.getLogger().warn('Failed to retrieve sampling rules from X-Ray service:', err);
-    } else if(newRules.length !== 0) {
+    } else if (newRules.length !== 0) {
       ruleCache.loadRules(newRules);
       ruleCache.timestamp(now);
       logger.getLogger().info('Successfully refreshed centralized sampling rule cache.');

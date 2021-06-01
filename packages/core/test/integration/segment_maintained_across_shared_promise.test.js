@@ -1,5 +1,3 @@
-/* global Promise */
-
 if (!global.Promise) {
   process.exit(0);
 }

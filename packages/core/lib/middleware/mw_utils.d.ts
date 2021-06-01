@@ -61,4 +61,4 @@ export function setSamplingRules(source: string | RulesConfig): void;
 
 export {
   IncomingRequestData
-}
+};

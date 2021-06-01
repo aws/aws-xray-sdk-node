@@ -32,8 +32,9 @@ var utils = {
   enableDynamicNaming: function(hostPattern) {
     this.dynamicNaming = true;
 
-    if (hostPattern && typeof hostPattern !== 'string')
+    if (hostPattern && typeof hostPattern !== 'string') {
       throw new Error('Host pattern must be a string.');
+    }
 
     this.hostPattern = hostPattern || null;
   },
@@ -65,10 +66,11 @@ var utils = {
   resolveName: function resolveName(hostHeader) {
     var name;
 
-    if (this.dynamicNaming && hostHeader)
+    if (this.dynamicNaming && hostHeader) {
       name = this.hostPattern ? (wildcardMatch(this.hostPattern, hostHeader) ? hostHeader : this.defaultName) : hostHeader;
-    else
+    } else {
       name = this.defaultName;
+    }
 
     return name;
   },
@@ -85,11 +87,11 @@ var utils = {
   resolveSampling: function resolveSampling(amznTraceHeader, segment, res) {
     var isSampled;
 
-    if (amznTraceHeader.sampled === '1')
+    if (amznTraceHeader.sampled === '1') {
       isSampled = true;
-    else if (amznTraceHeader.sampled === '0')
+    } else if (amznTraceHeader.sampled === '0') {
       isSampled = false;
-    else {
+    } else {
       var sampleRequest = {
         host: res.req.headers.host,
         httpMethod: res.req.method,
@@ -104,11 +106,13 @@ var utils = {
       }
     }
 
-    if (amznTraceHeader.sampled === '?')
+    if (amznTraceHeader.sampled === '?') {
       res.header[XRAY_HEADER] = 'Root=' + amznTraceHeader.root + ';Sampled=' + (isSampled ? '1' : '0');
+    }
 
-    if (!isSampled)
+    if (!isSampled) {
       segment.notTraced = true;
+    }
   },
 
   /**
@@ -119,8 +123,9 @@ var utils = {
    */
 
   setDefaultName: function setDefaultName(name) {
-    if (!overrideFlag)
+    if (!overrideFlag) {
       this.defaultName = name;
+    }
   },
 
   disableCentralizedSampling: function disableCentralizedSampling() {
@@ -135,8 +140,9 @@ var utils = {
    */
 
   setSamplingRules: function setSamplingRules(source) {
-    if (!source || source instanceof String || !(typeof source === 'string' || (source instanceof Object)))
+    if (!source || source instanceof String || !(typeof source === 'string' || (source instanceof Object))) {
       throw new Error('Please specify a path to the local sampling rules file, or supply an object containing the rules.');
+    }
 
     this.sampler.setLocalRules(source);
   },
@@ -181,7 +187,9 @@ var utils = {
       // the 'finish' and 'close' event are BOTH triggered.
       // Previously, only one or the other was triggered:
       // https://github.com/nodejs/node/pull/20611
-      if (didEnd) return;
+      if (didEnd) {
+        return;
+      }
       didEnd = true;
 
       if (res.statusCode === 429) {

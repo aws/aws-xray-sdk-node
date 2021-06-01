@@ -20,18 +20,20 @@ Reservoir.prototype.init = function init() {
 Reservoir.prototype.borrowOrTake = function borrowOrTake(now, canBorrow) {
   this.adjustThisSec(now);
   // Don't borrow if the quota is available and fresh.
-  if(this.quota >= 0 && this.TTL >= now) {
-    if(this.takenThisSec >= this.quota)
+  if (this.quota >= 0 && this.TTL >= now) {
+    if (this.takenThisSec >= this.quota) {
       return false;
+    }
 
     this.takenThisSec++;
     return 'take';
   }
 
   // Otherwise try to borrow if the quota is not present or expired.
-  if(canBorrow) {
-    if(this.borrowedThisSec >= 1)
+  if (canBorrow) {
+    if (this.borrowedThisSec >= 1) {
       return false;
+    }
 
     this.borrowedThisSec++;
     return 'borrow';
@@ -47,13 +49,19 @@ Reservoir.prototype.adjustThisSec = function adjustThisSec(now) {
 };
 
 Reservoir.prototype.loadNewQuota = function loadNewQuota(quota, TTL, interval) {
-  if(quota) this.quota = quota;
-  if(TTL) this.TTL = TTL;
-  if(interval) this.reportInterval = interval/10; // Report interval is always time of 10.
+  if (quota) {
+    this.quota = quota;
+  }
+  if (TTL) {
+    this.TTL = TTL;
+  }
+  if (interval) {
+    this.reportInterval = interval/10;
+  } // Report interval is always time of 10.
 };
 
 Reservoir.prototype.timeToReport = function timeToReport() {
-  if(this.reportElapsed + 1 >= this.reportInterval) {
+  if (this.reportElapsed + 1 >= this.reportInterval) {
     this.reportElapsed = 0;
     return true;
   } else {

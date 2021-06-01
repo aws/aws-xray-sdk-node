@@ -33,7 +33,7 @@ describe('SegmentUtils', function() {
       const statusRes = SegmentUtils.getHttpResponseData(responseWithStatus);
       const lengthRes = SegmentUtils.getHttpResponseData(responseWithLength);
       const emptyRes = SegmentUtils.getHttpResponseData(emptyResponse);
-      
+
       assert.deepEqual(statusRes, {
         'status': 200
       });

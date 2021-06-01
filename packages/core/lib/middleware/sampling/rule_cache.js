@@ -16,11 +16,17 @@ var RuleCache = {
    * @function getMatchedRule
    */
   getMatchedRule: function getMatchedRule(sampleRequest, now) {
-    if(isExpired(now)) return null;
+    if (isExpired(now)) {
+      return null;
+    }
     var matchedRule;
     this.rules.forEach(function(rule) {
-      if(!matchedRule && rule.match(sampleRequest)) matchedRule = rule;
-      if(rule.isDefault() && !matchedRule) matchedRule = rule;
+      if (!matchedRule && rule.match(sampleRequest)) {
+        matchedRule = rule;
+      }
+      if (rule.isDefault() && !matchedRule) {
+        matchedRule = rule;
+      }
     });
     return matchedRule;
   },
@@ -44,7 +50,9 @@ var RuleCache = {
     // Transfer state information to refreshed rules.
     this.rules.forEach(function(rule) {
       var oldRule = oldRules[rule.getName()];
-      if(oldRule) rule.merge(oldRule);
+      if (oldRule) {
+        rule.merge(oldRule);
+      }
     });
 
     // The cache should maintain the order of the rules based on
@@ -52,11 +60,14 @@ var RuleCache = {
     // as rule name is unique.
     this.rules.sort(function(a, b) {
       var v = a.getPriority() - b.getPriority();
-      if(v !== 0) return v;
-      if(a.getName() > b.getName())
+      if (v !== 0) {
+        return v;
+      }
+      if (a.getName() > b.getName()) {
         return 1;
-      else 
+      } else {
         return -1;
+      }
     });
   },
 
@@ -69,7 +80,7 @@ var RuleCache = {
   loadTargets: function loadTargets(targetsMapping) {
     this.rules.forEach(function(rule) {
       var target = targetsMapping[rule.getName()];
-      if(target) {
+      if (target) {
         rule.getReservoir().loadNewQuota(target.quota, target.TTL, target.interval);
         rule.setRate(target.rate);
       }
@@ -91,7 +102,9 @@ var RuleCache = {
 
 var isExpired = function isExpired(now) {
   // The cache is considered expired if it is never loaded.
-  if(!RuleCache.getLastUpdated()) return true;
+  if (!RuleCache.getLastUpdated()) {
+    return true;
+  }
   return now > RuleCache.getLastUpdated() + TTL;
 };
 

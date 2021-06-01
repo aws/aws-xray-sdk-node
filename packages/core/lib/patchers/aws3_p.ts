@@ -1,7 +1,6 @@
 import {
   Pluggable,
   Client,
-  MetadataBearer,
   BuildMiddleware,
   MiddlewareStack,
   BuildHandlerOptions,
@@ -28,14 +27,14 @@ const { safeParseInt } = require('../utils');
 import { getCauseTypeFromHttpStatus } from '../utils';
 import { SegmentLike } from '../aws-xray';
 
-const XRAY_PLUGIN_NAME: string = 'XRaySDKInstrumentation';
+const XRAY_PLUGIN_NAME = 'XRaySDKInstrumentation';
 
 interface HttpResponse {
   response?: {
     status?: number,
     content_length?: number
   }
-};
+}
 
 const buildAttributesFromMetadata = async (
   service: string,
@@ -75,7 +74,7 @@ const buildAttributesFromMetadata = async (
     http.response.content_length = safeParseInt(res.response.headers['content-length']);
   }
   return [aws, http];
-}
+};
 
 function addFlags(http: HttpResponse, subsegment: Subsegment, err?: SdkError): void {
   if (err && isThrottlingError(err)) {
@@ -90,7 +89,7 @@ function addFlags(http: HttpResponse, subsegment: Subsegment, err?: SdkError): v
   } else if (cause === 'error') {
     subsegment.addErrorFlag();
   }
-};
+}
 
 const getXRayMiddleware = (config: RegionResolvedConfig, manualSegment?: SegmentLike): BuildMiddleware<any, any> => (next: any, context: any) => async (args: any) => {
   const segment = contextUtils.isAutomaticMode() ? contextUtils.resolveSegment() : manualSegment;
@@ -127,7 +126,9 @@ const getXRayMiddleware = (config: RegionResolvedConfig, manualSegment?: Segment
   let res;
   try {
     res = await next(args);
-    if (!res) throw new Error('Failed to get response from instrumented AWS Client.');
+    if (!res) {
+      throw new Error('Failed to get response from instrumented AWS Client.');
+    }
 
     const [aws, http] = await buildAttributesFromMetadata(
       service,
@@ -177,7 +178,7 @@ const getXRayPlugin = (config: RegionResolvedConfig, manualSegment?: SegmentLike
 
 /**
  * Instruments AWS SDK V3 clients with X-Ray via middleware.
- * 
+ *
  * @param client - AWS SDK V3 client to instrument
  * @param manualSegment - Parent segment or subsegment that is passed in for manual mode users
  * @returns - the client with the X-Ray instrumentation middleware added to its middleware stack

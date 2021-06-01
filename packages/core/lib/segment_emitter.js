@@ -10,7 +10,7 @@ var PROTOCOL_DELIMITER = '\n';
  * Sends a collection of data over a UDP socket. This method
  * is designed to be used by `atomic-batcher` as a way to share
  * a single UDP socket for sending multiple data blocks.
- * 
+ *
  * @param {object} ops - Details of the data to send
  * @param {Function} callback - The function to call when done
  */
@@ -29,7 +29,7 @@ function batchSendData (ops, callback) {
 /**
  * Execute sending data starting at the specified index and
  * using the provided client.
- *  
+ *
  * @param {Socket} client - Socket to send data with
  * @param {object} ops - Details of data to send
  * @param {number} index - Starting index for sending
@@ -48,7 +48,7 @@ function executeSendData (client, ops, index, callback) {
 
 /**
  * Send a single message over a UDP socket.
- * 
+ *
  * @param {Socket} client - Socket to send data with
  * @param {object} data - Details of the data to send
  * @param {Function} batchCallback - Function to call when done
@@ -135,10 +135,11 @@ var SegmentEmitter = {
 
     client.send(message, 0, message.length, this.daemonConfig.udp_port, this.daemonConfig.udp_ip, function(err) {
       if (err) {
-        if (err.code === 'EMSGSIZE')
+        if (err.code === 'EMSGSIZE') {
           logger.getLogger().error(type + ' too large to send: ' + short + ' (' + message.length + ' bytes).');
-        else
+        } else {
           logger.getLogger().error('Error occured sending segment: ', err);
+        }
       } else {
         logger.getLogger().debug(type + ' sent: {"trace_id:"' + segment.trace_id + '","id":"' + segment.id + '"}');
         logger.getLogger().debug('UDP message sent: ' + segment);

@@ -22,8 +22,9 @@ var PREPARED = 'statement';
  */
 
 module.exports = function captureMySQL(mysql) {
-  if (mysql.__createConnection)
+  if (mysql.__createConnection) {
     return mysql;
+  }
 
   patchCreateConnection(mysql);
   patchCreatePool(mysql);
@@ -103,14 +104,19 @@ function patchGetConnection(pool) {
 
     if (callback instanceof Function) {
       args[args.length-1] = (err, connection) => {
-        if(connection) patchObject(connection);
+        if (connection) {
+          patchObject(connection);
+        }
         return callback(err, connection);
       };
     }
 
     var result = pool[baseFcn].apply(pool, args);
-    if (result && result.then instanceof Function) return result.then(patchObject);
-    else return result;
+    if (result && result.then instanceof Function) {
+      return result.then(patchObject);
+    } else {
+      return result;
+    }
   };
 }
 
@@ -125,7 +131,7 @@ function patchObject(connection) {
     connection.execute = captureOperation('execute');
   }
 
-  if(connection.getConnection instanceof Function && !connection.__getConnection){
+  if (connection.getConnection instanceof Function && !connection.__getConnection) {
     patchGetConnection(connection);
   }
 
@@ -142,21 +148,23 @@ function resolveArguments(argsObj) {
   if (argsObj && argsObj.length > 0) {
     if (argsObj[0] instanceof Object) {
       args.sql = argsObj[0];
-      
+
       // Patch for mysql2
       if (argsObj[0].values) {
         args.values = argsObj[0].values; // mysql implementation
-      } else if(typeof argsObj[2] === 'function'){
+      } else if (typeof argsObj[2] === 'function') {
         args.values = typeof argsObj[1] !== 'function' ? argsObj[1] : null; // mysql2 implementation
       }
       args.callback = typeof argsObj[1] === 'function'
-        ? argsObj[1] 
+        ? argsObj[1]
         : (
           typeof argsObj[2] === 'function'
-            ? argsObj[2] 
+            ? argsObj[2]
             : undefined
-          );
-      if (!argsObj[1] && argsObj[0].on instanceof Function) args.sql = argsObj[0];
+        );
+      if (!argsObj[1] && argsObj[0].on instanceof Function) {
+        args.sql = argsObj[0];
+      }
     } else {
       args.sql = argsObj[0];
       args.values = typeof argsObj[1] !== 'function' ? argsObj[1] : null;
@@ -177,8 +185,9 @@ function captureOperation(name) {
     var command;
     var originalOperation = this['__'+name];
 
-    if (args.segment)
+    if (args.segment) {
       delete arguments[arguments.length-1];
+    }
 
     if (!parent) {
       AWSXRay.getLogger().info('Failed to capture MySQL. Cannot resolve sub/segment.');

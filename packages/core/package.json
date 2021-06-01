@@ -35,6 +35,8 @@
     "compile": "tsc && npm run copy-lib && npm run copy-test",
     "copy-lib": "find lib -type f \\( -name '*.d.ts' -o -name '*.json' \\) | xargs -I % ../../scripts/cp-with-structure.sh % dist",
     "copy-test": "find test -name '*.json' | xargs -I % ../../scripts/cp-with-structure.sh % dist",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
     "test": "npm run compile && mocha --recursive ./dist/test/ -R spec && tsd && mocha --recursive ./dist/test_async/ -R spec",
     "test-d": "tsd",
     "test-async": "npm run compile && mocha --recursive ./dist/test_async/ -R spec",

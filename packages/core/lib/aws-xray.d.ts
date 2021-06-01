@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import * as ec2Plugin from './segments/plugins/ec2_plugin';
 import * as ecsPlugin from './segments/plugins/ecs_plugin';
 import * as elasticBeanstalkPlugin from './segments/plugins/elastic_beanstalk_plugin';
@@ -33,9 +34,9 @@ export { setStreamingThreshold } from './segments/segment_utils';
 
 export { setLogger, getLogger, Logger } from './logger';
 
-export { setDaemonAddress } from './daemon_config'
+export { setDaemonAddress } from './daemon_config';
 
-export { captureAsyncFunc, captureCallbackFunc, captureFunc } from './capture'
+export { captureAsyncFunc, captureCallbackFunc, captureFunc } from './capture';
 
 export { captureAWS, captureAWSClient } from './patchers/aws_p';
 
@@ -45,14 +46,14 @@ export { captureHTTPs, captureHTTPsGlobal } from './patchers/http_p';
 
 export { capturePromise } from './patchers/promise_p';
 
-export { utils }
+export { utils };
 
 export namespace database {
   const SqlData: typeof sqlData;
   type SqlData = sqlData;
 }
 
-export { middleware }
+export { middleware };
 
 export {
   getNamespace,
@@ -70,6 +71,6 @@ export {
   Subsegment,
   TraceID,
   segmentUtils as SegmentUtils
-}
+};
 
 export type SegmentLike = Segment | Subsegment;

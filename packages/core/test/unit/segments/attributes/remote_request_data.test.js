@@ -37,7 +37,7 @@ describe('RemoteRequestData', function() {
   describe('#constructor', function() {
     it('should mask out query string in path', function() {
       const requestWithPathQueryString = Object.assign(request, { path: '/path/to/resource?qs=qs' });
-      
+
       assert.propertyVal(
         new RemoteRequestData(requestWithPathQueryString, response, true).request,
         'url',
@@ -46,7 +46,7 @@ describe('RemoteRequestData', function() {
     });
     it('should return empty url if request agent is missing', function() {
       const requestWithoutAgent = {};
-      
+
       assert.propertyVal(
         new RemoteRequestData(requestWithoutAgent, response, true).request,
         'url',
@@ -55,7 +55,7 @@ describe('RemoteRequestData', function() {
     });
     it('should use the host from the request object over headers', () => {
       const requestWithHost = Object.assign(request, { host: 'different-site.com' });
-      
+
       assert.propertyVal(
         new RemoteRequestData(requestWithHost, response, true).request,
         'url',
