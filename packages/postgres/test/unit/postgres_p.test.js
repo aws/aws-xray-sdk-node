@@ -107,7 +107,9 @@ describe('capturePostgres', function() {
 
     it('should start a new automatic context and close the subsegment via the callback if supplied', function(done) {
       var stubClose = sandbox.stub(subsegment, 'close');
-      var session = { run: function(fcn) { fcn(); }};
+      var session = { run: function(fcn) {
+        fcn();
+      }};
       var stubRun = sandbox.stub(session, 'run');
 
       sandbox.stub(AWSXRay, 'getNamespace').returns(session);

@@ -15,7 +15,14 @@
             "error",
             2
         ],
+        "curly": [
+            "error",
+            "all"
+        ],
+        "space-before-blocks": "error",
         "no-console": "off",
+        "brace-style": "error",
+        "keyword-spacing": "error",
         "import/no-unresolved": "off",
         "linebreak-style": [
             "error",

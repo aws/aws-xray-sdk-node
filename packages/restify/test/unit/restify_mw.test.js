@@ -28,7 +28,9 @@ describe('Restify middleware', function() {
 
   beforeEach(function() {
     server = new TestEmitter();
-    server.use = function(fcn) { this.open = fcn; };
+    server.use = function(fcn) {
+      this.open = fcn;
+    };
     sandbox = sinon.createSandbox();
   });
 
@@ -44,7 +46,9 @@ describe('Restify middleware', function() {
     });
 
     it('should throw an error if no default name is supplied', function() {
-      assert.throws(function() { enable(server); });
+      assert.throws(function() {
+        enable(server);
+      });
     });
 
     it('should make restify use the open function and set listeners on "uncaughtException" and "after" events', function() {
@@ -69,7 +73,9 @@ describe('Restify middleware', function() {
 
       var ns = {
         bindEmitter: function() {},
-        run: function(fcn) { fcn(); }
+        run: function(fcn) {
+          fcn();
+        }
       };
       sandbox.stub(xray, 'getNamespace').returns(ns);
 
