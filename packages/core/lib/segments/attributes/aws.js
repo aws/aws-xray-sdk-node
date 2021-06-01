@@ -27,14 +27,17 @@ Aws.prototype.init = function init(res, serviceName) {
   }
   this.retries = res.retryCount || 0;
 
-  if (res.extendedRequestId && serviceName && serviceName.toLowerCase() === 's3')
+  if (res.extendedRequestId && serviceName && serviceName.toLowerCase() === 's3') {
     this.id_2 = res.extendedRequestId;
+  }
 
   this.addData(capturer.capture(serviceName, res));
 };
 
 Aws.prototype.addData = function addData(data) {
-  for (var attribute in data) { this[attribute] = data[attribute]; }
+  for (var attribute in data) {
+    this[attribute] = data[attribute];
+  }
 };
 
 /**
@@ -44,8 +47,9 @@ Aws.prototype.addData = function addData(data) {
  */
 
 var setAWSWhitelist = function setAWSWhitelist(source) {
-  if (!source || source instanceof String || !(typeof source === 'string' || (source instanceof Object)))
+  if (!source || source instanceof String || !(typeof source === 'string' || (source instanceof Object))) {
     throw new Error('Please specify a path to the local whitelist file, or supply a whitelist source object.');
+  }
 
   capturer = new CallCapturer(source);
 };
@@ -57,15 +61,17 @@ var setAWSWhitelist = function setAWSWhitelist(source) {
  */
 
 var appendAWSWhitelist = function appendAWSWhitelist(source) {
-  if (!source || source instanceof String || !(typeof source === 'string' || (source instanceof Object)))
+  if (!source || source instanceof String || !(typeof source === 'string' || (source instanceof Object))) {
     throw new Error('Please specify a path to the local whitelist file, or supply a whitelist source object.');
+  }
 
   capturer.append(source);
 };
 
 function formatOperation(operation) {
-  if (!operation)
+  if (!operation) {
     return;
+  }
 
   return operation.charAt(0).toUpperCase() + operation.slice(1);
 }

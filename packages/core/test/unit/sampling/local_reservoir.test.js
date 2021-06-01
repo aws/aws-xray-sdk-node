@@ -14,13 +14,21 @@ describe('LocalReservoir', function() {
     });
 
     it('should throw an exception if fixed target is a float or a negative number', function() {
-      expect(function() { new LocalReservoir(123.45, 0.5); }).to.throw(Error, '"fixed_target" must be a non-negative integer.');
-      expect(function() { new LocalReservoir(-123, 0.5); }).to.throw(Error, '"fixed_target" must be a non-negative integer.');
+      expect(function() {
+        new LocalReservoir(123.45, 0.5);
+      }).to.throw(Error, '"fixed_target" must be a non-negative integer.');
+      expect(function() {
+        new LocalReservoir(-123, 0.5);
+      }).to.throw(Error, '"fixed_target" must be a non-negative integer.');
     });
 
     it('should throw an exception if rate is not a number between 0 and 1', function() {
-      expect(function() { new LocalReservoir(5, 123); }).to.throw(Error, '"rate" must be a number between 0 and 1 inclusive.');
-      expect(function() { new LocalReservoir(5, -0.5); }).to.throw(Error, '"rate" must be a number between 0 and 1 inclusive.');
+      expect(function() {
+        new LocalReservoir(5, 123);
+      }).to.throw(Error, '"rate" must be a number between 0 and 1 inclusive.');
+      expect(function() {
+        new LocalReservoir(5, -0.5);
+      }).to.throw(Error, '"rate" must be a number between 0 and 1 inclusive.');
     });
   });
 

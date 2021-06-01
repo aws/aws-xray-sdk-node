@@ -28,8 +28,9 @@ var throttledErrorDefault = function throttledErrorDefault() {
  */
 
 var captureAWS = function captureAWS(awssdk) {
-  if (!semver.gte(awssdk.VERSION, minVersion))
+  if (!semver.gte(awssdk.VERSION, minVersion)) {
     throw new Error ('AWS SDK version ' + minVersion + ' or greater required.');
+  }
 
   for (var prop in awssdk) {
     if (awssdk[prop].serviceIdentifier) {
@@ -92,8 +93,9 @@ function captureAWSRequest(req) {
     if (httpRes) {
       subsegment.addAttribute('http', new HttpResponse(httpRes));
 
-      if (httpRes.statusCode === 429 || (res.error && throttledError(res.error)))
+      if (httpRes.statusCode === 429 || (res.error && throttledError(res.error))) {
         subsegment.addThrottleFlag();
+      }
     }
 
     if (res.error) {
@@ -104,15 +106,16 @@ function captureAWSRequest(req) {
           subsegment.addErrorFlag();
         }
         subsegment.close(err, true);
-      }
-      else
+      } else {
         subsegment.close(err);
+      }
     } else {
       if (httpRes && httpRes.statusCode) {
         var cause = Utils.getCauseTypeFromHttpStatus(httpRes.statusCode);
 
-        if (cause)
+        if (cause) {
           subsegment[cause] = true;
+        }
       }
       subsegment.close();
     }
@@ -157,8 +160,9 @@ HttpResponse.prototype.init = function init(res) {
     status: res.statusCode || '',
   };
 
-  if (res.headers && res.headers['content-length'])
+  if (res.headers && res.headers['content-length']) {
     this.response.content_length = res.headers['content-length'];
+  }
 };
 
 module.exports.captureAWSClient = captureAWSClient;

@@ -48,10 +48,16 @@ expectType<TraceID>(TraceID.Invalid());
 expectType<string>(traceId2.toString());
 
 expectType<string>(AWSXRay.captureFunc('tracedFcn', () => 'OK', segment));
-expectType<void>(AWSXRay.captureFunc('tracedFcn', () => { return; }));
-expectType<never>(AWSXRay.captureFunc('tracedFcn', () => { throw new Error(); }));
+expectType<void>(AWSXRay.captureFunc('tracedFcn', () => {
+  return;
+}));
+expectType<never>(AWSXRay.captureFunc('tracedFcn', () => {
+  throw new Error();
+}));
 let subseg: AWSXRay.Subsegment | undefined;
-expectType<void>(AWSXRay.captureFunc('tracedFcn', (sub) => { subseg = sub; }, segment));
+expectType<void>(AWSXRay.captureFunc('tracedFcn', (sub) => {
+  subseg = sub;
+}, segment));
 
 async function fcn(seg?: AWSXRay.Subsegment) {
   if (seg) {

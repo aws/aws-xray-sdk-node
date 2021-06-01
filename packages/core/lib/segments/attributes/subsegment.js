@@ -19,8 +19,9 @@ function Subsegment(name) {
 }
 
 Subsegment.prototype.init = function init(name) {
-  if (typeof name != 'string')
+  if (typeof name != 'string') {
     throw new Error('Subsegment name must be of type string.');
+  }
 
   this.id = crypto.randomBytes(8).toString('hex');
   this.name = name;
@@ -52,8 +53,9 @@ Subsegment.prototype.addSubsegment = function(subsegment) {
       '".  Not a subsegment.');
   }
 
-  if (this.subsegments === undefined)
+  if (this.subsegments === undefined) {
     this.subsegments = [];
+  }
 
   subsegment.segment = this.segment;
   subsegment.parent = this;
@@ -78,8 +80,9 @@ Subsegment.prototype.removeSubsegment = function removeSubsegment(subsegment) {
   if (this.subsegments !== undefined) {
     var index = this.subsegments.indexOf(subsegment);
 
-    if (index >= 0)
+    if (index >= 0) {
       this.subsegments.splice(index, 1);
+    }
   }
 };
 
@@ -99,12 +102,14 @@ Subsegment.prototype.addAttribute = function addAttribute(name, data) {
  */
 
 Subsegment.prototype.addPrecursorId = function(id) {
-  if (typeof id !== 'string')
+  if (typeof id !== 'string') {
     logger.getLogger().error('Failed to add id:' + id + ' to subsegment ' + this.name +
       '.  Precursor Ids must be of type string.');
+  }
 
-  if (this.precursor_ids === undefined)
+  if (this.precursor_ids === undefined) {
     this.precursor_ids = [];
+  }
 
   this.precursor_ids.push(id);
 };
@@ -125,8 +130,9 @@ Subsegment.prototype.addAnnotation = function(key, value) {
       this.name + '. Key must be of type string.');
   }
 
-  if (this.annotations === undefined)
+  if (this.annotations === undefined) {
     this.annotations = {};
+  }
 
   this.annotations[key] = value;
 };
@@ -260,15 +266,18 @@ Subsegment.prototype.close = function close(err, remote) {
   this.end_time = SegmentUtils.getCurrentTime();
   delete this.in_progress;
 
-  if (err)
+  if (err) {
     this.addError(err, remote);
+  }
 
-  if (this.parent)
+  if (this.parent) {
     this.parent.decrementCounter();
+  }
 
   if (root && root.counter > SegmentUtils.getStreamingThreshold()) {
-    if (this.streamSubsegments() && this.parent)
+    if (this.streamSubsegments() && this.parent) {
       this.parent.removeSubsegment(this);
+    }
   }
 };
 
@@ -281,8 +290,9 @@ Subsegment.prototype.close = function close(err, remote) {
 Subsegment.prototype.incrementCounter = function incrementCounter(additional) {
   this.counter = additional ? this.counter + additional + 1 : this.counter + 1;
 
-  if (this.parent)
+  if (this.parent) {
     this.parent.incrementCounter(additional);
+  }
 };
 
 /**
@@ -293,8 +303,9 @@ Subsegment.prototype.incrementCounter = function incrementCounter(additional) {
 Subsegment.prototype.decrementCounter = function decrementCounter() {
   this.counter--;
 
-  if (this.parent)
+  if (this.parent) {
     this.parent.decrementCounter();
+  }
 };
 
 /**
@@ -339,8 +350,9 @@ Subsegment.prototype.streamSubsegments = function streamSubsegments() {
     var open = [];
 
     this.subsegments.forEach(function(child) {
-      if (!child.streamSubsegments())
+      if (!child.streamSubsegments()) {
         open.push(child);
+      }
     });
 
     this.subsegments = open;
@@ -354,11 +366,13 @@ Subsegment.prototype.streamSubsegments = function streamSubsegments() {
 Subsegment.prototype.format = function format() {
   this.type = 'subsegment';
 
-  if (this.parent)
+  if (this.parent) {
     this.parent_id = this.parent.id;
+  }
 
-  if (this.segment)
+  if (this.segment) {
     this.trace_id = this.segment.trace_id;
+  }
 
   return JSON.stringify(this);
 };
@@ -374,8 +388,9 @@ Subsegment.prototype.toString = function toString() {
 Subsegment.prototype.toJSON = function toJSON() {
   var ignore = ['segment', 'parent', 'counter'];
 
-  if (this.subsegments == null || this.subsegments.length === 0)
+  if (this.subsegments == null || this.subsegments.length === 0) {
     ignore.push('subsegments');
+  }
 
   var thisCopy = Utils.objectWithoutProperties(
     this,

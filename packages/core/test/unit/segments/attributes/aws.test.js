@@ -106,10 +106,18 @@ describe('Aws', function() {
       });
 
       it('should throw an error on bad values', function() {
-        assert.throws(function() { Aws.setAWSWhitelist(); });
-        assert.throws(function() { Aws.setAWSWhitelist(null); });
-        assert.throws(function() { Aws.setAWSWhitelist(0); });
-        assert.throws(function() { Aws.setAWSWhitelist(new String('')); });
+        assert.throws(function() {
+          Aws.setAWSWhitelist();
+        });
+        assert.throws(function() {
+          Aws.setAWSWhitelist(null);
+        });
+        assert.throws(function() {
+          Aws.setAWSWhitelist(0);
+        });
+        assert.throws(function() {
+          Aws.setAWSWhitelist(new String(''));
+        });
       });
     });
 
@@ -127,10 +135,18 @@ describe('Aws', function() {
       });
 
       it('should throw an error on bad values', function() {
-        assert.throws(function() { Aws.appendAWSWhitelist(); });
-        assert.throws(function() { Aws.appendAWSWhitelist(null); });
-        assert.throws(function() { Aws.appendAWSWhitelist(0); });
-        assert.throws(function() { Aws.setAWSWhitelist(new String('')); });
+        assert.throws(function() {
+          Aws.appendAWSWhitelist();
+        });
+        assert.throws(function() {
+          Aws.appendAWSWhitelist(null);
+        });
+        assert.throws(function() {
+          Aws.appendAWSWhitelist(0);
+        });
+        assert.throws(function() {
+          Aws.setAWSWhitelist(new String(''));
+        });
       });
     });
   });

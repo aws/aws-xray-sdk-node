@@ -61,7 +61,7 @@ function unpatchPromise(Promise) {
 function tryGetCurrentSegment() {
   try {
     return contextUtils.getSegment();
-  } catch(e) {
+  } catch (e) {
     return undefined;
   }
 }

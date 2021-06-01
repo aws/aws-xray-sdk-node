@@ -173,11 +173,15 @@ describe('ContextUtils', function() {
     });
 
     it('should throw an error if given an invalid string', function() {
-      assert.throws(function() { ContextUtils.setContextMissingStrategy('moop'); } );
+      assert.throws(function() {
+        ContextUtils.setContextMissingStrategy('moop');
+      } );
     });
 
     it('should throw an error if given an invalid parameter type', function() {
-      assert.throws(function() { ContextUtils.setContextMissingStrategy({}); } );
+      assert.throws(function() {
+        ContextUtils.setContextMissingStrategy({});
+      } );
     });
   });
 

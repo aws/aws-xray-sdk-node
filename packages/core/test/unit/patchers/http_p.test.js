@@ -399,7 +399,9 @@ describe('HTTP/S', function() {
         });
 
         it('should re-emit the error if unhandled', function() {
-          assert.throws(function() { fakeRequest.emitter.emit('error', error); });
+          assert.throws(function() {
+            fakeRequest.emitter.emit('error', error);
+          });
         });
 
         it('should call any custom subsegment callback', function(done) {
@@ -417,7 +419,9 @@ describe('HTTP/S', function() {
             fakeRequest.on(events.errorMonitor, function() {});
             fakeRequest.on(events.errorMonitor, function() {});
 
-            assert.throws(function() { fakeRequest.emitter.emit('error', error); });
+            assert.throws(function() {
+              fakeRequest.emitter.emit('error', error);
+            });
           });
         }
       });

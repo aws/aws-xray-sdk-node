@@ -118,8 +118,9 @@ var contextUtils = {
 
   setSegment: function setSegment(segment) {
     if (cls_mode) {
-      if (!contextUtils.getNamespace(NAMESPACE).set(SEGMENT, segment))
+      if (!contextUtils.getNamespace(NAMESPACE).set(SEGMENT, segment)) {
         logger.getLogger().warn('Failed to set the current sub/segment on the context.');
+      }
     } else {
       contextUtils.contextMissingStrategy.contextMissing('Cannot set sub/segment on context. Not supported in manual mode.');
     }
@@ -157,8 +158,9 @@ var contextUtils = {
   enableManualMode: function enableManualMode() {
     cls_mode = false;
 
-    if (cls.getNamespace(NAMESPACE))
+    if (cls.getNamespace(NAMESPACE)) {
       cls.destroyNamespace(NAMESPACE);
+    }
 
     logger.getLogger().debug('Overriding AWS X-Ray SDK mode. Set to manual mode.');
   },
@@ -179,11 +181,12 @@ var contextUtils = {
         if (lookupStrategy) {
           contextUtils.contextMissingStrategy.contextMissing = lookupStrategy.contextMissing;
 
-          if (process.env.AWS_XRAY_CONTEXT_MISSING)
+          if (process.env.AWS_XRAY_CONTEXT_MISSING) {
             logger.getLogger().debug('AWS_XRAY_CONTEXT_MISSING is set. Configured context missing strategy to ' +
               process.env.AWS_XRAY_CONTEXT_MISSING + '.');
-          else
+          } else {
             logger.getLogger().debug('Configured context missing strategy to: ' + strategy);
+          }
         } else {
           throw new Error('Invalid context missing strategy: ' + strategy + '. Valid values are ' +
             Object.keys(contextUtils.CONTEXT_MISSING_STRATEGY) + '.');

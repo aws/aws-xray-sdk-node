@@ -37,7 +37,7 @@ describe('Integration', function() {
               // setTimeout so the assertion isn't caught by the promise
               setTimeout(function() {
                 assert.equal(segment.id, retrievedSegment.id);
-                if (++requestCount === 2){
+                if (++requestCount === 2) {
                   done();
                 }
               });

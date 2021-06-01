@@ -90,19 +90,33 @@ describe('DaemonConfig', function() {
 
   describe('#setInvalidDaemonAddress', function() {
     it('should throw an exception if address is partial', function() {
-      expect(function() { DaemonConfig.setDaemonAddress('127.0.0.100'); }).to.throw(Error);
-      expect(function() { DaemonConfig.setDaemonAddress(':8000'); }).to.throw(Error);
-      expect(function() { DaemonConfig.setDaemonAddress('8000'); }).to.throw(Error);
+      expect(function() {
+        DaemonConfig.setDaemonAddress('127.0.0.100');
+      }).to.throw(Error);
+      expect(function() {
+        DaemonConfig.setDaemonAddress(':8000');
+      }).to.throw(Error);
+      expect(function() {
+        DaemonConfig.setDaemonAddress('8000');
+      }).to.throw(Error);
     });
 
     it('should throw an exception if only one of tcp and udp address is provided', function() {
-      expect(function() { DaemonConfig.setDaemonAddress('tcp:127.0.0.100:3000'); }).to.throw(Error);
-      expect(function() { DaemonConfig.setDaemonAddress('udp:127.0.0.1:8000'); }).to.throw(Error);
+      expect(function() {
+        DaemonConfig.setDaemonAddress('tcp:127.0.0.100:3000');
+      }).to.throw(Error);
+      expect(function() {
+        DaemonConfig.setDaemonAddress('udp:127.0.0.1:8000');
+      }).to.throw(Error);
     });
 
     it('should throw an exception if tcp or udp prefix is missing', function() {
-      expect(function() { DaemonConfig.setDaemonAddress('tcp:127.0.0.100:3000 127.0.0.1:8000'); }).to.throw(Error);
-      expect(function() { DaemonConfig.setDaemonAddress('udp:127.0.0.1:8000 127.0.0.100:3000'); }).to.throw(Error);
+      expect(function() {
+        DaemonConfig.setDaemonAddress('tcp:127.0.0.100:3000 127.0.0.1:8000');
+      }).to.throw(Error);
+      expect(function() {
+        DaemonConfig.setDaemonAddress('udp:127.0.0.1:8000 127.0.0.100:3000');
+      }).to.throw(Error);
     });
   });
 });

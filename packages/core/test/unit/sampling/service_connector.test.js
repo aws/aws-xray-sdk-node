@@ -32,10 +32,11 @@ function buildFakeRequest(res, data, invalid, isRulesRequest) {
   request.connection = { remoteAddress: 'myhost' };
   request.write = () => {};
   request.end = () => {
-    if (invalid)
+    if (invalid) {
       res.emit('data', 'nonJsonResponse');
-    else
+    } else {
       res.emit('data', JSON.stringify(requestObj));
+    }
 
     res.emit('end');
   };

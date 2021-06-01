@@ -65,7 +65,9 @@ var AWSXRay = {
     plugins.forEach(function(plugin) {
       plugin.getData(function(data) {
         if (data) {
-          for (var attribute in data) { pluginData[attribute] = data[attribute]; }
+          for (var attribute in data) {
+            pluginData[attribute] = data[attribute];
+          }
         }
       });
       segmentUtils.setOrigin(plugin.originName);
@@ -375,8 +377,9 @@ AWSXRay.middleware.IncomingRequestData = require('./middleware/incoming_request_
   segmentUtils.setSDKData(sdkData);
   segmentUtils.setServiceData(data);
 
-  if (process.env.LAMBDA_TASK_ROOT)
+  if (process.env.LAMBDA_TASK_ROOT) {
     LambdaEnv.init();
+  }
 })();
 
 module.exports = AWSXRay;

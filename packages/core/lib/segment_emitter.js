@@ -135,10 +135,11 @@ var SegmentEmitter = {
 
     client.send(message, 0, message.length, this.daemonConfig.udp_port, this.daemonConfig.udp_ip, function(err) {
       if (err) {
-        if (err.code === 'EMSGSIZE')
+        if (err.code === 'EMSGSIZE') {
           logger.getLogger().error(type + ' too large to send: ' + short + ' (' + message.length + ' bytes).');
-        else
+        } else {
           logger.getLogger().error('Error occured sending segment: ', err);
+        }
       } else {
         logger.getLogger().debug(type + ' sent: {"trace_id:"' + segment.trace_id + '","id":"' + segment.id + '"}');
         logger.getLogger().debug('UDP message sent: ' + segment);

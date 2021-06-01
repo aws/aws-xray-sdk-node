@@ -30,7 +30,7 @@ var refreshWithFirewall = function refreshWithFirewall() {
 
 var refresh = function refresh() {
   var candidates = getCandidates();
-  if(candidates && candidates.length > 0) {
+  if (candidates && candidates.length > 0) {
     serviceConnector.fetchTargets(candidates, function(err, targetsMapping, ruleFreshness) {
       if (err) {
         logger.getLogger().warn('Failed to retrieve sampling targets from X-Ray service:', err);
@@ -38,7 +38,7 @@ var refresh = function refresh() {
       }
 
       ruleCache.loadTargets(targetsMapping);
-      if(ruleFreshness > ruleCache.getLastUpdated()) {
+      if (ruleFreshness > ruleCache.getLastUpdated()) {
         logger.getLogger().info('Performing out-of-band sampling rule polling to fetch updated rules.');
         rulePoller.start();
       }
@@ -56,8 +56,9 @@ var getCandidates = function getCandidates() {
 
   var candidates = [];
   rules.forEach(function(rule) {
-    if(rule.everMatched() && rule.timeToReport())
+    if (rule.everMatched() && rule.timeToReport()) {
       candidates.push(rule);
+    }
   });
 
   return candidates;

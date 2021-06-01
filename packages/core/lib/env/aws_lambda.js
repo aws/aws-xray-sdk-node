@@ -56,13 +56,17 @@ var facadeSegment = function facadeSegment() {
           };
         })();
       } else {
-        segment[key] = function facade() { return; };
+        segment[key] = function facade() {
+          return;
+        };
       }
     }
   }
 
   segment.trace_id = TraceID.Invalid().toString();
-  segment.isClosed = function() { return true; };
+  segment.isClosed = function() {
+    return true;
+  };
   segment.in_progress = false;
   segment.counter = 1;
   segment.notTraced = true;
@@ -84,11 +88,11 @@ var facadeSegment = function facadeSegment() {
       if (xAmznLambda != xAmznTraceIdPrev) {
         this.reset();
 
-        if (LambdaUtils.populateTraceData(segment, xAmznLambda))
+        if (LambdaUtils.populateTraceData(segment, xAmznLambda)) {
           xAmznTraceIdPrev = xAmznLambda;
+        }
       }
-    }
-    else {
+    } else {
       this.reset();
       contextUtils.contextMissingStrategy.contextMissing('Missing AWS Lambda trace data for X-Ray. ' +
           'Ensure Active Tracing is enabled and no subsegments are created outside the function handler.');
@@ -98,8 +102,9 @@ var facadeSegment = function facadeSegment() {
   // Test for valid trace data during SDK startup. It's likely we're still in the cold-start portion of the
   // code at this point and a valid trace header has not been set
   if (LambdaUtils.validTraceData(xAmznTraceId)) {
-    if (LambdaUtils.populateTraceData(segment, xAmznTraceId))
+    if (LambdaUtils.populateTraceData(segment, xAmznTraceId)) {
       xAmznTraceIdPrev = xAmznTraceId;
+    }
   }
 
   return segment;

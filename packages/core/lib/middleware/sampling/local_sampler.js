@@ -66,19 +66,22 @@ var LocalSampler = {
         logger.getLogger().info('Using custom sampling rules source.');
         this.rules = loadRulesConfig(source);
       }
-    } else
+    } else {
       this.rules = parseRulesConfig(defaultRules);
+    }
   }
 };
 
 var loadRulesConfig = function loadRulesConfig(config) {
-  if (!config.version)
+  if (!config.version) {
     throw new Error('Error in sampling file. Missing "version" attribute.');
+  }
 
-  if (config.version === 1 || config.version === 2)
+  if (config.version === 1 || config.version === 2) {
     return parseRulesConfig(config);
-  else
+  } else {
     throw new Error('Error in sampling file. Unknown version "' + config.version + '".');
+  }
 };
 
 var parseRulesConfig = function parseRulesConfig(config) {
@@ -97,14 +100,17 @@ var parseRulesConfig = function parseRulesConfig(config) {
       }
     }
 
-    if (typeof config.default.fixed_target === 'undefined')
+    if (typeof config.default.fixed_target === 'undefined') {
       missing.push('fixed_target');
+    }
 
-    if (typeof config.default.rate === 'undefined')
+    if (typeof config.default.rate === 'undefined') {
       missing.push('rate');
+    }
 
-    if (missing.length !== 0)
+    if (missing.length !== 0) {
       throw new Error('Error in sampling file. Missing required attributes for default: ' + missing + '.');
+    }
 
     defaultRule = { default: true, reservoir: new LocalReservoir(config.default.fixed_target, config.default.rate) };
   } else {
@@ -115,31 +121,36 @@ var parseRulesConfig = function parseRulesConfig(config) {
     config.rules.forEach(function(rawRule) {
       var params = {};
       var required;
-      if (config.version === 2)
+      if (config.version === 2) {
         required = { host: 1, http_method: 1, url_path: 1, fixed_target: 1, rate: 1 };
-      if (config.version === 1)
+      }
+      if (config.version === 1) {
         required = { service_name: 1, http_method: 1, url_path: 1, fixed_target: 1, rate: 1 };
+      }
 
-      for(var key in rawRule) {
+      for (var key in rawRule) {
         var value = rawRule[key];
 
-        if (!required[key] && key != 'description')
+        if (!required[key] && key != 'description') {
           throw new Error('Error in sampling file. Rule ' + JSON.stringify(rawRule) + ' has invalid attribute: ' + key + '.');
-        else if (key != 'description' && !value && value !== 0)
+        } else if (key != 'description' && !value && value !== 0) {
           throw new Error('Error in sampling file. Rule ' + JSON.stringify(rawRule) + ' attribute "' + key + '" has invalid value: ' + value + '.');
-        else {
-          if (config.version === 2)
+        } else {
+          if (config.version === 2) {
             params[key] = value;
-          if (config.version === 1 && key === 'service_name')
+          }
+          if (config.version === 1 && key === 'service_name') {
             params['host'] = value;
-          else
+          } else {
             params[key] = value;
+          }
           delete required[key];
         }
       }
 
-      if (Object.keys(required).length !== 0 && required.constructor === Object)
+      if (Object.keys(required).length !== 0 && required.constructor === Object) {
         throw new Error('Error in sampling file. Rule ' + JSON.stringify(rawRule) + ' is missing required attributes: ' + Object.keys(required) + '.');
+      }
 
       var rule = params;
       rule.reservoir = new LocalReservoir(rawRule.fixed_target, rawRule.rate);

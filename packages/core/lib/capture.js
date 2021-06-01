@@ -37,7 +37,7 @@ var captureFunc = function captureFunc(name, fcn, parent) {
     return response;
   } catch (e) {
     current.close(e);
-    throw(e);
+    throw (e);
   }
 };
 
@@ -69,7 +69,7 @@ var captureAsyncFunc = function captureAsyncFunc(name, fcn, parent) {
     return executeFcn(current);
   } catch (e) {
     current.close(e);
-    throw(e);
+    throw (e);
   }
 };
 

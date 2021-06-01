@@ -126,7 +126,9 @@ const getXRayMiddleware = (config: RegionResolvedConfig, manualSegment?: Segment
   let res;
   try {
     res = await next(args);
-    if (!res) throw new Error('Failed to get response from instrumented AWS Client.');
+    if (!res) {
+      throw new Error('Failed to get response from instrumented AWS Client.');
+    }
 
     const [aws, http] = await buildAttributesFromMetadata(
       service,

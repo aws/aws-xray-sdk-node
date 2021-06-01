@@ -204,7 +204,9 @@ describe('Segment', function() {
     });
 
     it('should throw an error if trying to add a non-subsegment', function() {
-      assert.throws( function() { segment.addNewSubsegment({}); }, Error);
+      assert.throws( function() {
+        segment.addNewSubsegment({});
+      }, Error);
     });
   });
 
@@ -224,7 +226,9 @@ describe('Segment', function() {
     });
 
     it('should throw an error if trying to add a non-subsegment', function() {
-      assert.throws( function() { segment.addSubsegment({ key: 'x' }); }, Error);
+      assert.throws( function() {
+        segment.addSubsegment({ key: 'x' });
+      }, Error);
     });
 
     it('should add the new subsegment to the subsegments array' , function() {
@@ -277,7 +281,9 @@ describe('Segment', function() {
     });
 
     it('should throw an error on other types', function() {
-      assert.throws(function() { segment.addError(3); });
+      assert.throws(function() {
+        segment.addError(3);
+      });
     });
 
     it('should set fault to true by default', function() {

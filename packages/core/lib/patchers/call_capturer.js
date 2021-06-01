@@ -29,8 +29,9 @@ CallCapturer.prototype.init = function init(source) {
       logger.getLogger().info('Using custom AWS whitelist source.');
       this.services = loadWhitelist(source);
     }
-  } else
+  } else {
     this.services = whitelist.services;
+  }
 };
 
 CallCapturer.prototype.append = function append(source) {
@@ -44,7 +45,9 @@ CallCapturer.prototype.append = function append(source) {
     newServices = loadWhitelist(source);
   }
 
-  for (var attribute in newServices) { this.services[attribute] = newServices[attribute]; }
+  for (var attribute in newServices) {
+    this.services[attribute] = newServices[attribute];
+  }
 };
 
 CallCapturer.prototype.capture = function capture(serviceName, response) {
@@ -66,9 +69,13 @@ CallCapturer.prototype.capture = function capture(serviceName, response) {
     } else if (paramType === paramTypes.REQ_DESC) {
       captureDescriptors(params, response.request.params, dataCaptured);
     } else if (paramType === paramTypes.RES_PARAMS) {
-      if (response.data) { captureCallParams(params, response.data, dataCaptured); }
+      if (response.data) {
+        captureCallParams(params, response.data, dataCaptured);
+      }
     } else if (paramType === paramTypes.RES_DESC) {
-      if (response.data) { captureDescriptors(params, response.data, dataCaptured); }
+      if (response.data) {
+        captureDescriptors(params, response.data, dataCaptured);
+      }
     } else {
       logger.getLogger().error('Unknown parameter type "' + paramType + '". Must be "request_descriptors", "response_descriptors", ' +
         '"request_parameters" or "response_parameters".');
@@ -94,10 +101,11 @@ function captureDescriptors(descriptors, params, data) {
     if (typeof params[paramName] !== 'undefined') {
       var paramData;
 
-      if (attributes.list && attributes.get_count)
+      if (attributes.list && attributes.get_count) {
         paramData = params[paramName] ? params[paramName].length : 0;
-      else
+      } else {
         paramData = attributes.get_keys === true ? Object.keys(params[paramName]) : params[paramName];
+      }
 
       if (typeof attributes.rename_to === 'string') {
         data[attributes.rename_to] = paramData;
@@ -110,17 +118,19 @@ function captureDescriptors(descriptors, params, data) {
 }
 
 function toSnakeCase(param) {
-  if (param === 'IPAddress')
+  if (param === 'IPAddress') {
     return 'ip_address';
-  else
+  } else {
     return param.split(/(?=[A-Z])/).join('_').toLowerCase();
+  }
 }
 
 function loadWhitelist(source) {
   var doc = source;
 
-  if (doc.services === undefined)
+  if (doc.services === undefined) {
     throw new Error('Document formatting is incorrect. Expecting "services" param.');
+  }
 
   return doc.services;
 }

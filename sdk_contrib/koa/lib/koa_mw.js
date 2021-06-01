@@ -25,10 +25,11 @@ const koaMW = {
    */
 
   openSegment: function openSegment(defaultName) {
-    if (!defaultName || typeof defaultName !== 'string')
+    if (!defaultName || typeof defaultName !== 'string') {
       throw new Error(
         'Default segment name was not supplied.  Please provide a string.'
       );
+    }
 
     mwUtils.setDefaultName(defaultName);
 

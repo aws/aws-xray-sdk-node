@@ -175,30 +175,40 @@ describe('localSampler', function() {
 
     it('should throw an error if the file is missing a "version" attribute', function() {
       var source = { rules: [] };
-      assert.throws(function() { localSampler.setLocalRules(source); }, 'Missing "version" attribute.');
+      assert.throws(function() {
+        localSampler.setLocalRules(source);
+      }, 'Missing "version" attribute.');
     });
 
     it('should throw an error if the file the version is not valid', function() {
       var source = { rules: [], version: 'moop' };
-      assert.throws(function() { localSampler.setLocalRules(source); }, 'Unknown version "moop".');
+      assert.throws(function() {
+        localSampler.setLocalRules(source);
+      }, 'Unknown version "moop".');
     });
 
     it('should throw an error if the file is missing a "default" object', function() {
       var source = { rules: [], version: 1 };
-      assert.throws(function() { localSampler.setLocalRules(source); },
-        'Expecting "default" object to be defined with attributes "fixed_target" and "rate".');
+      assert.throws(function() {
+        localSampler.setLocalRules(source);
+      },
+      'Expecting "default" object to be defined with attributes "fixed_target" and "rate".');
     });
 
     it('should throw an error if the "default" object contains an invalid attribute', function() {
       var source = { default: { fixed_target: 10, rate: 0.05, url_path: '/signin/*' }, version: 1};
 
-      assert.throws(function() { localSampler.setLocalRules(source); },
-        'Invalid attribute for default: url_path. Valid attributes for default are "fixed_target" and "rate".');
+      assert.throws(function() {
+        localSampler.setLocalRules(source);
+      },
+      'Invalid attribute for default: url_path. Valid attributes for default are "fixed_target" and "rate".');
     });
 
     it('should throw an error if the "default" object is missing required attributes', function() {
       var source = { default: { fixed_target: 10 }, version: 1};
-      assert.throws(function() { localSampler.setLocalRules(source); }, 'Missing required attributes for default: rate.');
+      assert.throws(function() {
+        localSampler.setLocalRules(source);
+      }, 'Missing required attributes for default: rate.');
     });
 
     it('should throw an error if any rule contains invalid attributes', function() {
@@ -218,7 +228,9 @@ describe('localSampler', function() {
         version: 2
       };
 
-      assert.throws(function() { localSampler.setLocalRules(source); }, 'has invalid attribute: moop.');
+      assert.throws(function() {
+        localSampler.setLocalRules(source);
+      }, 'has invalid attribute: moop.');
     });
 
     it('should throw an error if any rule is missing required attributes', function() {
@@ -235,7 +247,9 @@ describe('localSampler', function() {
         version: 2
       };
 
-      assert.throws(function() { localSampler.setLocalRules(source); }, 'is missing required attributes: host,http_method.');
+      assert.throws(function() {
+        localSampler.setLocalRules(source);
+      }, 'is missing required attributes: host,http_method.');
     });
 
     it('should throw an error if any rule attributes have an invalid value', function() {
@@ -254,7 +268,9 @@ describe('localSampler', function() {
         version: 2
       };
 
-      assert.throws(function() { localSampler.setLocalRules(source); }, 'attribute "http_method" has invalid value: null.');
+      assert.throws(function() {
+        localSampler.setLocalRules(source);
+      }, 'attribute "http_method" has invalid value: null.');
     });
   });
 
