@@ -42,7 +42,7 @@
         ],
         "no-trailing-spaces": "error",
         
-        /** Turn off strict enforcement */
+        /** Turn off enforcement */
         "@typescript-eslint/ban-types": "off",
         "@typescript-eslint/ban-ts-comment": "off",
         "@typescript-eslint/no-var-requires": "off",
