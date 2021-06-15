@@ -476,7 +476,7 @@ var AWS = captureAWS(require('aws-sdk'));
 ### Capture outgoing AWS requests on a single client
 
 
-AWS SDK v3
+**AWS SDK v3**
 
 ```js
 import { S3, PutObjectCommand } from '@aws-sdk/client-s3';
@@ -490,7 +490,17 @@ await s3.send(new PutObjectCommand({
 }));
 ```
 
-AWS SDK v2
+Note: Some TypeScript users may experience a type incompatibility error when patching v3 clients. As a workaround, you can cast the client
+to type `any` when patching:
+
+```js
+import { S3, PutObjectCommand } from '@aws-sdk/client-s3';
+
+const s3 = new S3({});
+const s3Patched = AWSXRay.captureAWSv3Client(s3 as any);
+```
+
+**AWS SDK v2**
 
 ```js
 var s3 = AWSXRay.captureAWSClient(new AWS.S3());
@@ -642,7 +652,7 @@ function sendRequest(host, cb, subsegment) {
 
 ### Capture outgoing AWS requests on a single client
 
-AWS SDK v3
+**AWS SDK v3**
 
 You must re-capture the client every time the subsegment is attached to a new parent.
 
@@ -660,7 +670,17 @@ await s3.send(new PutObjectCommand({
 }));
 ```
 
-AWS SDK v2
+Note: Some TypeScript users may experience a type incompatibility error when patching v3 clients. As a workaround, you can cast the client
+to type `any` when patching:
+
+```js
+import { S3, PutObjectCommand } from '@aws-sdk/client-s3';
+
+const s3 = new S3({});
+const s3Patched = AWSXRay.captureAWSv3Client(s3 as any);
+```
+
+**AWS SDK v2**
 
 ```js
 var s3 = AWSXRay.captureAWSClient(new AWS.S3());
