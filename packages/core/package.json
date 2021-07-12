@@ -22,8 +22,10 @@
     "test": "test"
   },
   "//": "@types/cls-hooked is exposed in API so must be in dependencies, not devDependencies",
+  "peerDependencies": {
+    "@aws-sdk/types": "^3.0.0"
+  },
   "dependencies": {
-    "@aws-sdk/types": "^3.4.1",
     "@aws-sdk/service-error-classification": "^3.4.1",
     "@types/cls-hooked": "^4.3.3",
     "atomic-batcher": "^1.0.2",
