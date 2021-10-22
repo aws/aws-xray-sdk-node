@@ -9,6 +9,7 @@ declare class Subsegment {
   subsegments?: Array<Subsegment>;
   parent: SegmentLike;
   segment: Segment;
+  namespace?: string;
 
   constructor(name: string);
 
