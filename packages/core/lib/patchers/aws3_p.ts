@@ -144,7 +144,7 @@ const getXRayMiddleware = (config: RegionResolvedConfig, manualSegment?: Segment
     addFlags(http, subsegment);
     subsegment.close();
     return res;
-  } catch (err) {
+  } catch (err: any) {
     if (err.$metadata) {
       const [aws, http] = await buildAttributesFromMetadata(
         service,
