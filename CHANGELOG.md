@@ -1,6 +1,19 @@
 # Changelog for AWS X-Ray SDK for JavaScript
-<!--LATEST=3.3.3-->
+<!--LATEST=3.3.4-->
 <!--ENTRYINSERT-->
+## 3.3.4
+* change: Updated aws-xray-sdk-core to 3.3.4.
+  * bugfix: Parse hostname from options instead of headers [PR #430](https://github.com/aws/aws-xray-sdk-node/pull/430)
+  * bugfix: Fix crash when http/https libraries use getters [PR #434](https://github.com/aws/aws-xray-sdk-node/pull/434)
+  * bugfix: Lowercase AWS SDK v3 service names [PR #444](https://github.com/aws/aws-xray-sdk-node/pull/444)
+  * bugfix: Add namespace to subsegment type [PR #470](https://github.com/aws/aws-xray-sdk-node/pull/470)
+* change: Updated aws-xray-sdk-express to 3.3.4. No further changes.
+* change: Updated aws-xray-sdk-mysql to 3.3.4. No further changes.
+* change: Updated aws-xray-sdk-postgres to 3.3.4. No further changes.
+* change: Updated aws-xray-sdk-restify to 3.3.4. No further changes.
+* change: Updated aws-xray-sdk-koa2 to 3.3.4. No further changes.
+* change: Updated aws-xray-sdk-hapi to 3.3.4. No further changes.
+
 ## 3.3.3
 * change: Updated aws-xray-sdk-core to 3.3.3.
   * bugfix: corrected require paths that did not reference dist [PR #428](https://github.com/aws/aws-xray-sdk-node/pull/428)
