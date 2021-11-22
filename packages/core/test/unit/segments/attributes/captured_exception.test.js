@@ -9,6 +9,7 @@ describe('CapturedException', function() {
 
       assert.equal(captured.message, err);
       assert.equal(captured.type, '');
+      assert.equal(captured.id.length, 16);
       assert.deepEqual(captured.stack, []);
     });
 
@@ -18,6 +19,7 @@ describe('CapturedException', function() {
 
       assert.equal(captured.message, err.message);
       assert.equal(captured.type, err.name);
+      assert.equal(captured.id.length, 16);
       assert.isArray(captured.stack);
     });
 
