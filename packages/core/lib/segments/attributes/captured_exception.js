@@ -1,3 +1,5 @@
+const crypto = require('crypto');
+
 /**
  * Represents a captured exception.
  * @constructor
@@ -16,6 +18,7 @@ CapturedException.prototype.init = function init(err, remote) {
   this.type = e.name;
   this.stack = [];
   this.remote = !!remote;
+  this.id = crypto.randomBytes(8).toString('hex');
 
   if (e.stack) {
     var stack = e.stack.split('\n');
