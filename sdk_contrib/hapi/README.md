@@ -17,7 +17,7 @@ Simply register as a normal Hapi plugin
 const AWSXRay = require('aws-xray-sdk');
 
 await server.register({
-  plugin: require('hapi-xray'),
+  plugin: require('aws-xray-sdk-hapi'),
   options: {
     captureAWS: true,
     plugins: [AWSXRay.plugins.ECSPlugin]
