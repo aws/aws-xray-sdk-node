@@ -1,6 +1,16 @@
 # Changelog for AWS X-Ray SDK for JavaScript
-<!--LATEST=3.3.4-->
+<!--LATEST=3.3.5-->
 <!--ENTRYINSERT-->
+## 3.3.5
+* change: Updated aws-xray-sdk-core to 3.3.5.
+  * bugfix: added ids to exception objects [PR #475](https://github.com/aws/aws-xray-sdk-node/pull/475)
+* change: Updated aws-xray-sdk-express to 3.3.5. No further changes.
+* change: Updated aws-xray-sdk-mysql to 3.3.5. No further changes.
+* change: Updated aws-xray-sdk-postgres to 3.3.5. No further changes.
+* change: Updated aws-xray-sdk-restify to 3.3.5. No further changes.
+* change: Updated aws-xray-sdk-koa2 to 3.3.5. No further changes.
+* change: Updated aws-xray-sdk-hapi to 3.3.5. No further changes.
+
 ## 3.3.4
 * change: Updated aws-xray-sdk-core to 3.3.4.
   * bugfix: Parse hostname from options instead of headers [PR #430](https://github.com/aws/aws-xray-sdk-node/pull/430)
