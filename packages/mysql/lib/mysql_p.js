@@ -33,13 +33,26 @@ module.exports = function captureMySQL(mysql) {
   return mysql;
 };
 
+function isPromise(maybePromise) {
+  if (maybePromise != null && maybePromise.then instanceof Function) {
+    // mysql2 has a `Query` class with a `then` method which always throws an error when called.
+    // We want to avoid calling this, so we need to check for more than just the presence of a `then` method.
+    // See https://github.com/sidorares/node-mysql2/blob/dbb344e89a1cc8bb457b24e67b07cdb3013fe844/lib/commands/query.js#L38-L44
+    // Since it's highly unlikely that any Promise implementation would name their class `Query`,
+    // we can safely use this to determine whether or not this is actually a Promise.
+    const constructorName = maybePromise.constructor != null ? maybePromise.constructor.name : undefined;
+    return constructorName !== 'Query';
+  }
+  return false;
+}
+
 function patchCreateConnection(mysql) {
   var baseFcn = '__createConnection';
   mysql[baseFcn] = mysql['createConnection'];
 
   mysql['createConnection'] = function patchedCreateConnection() {
     var connection = mysql[baseFcn].apply(connection, arguments);
-    if (connection && connection.then instanceof Function) {
+    if (isPromise(connection)) {
       connection = connection.then((result) => {
         patchObject(result.connection);
         return result;
@@ -57,7 +70,7 @@ function patchCreatePool(mysql) {
 
   mysql['createPool'] = function patchedCreatePool() {
     var pool = mysql[baseFcn].apply(pool, arguments);
-    if (pool && pool.then instanceof Function) {
+    if (isPromise(pool)) {
       pool = pool.then((result) => {
         patchObject(result.pool);
         return result;
@@ -112,7 +125,7 @@ function patchGetConnection(pool) {
     }
 
     var result = pool[baseFcn].apply(pool, args);
-    if (result && result.then instanceof Function) {
+    if (isPromise(result)) {
       return result.then(patchObject);
     } else {
       return result;
@@ -232,7 +245,7 @@ function captureOperation(name) {
         }
       };
 
-      if (command.then instanceof Function) {
+      if (isPromise(command)) {
         command.then(() => {
           subsegment.close();
         });
