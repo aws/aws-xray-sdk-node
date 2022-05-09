@@ -4,6 +4,7 @@ var sinon = require('sinon');
 var sinonChai = require('sinon-chai');
 
 var AWSXRay = require('aws-xray-sdk-core');
+var EventEmitter = require('events').EventEmitter;
 
 var captureMySQL = require('../../lib/mysql_p');
 var Segment = AWSXRay.Segment;
@@ -33,6 +34,55 @@ describe('captureMySQL', function() {
       assert.equal(patched.createConnection.name, 'patchedCreateConnection');
       assert.equal(patched.createPool.name, 'patchedCreatePool');
       assert.equal(patched.createPoolCluster.name, 'patchedCreatePoolCluster');
+    });
+
+    describe('handles mysql2 quirks', function() {
+      var conn, connectionObj, mysql,  sandbox, segment;
+
+      // See https://github.com/sidorares/node-mysql2/blob/dbb344e89a1cc8bb457b24e67b07cdb3013fe844/lib/commands/query.js#L38-L44
+      class Query extends EventEmitter {
+        then() {
+          throw new Error('You have tried to call .then(), .catch(), or invoked await on the result of query that is not a promise [...]');
+        }
+      }
+
+      before(function() {
+        conn = {
+          config: {
+            user: 'mcmuls',
+            host: 'database.location',
+            port: '8080',
+            database: 'myTestDb'
+          },
+          query: function() {
+            return new Query();
+          }
+        };
+
+        mysql = { createConnection: function() {
+          return conn;
+        } };
+        mysql = captureMySQL(mysql);
+        connectionObj = mysql.createConnection();
+      });
+
+      beforeEach(function() {
+        sandbox = sinon.createSandbox();
+        segment = new Segment('test');
+        segment.addNewSubsegment('testSub');
+
+        sandbox = sinon.createSandbox();
+        sandbox.stub(AWSXRay, 'getSegment').returns(segment);
+        sandbox.stub(AWSXRay, 'isAutomaticMode').returns(true);
+      });
+
+      afterEach(function() {
+        sandbox.restore();
+      });
+
+      it('should not call fake .then() on mysql2 Query class', function() {
+        (() => connectionObj.query()).should.not.throw();
+      });
     });
   });
 
