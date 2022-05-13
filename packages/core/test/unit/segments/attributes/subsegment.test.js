@@ -137,6 +137,13 @@ describe('Subsegment', function() {
       subsegment.addError(err, true);
       exceptionStub.should.have.been.calledWithExactly(err, true);
     });
+    it('should initialise exceptions if matching errors are passed consecutively', function () {
+      subsegment.segment = { trace_id: '1-58c835af-cf6bfe9f8f2c5b84a6d1f50c', parent_id: '12345abc3456def' };
+      subsegment.addError(err);
+      subsegment.addError(err);
+      assert.equal(subsegment.cause.exceptions.length, 0);
+      assert.notEqual(subsegment.cause.exceptions, undefined);
+    });
   });
 
   describe('#incrementCounter', function() {
