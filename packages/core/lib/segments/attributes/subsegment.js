@@ -191,7 +191,7 @@ Subsegment.prototype.addError = function addError(err, remote) {
   if (this.segment && this.segment.exception) {
     if (err === this.segment.exception.ex) {
       this.fault = true;
-      this.cause = { id: this.segment.exception.cause };
+      this.cause = { id: this.segment.exception.cause, exceptions: [] };
       return;
     }
     delete this.segment.exception;
