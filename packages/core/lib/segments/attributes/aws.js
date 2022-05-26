@@ -31,7 +31,9 @@ Aws.prototype.init = function init(res, serviceName) {
     this.id_2 = res.extendedRequestId;
   }
 
-  this.addData(capturer.capture(serviceName.toLowerCase(), res));
+  if (serviceName) {
+    this.addData(capturer.capture(serviceName.toLowerCase(), res));
+  }
 };
 
 Aws.prototype.addData = function addData(data) {
