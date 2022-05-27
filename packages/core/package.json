@@ -16,7 +16,7 @@
   "main": "dist/lib/index.js",
   "types": "dist/lib/index.d.ts",
   "engines": {
-    "node": ">= 10.x"
+    "node": ">= 12.x"
   },
   "directories": {
     "test": "test"

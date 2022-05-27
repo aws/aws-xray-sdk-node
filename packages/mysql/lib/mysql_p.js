@@ -237,12 +237,6 @@ function captureOperation(name) {
     if (!args.callback) {
       var errorCapturer = function (err) {
         subsegment.close(err);
-
-        // TODO: Remove this logic once Node 10 is deprecated
-        if (!events.errorMonitor && this.listenerCount('error') <= 1) {
-          this.removeListener('error', errorCapturer);
-          this.emit('error', err);
-        }
       };
 
       if (isPromise(command)) {

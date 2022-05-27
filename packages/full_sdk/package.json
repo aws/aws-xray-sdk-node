@@ -10,7 +10,7 @@
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "engines": {
-    "node": ">= 10.x"
+    "node": ">= 12.x"
   },
   "dependencies": {
     "aws-xray-sdk-core": "file:../core",

@@ -20,7 +20,7 @@
     "sample": "node sample"
   },
   "engines": {
-    "node": ">= 10.x"
+    "node": ">= 12.x"
   },
   "peerDependencies": {
     "@hapi/hapi": ">=18.x",
