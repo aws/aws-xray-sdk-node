@@ -116,10 +116,10 @@ Segment.prototype.setUser = function (user) {
 
 Segment.prototype.addMetadata = function(key, value, namespace) {
   if (typeof key !== 'string') {
-    throw new Error('Failed to add annotation key: ' + key + ' value: ' + value + ' to subsegment ' +
+    logger.getLogger().error('Failed to add metadata key: ' + key + ' value: ' + value + ' to segment ' +
       this.name + '. Key must be of type string.');
   } else if (namespace && typeof namespace !== 'string') {
-    throw new Error('Failed to add annotation key: ' + key + ' value: ' + value + 'namespace: ' + namespace + ' to subsegment ' +
+    logger.getLogger().error('Failed to add metadata key: ' + key + ' value: ' + value + ' to segment ' +
       this.name + '. Namespace must be of type string.');
   }
 
@@ -133,7 +133,7 @@ Segment.prototype.addMetadata = function(key, value, namespace) {
     this.metadata[ns] = {};
   }
 
-  this.metadata[ns][key] = value;
+  this.metadata[ns][key] = value || '';
 };
 
 /**
@@ -255,8 +255,9 @@ Segment.prototype.removeSubsegment = function removeSubsegment(subsegment) {
 
 Segment.prototype.addError = function addError(err, remote) {
   if (err == null || typeof err !== 'object' && typeof(err) !== 'string') {
-    throw new Error('Failed to add error:' + err + ' to subsegment "' + this.name +
-      '".  Not an object or string literal.');
+    logger.getLogger().error('Failed to add error:' + err + ' to subsegment "' + this.name +
+    '".  Not an object or string literal.');
+    return;
   }
 
   this.addFaultFlag();
