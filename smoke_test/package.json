@@ -4,7 +4,7 @@
   "description": "Smoke Test for AWS XRay SDK",
   "main": "index.js",
   "engines": {
-    "node": ">= 10.x"
+    "node": ">= 12.x"
   },
   "dependencies": {
     "aws-xray-sdk": "*",

@@ -9,7 +9,7 @@
   ],
   "main": "lib/index.js",
   "engines": {
-    "node": ">= 10.x"
+    "node": ">= 12.x"
   },
   "directories": {
     "test": "test"
