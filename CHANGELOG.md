@@ -1,6 +1,24 @@
 # Changelog for AWS X-Ray SDK for JavaScript
-<!--LATEST=3.3.5-->
+<!--LATEST=3.3.6-->
 <!--ENTRYINSERT-->
+## 3.3.6
+View [the latest changes](https://github.com/aws/aws-xray-sdk-node/compare/aws-xray-sdk-node%403.3.5...aws-xray-sdk-node%403.3.6)
+* `aws-xray-sdk-core` updated to 3.3.6
+  * fix: Check `serviceName` is null even if it should never be [PR #457](https://github.com/aws/aws-xray-sdk-node/pull/457)
+  * fix: Populate vars to avoid `unshift undefined` error [PR #508](https://github.com/aws/aws-xray-sdk-node/pull/508)
+* `aws-xray-sdk-mysql` updated to 3.3.6
+  * fix: avoid fake .then() method on mysql2 Query class [PR #501](https://github.com/aws/aws-xray-sdk-node/pull/501)
+* `aws-xray-sdk-express` updated to 3.3.6
+  * No further changes.
+* `aws-xray-sdk-postgres` updated to 3.3.6
+  * No further changes.
+* `aws-xray-sdk-restify` updated to 3.3.6
+  * No further changes.
+* `aws-xray-sdk-koa2` updated to 3.3.6
+  * No further changes.
+* `aws-xray-sdk-hapi` updated to 3.3.6
+  * No further changes.
+
 ## 3.3.5
 * change: Updated aws-xray-sdk-core to 3.3.5.
   * bugfix: added ids to exception objects [PR #475](https://github.com/aws/aws-xray-sdk-node/pull/475)
