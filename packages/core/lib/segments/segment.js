@@ -82,8 +82,14 @@ Segment.prototype.addIncomingRequestData = function addIncomingRequestData(data)
 
 Segment.prototype.addAnnotation = function addAnnotation(key, value) {
   if (typeof value !== 'boolean' && typeof value !== 'string' && !isFinite(value)) {
-    logger.getLogger().error('Add annotation key: ' + key + ' value: ' + value + ' failed.' +
-      ' Annotations must be of type string, number or boolean.');
+    logger.getLogger().error('Failed to add annotation key: ' + key + ' value: ' + value + ' to subsegment ' +
+      this.name + '. Value must be of type string, number or boolean.');
+    return;
+  }
+
+  if (typeof key !== 'string') {
+    logger.getLogger().error('Failed to add annotation key: ' + key + ' value: ' + value + ' to subsegment ' +
+      this.name + '. Key must be of type string.');
     return;
   }
 
@@ -118,9 +124,13 @@ Segment.prototype.addMetadata = function(key, value, namespace) {
   if (typeof key !== 'string') {
     logger.getLogger().error('Failed to add metadata key: ' + key + ' value: ' + value + ' to segment ' +
       this.name + '. Key must be of type string.');
-  } else if (namespace && typeof namespace !== 'string') {
+    return;
+  }
+
+  if (namespace && typeof namespace !== 'string') {
     logger.getLogger().error('Failed to add metadata key: ' + key + ' value: ' + value + ' to segment ' +
       this.name + '. Namespace must be of type string.');
+    return;
   }
 
   var ns = namespace || 'default';
@@ -133,7 +143,7 @@ Segment.prototype.addMetadata = function(key, value, namespace) {
     this.metadata[ns] = {};
   }
 
-  this.metadata[ns][key] = value || '';
+  this.metadata[ns][key] = value !== null && value !== undefined ? value : '';
 };
 
 /**
