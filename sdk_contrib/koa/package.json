@@ -19,7 +19,7 @@
     "test-d": "tsd"
   },
   "engines": {
-    "node": ">= 14.x"
+    "node": ">= 12.x"
   },
   "peerDependencies": {
     "aws-xray-sdk-core": "^3.3.6",
