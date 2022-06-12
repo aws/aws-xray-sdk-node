@@ -122,12 +122,16 @@ Subsegment.prototype.addPrecursorId = function(id) {
  */
 
 Subsegment.prototype.addAnnotation = function(key, value) {
-  if (!(typeof value === 'boolean' || typeof value === 'string' || (typeof value === 'number' && isFinite(value)))) {
-    throw new Error('Failed to add annotation key: ' + key + ' value: ' + value + ' to subsegment ' +
+  if (typeof value !== 'boolean' && typeof value !== 'string' && !isFinite(value)) {
+    logger.getLogger().error('Failed to add annotation key: ' + key + ' value: ' + value + ' to subsegment ' +
       this.name + '. Value must be of type string, number or boolean.');
-  } else if (typeof key !== 'string') {
-    throw new Error('Failed to add annotation key: ' + key + ' value: ' + value + ' to subsegment ' +
+    return;
+  }
+
+  if (typeof key !== 'string') {
+    logger.getLogger().error('Failed to add annotation key: ' + key + ' value: ' + value + ' to subsegment ' +
       this.name + '. Key must be of type string.');
+    return;
   }
 
   if (this.annotations === undefined) {
@@ -147,11 +151,15 @@ Subsegment.prototype.addAnnotation = function(key, value) {
 
 Subsegment.prototype.addMetadata = function(key, value, namespace) {
   if (typeof key !== 'string') {
-    throw new Error('Failed to add annotation key: ' + key + ' value: ' + value + ' to subsegment ' +
+    logger.getLogger().error('Failed to add metadata key: ' + key + ' value: ' + value + ' to subsegment ' +
       this.name + '. Key must be of type string.');
-  } else if (namespace && typeof namespace !== 'string') {
-    throw new Error('Failed to add annotation key: ' + key + ' value: ' + value + 'namespace: ' + namespace + ' to subsegment ' +
+    return;
+  }
+
+  if (namespace && typeof namespace !== 'string') {
+    logger.getLogger().error('Failed to add metadata key: ' + key + ' value: ' + value + ' to subsegment ' +
       this.name + '. Namespace must be of type string.');
+    return;
   }
 
   var ns = namespace || 'default';
@@ -164,7 +172,7 @@ Subsegment.prototype.addMetadata = function(key, value, namespace) {
     this.metadata[ns] = {};
   }
 
-  this.metadata[ns][key] = value;
+  this.metadata[ns][key] = value !== null && value !== undefined ? value : '';
 };
 
 Subsegment.prototype.addSqlData = function addSqlData(sqlData) {
@@ -182,8 +190,9 @@ Subsegment.prototype.addSqlData = function addSqlData(sqlData) {
 
 Subsegment.prototype.addError = function addError(err, remote) {
   if (err == null || typeof err !== 'object' && typeof(err) !== 'string') {
-    throw new Error('Failed to add error:' + err + ' to subsegment "' + this.name +
-      '".  Not an object or string literal.');
+    logger.getLogger().error('Failed to add error:' + err + ' to subsegment "' + this.name +
+    '".  Not an object or string literal.');
+    return;
   }
 
   this.addFaultFlag();
@@ -323,8 +332,9 @@ Subsegment.prototype.isClosed = function isClosed() {
 
 Subsegment.prototype.flush = function flush() {
   if (!this.parent || !this.segment) {
-    throw new Error('Failed to flush subsegment: ' + this.name + '. Subsegment must be added ' +
+    logger.getLogger().error('Failed to flush subsegment: ' + this.name + '. Subsegment must be added ' +
       'to a segment chain to flush.');
+    return;
   }
 
   if (this.segment.trace_id) {

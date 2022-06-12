@@ -8,6 +8,7 @@ var SegmentEmitter = require('../../../lib/segment_emitter');
 var SegmentUtils = require('../../../lib/segments/segment_utils');
 var Segment = require('../../../lib/segments/segment');
 var Subsegment = require('../../../lib/segments/attributes/subsegment');
+var logger = require('../../../lib/logger');
 
 chai.should();
 chai.use(sinonChai);
@@ -280,10 +281,12 @@ describe('Segment', function() {
       assert.equal(segment.cause.exceptions.length, 2);
     });
 
-    it('should throw an error on other types', function() {
-      assert.throws(function() {
-        segment.addError(3);
-      });
+    it('should accept invalid types and log an error', function() {
+      const loggerMock = sandbox.mock(logger.getLogger());
+      loggerMock.expects('error').once();
+      segment.addError(3);
+      loggerMock.verify();
+      assert.notEqual(segment.fault, true);
     });
 
     it('should set fault to true by default', function() {

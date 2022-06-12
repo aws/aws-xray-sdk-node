@@ -6,6 +6,7 @@ var sinonChai = require('sinon-chai');
 var CapturedException = require('../../../../lib/segments/attributes/captured_exception');
 var SegmentUtils = require('../../../../lib/segments/segment_utils');
 var Subsegment = require('../../../../lib/segments/attributes/subsegment');
+var logger = require('../../../../lib/logger');
 
 chai.should();
 chai.use(sinonChai);
@@ -117,10 +118,12 @@ describe('Subsegment', function() {
       assert.equal(subsegment.cause.exceptions.length, 2);
     });
 
-    it('should throw an error on other types', function() {
-      assert.throws(function() {
-        subsegment.addError(3);
-      });
+    it('should accept invalid types and log an error', function() {
+      const loggerMock = sandbox.mock(logger.getLogger());
+      loggerMock.expects('error').once();
+      subsegment.addError(3);
+      loggerMock.verify();
+      assert.notEqual(subsegment.fault, true);
     });
 
     it('should set fault to true by default', function() {
@@ -261,18 +264,12 @@ describe('Subsegment', function() {
       emitStub.reset();
     });
 
-    it('should throw an error if the subsegment has no parent', function() {
+    it('should not throw an error when subsegment flushes', function() {
       delete child.parent;
-      assert.throws( function() {
-        child.flush();
-      }, Error);
-    });
-
-    it('should throw an error if the subsegment has no segment', function() {
-      delete child.segment;
-      assert.throws( function() {
-        child.flush();
-      }, Error);
+      const loggerMock = sandbox.mock(logger.getLogger());
+      loggerMock.expects('error').once();
+      child.flush();
+      loggerMock.verify();
     });
 
     it('should set the parent_id, trace_id and type properties', function() {
