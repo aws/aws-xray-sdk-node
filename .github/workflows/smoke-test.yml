@@ -15,7 +15,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v1
         with:
-          node-version: '14.x'
+          node-version: '20.x'
 
       # Use npm pack to bundle individual packages into their final distribution tarball form
       # Then aggregate all of those tarballs in the full_sdk package, to be used by smoke test
