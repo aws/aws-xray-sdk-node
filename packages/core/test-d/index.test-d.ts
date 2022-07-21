@@ -41,7 +41,7 @@ expectType<void>(AWSXRay.setDaemonAddress('192.168.0.23:8080'));
 
 const traceId = '1-57fbe041-2c7ad569f5d6ff149137be86';
 const traceId2 = new TraceID();
-const traceId3 = new TraceID("0", "0");
+const traceId3 = new TraceID('0', '0');
 const segment = new AWSXRay.Segment('test', traceId);
 
 expectType<TraceID>(TraceID.FromString(traceId));
