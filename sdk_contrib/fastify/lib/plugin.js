@@ -1,6 +1,8 @@
+// @ts-check
+
 const AWSXray = require('aws-xray-sdk-core');
 
-const xRayFastifyPlugin = (fastify, opts) => {
+const xRayFastifyPlugin = async (fastify, opts) => {
   const defaultOptions = {
     automaticMode: true,
     logger: fastify.log,
@@ -14,8 +16,14 @@ const xRayFastifyPlugin = (fastify, opts) => {
     AWSXray.setLogger(fastify.log);
   }
 
-  const segmentName =
-    localOptions.segmentName || exports._internals.createSegmentName();
+  const segmentName = localOptions.segmentName;
+
+  if (!segmentName) {
+    throw new Error('segmentName is required');
+  }
+
+  const { middleware: mwUtils } = AWSXray;
+
   mwUtils.setDefaultName(segmentName);
 
   if (localOptions.automaticMode) {
@@ -41,10 +49,8 @@ const xRayFastifyPlugin = (fastify, opts) => {
     AWSXray.capturePromise();
   }
 
-  const { middleware: mwUtils } = AWSXray;
-
   fastify.decorateRequest('segment', null);
-  fastify.addHook('onRequest', async (request, reply, done) => {
+  fastify.addHook('onRequest', (request, reply, done) => {
     const req = request.raw;
     const res = reply.raw;
 
@@ -68,7 +74,7 @@ const xRayFastifyPlugin = (fastify, opts) => {
         }
       });
     } else {
-      fastity.log.info('Manual mode, skipping segment');
+      fastify.log.info('Manual mode, skipping segment');
     }
 
     done();

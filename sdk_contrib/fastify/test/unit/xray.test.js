@@ -2,10 +2,10 @@ const xray = require('aws-xray-sdk-core');
 const chai = require('chai');
 const sinon = require('sinon').createSandbox();
 const sinonChai = require('sinon-chai');
-const { assert } = chai;
+const { assert, expect } = chai;
+const Fastify = require('fastify');
 
-const xrayPlugin = require('../../lib/plugin');
-const fastifyXray = require('../../lib/xray');
+const xrayFastifyPlugin = require('../../lib/plugin');
 const SegmentEmitter = require('aws-xray-sdk-core/dist/lib/segment_emitter.js');
 const ServiceConnector = require('aws-xray-sdk-core/dist/lib/middleware/sampling/service_connector.js');
 
@@ -21,34 +21,41 @@ describe('Fastify plugin', function () {
   const hostName = 'fastifyMiddlewareTest';
   const parentId = '2c7ad569f5d6ff149137be86';
   const traceId = '1-f9194208-2c7ad569f5d6ff149137be86';
+  /** @type { import('fastify').FastifyInstance } */
+  let app;
 
-  afterEach(function () {
+  beforeEach(async function () {
+    app = Fastify({ logger: false });
+  });
+
+  afterEach(async function () {
     sinon.restore();
+    await app.close();
   });
 
   describe('#plugin', function () {
-    it('should set up xray with options specified in the plugin', function () {
+    it('should set up xray with options specified in the plugin', async function () {
       this.timeout(3000); //On rare occasion this test times out...adding more time
       const testLogger = { error: () => 'error', debug: () => 'debug' };
       const captureAwsSpy = sinon.spy(xray, 'captureAWS');
       const captureHttpSpy = sinon.spy(xray, 'captureHTTPsGlobal');
       const capturePromiseSpy = sinon.spy(xray, 'capturePromise');
 
-      xrayPlugin.register(
-        { ext: () => 'test', events: { on: () => 'test' } },
-        {
-          segmentName: 'test segment',
-          captureAWS: true,
-          captureHTTP: true,
-          capturePromises: true,
-          logger: testLogger,
-        }
-      );
-      assert.equal(xray.getLogger(), testLogger);
-      assert.equal(mwUtils.defaultName, 'test segment');
-      assert.equal(captureAwsSpy.callCount, 1);
-      assert.equal(captureHttpSpy.callCount, 2);
-      assert.equal(capturePromiseSpy.callCount, 1);
+      app.register(xrayFastifyPlugin, {
+        segmentName: 'test segment',
+        captureAWS: true,
+        captureHTTP: true,
+        capturePromises: true,
+        logger: testLogger,
+      });
+
+      await app.ready();
+
+      expect(xray.getLogger()).to.deep.equal(testLogger);
+      expect(mwUtils.defaultName).to.equal('test segment');
+      expect(captureAwsSpy).to.have.been.calledOnce;
+      expect(captureHttpSpy).to.have.been.calledTwice;
+      expect(capturePromiseSpy).to.have.been.calledOnce;
     });
   });
 
