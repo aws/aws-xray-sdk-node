@@ -17,6 +17,7 @@ Simply register as a normal Hapi plugin
 const AWSXRay = require('aws-xray-sdk');
 
 await server.register(require('aws-xray-sdk-fastify'), {
+  segmentName: 'test segment',
   captureAWS: true,
   plugins: [AWSXRay.plugins.ECSPlugin],
 });
