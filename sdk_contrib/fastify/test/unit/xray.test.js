@@ -61,53 +61,75 @@ describe('Fastify plugin', function () {
 
   describe('#setup', function () {
     it('should set the default segment name on xray', function () {
-      fastifyXray.setup({ segmentName: 'test segment' });
-      assert.equal(mwUtils.defaultName, 'test segment');
+      app.register(xrayFastifyPlugin, { segmentName: 'test segment' });
+      expect(mwUtils.defaultName).to.equal('test segment');
     });
 
-    it('should generate the default segment name on xray', function () {
-      fastifyXray.setup({});
-      assert.isTrue(mwUtils.defaultName.includes('aws-xray-sdk-fastify'));
+    it('should throws an error for a missing segment name on xray', async function () {
+      try {
+        await app.register(xrayFastifyPlugin, {});
+      } catch (error) {
+        expect(error.message).to.equal('segmentName is required');
+      }
     });
 
-    it('should be set to automatic mode by default on xray', function () {
-      fastifyXray.setup({});
-      assert.equal(xray.isAutomaticMode(), true);
+    it('should be set to default parameters on xray', async function () {
+      await app.register(xrayFastifyPlugin, { segmentName: 'test segment' });
+      expect(xray.isAutomaticMode()).to.be.true;
+      expect(xray.getLogger()).to.deep.equal(app.log);
     });
 
-    it('should set automatic mode on xray', function () {
-      fastifyXray.setup({ automaticMode: false });
-      assert.equal(xray.isAutomaticMode(), false);
+    it('should set manual mode on xray', async function () {
+      await app.register(xrayFastifyPlugin, {
+        segmentName: 'test segment',
+        automaticMode: false,
+      });
+      expect(xray.isAutomaticMode()).to.be.false;
     });
 
-    it('should set the passed logger', function () {
+    it('should set the passed logger', async function () {
       const testLogger = { error: () => 'error', debug: () => 'debug' };
-      fastifyXray.setup({ logger: testLogger });
-      assert.equal(xray.getLogger(), testLogger);
+      await app.register(xrayFastifyPlugin, {
+        segmentName: 'test segment',
+        logger: testLogger,
+      });
+      expect(xray.getLogger()).to.deep.equal(testLogger);
     });
 
-    it('should call captureAWS when captureAWS is true', function () {
+    it('should call captureAWS when captureAWS is true', async function () {
       const captureSpy = sinon.spy(xray, 'captureAWS');
-      fastifyXray.setup({ captureAWS: true });
-      assert.equal(captureSpy.callCount, 1);
+      await app.register(xrayFastifyPlugin, {
+        segmentName: 'test segment',
+        captureAWS: true,
+      });
+      expect(captureSpy).to.be.calledOnce;
     });
 
-    it('should set plugins when provided', function () {
+    it('should set plugins when provided', async function () {
       const pluginSpy = sinon.spy(xray.plugins.ECSPlugin, 'getData');
-      fastifyXray.setup({ plugins: [xray.plugins.ECSPlugin] });
-      assert.equal(pluginSpy.callCount, 1);
+      await app.register(xrayFastifyPlugin, {
+        segmentName: 'test segment',
+        plugins: [xray.plugins.ECSPlugin],
+      });
+      expect(pluginSpy).to.be.calledOnce;
     });
 
-    it('should call captureHTTPsGlobal when captureHttp is true', function () {
+    it('should call captureHTTPsGlobal when captureHttp is true', async function () {
       const captureSpy = sinon.spy(xray, 'captureHTTPsGlobal');
-      fastifyXray.setup({ captureHTTP: true });
-      assert.equal(captureSpy.callCount, 2);
+      await app.register(xrayFastifyPlugin, {
+        segmentName: 'test segment',
+        captureHTTP: true,
+      });
+      expect(captureSpy).to.be.calledTwice;
     });
 
-    it('should call capturePromise when capturePromises is true', function () {
+    it('should call capturePromise when capturePromises is true', async function () {
       const captureSpy = sinon.spy(xray, 'capturePromise');
-      fastifyXray.setup({ capturePromises: true });
-      assert.equal(captureSpy.callCount, 1);
+      await app.register(xrayFastifyPlugin, {
+        segmentName: 'test segment',
+        capturePromises: true,
+      });
+      expect(captureSpy).to.be.calledOnce;
     });
   });
 
