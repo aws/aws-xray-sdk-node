@@ -1,5 +1,3 @@
-// @ts-check
-
 const AWSXray = require('aws-xray-sdk-core');
 
 const xRayFastifyPlugin = async (fastify, opts) => {
@@ -69,9 +67,6 @@ const xRayFastifyPlugin = async (fastify, opts) => {
 
       ns.run(() => {
         AWSXRay.setSegment(segment);
-        if (next) {
-          next();
-        }
       });
     } else {
       fastify.log.info('Manual mode, skipping segment');
