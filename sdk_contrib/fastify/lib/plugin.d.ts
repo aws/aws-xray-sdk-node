@@ -17,6 +17,6 @@ export interface XRayFastifyPluginOptions {
   plugins: AWSXRay.plugins.Plugin[];
 }
 
-export declare const xRayFastifyPlugin: FastifyPluginAsync<XRayFastifyPluginOptions>;
+declare const xRayFastifyPlugin: FastifyPluginAsync<XRayFastifyPluginOptions>;
 
 export default xRayFastifyPlugin;
