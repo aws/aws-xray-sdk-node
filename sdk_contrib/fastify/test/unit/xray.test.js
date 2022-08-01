@@ -4,6 +4,7 @@ const sinon = require('sinon').createSandbox();
 const sinonChai = require('sinon-chai');
 const { assert, expect } = chai;
 const Fastify = require('fastify');
+const fp = require('fastify-plugin');
 
 const xrayFastifyPlugin = require('../../lib/plugin');
 const SegmentEmitter = require('aws-xray-sdk-core/dist/lib/segment_emitter.js');
@@ -134,73 +135,30 @@ describe('Fastify plugin', function () {
   });
 
   describe('#createRequestHandler', function () {
-    let request, req, res;
     const h = {
       continue: () => Promise.resolve('blah'),
     };
 
-    beforeEach(function () {
-      req = {
+    it('should run the request handler function and create a request segment', async function () {
+      app.register(fp(xrayFastifyPlugin), {
+        segmentName: 'test segment',
+        automaticMode: false,
+      });
+
+      app.get('/', (request, reply) => {
+        expect(request.segment).to.be.an.instanceOf(Segment);
+
+        reply.send('OK');
+      });
+
+      await app.ready();
+
+      const { statusCode } = await app.inject({
         method: 'GET',
         url: '/',
-        connection: {
-          remoteAddress: 'localhost',
-        },
-        headers: { host: 'myHostName' },
-      };
-      res = {
-        req: req,
-        header: {},
-      };
-
-      request = {
-        url: req.url,
-        headers: req.headers,
-        raw: { req, res },
-        response: res,
-      };
-    });
-
-    it('should add the plugin state to the request.plugins property in automatic mode', async function () {
-      sinon
-        .stub(mwUtils, 'processHeaders')
-        .returns({ root: traceId, parent: parentId, sampled: '0' });
-
-      const nsResponse = {
-        createContext: () => ({ prop1: 'prop1' }),
-        bindEmitter: () => {},
-        enter: () => {},
-      };
-      sinon.stub(xray, 'getNamespace').returns(nsResponse);
-      sinon.stub(xray, 'setSegment').returns(null);
-      fastifyXray.setup({ automaticMode: true });
-      await fastifyXray.handleRequest(request, h);
-
-      assert.isDefined(request.plugins.fastifyXray);
-      assert.deepEqual(request.plugins.fastifyXray.xrayNamespace, nsResponse);
-      assert.deepEqual(request.plugins.fastifyXray.xrayContext, {
-        prop1: 'prop1',
       });
-    });
 
-    it('should not add the plugin state to the request.plugins property in manual mode', async function () {
-      fastifyXray.setup({ automaticMode: false });
-      await fastifyXray.handleRequest(request, h);
-
-      assert.isUndefined(request.plugins);
-    });
-
-    it('should run the request handler function and create a request segment', async function () {
-      fastifyXray.setup({ automaticMode: false });
-      const result = await fastifyXray.handleRequest(request, h);
-      assert.isDefined(result);
-      assert.isDefined(request.segment);
-      assert.isDefined(request.segment.trace_id);
-      assert.isDefined(request.segment.id);
-      assert.isDefined(request.segment.start_time);
-      assert.isDefined(request.segment.name);
-      assert.isDefined(request.segment.aws);
-      assert.isDefined(request.segment.http);
+      expect(statusCode).to.equal(200);
     });
 
     describe('when handling a request', function () {
