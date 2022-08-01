@@ -201,22 +201,26 @@ describe('Fastify plugin', function () {
         await app.inject({
           method: 'GET',
           url: '/',
+          headers: { host: 'myHostName' },
         });
 
         expect(processHeadersStub).to.have.been.calledOnce;
         expect(processHeadersStub).to.have.been.calledWithMatch({
           method: 'GET',
           url: '/',
+          headers: { host: 'myHostName' },
         });
       });
 
-      it('should call mwUtils.resolveName to find the name of the segment', function () {
-        fastifyXray.handleRequest(request, h);
+      it('should call mwUtils.resolveName to find the name of the segment', async function () {
+        await app.inject({
+          method: 'GET',
+          url: '/',
+          headers: { host: 'myHostName' },
+        });
 
-        resolveNameStub.should.have.been.calledOnce;
-        resolveNameStub.should.have.been.calledWithExactly(
-          request.headers.host
-        );
+        expect(resolveNameStub).to.have.been.calledOnce;
+        expect(resolveNameStub).to.have.been.calledWithExactly('myHostName');
       });
 
       it('should create a new segment', function () {
