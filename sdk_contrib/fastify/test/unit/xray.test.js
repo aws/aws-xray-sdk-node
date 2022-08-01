@@ -230,19 +230,23 @@ describe('Fastify plugin', function () {
           headers: { host: 'myHostName' },
         });
 
-        newSegmentSpy.should.have.been.calledOnce;
-        newSegmentSpy.should.have.been.calledWithExactly(
+        expect(newSegmentSpy).to.have.been.calledOnce;
+        expect(newSegmentSpy).to.have.been.calledWithExactly(
           defaultName,
           traceId,
           parentId
         );
       });
 
-      it('should add a new http property on the segment', function () {
-        fastifyXray.handleRequest(request, h);
+      it('should add a new http property on the segment', async function () {
+        await app.inject({
+          method: 'GET',
+          url: '/',
+          headers: { host: 'myHostName' },
+        });
 
-        addReqDataSpy.should.have.been.calledOnce;
-        addReqDataSpy.should.have.been.calledWithExactly(
+        expect(addReqDataSpy).to.have.been.calledOnce;
+        expect(addReqDataSpy).to.have.been.calledWithExactly(
           sinon.match.instanceOf(IncomingRequestData)
         );
       });
