@@ -223,8 +223,12 @@ describe('Fastify plugin', function () {
         expect(resolveNameStub).to.have.been.calledWithExactly('myHostName');
       });
 
-      it('should create a new segment', function () {
-        fastifyXray.handleRequest(request, h);
+      it('should create a new segment', async function () {
+        await app.inject({
+          method: 'GET',
+          url: '/',
+          headers: { host: 'myHostName' },
+        });
 
         newSegmentSpy.should.have.been.calledOnce;
         newSegmentSpy.should.have.been.calledWithExactly(
