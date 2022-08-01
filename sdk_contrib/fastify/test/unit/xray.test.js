@@ -164,31 +164,50 @@ describe('Fastify plugin', function () {
     describe('when handling a request', function () {
       let addReqDataSpy, newSegmentSpy, processHeadersStub, resolveNameStub;
 
-      beforeEach(function () {
-        fastifyXray.setup({ automaticMode: false });
+      beforeEach(async function () {
+        app.register(fp(xrayFastifyPlugin), {
+          segmentName: 'test segment',
+          automaticMode: false,
+        });
+
+        app.get('/', (request, reply) => {
+          expect(request.segment).to.be.an.instanceOf(Segment);
+
+          reply.send('OK');
+        });
+
+        await app.ready();
+
         newSegmentSpy = sinon.spy(Segment.prototype, 'init');
         addReqDataSpy = sinon.spy(Segment.prototype, 'addIncomingRequestData');
 
         processHeadersStub = sinon
           .stub(mwUtils, 'processHeaders')
           .returns({ root: traceId, parent: parentId, sampled: '0' });
+
         resolveNameStub = sinon
           .stub(mwUtils, 'resolveName')
           .returns(defaultName);
-
-        req.headers = { host: hostName };
       });
 
-      afterEach(function () {
+      afterEach(async function () {
         sinon.restore();
         delete process.env.AWS_XRAY_TRACING_NAME;
+
+        await app.close();
       });
 
-      it('should call mwUtils.processHeaders to split the headers, if any', function () {
-        fastifyXray.handleRequest(request, h);
+      it('should call mwUtils.processHeaders to split the headers, if any', async function () {
+        await app.inject({
+          method: 'GET',
+          url: '/',
+        });
 
-        processHeadersStub.should.have.been.calledOnce;
-        processHeadersStub.should.have.been.calledWithExactly(request);
+        expect(processHeadersStub).to.have.been.calledOnce;
+        expect(processHeadersStub).to.have.been.calledWithMatch({
+          method: 'GET',
+          url: '/',
+        });
       });
 
       it('should call mwUtils.resolveName to find the name of the segment', function () {
