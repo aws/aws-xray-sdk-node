@@ -2,7 +2,7 @@ const xray = require('aws-xray-sdk-core');
 const chai = require('chai');
 const sinon = require('sinon').createSandbox();
 const sinonChai = require('sinon-chai');
-const { assert, expect } = chai;
+const { expect } = chai;
 const Fastify = require('fastify');
 const fp = require('fastify-plugin');
 
