@@ -334,25 +334,36 @@ describe('Fastify plugin', function () {
 
         await app.ready();
 
-        const { statusCode } = await app
-          .inject({
-            method: 'GET',
-            url: '/',
-            headers: { host: hostName },
-          })
-          .catch(console.error);
+        const { statusCode } = await app.inject({
+          method: 'GET',
+          url: '/',
+          headers: { host: hostName },
+        });
 
         expect(statusCode).to.equal(429);
       });
 
-      it('should add nothing on anything else', function () {
-        fastifyXray.handleRequest(request, h);
-        res.statusCode = 200;
-        fastifyXray.handleResponse(request);
+      it('should add nothing on anything else', async function () {
+        app.get('/', async (request, reply) => {
+          reply.send('OK');
+        });
 
-        assert.notProperty(request.segment, 'error');
-        assert.notProperty(request.segment, 'fault');
-        assert.notProperty(request.segment, 'throttle');
+        app.addHook('onResponse', (request, reply, done) => {
+          expect(request.segment.throttle).to.be.undefined;
+          expect(request.segment.error).to.be.undefined;
+          expect(request.segment.fault).to.be.undefined;
+          done();
+        });
+
+        await app.ready();
+
+        const { statusCode } = await app.inject({
+          method: 'GET',
+          url: '/',
+          headers: { host: hostName },
+        });
+
+        expect(statusCode).to.equal(200);
       });
     });
   });
