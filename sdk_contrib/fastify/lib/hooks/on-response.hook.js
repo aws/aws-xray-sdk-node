@@ -22,7 +22,9 @@ module.exports = function onResponseHook(request, reply, done) {
       }
     }
 
-    segment.http.close(reply);
+    if (segment.http) {
+      segment.http.close(reply.raw);
+    }
 
     segment.close();
 
