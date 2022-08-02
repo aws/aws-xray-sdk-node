@@ -11,7 +11,7 @@ For more details on using X-Ray, see the [docs](https://docs.aws.amazon.com/xray
 
 ## Usage
 
-Simply register as a normal Hapi plugin
+Simply register as a normal Fastify plugin
 
 ```js
 const AWSXRay = require('aws-xray-sdk');
@@ -49,7 +49,7 @@ server.route({
 
 ### Options
 
-- `segmentName` Segment name to use in place of default segment name generator
+- `segmentName` Segment name to use in place of default segment name generator (**required**)
 - `automaticMode` Specifies that X-Ray automatic mode is in use (default true)
 - `plugins` An array of AWS plugins to use (i.e. `[AWSXRay.plugins.EC2Plugin]`)
 - `captureAWS` Enables AWS X-Ray to capture AWS calls. This requires having `aws-sdk` installed as a peer dependency
