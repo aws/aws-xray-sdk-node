@@ -270,6 +270,7 @@ describe('Fastify plugin', function () {
       });
 
       it('should add the error flag on the segment on 4xx', async function () {
+        let localSegment;
         const getCauseStub = sinon
           .stub(xray.utils, 'getCauseTypeFromHttpStatus')
           .returns('error');
@@ -279,7 +280,7 @@ describe('Fastify plugin', function () {
         });
 
         app.addHook('onResponse', (request, reply, done) => {
-          expect(request.segment.error).to.be.true;
+          localSegment = request.segment;
           done();
         });
 
@@ -292,10 +293,12 @@ describe('Fastify plugin', function () {
         });
 
         expect(statusCode).to.equal(400);
+        expect(localSegment.error).to.be.true;
         expect(getCauseStub).to.have.been.calledWith(400);
       });
 
       it('should add the fault flag on the segment on 5xx', async function () {
+        let localSegment;
         const getCauseStub = sinon
           .stub(xray.utils, 'getCauseTypeFromHttpStatus')
           .returns('fault');
@@ -305,7 +308,7 @@ describe('Fastify plugin', function () {
         });
 
         app.addHook('onResponse', (request, reply, done) => {
-          expect(request.segment.fault).to.be.true;
+          localSegment = request.segment;
           done();
         });
 
@@ -318,17 +321,18 @@ describe('Fastify plugin', function () {
         });
 
         expect(statusCode).to.equal(500);
+        expect(localSegment.fault).to.be.true;
         expect(getCauseStub).to.have.been.calledWith(500);
       });
 
       it('should add the throttle flag and error flag on the segment on a 429', async function () {
+        let localSegment;
         app.get('/', async (request, reply) => {
           reply.code(429).send('Too Many Requests');
         });
 
         app.addHook('onResponse', (request, reply, done) => {
-          expect(request.segment.throttle).to.be.true;
-          expect(request.segment.error).to.be.true;
+          localSegment = request.segment;
           done();
         });
 
@@ -340,18 +344,19 @@ describe('Fastify plugin', function () {
           headers: { host: hostName },
         });
 
+        expect(localSegment.throttle).to.be.true;
+        expect(localSegment.error).to.be.true;
         expect(statusCode).to.equal(429);
       });
 
       it('should add nothing on anything else', async function () {
+        let localSegment;
         app.get('/', async (request, reply) => {
           reply.send('OK');
         });
 
         app.addHook('onResponse', (request, reply, done) => {
-          expect(request.segment.throttle).to.be.undefined;
-          expect(request.segment.error).to.be.undefined;
-          expect(request.segment.fault).to.be.undefined;
+          localSegment = request.segment;
           done();
         });
 
@@ -363,6 +368,9 @@ describe('Fastify plugin', function () {
           headers: { host: hostName },
         });
 
+        expect(localSegment.throttle).to.be.undefined;
+        expect(localSegment.error).to.be.undefined;
+        expect(localSegment.fault).to.be.undefined;
         expect(statusCode).to.equal(200);
       });
     });
