@@ -201,14 +201,14 @@ describe('Fastify plugin', function () {
         await app.inject({
           method: 'GET',
           url: '/',
-          headers: { host: 'myHostName' },
+          headers: { host: hostName },
         });
 
         expect(processHeadersStub).to.have.been.calledOnce;
         expect(processHeadersStub).to.have.been.calledWithMatch({
           method: 'GET',
           url: '/',
-          headers: { host: 'myHostName' },
+          headers: { host: hostName },
         });
       });
 
@@ -216,18 +216,18 @@ describe('Fastify plugin', function () {
         await app.inject({
           method: 'GET',
           url: '/',
-          headers: { host: 'myHostName' },
+          headers: { host: hostName },
         });
 
         expect(resolveNameStub).to.have.been.calledOnce;
-        expect(resolveNameStub).to.have.been.calledWithExactly('myHostName');
+        expect(resolveNameStub).to.have.been.calledWithExactly(hostName);
       });
 
       it('should create a new segment', async function () {
         await app.inject({
           method: 'GET',
           url: '/',
-          headers: { host: 'myHostName' },
+          headers: { host: hostName },
         });
 
         expect(newSegmentSpy).to.have.been.calledOnce;
@@ -242,7 +242,7 @@ describe('Fastify plugin', function () {
         await app.inject({
           method: 'GET',
           url: '/',
-          headers: { host: 'myHostName' },
+          headers: { host: hostName },
         });
 
         expect(addReqDataSpy).to.have.been.calledOnce;
@@ -254,50 +254,95 @@ describe('Fastify plugin', function () {
 
     describe('when the request completes', function () {
       beforeEach(function () {
-        fastifyXray.setup({ automaticMode: false });
+        app.register(fp(xrayFastifyPlugin), {
+          segmentName: 'test segment',
+          automaticMode: false,
+        });
+
         sinon.stub(SegmentEmitter);
         sinon.stub(ServiceConnector);
       });
 
-      afterEach(function () {
+      afterEach(async function () {
         sinon.restore();
+
+        await app.close();
       });
 
-      it('should add the error flag on the segment on 4xx', function () {
+      it('should add the error flag on the segment on 4xx', async function () {
         const getCauseStub = sinon
           .stub(xray.utils, 'getCauseTypeFromHttpStatus')
           .returns('error');
 
-        fastifyXray.handleRequest(request, h);
-        res.statusCode = 400;
-        fastifyXray.handleResponse(request);
+        app.get('/', async (request, reply) => {
+          reply.code(400).send('Bad Request');
+        });
 
-        assert.equal(request.segment.error, true);
-        getCauseStub.should.have.been.calledWith(400);
+        app.addHook('onResponse', (request, reply, done) => {
+          expect(request.segment.error).to.be.true;
+          done();
+        });
+
+        await app.ready();
+
+        const { statusCode } = await app.inject({
+          method: 'GET',
+          url: '/',
+          headers: { host: hostName },
+        });
+
+        expect(statusCode).to.equal(400);
+        expect(getCauseStub).to.have.been.calledWith(400);
       });
 
-      it('should add the fault flag on the segment on 5xx', function () {
+      it('should add the fault flag on the segment on 5xx', async function () {
         const getCauseStub = sinon
           .stub(xray.utils, 'getCauseTypeFromHttpStatus')
           .returns('fault');
 
-        fastifyXray.handleRequest(request, h);
+        app.get('/', async (request, reply) => {
+          reply.code(500).send('Internal Server Error');
+        });
 
-        res.statusCode = 500;
-        fastifyXray.handleError(request, new Error('test Error!'));
-        fastifyXray.handleResponse(request);
+        app.addHook('onResponse', (request, reply, done) => {
+          expect(request.segment.fault).to.be.true;
+          done();
+        });
 
-        assert.equal(request.segment.fault, true);
-        getCauseStub.should.have.been.calledWith(500);
+        await app.ready();
+
+        const { statusCode } = await app.inject({
+          method: 'GET',
+          url: '/',
+          headers: { host: hostName },
+        });
+
+        expect(statusCode).to.equal(500);
+        expect(getCauseStub).to.have.been.calledWith(500);
       });
 
-      it('should add the throttle flag and error flag on the segment on a 429', function () {
-        fastifyXray.handleRequest(request, h);
-        res.statusCode = 429;
-        fastifyXray.handleResponse(request);
+      it('should add the throttle flag and error flag on the segment on a 429', async function () {
+        app.get('/', async (request, reply) => {
+          reply.code(429).send('Too Many Requests');
+        });
 
-        assert.equal(request.segment.throttle, true);
-        assert.equal(request.segment.error, true);
+        app.addHook('onResponse', (request, reply, done) => {
+          expect(request.segment.throttle).to.be.true;
+          expect(request.segment.error).to.be.true;
+          done();
+        });
+
+        await app.ready();
+
+        const { statusCode } = await app
+          .inject({
+            method: 'GET',
+            url: '/',
+            headers: { host: hostName },
+          })
+          .catch(console.error);
+
+        expect(statusCode).to.equal(429);
       });
 
       it('should add nothing on anything else', function () {
