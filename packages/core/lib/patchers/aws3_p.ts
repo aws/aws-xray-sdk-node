@@ -40,6 +40,7 @@ const buildAttributesFromMetadata = async (
   service: string,
   operation: string,
   region: string,
+  commandInput: any,
   res: any | null,
   error: SdkError | null,
 ): Promise<[ServiceSegment, HttpResponse]> => {
@@ -50,8 +51,10 @@ const buildAttributesFromMetadata = async (
       extendedRequestId,
       requestId,
       retryCount: attempts,
+      data: res?.output,
       request: {
         operation,
+        params: commandInput,
         httpRequest: {
           region,
           statusCode,
@@ -94,11 +97,13 @@ function addFlags(http: HttpResponse, subsegment: Subsegment, err?: SdkError): v
 const getXRayMiddleware = (config: RegionResolvedConfig, manualSegment?: SegmentLike): BuildMiddleware<any, any> => (next: any, context: any) => async (args: any) => {
   const segment = contextUtils.isAutomaticMode() ? contextUtils.resolveSegment() : manualSegment;
   const {clientName, commandName} = context;
-  const operation: string = commandName.slice(0, -7); // Strip trailing "Command" string
+  const { input: commandInput } = args;
+  const commandOperation: string = commandName.slice(0, -7); // Strip trailing "Command" string
+  const operation: string = commandOperation.charAt(0).toLowerCase() + commandOperation.slice(1);
   const service: string = clientName.slice(0, -6);    // Strip trailing "Client" string
 
   if (!segment) {
-    const output = service + '.' + operation.charAt(0).toLowerCase() + operation.slice(1);
+    const output = service + '.' + operation;
 
     if (!contextUtils.isAutomaticMode()) {
       logger.getLogger().info('Call ' + output + ' requires a segment object' +
@@ -134,6 +139,7 @@ const getXRayMiddleware = (config: RegionResolvedConfig, manualSegment?: Segment
       service,
       operation,
       await config.region(),
+      commandInput,
       res,
       null,
     );
@@ -150,6 +156,7 @@ const getXRayMiddleware = (config: RegionResolvedConfig, manualSegment?: Segment
         service,
         operation,
         await config.region(),
+        commandInput,
         null,
         err,
       );
