@@ -47,6 +47,12 @@ describe('Subsegment', function() {
       subsegment.addMetadata(key, value, 'hello');
       assert.propertyVal(subsegment.metadata[namespace], key, value);
     });
+
+    it('should not add key value pair to metadata[namespace] if a namespace is "__proto__"', function () {
+      let namespace = '__proto__';
+      subsegment.addMetadata(key, value, namespace);
+      assert.notProperty(subsegment.metadata[namespace], key);
+    });
   });
 
   describe('#addSubsegment', function() {
