@@ -172,7 +172,9 @@ Subsegment.prototype.addMetadata = function(key, value, namespace) {
     this.metadata[ns] = {};
   }
 
-  this.metadata[ns][key] = value !== null && value !== undefined ? value : '';
+  if (ns !== '__proto__') {
+    this.metadata[ns][key] = value !== null && value !== undefined ? value : '';
+  }
 };
 
 Subsegment.prototype.addSqlData = function addSqlData(sqlData) {
@@ -191,7 +193,7 @@ Subsegment.prototype.addSqlData = function addSqlData(sqlData) {
 Subsegment.prototype.addError = function addError(err, remote) {
   if (err == null || typeof err !== 'object' && typeof(err) !== 'string') {
     logger.getLogger().error('Failed to add error:' + err + ' to subsegment "' + this.name +
-    '".  Not an object or string literal.');
+      '".  Not an object or string literal.');
     return;
   }
 
