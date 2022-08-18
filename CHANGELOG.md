@@ -1,6 +1,30 @@
 # Changelog for AWS X-Ray SDK for JavaScript
-<!--LATEST=3.3.6-->
+<!--LATEST=3.3.7-->
 <!--ENTRYINSERT-->
+
+## 3.3.7
+View [the latest changes](https://github.com/aws/aws-xray-sdk-node/compare/aws-xray-sdk-node%403.3.6...aws-xray-sdk-node%403.3.7)
+
+* Added node 16 testing [PR #513](https://github.com/aws/aws-xray-sdk-node/pull/513)
+* Added opentelemetry JS links to README [PR #514](https://github.com/aws/aws-xray-sdk-node/pull/514)
+
+* `aws-xray-sdk-core` updated to 3.3.7
+  * fix: Stop throwing unnecessary errors with adding annotations, metadata, errors [PR #467](https://github.com/aws/aws-xray-sdk-node/pull/467)
+  * fix: Fix TS declaration of TraceId to match definition [PR #520](https://github.com/aws/aws-xray-sdk-node/pull/520)
+  * fix: Fix prototype pollution issue [PR #529](https://github.com/aws/aws-xray-sdk-node/commit/89769989d46eed9e44d8af743e6fb14ad924d48b)
+* `aws-xray-sdk-mysql` updated to 3.3.7
+  * No further changes. 
+* `aws-xray-sdk-express` updated to 3.3.7
+  * No further changes.
+* `aws-xray-sdk-postgres` updated to 3.3.7
+  * No further changes.
+* `aws-xray-sdk-restify` updated to 3.3.7
+  * No further changes.
+* `aws-xray-sdk-koa2` updated to 3.3.7
+  * fix: Change Koa openSegment middleware declaration return type to match expected Koa.Middleware type [PR #525](https://github.com/aws/aws-xray-sdk-node/pull/525)
+* `aws-xray-sdk-hapi` updated to 3.3.7
+  * No further changes.
+
 ## 3.3.6
 View [the latest changes](https://github.com/aws/aws-xray-sdk-node/compare/aws-xray-sdk-node%403.3.5...aws-xray-sdk-node%403.3.6)
 * `aws-xray-sdk-core` updated to 3.3.6
