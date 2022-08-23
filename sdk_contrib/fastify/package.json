@@ -1,6 +1,6 @@
 {
   "name": "aws-xray-sdk-fastify",
-  "version": "3.3.6",
+  "version": "3.3.7",
   "description": "AWS X-Ray plugin for Fastify",
   "author": "Amazon Web Services",
   "contributors": [
