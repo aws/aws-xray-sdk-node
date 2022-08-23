@@ -135,10 +135,6 @@ describe('Fastify plugin', function () {
   });
 
   describe('#createRequestHandler', function () {
-    const h = {
-      continue: () => Promise.resolve('blah'),
-    };
-
     it('should run the request handler function and create a request segment', async function () {
       app.register(fp(xrayFastifyPlugin), {
         segmentName: 'test segment',
