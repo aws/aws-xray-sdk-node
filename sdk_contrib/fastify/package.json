@@ -23,7 +23,8 @@
   },
   "peerDependencies": {
     "aws-xray-sdk-core": "^3.3.6",
-    "fastify": "^3.29.0"
+    "fastify": "^3.29.0",
+    "fastify-plugin": "^4.2.0"
   },
   "keywords": [
     "amazon",
@@ -38,8 +39,5 @@
     "lib": "lib"
   },
   "license": "Apache-2.0",
-  "repository": "https://github.com/aws/aws-xray-sdk-node/tree/sdk_contrib/fastify",
-  "devDependencies": {
-    "fastify-plugin": "^4.0.0"
-  }
+  "repository": "https://github.com/aws/aws-xray-sdk-node/tree/sdk_contrib/fastify"
 }
