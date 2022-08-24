@@ -172,7 +172,9 @@ Subsegment.prototype.addMetadata = function(key, value, namespace) {
     this.metadata[ns] = {};
   }
 
-  this.metadata[ns][key] = value !== null && value !== undefined ? value : '';
+  if (ns !== '__proto__') {
+    this.metadata[ns][key] = value !== null && value !== undefined ? value : '';
+  }
 };
 
 Subsegment.prototype.addSqlData = function addSqlData(sqlData) {

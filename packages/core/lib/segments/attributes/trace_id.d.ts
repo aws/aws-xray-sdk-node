@@ -3,7 +3,7 @@ declare class TraceID {
   timestamp: string;
   id: string;
 
-  constructor();
+  constructor(tsHex?: string, numberhex?: string);
 
   static Invalid(): TraceID;
 
