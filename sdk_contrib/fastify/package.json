@@ -1,0 +1,43 @@
+{
+  "name": "aws-xray-sdk-fastify",
+  "version": "3.3.7",
+  "description": "AWS X-Ray plugin for Fastify",
+  "author": "Amazon Web Services",
+  "contributors": [
+    "Jorge Vargas <jorgevargasla@gmail.com>"
+  ],
+  "main": "lib/index.js",
+  "files": [
+    "lib"
+  ],
+  "types": "lib/index.d.ts",
+  "scripts": {
+    "lint": "eslint .",
+    "lint:fix": "eslint --fix .",
+    "test": "mocha --recursive --exit ./test/ -R spec && tsd",
+    "test-d": "tsd",
+    "sample": "node sample"
+  },
+  "engines": {
+    "node": ">= 12.x"
+  },
+  "peerDependencies": {
+    "aws-xray-sdk-core": "^3.3.7",
+    "fastify": "^3.29.0",
+    "fastify-plugin": "^4.2.0"
+  },
+  "keywords": [
+    "amazon",
+    "api",
+    "aws",
+    "fastify",
+    "xray",
+    "x-ray",
+    "x ray"
+  ],
+  "directories": {
+    "lib": "lib"
+  },
+  "license": "Apache-2.0",
+  "repository": "https://github.com/aws/aws-xray-sdk-node/tree/sdk_contrib/fastify"
+}
