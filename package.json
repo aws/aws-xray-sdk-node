@@ -73,6 +73,7 @@
     "aws-xray-sdk-node": "file:",
     "aws-xray-sdk-postgres": "file:packages/postgres",
     "aws-xray-sdk-restify": "file:packages/restify",
+    "aws-xray-sdk-prisma": "file:sdk_contrib/prisma",
     "test-aws-xray-sdk-express": "file:packages/test_express"
   }
 }
