@@ -17,7 +17,10 @@ function captureFluid(
       const attr = obj[key as keyof PrismaPromise<any>];
       const actionKey = key.toString();
 
-      if (!prismaPromiseAttributes.has(actionKey) && typeof attr === 'function')
+      if (
+        !prismaPromiseAttributes.has(actionKey) &&
+        typeof attr === 'function'
+      ) {
         return (...args: any[]) => {
           const res = attr.bind(obj)(...args);
           const isPromise = isPrismaPromise(res);
@@ -48,6 +51,7 @@ function captureFluid(
           }
           return res;
         };
+      }
       callback?.();
 
       return attr;
@@ -74,16 +78,20 @@ function captureActions(
 ) {
   return (...args: any[]): any => {
     let segment = baseSegment;
-    let lastArg: Subsegment | null = args[args.length - 1];
+    const lastArg: Subsegment | null = args[args.length - 1];
 
-    if (AWSXRay.isAutomaticMode()) segment = AWSXRay.getSegment();
+    if (AWSXRay.isAutomaticMode()) {
+      segment = AWSXRay.getSegment();
+    }
     if (lastArg instanceof Segment || lastArg instanceof Subsegment) {
       args = args.slice(0, -1);
       segment = lastArg;
     }
 
     const call = () => attr.bind(obj)(...args);
-    if (!segment) return call();
+    if (!segment) {
+      return call();
+    }
 
     const model = [modelPrefix, modelKey].filter(Boolean).join(divider);
     const actionSegment = segment.addNewSubsegment(
@@ -97,13 +105,9 @@ function captureActions(
       res.catch(e => {
         actionSegment.addError(e);
       });
-      res.finally(() => {
-        actionSegment.close();
-      });
       promises.push(res);
-    } else {
-      actionSegment.close();
     }
+
     const close = async () => {
       if (promises.length) {
         for (const promise of promises) {
@@ -112,8 +116,9 @@ function captureActions(
           });
         }
       }
-      segment?.close();
+      actionSegment?.close();
     };
+
     if (isPromise) {
       const promiseFluid = captureFluid(res, {
         callback: promise => {
@@ -138,14 +143,22 @@ function captureModels(
   modelKey: string,
   { segment, ...rest }: CommonOpts
 ) {
-  if (AWSXRay.isAutomaticMode()) segment = AWSXRay.resolveSegment(segment);
+  if (AWSXRay.isAutomaticMode()) {
+    segment = AWSXRay.resolveSegment(segment);
+  }
+
+  if (!attr || attr instanceof Function) {
+    return attr;
+  }
 
   return new Proxy(attr, {
     get(obj, prop) {
       const key = prop.toString();
       const attr = obj[key];
       if (isAction(key)) {
-        if (AWSXRay.isAutomaticMode() && segment) AWSXRay.setSegment(segment);
+        if (AWSXRay.isAutomaticMode() && segment) {
+          AWSXRay.setSegment(segment);
+        }
 
         return captureActions(attr, obj, {
           segment,
@@ -171,16 +184,22 @@ export function capturePrisma<T extends PrismaClient>(
     } catch {
       // ignore
     }
-  } else segment = baseSegment;
+  } else {
+    segment = baseSegment;
+  }
   if (AWSXRay.isAutomaticMode()) {
     const ns = AWSXRay.getNamespace();
     return ns.runAndReturn(() => {
-      if (segment) AWSXRay.setSegment(segment);
+      if (segment) {
+        AWSXRay.setSegment(segment);
+      }
       return new Proxy(prisma, {
         get(obj, modelKey): any {
           const attr = obj[modelKey as keyof T];
           return ns.runAndReturn(() => {
-            if (segment) AWSXRay.setSegment(segment);
+            if (segment) {
+              AWSXRay.setSegment(segment);
+            }
             return captureModels(attr, modelKey.toString(), {
               segment,
               ...rest,
