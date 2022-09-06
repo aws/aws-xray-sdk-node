@@ -1,76 +1,103 @@
+# Prisma-xray
+
+A prisma plugin to log requests and subsegments through AWSXray.
+
+![Screenshot of the AWS X-Ray console](/sdk_contrib/prisma/images/servicemap.png?raw=true)
+
+## Timeline
+
+![Screenshot of the AWS X-Ray console](/sdk_contrib/prisma/images/timeline.png?raw=true)
+
 ## Requirements
 
-AWS X-Ray SDK Core (aws-xray-sdk-core)
-Koa 2.x or greater
+- AWS X-Ray SDK Core
+- Prisma 4 or greater
 
-## AWS X-Ray and Koa
+## AWS X-Ray and Prisma
 
-The AWS X-Ray Koa package automatically records information for incoming and outgoing
-requests and responses, via the middleware functions in this package. To configure sampling,
-dynamic naming, and more see the [set up section](https://github.com/aws/aws-xray-sdk-node/tree/master/packages/core#setup).
+The AWS X-Ray Prisma package automatically records query information and request
+and response data. Simply patch the Prisma package via `capturePrisma` as shown below.
 
 The AWS X-Ray SDK Core has two modes - `manual` and `automatic`.
 Automatic mode uses the `cls-hooked` package and automatically
 tracks the current segment and subsegment. This is the default mode.
-Manual mode requires that you pass around the segment reference.
-
-In automatic mode, you can get the current segment/subsegment at any time:
-var segment = AWSXRay.getSegment();
-
-In manual mode, you can get the base segment off of the context object:
-var segment = ctx.segment;
-
-## Middleware Usage
-
-The Koa X-Ray SDK provides one middlewares: `xrayKoa.openSegment(<name>)`.
-This middleware will wrap all of the defined routes that you'd like to trace.
-In automatic mode, the `openSegment` middleware _must_ be the last middleware added
-before defining routes, otherwise issues with the `cls-hooked`
-context may occur.
+Manual mode requires that you pass around the segment reference. See the examples below.
 
 ## Automatic mode examples
+
+![Screenshot of the AWS X-Ray console](/sdk_contrib/prisma/images/auto.png?raw=true)
 
 ```js
 import { PrismaClient } from '@prisma/client';
 import AWSXRay from 'aws-xray-sdk';
+import { capturePrisma } from 'aws-xray-sdk-prisma';
 
-Xray.enableAutomaticMode();
+const ns = AWSXRay.getNamespace();
 
 const prisma = new PrismaClient();
 
-const client = capturePrisma(prisma, {
-  namespace: 'remote',
-});
+const client = capturePrisma(prisma, { namespace: 'remote' });
 
-async function main() {
-  const contacts = await client.contact.findMany();
-  console.log(allUsers);
-}
+const segment = new AWSXRay.Segment('prisma-xray-sample-auto');
 
-main()
-  .catch(e => {
-    throw e;
-  })
-  .finally(async () => {
-    await prisma.$disconnect();
+ns.run(async () => {
+  const subSegment = segment.addNewSubsegment('Prisma');
+  AWSXRay.setSegment(subSegment);
+  await client.company.upsert({
+    create: {
+      name: 'Prisma',
+      createdAt: new Date(),
+    },
+    update: {},
+    where: {
+      id: 1,
+    },
   });
+  const companies = await client.company.findMany();
+  console.log(companies);
+  subSegment.close();
+  // ...
+});
 ```
 
 ## Manual mode examples
 
+![Screenshot of the AWS X-Ray console](/sdk_contrib/prisma/images/manual.png?raw=true)
+
 ```js
-var AWSXRay = require('aws-xray-sdk-core');
-var xrayKoa = require('aws-xray-sdk-koa2');
-var app = new Koa();
+import { PrismaClient } from '@prisma/client';
+import AWSXRay from 'aws-xray-sdk-core';
+import { capturePrisma } from 'aws-xray-sdk-prisma';
 
-//...
+AWSXRay.enableManualMode();
 
-var AWSXRay = require('aws-xray-sdk');
+const prisma = new PrismaClient();
 
-app.use(xrayKoa.openSegment('defaultName')); //Required at the start of your routes
+const client = capturePrisma(prisma, { namespace: 'remote' });
 
-router.get('/myRoute', ctx => {
-  const segment = ctx.segment;
-  //Do whatever
-});
+const segment = new AWSXRay.Segment('prisma-xray-sample');
+
+const run = async () => {
+  const subSegment = segment.addNewSubsegment('Prisma');
+
+  await client.company.upsert(
+    {
+      create: {
+        name: 'Prisma',
+        createdAt: new Date(),
+      },
+      update: {},
+      where: {
+        id: 1,
+      },
+    },
+    subSegment
+  );
+  const companies = await client.company.findMany(subSegment);
+  console.log(companies);
+  subSegment.close();
+  // ...
+};
+
+run();
 ```
