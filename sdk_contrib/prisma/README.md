@@ -91,9 +91,13 @@ const run = async () => {
         id: 1,
       },
     },
+    // @ts-ignore
     subSegment
   );
-  const companies = await client.company.findMany(subSegment);
+  const companies = await client.company.findMany(
+    // @ts-ignore
+    subSegment
+  );
   console.log(companies);
   subSegment.close();
   // ...
@@ -101,3 +105,7 @@ const run = async () => {
 
 run();
 ```
+
+# Contributors
+
+- Eduard Castellanos <eduard@castellanos.dev>, <eduard@cosva.app>
