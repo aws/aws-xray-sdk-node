@@ -1,11 +1,10 @@
 {
-  "name": "aws-xray-sdk-koa2",
+  "name": "aws-xray-sdk-fastify",
   "version": "3.3.7",
-  "description": "AWS X-Ray Middleware for koa (Javascript)",
+  "description": "AWS X-Ray plugin for Fastify",
   "author": "Amazon Web Services",
   "contributors": [
-    "Sandra McMullen <mcmuls@amazon.com>",
-    "Eric Swann <eric.swann@q2ebanking.com>"
+    "Jorge Vargas <jorgevargasla@gmail.com>"
   ],
   "main": "lib/index.js",
   "files": [
@@ -16,20 +15,22 @@
     "lint": "eslint .",
     "lint:fix": "eslint --fix .",
     "test": "mocha --recursive --exit ./test/ -R spec && tsd",
-    "test-d": "tsd"
+    "test-d": "tsd",
+    "sample": "node sample"
   },
   "engines": {
     "node": ">= 12.x"
   },
   "peerDependencies": {
     "aws-xray-sdk-core": "^3.3.7",
-    "koa": "^2.0.0"
+    "fastify": "^3.29.0",
+    "fastify-plugin": "^4.2.0"
   },
   "keywords": [
     "amazon",
     "api",
     "aws",
-    "koa",
+    "fastify",
     "xray",
     "x-ray",
     "x ray"
@@ -38,5 +39,5 @@
     "lib": "lib"
   },
   "license": "Apache-2.0",
-  "repository": "https://github.com/aws/aws-xray-sdk-node/tree/sdk_contrib/koa"
+  "repository": "https://github.com/aws/aws-xray-sdk-node/tree/sdk_contrib/fastify"
 }

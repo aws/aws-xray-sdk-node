@@ -112,6 +112,12 @@ describe('Segment', function() {
       segment.addMetadata(key, value, 'hello');
       assert.propertyVal(segment.metadata[namespace], key, value);
     });
+
+    it('should not add key value pair to metadata[namespace] if a namespace is "__proto__"', function () {
+      let namespace = '__proto__';
+      segment.addMetadata(key, value, namespace);
+      assert.notProperty(segment.metadata[namespace], key);
+    });
   });
 
   describe('#addSDKData', function() {

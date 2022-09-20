@@ -1,1 +1,3 @@
-export function openSegment(defaultName: string): Function;
+import { Middleware } from 'koa';
+
+export function openSegment(defaultName: string): Middleware;

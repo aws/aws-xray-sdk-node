@@ -95,7 +95,7 @@ AWS will not:
 
 ## Testing from Source
 
-This repo uses [Lerna](https://lernajs.io) to manage multiple packages. To install Lerna as a CLI:
+This repo uses [Lerna](https://lerna.js.org) to manage multiple packages. To install Lerna as a CLI:
 ```
 npm install -g lerna
 ```
