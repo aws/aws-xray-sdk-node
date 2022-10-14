@@ -28,6 +28,7 @@ Subsegment.prototype.init = function init(name) {
   this.start_time = SegmentUtils.getCurrentTime();
   this.in_progress = true;
   this.counter = 0;
+  this.isSampled = true;
 };
 
 /**
@@ -38,8 +39,22 @@ Subsegment.prototype.init = function init(name) {
 
 Subsegment.prototype.addNewSubsegment = function addNewSubsegment(name) {
   var subsegment = new Subsegment(name);
+  subsegment.isSampled = true;
   this.addSubsegment(subsegment);
   return subsegment;
+};
+
+Subsegment.prototype.addSubsegmentWithoutSampling = function addSubsegmentWithoutSampling(subsegment){
+  subsegment.isSampled = false;
+  this.addSubsegment(subsegment);
+};
+
+Subsegment.prototype.addNewSubsegmentWithoutSampling = function addNewSubsegmentWithoutSampling(name){
+  var subsegment = new Subsegment(name);
+  subsegment.isSampled = false;
+  this.addSubsegment(subsegment);
+  
+  return subsegment; 
 };
 
 /**
@@ -60,11 +75,14 @@ Subsegment.prototype.addSubsegment = function(subsegment) {
   subsegment.segment = this.segment;
   subsegment.parent = this;
 
-  if (subsegment.end_time === undefined) {
+  if (subsegment.end_time === undefined && subsegment.isSampled) {
     this.incrementCounter(subsegment.counter);
   }
-
-  this.subsegments.push(subsegment);
+  // don't push to subsegment array if subsegment is not sampled
+  if(subsegment.isSampled){ 
+    this.subsegments.push(subsegment);
+  }
+  
 };
 
 /**
@@ -286,7 +304,7 @@ Subsegment.prototype.close = function close(err, remote) {
   }
 
   if (root && root.counter > SegmentUtils.getStreamingThreshold()) {
-    if (this.streamSubsegments() && this.parent) {
+    if (this.streamSubsegments() && this.parent) { // this.isSampled ??
       this.parent.removeSubsegment(this);
     }
   }
@@ -362,7 +380,8 @@ Subsegment.prototype.streamSubsegments = function streamSubsegments() {
     var open = [];
 
     this.subsegments.forEach(function(child) {
-      if (!child.streamSubsegments()) {
+      if (!child.streamSubsegments()) { 
+        //&& child.isSampled?
         open.push(child);
       }
     });

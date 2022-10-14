@@ -35,6 +35,10 @@ declare class Segment {
 
   addSubsegment(subsegment: Subsegment): void;
 
+  addSubsegmentWithoutSampling(subsegment: Subsegment): void; 
+
+  addNewSubsegmentWithoutSampling(name: String): Subsegment
+
   removeSubsegment(subsegment: Subsegment): void;
 
   addError(err: Error | string, remote?: boolean): void;
@@ -58,6 +62,8 @@ declare class Segment {
   format(): string;
 
   toString(): string;
+
+
 }
 
 export = Segment;

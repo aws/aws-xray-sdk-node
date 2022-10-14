@@ -41,7 +41,7 @@ module.exports.init = function init() {
 
 var facadeSegment = function facadeSegment() {
   var segment = new Segment('facade');
-  var whitelistFcn = ['addNewSubsegment', 'addSubsegment', 'removeSubsegment', 'toString'];
+  var whitelistFcn = ['addNewSubsegment', 'addSubsegment', 'removeSubsegment', 'toString', 'addSubsegmentWithoutSampling', 'addNewSubsegmentWithoutSampling'];
   var silentFcn = ['incrementCounter', 'decrementCounter', 'isClosed', 'close', 'format', 'flush'];
   var xAmznTraceId = process.env._X_AMZN_TRACE_ID;
 
@@ -79,6 +79,7 @@ var facadeSegment = function facadeSegment() {
     this.notTraced = true;
   };
 
+  // tracingHandler?
   segment.resolveLambdaTraceData = function resolveLambdaTraceData() {
     var xAmznLambda = process.env._X_AMZN_TRACE_ID;
 

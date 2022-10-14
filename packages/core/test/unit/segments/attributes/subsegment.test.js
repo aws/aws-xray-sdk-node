@@ -103,6 +103,33 @@ describe('Subsegment', function() {
     });
   });
 
+  describe('#addSubsegmentWithoutSampling', function (){
+    it('should have isSampled flag set to false', function(){
+      var subsegment = new Subsegment('test');
+      var child = new Subsegment('child')
+      subsegment.addSubsegmentWithoutSampling(child);
+
+      assert.equal(subsegment.isSampled, true);
+      assert.equal(child.isSampled, false);
+    })
+
+    it('should have isSampled flag set to false for new subsegment', function(){
+      var subsegment = new Subsegment('test');
+      var child = subsegment.addNewSubsegmentWithoutSampling('child');
+
+      assert.equal(subsegment.isSampled, true);
+      assert.equal(child.isSampled, false);
+    })
+
+    it('should not contain the child subsegment if not sampled', function(){
+      var subsegment = new Subsegment('test');
+      var child = new Subsegment('child')
+      subsegment.addSubsegmentWithoutSampling(child);
+
+      assert.notEqual(subsegment.subsegments[0], child);
+    })
+  });
+
   describe('#addError', function() {
     var err, exceptionStub, sandbox, subsegment;
 

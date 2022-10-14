@@ -123,9 +123,9 @@ function enableCapture(module, downstreamXRayEnabled, subsegmentCallback) {
     if (!options.headers) {
       options.headers = {};
     }
-
+    
     options.headers['X-Amzn-Trace-Id'] = 'Root=' + root.trace_id + ';Parent=' + subsegment.id +
-      ';Sampled=' + (!root.notTraced ? '1' : '0');
+      ';Sampled=' + (subsegment.isSampled ? '1' : '0');
 
     const errorCapturer = function errorCapturer(e) {
       if (subsegmentCallback) {

@@ -81,7 +81,8 @@ function captureAWSRequest(req) {
 
   var buildListener = function(req) {
     req.httpRequest.headers['X-Amzn-Trace-Id'] = 'Root=' + traceId + ';Parent=' + subsegment.id +
-      ';Sampled=' + (subsegment.segment.notTraced ? '0' : '1');
+      ';Sampled=' + (subsegment.isSampled ? '1' : '0');
+      
   };
 
   var completeListener = function(res) {

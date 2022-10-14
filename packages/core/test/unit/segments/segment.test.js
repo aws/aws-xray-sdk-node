@@ -262,6 +262,57 @@ describe('Segment', function() {
     });
   });
 
+  describe('#addSubsegmentWithoutSampling', function (){
+    it('should have isSampled flag set to false', function(){
+      var segment = new Segment('parent');
+      var child = new Subsegment('child');
+      segment.addSubsegmentWithoutSampling(child);
+
+      assert.equal(child.isSampled, false);
+    })
+
+    it('should have isSampled flag set to false for new subsegment', function(){
+      var segment = new Segment('parent');
+      var child = segment.addNewSubsegmentWithoutSampling('child');
+
+      assert.equal(child.isSampled, false);
+    })
+
+    it('should not contain the child subsegment if not sampled', function(){
+      var segment = new Segment('parent');
+      var child = new Subsegment('child');
+      segment.addSubsegmentWithoutSampling(child);
+
+      assert.notEqual(segment.subsegments[0], child);
+    })
+
+
+    it('should not sample subsegment or subsegment of subsegment', function(){
+      var segment = new Segment('parent');
+      var child = new Subsegment('child');
+      var child2 = new Subsegment('child-2');
+      segment.addSubsegmentWithoutSampling(child);
+      child.addSubsegmentWithoutSampling(child2)
+
+      assert.equal(child.isSampled, false);
+      assert.equal(child2.isSampled, false);
+    })
+
+    it('should not sample subsegment or subsegment of subsegment - mix', function(){
+      var segment = new Segment('parent');
+      var child = new Subsegment('child');
+      var child2 = new Subsegment('child-2');
+      var child3 = new Subsegment('child-3');
+      segment.addSubsegmentWithoutSampling(child);
+      child.addSubsegment(child2)
+      child.addSubsegmentWithoutSampling(child3)
+
+      assert.equal(child.isSampled, false);
+      assert.equal(child2.isSampled, true);
+      assert.equal(child3.isSampled, false);
+    })
+  });
+
   describe('#addError', function() {
     var err, exceptionStub, sandbox, segment;
 
