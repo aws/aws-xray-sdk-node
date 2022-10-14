@@ -381,7 +381,6 @@ Subsegment.prototype.streamSubsegments = function streamSubsegments() {
 
     this.subsegments.forEach(function(child) {
       if (!child.streamSubsegments()) { 
-        //&& child.isSampled?
         open.push(child);
       }
     });

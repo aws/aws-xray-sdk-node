@@ -62,8 +62,6 @@ declare class Segment {
   format(): string;
 
   toString(): string;
-
-
 }
 
 export = Segment;

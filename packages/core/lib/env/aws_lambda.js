@@ -79,7 +79,6 @@ var facadeSegment = function facadeSegment() {
     this.notTraced = true;
   };
 
-  // tracingHandler?
   segment.resolveLambdaTraceData = function resolveLambdaTraceData() {
     var xAmznLambda = process.env._X_AMZN_TRACE_ID;
 
