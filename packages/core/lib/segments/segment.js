@@ -217,6 +217,20 @@ Segment.prototype.addNewSubsegment = function addNewSubsegment(name) {
   return subsegment;
 };
 
+Segment.prototype.addSubsegmentWithoutSampling = function addSubsegmentWithoutSampling(subsegment){
+  subsegment.isSampled = false;
+  this.addSubsegment(subsegment);
+  
+};
+
+Segment.prototype.addNewSubsegmentWithoutSampling = function addNewSubsegmentWithoutSampling(name){
+  var subsegment = new Subsegment(name);
+  subsegment.isSampled = false;
+  this.addSubsegment(subsegment);
+  
+  return subsegment; 
+};
+
 /**
  * Adds a subsegment to the array of subsegments.
  * @param {Subsegment} subsegment - The subsegment to append.
@@ -243,19 +257,7 @@ Segment.prototype.addSubsegment = function addSubsegment(subsegment) {
   }
 };
 
-Segment.prototype.addSubsegmentWithoutSampling = function addSubsegmentWithoutSampling(subsegment){
-  subsegment.isSampled = false;
-  this.addSubsegment(subsegment);
-  
-};
 
-Segment.prototype.addNewSubsegmentWithoutSampling = function addNewSubsegmentWithoutSampling(name){
-  var subsegment = new Subsegment(name);
-  subsegment.isSampled = false;
-  this.addSubsegment(subsegment);
-  
-  return subsegment; 
-};
 
 /**
  * Removes the subsegment from the subsegments array, used in subsegment streaming.

@@ -9,6 +9,8 @@ var SegmentUtils = require('../../../lib/segments/segment_utils');
 var Segment = require('../../../lib/segments/segment');
 var Subsegment = require('../../../lib/segments/attributes/subsegment');
 var logger = require('../../../lib/logger');
+var Lambda = require('../../../lib/env/aws_lambda');
+var Context = require('../../../lib/context_utils');
 
 chai.should();
 chai.use(sinonChai);
@@ -263,6 +265,39 @@ describe('Segment', function() {
   });
 
   describe('#addSubsegmentWithoutSampling', function (){
+    let sandbox, setSegmentStub;
+
+    beforeEach(function() {
+      sandbox = sinon.createSandbox();
+      setSegmentStub = sandbox.stub(Context, 'setSegment');
+    });
+
+    afterEach(function() {
+      sandbox.restore();
+    });
+
+    it('should have isSampled flag set to false for subsegment of Lambda facade segment', function(){
+      process.env._X_AMZN_TRACE_ID;
+      Lambda.init();
+
+      setSegmentStub.should.have.been.calledOnce;
+
+      let facade = setSegmentStub.args[0][0];
+      let unsampledSegment = facade.addNewSubsegmentWithoutSampling('unsampled-subsegment');
+      assert.equal(unsampledSegment.isSampled, false);
+    })
+
+    it('should have isSampled flag set to true for subsegment of Lambda facade segment', function(){
+      process.env._X_AMZN_TRACE_ID;
+      Lambda.init();
+
+      setSegmentStub.should.have.been.calledOnce;
+
+      let facade = setSegmentStub.args[0][0];
+      let sampledSubsegment = facade.addNewSubsegment('sampled-subsegment');
+      assert.equal(sampledSubsegment.isSampled, true);
+    })
+
     it('should have isSampled flag set to false', function(){
       var segment = new Segment('parent');
       var child = new Subsegment('child');

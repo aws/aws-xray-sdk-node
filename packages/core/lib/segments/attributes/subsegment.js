@@ -39,8 +39,8 @@ Subsegment.prototype.init = function init(name) {
 
 Subsegment.prototype.addNewSubsegment = function addNewSubsegment(name) {
   var subsegment = new Subsegment(name);
-  subsegment.isSampled = true;
   this.addSubsegment(subsegment);
+  subsegment.isSampled = subsegment.segment? !subsegment.segment.notTraced : true;
   return subsegment;
 };
 
@@ -304,7 +304,7 @@ Subsegment.prototype.close = function close(err, remote) {
   }
 
   if (root && root.counter > SegmentUtils.getStreamingThreshold()) {
-    if (this.streamSubsegments() && this.parent) { // this.isSampled ??
+    if (this.streamSubsegments() && this.parent) {
       this.parent.removeSubsegment(this);
     }
   }
