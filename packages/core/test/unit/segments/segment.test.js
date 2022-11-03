@@ -334,17 +334,19 @@ describe('Segment', function() {
     })
 
     it('should not sample subsegment or subsegment of subsegment - mix', function(){
-      var segment = new Segment('parent');
-      var child = new Subsegment('child');
-      var child2 = new Subsegment('child-2');
-      var child3 = new Subsegment('child-3');
+      const segment = new Segment('parent');
+      const child = new Subsegment('child');
+      const child2 = new Subsegment('child-2');
+      const child3 = new Subsegment('child-3');
       segment.addSubsegmentWithoutSampling(child);
       child.addSubsegment(child2)
-      child.addSubsegmentWithoutSampling(child3)
+      const child4 = child2.addNewSubsegment('child-4')
+      child.addSubsegmentWithoutSampling(child3);
 
       assert.equal(child.isSampled, false);
-      assert.equal(child2.isSampled, true);
+      assert.equal(child2.isSampled, false);
       assert.equal(child3.isSampled, false);
+      assert.equal(child4.isSampled, false);
     })
   });
 

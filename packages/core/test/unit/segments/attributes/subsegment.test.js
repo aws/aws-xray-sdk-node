@@ -105,8 +105,8 @@ describe('Subsegment', function() {
 
   describe('#addSubsegmentWithoutSampling', function (){
     it('should have isSampled flag set to false', function(){
-      var subsegment = new Subsegment('test');
-      var child = new Subsegment('child')
+      const subsegment = new Subsegment('test');
+      const child = new Subsegment('child')
       subsegment.addSubsegmentWithoutSampling(child);
 
       assert.equal(subsegment.isSampled, true);
@@ -114,19 +114,30 @@ describe('Subsegment', function() {
     })
 
     it('should have isSampled flag set to false for new subsegment', function(){
-      var subsegment = new Subsegment('test');
-      var child = subsegment.addNewSubsegmentWithoutSampling('child');
+      const subsegment = new Subsegment('test');
+      const child = subsegment.addNewSubsegmentWithoutSampling('child');
 
       assert.equal(subsegment.isSampled, true);
       assert.equal(child.isSampled, false);
     })
 
     it('should not contain the child subsegment if not sampled', function(){
-      var subsegment = new Subsegment('test');
-      var child = new Subsegment('child')
+      const subsegment = new Subsegment('test');
+      const child = new Subsegment('child')
       subsegment.addSubsegmentWithoutSampling(child);
 
       assert.notEqual(subsegment.subsegments[0], child);
+    })
+
+    it('should respect the direct parent’s sampling decision', function(){
+      const subsegment = new Subsegment('test');
+      const child = new Subsegment('child');
+      subsegment.addSubsegmentWithoutSampling(child);
+      const child2 = child.addNewSubsegment('child2');
+
+      assert.equal(subsegment.isSampled, true);
+      assert.equal(child.isSampled, false);
+      assert.equal(child2.isSampled, false);
     })
   });
 
@@ -272,7 +283,7 @@ describe('Subsegment', function() {
   });
 
   describe('#flush', function() {
-    var child, emitStub, parent, sandbox, segment;
+    var child, emitStub, parent, sandbox, segment, unsampledChild;
     // Since SegmentEmitter is reused across tests, we need the emitStub
     // to also persist across tests
     emitStub = sinon.stub();
@@ -289,7 +300,9 @@ describe('Subsegment', function() {
       });
 
       child = parent.addNewSubsegment('child');
+      unsampledChild = parent.addNewSubsegmentWithoutSampling('unsampled-child-segment');
       child.segment = segment;
+      unsampledChild.segment = segment;
     });
 
     afterEach(function() {
@@ -315,6 +328,12 @@ describe('Subsegment', function() {
     it('should not send if the notTraced property evaluates to true', function() {
       segment.notTraced = true;
       child.flush();
+      emitStub.should.have.not.been.called;
+    });
+
+    it('should not send if the isSampled property evaluates to false', function() {
+      segment.notTraced = true;
+      unsampledChild.flush();
       emitStub.should.have.not.been.called;
     });
 

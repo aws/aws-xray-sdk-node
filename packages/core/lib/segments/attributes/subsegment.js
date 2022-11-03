@@ -38,9 +38,8 @@ Subsegment.prototype.init = function init(name) {
  */
 
 Subsegment.prototype.addNewSubsegment = function addNewSubsegment(name) {
-  var subsegment = new Subsegment(name);
+  const subsegment = new Subsegment(name);
   this.addSubsegment(subsegment);
-  subsegment.isSampled = subsegment.segment? !subsegment.segment.notTraced : true;
   return subsegment;
 };
 
@@ -50,7 +49,7 @@ Subsegment.prototype.addSubsegmentWithoutSampling = function addSubsegmentWithou
 };
 
 Subsegment.prototype.addNewSubsegmentWithoutSampling = function addNewSubsegmentWithoutSampling(name){
-  var subsegment = new Subsegment(name);
+  const subsegment = new Subsegment(name);
   subsegment.isSampled = false;
   this.addSubsegment(subsegment);
   
@@ -66,7 +65,7 @@ Subsegment.prototype.addSubsegment = function(subsegment) {
   if (!(subsegment instanceof Subsegment)) {
     throw new Error('Failed to add subsegment:' + subsegment + ' to subsegment "' + this.name +
       '".  Not a subsegment.');
-  }
+  } 
 
   if (this.subsegments === undefined) {
     this.subsegments = [];
@@ -74,6 +73,11 @@ Subsegment.prototype.addSubsegment = function(subsegment) {
 
   subsegment.segment = this.segment;
   subsegment.parent = this;
+
+  if(subsegment.isSampled){ 
+    // if subsegment has not been set to false, use the sampling decision of the direct parent
+    subsegment.isSampled = subsegment.parent.isSampled;
+  }
 
   if (subsegment.end_time === undefined && subsegment.isSampled) {
     this.incrementCounter(subsegment.counter);

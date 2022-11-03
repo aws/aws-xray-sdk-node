@@ -224,7 +224,7 @@ Segment.prototype.addSubsegmentWithoutSampling = function addSubsegmentWithoutSa
 };
 
 Segment.prototype.addNewSubsegmentWithoutSampling = function addNewSubsegmentWithoutSampling(name){
-  var subsegment = new Subsegment(name);
+  const subsegment = new Subsegment(name);
   subsegment.isSampled = false;
   this.addSubsegment(subsegment);
   

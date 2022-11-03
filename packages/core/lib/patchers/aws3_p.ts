@@ -118,7 +118,7 @@ const getXRayMiddleware = (config: RegionResolvedConfig, manualSegment?: Segment
     {
       Root: parent.trace_id,
       Parent: subsegment.id,
-      Sampled: parent.notTraced ? '0' : '1',
+      Sampled: subsegment.isSampled ? '1' : '0',
     },
     ';',
   );
