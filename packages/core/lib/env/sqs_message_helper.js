@@ -1,8 +1,6 @@
 class SqsMessageHelper {
-  constructor() {
-  }
 
-  isSampled(message) { 
+  static isSampled(message) { 
     const {attributes} = message; // extract attributes from message 
     if (!('AWSTraceHeader' in attributes)) {
       return false; 

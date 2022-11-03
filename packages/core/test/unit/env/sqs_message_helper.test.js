@@ -67,18 +67,17 @@ describe('#SqsMessageHelper', function (){
     }
     
     describe('SqsMessageHelper isSampled', function(){
-        let sqsMessageHelper = new SqsMessageHelper();
         
         it('should return true when AWSTraceHeader has Sampled=1', function(){
-            assert.equal(sqsMessageHelper.isSampled(sampleSqsMessageEvent.Records[0]), true)
+            assert.equal(SqsMessageHelper.isSampled(sampleSqsMessageEvent.Records[0]), true)
         });
 
         it('should return false when AWSTraceHeader has Sampled=0', function(){
-            assert.equal(sqsMessageHelper.isSampled(sampleSqsMessageEvent.Records[1]), false)
+            assert.equal(SqsMessageHelper.isSampled(sampleSqsMessageEvent.Records[1]), false)
         });
 
         it('should return false when AWSTraceHeader has no Sampled flag', function(){
-            assert.equal(sqsMessageHelper.isSampled(sampleSqsMessageEvent.Records[2]), false)
+            assert.equal(SqsMessageHelper.isSampled(sampleSqsMessageEvent.Records[2]), false)
         });
         
     })
