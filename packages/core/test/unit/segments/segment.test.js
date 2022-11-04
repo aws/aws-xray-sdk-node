@@ -277,7 +277,8 @@ describe('Segment', function() {
     });
 
     it('should have isSampled flag set to false for subsegment of Lambda facade segment', function(){
-      process.env._X_AMZN_TRACE_ID;
+      process.env._X_AMZN_TRACE_ID = "Root=1-57ff426a-80c11c39b0c928905eb0828d;Parent=1234abcd1234abcd;Sampled=1";
+
       Lambda.init();
 
       setSegmentStub.should.have.been.calledOnce;
@@ -288,7 +289,7 @@ describe('Segment', function() {
     })
 
     it('should have isSampled flag set to true for subsegment of Lambda facade segment', function(){
-      process.env._X_AMZN_TRACE_ID;
+      process.env._X_AMZN_TRACE_ID = "Root=1-57ff426a-80c11c39b0c928905eb0828d;Parent=1234abcd1234abcd;Sampled=1";
       Lambda.init();
 
       setSegmentStub.should.have.been.calledOnce;
@@ -313,13 +314,6 @@ describe('Segment', function() {
       assert.equal(child.isSampled, false);
     })
 
-    it('should not contain the child subsegment if not sampled', function(){
-      var segment = new Segment('parent');
-      var child = new Subsegment('child');
-      segment.addSubsegmentWithoutSampling(child);
-
-      assert.notEqual(segment.subsegments[0], child);
-    })
 
 
     it('should not sample subsegment or subsegment of subsegment', function(){

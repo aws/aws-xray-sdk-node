@@ -259,4 +259,90 @@ describe('AWS patcher', function() {
       }, 50);
     });
   });
+
+
+  describe('#captureAWSRequest-Unsampled', function() {
+    var awsClient, awsRequest, MyEmitter, sandbox, segment, stubResolve, stubResolveManual, sub;
+
+    before(function() {
+      MyEmitter = function() {
+        EventEmitter.call(this);
+      };
+
+      awsClient = {
+        customizeRequests: function customizeRequests(captureAWSRequest) {
+          this.call = captureAWSRequest;
+        },
+        throttledError: function throttledError() {}
+      };
+      awsClient = awsPatcher.captureAWSClient(awsClient);
+
+      util.inherits(MyEmitter, EventEmitter);
+    });
+
+    beforeEach(function() {
+      sandbox = sinon.createSandbox();
+
+      awsRequest = {
+        httpRequest: {
+          method: 'GET',
+          url: '/',
+          connection: {
+            remoteAddress: 'localhost'
+          },
+          headers: {}
+        },
+        response: {}
+      };
+
+      awsRequest.on = function(event, fcn) {
+        if (event === 'complete') {
+          this.emitter.on(event, fcn.bind(this, this.response));
+        } else {
+          this.emitter.on(event, fcn.bind(this, this));
+        }
+        return this;
+      };
+
+      awsRequest.emitter = new MyEmitter();
+
+      segment = new Segment('testSegment', traceId);
+      sub = segment.addNewSubsegmentWithoutSampling("subseg");
+
+      stubResolveManual = sandbox.stub(contextUtils, 'resolveManualSegmentParams');
+      stubResolve = sandbox.stub(contextUtils, 'resolveSegment').returns(segment);
+      sandbox.stub(segment, 'addNewSubsegmentWithoutSampling').returns(sub);
+    });
+
+    afterEach(function() {
+      sandbox.restore();
+    });
+
+    it('should log an info statement and exit if parent is not found on the context or on the call params', function(done) {
+      stubResolve.returns();
+      var logStub = sandbox.stub(logger, 'info');
+
+      awsClient.call(awsRequest);
+
+      setTimeout(function() {
+        logStub.should.have.been.calledOnce;
+        done();
+      }, 50);
+    });
+
+    it('should inject the tracing headers', function(done) {
+      sandbox.stub(contextUtils, 'isAutomaticMode').returns(true);
+
+      awsClient.call(awsRequest);
+
+      awsRequest.emitter.emit('build');
+
+      setTimeout(function() {
+        var expected = new RegExp('^Root=' + traceId + ';Parent=' + sub.id + ';Sampled=0$');
+        assert.match(awsRequest.httpRequest.headers['X-Amzn-Trace-Id'], expected);
+        done();
+      }, 50);
+    });
+
+  });
 });

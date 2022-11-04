@@ -121,14 +121,6 @@ describe('Subsegment', function() {
       assert.equal(child.isSampled, false);
     })
 
-    it('should not contain the child subsegment if not sampled', function(){
-      const subsegment = new Subsegment('test');
-      const child = new Subsegment('child')
-      subsegment.addSubsegmentWithoutSampling(child);
-
-      assert.notEqual(subsegment.subsegments[0], child);
-    })
-
     it('should respect the direct parent’s sampling decision', function(){
       const subsegment = new Subsegment('test');
       const child = new Subsegment('child');
@@ -332,14 +324,13 @@ describe('Subsegment', function() {
     });
 
     it('should not send if the isSampled property evaluates to false', function() {
-      segment.notTraced = true;
       unsampledChild.flush();
       emitStub.should.have.not.been.called;
     });
 
     it('should send if the notTraced property evaluates to false', function() {
-      child.flush();
-      emitStub.should.have.been.called;
+        child.flush();
+        emitStub.should.have.been.called;
     });
   });
 

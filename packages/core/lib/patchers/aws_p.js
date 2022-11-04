@@ -76,7 +76,14 @@ function captureAWSRequest(req) {
   var throttledError = this.throttledError || throttledErrorDefault;
 
   var stack = (new Error()).stack;
-  var subsegment = parent.addNewSubsegment(this.serviceIdentifier);
+
+  let subsegment;
+  if(parent.notTraced == false || parent.subsegments[parent.subsegments.length - 1].isSampled){
+    subsegment = parent.addNewSubsegment(this.serviceIdentifier);
+  } else {
+    subsegment = parent.addNewSubsegmentWithoutSampling(this.serviceIdentifier);
+  }
+
   var traceId = parent.segment ? parent.segment.trace_id : parent.trace_id;
 
   var buildListener = function(req) {

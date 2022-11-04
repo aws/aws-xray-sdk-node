@@ -44,15 +44,14 @@ Subsegment.prototype.addNewSubsegment = function addNewSubsegment(name) {
 };
 
 Subsegment.prototype.addSubsegmentWithoutSampling = function addSubsegmentWithoutSampling(subsegment){
-  subsegment.isSampled = false;
   this.addSubsegment(subsegment);
+  subsegment.isSampled = false;
 };
 
 Subsegment.prototype.addNewSubsegmentWithoutSampling = function addNewSubsegmentWithoutSampling(name){
   const subsegment = new Subsegment(name);
-  subsegment.isSampled = false;
   this.addSubsegment(subsegment);
-  
+  subsegment.isSampled = false;
   return subsegment; 
 };
 
@@ -74,19 +73,13 @@ Subsegment.prototype.addSubsegment = function(subsegment) {
   subsegment.segment = this.segment;
   subsegment.parent = this;
 
-  if(subsegment.isSampled){ 
-    // if subsegment has not been set to false, use the sampling decision of the direct parent
-    subsegment.isSampled = subsegment.parent.isSampled;
-  }
+  subsegment.isSampled = subsegment.parent.isSampled;
 
-  if (subsegment.end_time === undefined && subsegment.isSampled) {
+  if (subsegment.end_time === undefined) {
     this.incrementCounter(subsegment.counter);
   }
-  // don't push to subsegment array if subsegment is not sampled
-  if(subsegment.isSampled){ 
-    this.subsegments.push(subsegment);
-  }
-  
+  this.subsegments.push(subsegment);
+
 };
 
 /**
@@ -362,7 +355,7 @@ Subsegment.prototype.flush = function flush() {
   }
 
   if (this.segment.trace_id) {
-    if (this.segment.notTraced !== true) {
+    if (this.segment.notTraced !== true && this.isSampled) {
       SegmentEmitter.send(this);
     } else {
       logger.getLogger().debug('Ignoring flush on subsegment ' + this.id + '. Associated segment is marked as not sampled.');

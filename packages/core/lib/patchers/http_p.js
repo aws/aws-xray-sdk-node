@@ -116,7 +116,13 @@ function enableCapture(module, downstreamXRayEnabled, subsegmentCallback) {
       return baseFunc(...args);
     }
 
-    const subsegment = parent.addNewSubsegment(hostname);
+    let subsegment;
+    if(parent.notTraced == false || parent.subsegments[parent.subsegments.length - 1].isSampled){
+      subsegment = parent.addNewSubsegment(hostname);
+    } else {
+      subsegment = parent.addNewSubsegmentWithoutSampling(hostname);
+    }
+    
     const root = parent.segment ? parent.segment : parent;
     subsegment.namespace = 'remote';
 
