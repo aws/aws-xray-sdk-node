@@ -1,10 +1,10 @@
-const dgram = require('dgram')
+const dgram = require('dgram');
 
-const batcher = require('atomic-batcher')
-const logger = require('./logger')
+const batcher = require('atomic-batcher');
+const logger = require('./logger');
 
-const PROTOCOL_HEADER = '{"format":"json","version":1}'
-const PROTOCOL_DELIMITER = '\n'
+const PROTOCOL_HEADER = '{"format":"json","version":1}';
+const PROTOCOL_DELIMITER = '\n';
 
 /**
  * Sends a collection of data over a UDP socket. This method
@@ -15,15 +15,15 @@ const PROTOCOL_DELIMITER = '\n'
  * @param {Function} callback - The function to call when done
  */
 function batchSendData (ops, callback) {
-  const client = dgram.createSocket('udp4')
+  const client = dgram.createSocket('udp4');
 
   executeSendData(client, ops, 0, function () {
     try {
-      client.close()
+      client.close();
     } finally {
-      callback()
+      callback();
     }
-  })
+  });
 }
 
 /**
@@ -37,12 +37,12 @@ function batchSendData (ops, callback) {
  */
 function executeSendData (client, ops, index, callback) {
   if (index >= ops.length) {
-    callback()
-    return
+    callback();
+    return;
   }
 
   sendMessage(client, ops[index], function () {
-    executeSendData(client, ops, index + 1, callback)
+    executeSendData(client, ops, index + 1, callback);
   })
 }
 
@@ -54,20 +54,20 @@ function executeSendData (client, ops, index, callback) {
  * @param {Function} batchCallback - Function to call when done
  */
 function sendMessage (client, data, batchCallback) {
-  const msg = data.msg
-  const offset = data.offset
-  const length = data.length
-  const port = data.port
-  const address = data.address
-  const callback = data.callback
+  const msg = data.msg;
+  const offset = data.offset;
+  const length = data.length;
+  const port = data.port;
+  const address = data.address;
+  const callback = data.callback;
 
   client.send(msg, offset, length, port, address, function (err) {
     try {
-      callback(err)
+      callback(err);
     } finally {
-      batchCallback()
+      batchCallback();
     }
-  })
+  });
 }
 
 /**
@@ -76,7 +76,7 @@ function sendMessage (client, data, batchCallback) {
  * destroyed as needed.
  */
 function BatchingTemporarySocket () {
-  this.batchSend = batcher(batchSendData)
+  this.batchSend = batcher(batchSendData);
 }
 
 /**
@@ -85,16 +85,16 @@ function BatchingTemporarySocket () {
  */
 BatchingTemporarySocket.prototype.send = function (msg, offset, length, port, address, callback) {
   const work = {
-    msg,
-    offset,
-    length,
-    port,
-    address,
-    callback
-  }
+    msg: msg,
+    offset: offset,
+    length: length,
+    port: port,
+    address: address,
+    callback: callback
+  };
 
-  this.batchSend(work)
-}
+  this.batchSend(work);
+};
 
 /**
  * Segment emitter module.
@@ -109,7 +109,7 @@ const SegmentEmitter = {
    */
 
   format: function format (segment) {
-    return PROTOCOL_HEADER + PROTOCOL_DELIMITER + segment.toString()
+    return PROTOCOL_HEADER + PROTOCOL_DELIMITER + segment.toString();
   },
 
   /**
@@ -120,31 +120,31 @@ const SegmentEmitter = {
   send: function send (segment) {
     if (!this.socket) {
       if (this.useBatchingTemporarySocket) {
-        this.socket = new BatchingTemporarySocket()
+        this.socket = new BatchingTemporarySocket();
       } else {
-        this.socket = dgram.createSocket('udp4').unref()
+        this.socket = dgram.createSocket('udp4').unref();
       }
     }
-    const client = this.socket
-    const formatted = segment.format()
-    const data = PROTOCOL_HEADER + PROTOCOL_DELIMITER + formatted
-    const message = Buffer.from(data)
+    const client = this.socket;
+    const formatted = segment.format();
+    const data = PROTOCOL_HEADER + PROTOCOL_DELIMITER + formatted;
+    const message = Buffer.from(data);
 
-    const short = '{"trace_id:"' + segment.trace_id + '","id":"' + segment.id + '"}'
-    const type = segment.type === 'subsegment' ? 'Subsegment' : 'Segment'
+    const short = '{"trace_id:"' + segment.trace_id + '","id":"' + segment.id + '"}';
+    const type = segment.type === 'subsegment' ? 'Subsegment' : 'Segment';
 
     client.send(message, 0, message.length, this.daemonConfig.udp_port, this.daemonConfig.udp_ip, function (err) {
       if (err) {
         if (err.code === 'EMSGSIZE') {
-          logger.getLogger().error(type + ' too large to send: ' + short + ' (' + message.length + ' bytes).')
+          logger.getLogger().error(type + ' too large to send: ' + short + ' (' + message.length + ' bytes).');
         } else {
-          logger.getLogger().error('Error occured sending segment: ', err)
+          logger.getLogger().error('Error occured sending segment: ', err);
         }
       } else {
-        logger.getLogger().debug(type + ' sent: {"trace_id:"' + segment.trace_id + '","id":"' + segment.id + '"}')
-        logger.getLogger().debug('UDP message sent: ' + segment)
+        logger.getLogger().debug(type + ' sent: {"trace_id:"' + segment.trace_id + '","id":"' + segment.id + '"}');
+        logger.getLogger().debug('UDP message sent: ' + segment);
       }
-    })
+    });
   },
 
   /**
@@ -155,7 +155,7 @@ const SegmentEmitter = {
    */
 
   setDaemonAddress: function setDaemonAddress (address) {
-    this.daemonConfig.setDaemonAddress(address)
+    this.daemonConfig.setDaemonAddress(address);
   },
 
   /**
@@ -165,7 +165,7 @@ const SegmentEmitter = {
    */
 
   getIp: function getIp () {
-    return this.daemonConfig.udp_ip
+    return this.daemonConfig.udp_ip;
   },
 
   /**
@@ -175,7 +175,7 @@ const SegmentEmitter = {
    */
 
   getPort: function getPort () {
-    return this.daemonConfig.udp_port
+    return this.daemonConfig.udp_port;
   },
 
   /**
@@ -185,8 +185,8 @@ const SegmentEmitter = {
    */
 
   disableReusableSocket: function () {
-    this.useBatchingTemporarySocket = true
+    this.useBatchingTemporarySocket = true;
   }
-}
+};
 
-module.exports = SegmentEmitter
+module.exports = SegmentEmitter;

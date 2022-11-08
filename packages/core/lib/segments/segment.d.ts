@@ -35,7 +35,7 @@ declare class Segment {
 
   addSubsegment(subsegment: Subsegment): void;
 
-  addSubsegmentWithoutSampling(subsegment: Subsegment): void; 
+  addSubsegmentWithoutSampling(subsegment: Subsegment): void;
 
   addNewSubsegmentWithoutSampling(name: string): Subsegment
 

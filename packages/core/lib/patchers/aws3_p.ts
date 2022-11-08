@@ -111,8 +111,7 @@ const getXRayMiddleware = (config: RegionResolvedConfig, manualSegment?: Segment
   }
 
   let subsegment: Subsegment;
-  
-  if(segment.notTraced == false || segment.subsegments[segment.subsegments.length - 1].isSampled){
+  if (segment.notTraced == false || !segment.subsegments[segment.subsegments.length - 1].notTraced) {
     subsegment = segment.addNewSubsegment(service);
   } else {
     subsegment = segment.addNewSubsegmentWithoutSampling(service);
@@ -125,7 +124,7 @@ const getXRayMiddleware = (config: RegionResolvedConfig, manualSegment?: Segment
     {
       Root: parent.trace_id,
       Parent: subsegment.id,
-      Sampled: subsegment.isSampled ? '1' : '0',
+      Sampled: subsegment.notTraced ? '0' : '1',
     },
     ';',
   );

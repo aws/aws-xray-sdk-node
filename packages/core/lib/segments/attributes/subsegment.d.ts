@@ -10,7 +10,7 @@ declare class Subsegment {
   parent: SegmentLike;
   segment: Segment;
   namespace?: string;
-  isSampled: boolean;
+  notTraced: boolean;
 
   constructor(name: string);
 

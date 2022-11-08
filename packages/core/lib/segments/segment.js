@@ -1,13 +1,13 @@
-const crypto = require('crypto')
+const crypto = require('crypto');
 
-const CapturedException = require('./attributes/captured_exception')
-const SegmentEmitter = require('../segment_emitter')
-const SegmentUtils = require('./segment_utils')
-const Subsegment = require('./attributes/subsegment')
-const TraceID = require('./attributes/trace_id')
+const CapturedException = require('./attributes/captured_exception');
+const SegmentEmitter = require('../segment_emitter');
+const SegmentUtils = require('./segment_utils');
+const Subsegment = require('./attributes/subsegment');
+const TraceID = require('./attributes/trace_id');
 
-const Utils = require('../utils')
-const logger = require('../logger')
+const Utils = require('../utils');
+const logger = require('../logger');
 
 /**
  * Represents a segment.
@@ -17,52 +17,52 @@ const logger = require('../logger')
  * @param {string} [parentId] - The sub/segment ID of the spawning parent, included in the 'X-Amzn-Trace-Id' header of the incoming request.
  */
 function Segment (name, rootId, parentId) {
-  this.init(name, rootId, parentId)
+  this.init(name, rootId, parentId);
 }
 
 Segment.prototype.init = function init (name, rootId, parentId) {
   if (typeof name !== 'string') {
-    throw new Error('Segment name must be of type string.')
+    throw new Error('Segment name must be of type string.');
   }
 
   // Validate the Trace ID
-  let traceId
+  let traceId;
   if (rootId && typeof rootId === 'string') {
-    traceId = TraceID.FromString(rootId)
+    traceId = TraceID.FromString(rootId);
   } else {
-    traceId = new TraceID()
+    traceId = new TraceID();
   }
 
-  const id = crypto.randomBytes(8).toString('hex')
-  const startTime = SegmentUtils.getCurrentTime()
+  const id = crypto.randomBytes(8).toString('hex');
+  const startTime = SegmentUtils.getCurrentTime();
 
-  this.trace_id = traceId.toString()
-  this.id = id
-  this.start_time = startTime
-  this.name = name || ''
-  this.in_progress = true
-  this.counter = 0
+  this.trace_id = traceId.toString();
+  this.id = id;
+  this.start_time = startTime;
+  this.name = name || '';
+  this.in_progress = true;
+  this.counter = 0;
 
   if (parentId) {
-    this.parent_id = parentId
+    this.parent_id = parentId;
   }
 
   if (SegmentUtils.serviceData) {
-    this.setServiceData(SegmentUtils.serviceData)
+    this.setServiceData(SegmentUtils.serviceData);
   }
 
   if (SegmentUtils.pluginData) {
-    this.addPluginData(SegmentUtils.pluginData)
+    this.addPluginData(SegmentUtils.pluginData);
   }
 
   if (SegmentUtils.origin) {
-    this.origin = SegmentUtils.origin
+    this.origin = SegmentUtils.origin;
   }
 
   if (SegmentUtils.sdkData) {
-    this.setSDKData(SegmentUtils.sdkData)
+    this.setSDKData(SegmentUtils.sdkData);
   }
-}
+};
 
 /**
  * Adds incoming request data to the http block of the segment.
@@ -70,8 +70,8 @@ Segment.prototype.init = function init (name, rootId, parentId) {
  */
 
 Segment.prototype.addIncomingRequestData = function addIncomingRequestData (data) {
-  this.http = data
-}
+  this.http = data;
+};
 
 /**
  * Adds a key-value pair that can be queryable through GetTraceSummaries.
@@ -83,22 +83,22 @@ Segment.prototype.addIncomingRequestData = function addIncomingRequestData (data
 Segment.prototype.addAnnotation = function addAnnotation (key, value) {
   if (typeof value !== 'boolean' && typeof value !== 'string' && !isFinite(value)) {
     logger.getLogger().error('Failed to add annotation key: ' + key + ' value: ' + value + ' to subsegment ' +
-      this.name + '. Value must be of type string, number or boolean.')
-    return
+      this.name + '. Value must be of type string, number or boolean.');
+    return;
   }
 
   if (typeof key !== 'string') {
     logger.getLogger().error('Failed to add annotation key: ' + key + ' value: ' + value + ' to subsegment ' +
-      this.name + '. Key must be of type string.')
-    return
+      this.name + '. Key must be of type string.');
+    return;
   }
 
   if (this.annotations === undefined) {
-    this.annotations = {}
+    this.annotations = {};
   }
 
-  this.annotations[key] = value
-}
+  this.annotations[key] = value;
+};
 
 /**
  * Adds a User ID that can be queried from the X-Ray console. User ID
@@ -107,10 +107,10 @@ Segment.prototype.addAnnotation = function addAnnotation (key, value) {
  */
 Segment.prototype.setUser = function (user) {
   if (typeof user !== 'string') {
-    logger.getLogger().error('Set user: ' + user + ' failed. User IDs must be of type string.')
+    logger.getLogger().error('Set user: ' + user + ' failed. User IDs must be of type string.');
   }
-  this.user = user
-}
+  this.user = user;
+};
 
 /**
  * Adds a key-value pair to the metadata.default attribute when no namespace is given.
@@ -123,30 +123,30 @@ Segment.prototype.setUser = function (user) {
 Segment.prototype.addMetadata = function (key, value, namespace) {
   if (typeof key !== 'string') {
     logger.getLogger().error('Failed to add metadata key: ' + key + ' value: ' + value + ' to segment ' +
-      this.name + '. Key must be of type string.')
-    return
+      this.name + '. Key must be of type string.');
+    return;
   }
 
   if (namespace && typeof namespace !== 'string') {
     logger.getLogger().error('Failed to add metadata key: ' + key + ' value: ' + value + ' to segment ' +
-      this.name + '. Namespace must be of type string.')
-    return
+      this.name + '. Namespace must be of type string.');
+    return;
   }
 
-  const ns = namespace || 'default'
+  const ns = namespace || 'default';
 
   if (!this.metadata) {
-    this.metadata = {}
+    this.metadata = {};
   }
 
   if (!this.metadata[ns]) {
-    this.metadata[ns] = {}
+    this.metadata[ns] = {};
   }
 
   if (ns !== '__proto__') {
-    this.metadata[ns][key] = value !== null && value !== undefined ? value : ''
+    this.metadata[ns][key] = value !== null && value !== undefined ? value : '';
   }
-}
+};
 
 /**
  * Adds data about the AWS X-Ray SDK onto the segment.
@@ -156,27 +156,27 @@ Segment.prototype.addMetadata = function (key, value, namespace) {
 Segment.prototype.setSDKData = function setSDKData (data) {
   if (!data) {
     logger.getLogger().error('Add SDK data: ' + data + ' failed.' +
-      'Must not be empty.')
-    return
+      'Must not be empty.');
+    return;
   }
 
   if (!this.aws) {
-    this.aws = {}
+    this.aws = {};
   }
 
-  this.aws.xray = data
-}
+  this.aws.xray = data;
+};
 
 Segment.prototype.setMatchedSamplingRule = function setMatchedSamplingRule (ruleName) {
   if (this.aws) {
-    this.aws = JSON.parse(JSON.stringify(this.aws))
+    this.aws = JSON.parse(JSON.stringify(this.aws));
   }
-  if (this.aws && this.aws.xray) {
-    this.aws.xray.rule_name = ruleName
+  if (this.aws && this.aws['xray']) {
+    this.aws.xray['rule_name'] = ruleName;
   } else {
-    this.aws = { xray: { rule_name: ruleName } }
+    this.aws = { xray: { rule_name: ruleName } };
   }
-}
+};
 
 /**
  * Adds data about the service into the segment.
@@ -186,12 +186,12 @@ Segment.prototype.setMatchedSamplingRule = function setMatchedSamplingRule (rule
 Segment.prototype.setServiceData = function setServiceData (data) {
   if (!data) {
     logger.getLogger().error('Add service data: ' + data + ' failed.' +
-      'Must not be empty.')
-    return
+      'Must not be empty.');
+    return;
   }
 
-  this.service = data
-}
+  this.service = data;
+};
 
 /**
  * Adds a service with associated version data into the segment.
@@ -200,11 +200,11 @@ Segment.prototype.setServiceData = function setServiceData (data) {
 
 Segment.prototype.addPluginData = function addPluginData (data) {
   if (this.aws === undefined) {
-    this.aws = {}
+    this.aws = {};
   }
 
-  Object.assign(this.aws, data)
-}
+  Object.assign(this.aws, data);
+};
 
 /**
  * Adds a new subsegment to the array of subsegments.
@@ -212,22 +212,24 @@ Segment.prototype.addPluginData = function addPluginData (data) {
  */
 
 Segment.prototype.addNewSubsegment = function addNewSubsegment (name) {
-  const subsegment = new Subsegment(name)
-  this.addSubsegment(subsegment)
-  return subsegment
-}
+  const subsegment = new Subsegment(name);
+  this.addSubsegment(subsegment);
+  return subsegment;
+};
 
 Segment.prototype.addSubsegmentWithoutSampling = function addSubsegmentWithoutSampling (subsegment) {
-  this.addSubsegment(subsegment)
-  subsegment.isSampled = false
-}
+  this.addSubsegment(subsegment);
+  subsegment.notTraced = true;
+
+};
 
 Segment.prototype.addNewSubsegmentWithoutSampling = function addNewSubsegmentWithoutSampling (name) {
-  const subsegment = new Subsegment(name)
-  this.addSubsegment(subsegment)
-  subsegment.isSampled = false
-  return subsegment
-}
+  const subsegment = new Subsegment(name);
+  this.addSubsegment(subsegment);
+  subsegment.notTraced = true;
+
+  return subsegment;
+};
 
 /**
  * Adds a subsegment to the array of subsegments.
@@ -240,19 +242,19 @@ Segment.prototype.addSubsegment = function addSubsegment (subsegment) {
   }
 
   if (this.subsegments === undefined) {
-    this.subsegments = []
+    this.subsegments = [];
   }
 
-  subsegment.segment = this
-  subsegment.parent = this
+  subsegment.segment = this;
+  subsegment.parent = this;
 
-  subsegment.isSampled = !subsegment.parent.notTraced
-  this.subsegments.push(subsegment)
+  subsegment.notTraced = subsegment.parent.notTraced;
+  this.subsegments.push(subsegment);
 
   if (!subsegment.end_time) {
-    this.incrementCounter(subsegment.counter)
+    this.incrementCounter(subsegment.counter);
   }
-}
+};
 
 /**
  * Removes the subsegment from the subsegments array, used in subsegment streaming.
@@ -261,17 +263,17 @@ Segment.prototype.addSubsegment = function addSubsegment (subsegment) {
 Segment.prototype.removeSubsegment = function removeSubsegment (subsegment) {
   if (!(subsegment instanceof Subsegment)) {
     throw new Error('Failed to remove subsegment:' + subsegment + ' from subsegment "' + this.name +
-      '".  Not a subsegment.')
+      '".  Not a subsegment.');
   }
 
   if (this.subsegments !== undefined) {
-    const index = this.subsegments.indexOf(subsegment)
+    const index = this.subsegments.indexOf(subsegment);
 
     if (index >= 0) {
-      this.subsegments.splice(index, 1)
+      this.subsegments.splice(index, 1);
     }
   }
-}
+};
 
 /**
  * Adds error data into the segment.
@@ -282,54 +284,54 @@ Segment.prototype.removeSubsegment = function removeSubsegment (subsegment) {
 Segment.prototype.addError = function addError (err, remote) {
   if (err == null || typeof err !== 'object' && typeof (err) !== 'string') {
     logger.getLogger().error('Failed to add error:' + err + ' to subsegment "' + this.name +
-    '".  Not an object or string literal.')
-    return
+    '".  Not an object or string literal.');
+    return;
   }
 
-  this.addFaultFlag()
+  this.addFaultFlag();
 
   if (this.exception) {
     if (err === this.exception.ex) {
-      this.cause = { id: this.exception.cause }
-      delete this.exception
-      return
+      this.cause = { id: this.exception.cause };
+      delete this.exception;
+      return;
     }
-    delete this.exception
+    delete this.exception;
   }
 
   if (this.cause === undefined) {
     this.cause = {
       working_directory: process.cwd(),
       exceptions: []
-    }
+    };
   }
 
-  this.cause.exceptions.push(new CapturedException(err, remote))
-}
+  this.cause.exceptions.push(new CapturedException(err, remote));
+};
 
 /**
  * Adds fault flag to the subsegment.
  */
 
 Segment.prototype.addFaultFlag = function addFaultFlag () {
-  this.fault = true
-}
+  this.fault = true;
+};
 
 /**
  * Adds error flag to the subsegment.
  */
 
 Segment.prototype.addErrorFlag = function addErrorFlag () {
-  this.error = true
-}
+  this.error = true;
+};
 
 /**
  * Adds throttle flag to the subsegment.
  */
 
 Segment.prototype.addThrottleFlag = function addThrottleFlag () {
-  this.throttle = true
-}
+  this.throttle = true;
+};
 
 /**
  * Returns a boolean indicating whether or not the segment has been closed.
@@ -337,8 +339,8 @@ Segment.prototype.addThrottleFlag = function addThrottleFlag () {
  */
 
 Segment.prototype.isClosed = function isClosed () {
-  return !this.in_progress
-}
+  return !this.in_progress;
+};
 
 /**
  * Each segment holds a counter of open subsegments.  This increments the counter.
@@ -346,20 +348,20 @@ Segment.prototype.isClosed = function isClosed () {
  */
 
 Segment.prototype.incrementCounter = function incrementCounter (additional) {
-  this.counter = additional ? this.counter + additional + 1 : this.counter + 1
+  this.counter = additional ? this.counter + additional + 1 : this.counter + 1;
 
   if (this.counter > SegmentUtils.streamingThreshold && this.subsegments && this.subsegments.length > 0) {
-    const open = []
+    const open = [];
 
     this.subsegments.forEach(function (child) {
       if (!child.streamSubsegments()) {
-        open.push(child)
+        open.push(child);
       }
-    })
+    });
 
-    this.subsegments = open
+    this.subsegments = open;
   }
-}
+};
 
 /**
  * Each segment holds a counter of open subsegments.  This decrements
@@ -367,12 +369,12 @@ Segment.prototype.incrementCounter = function incrementCounter (additional) {
  */
 
 Segment.prototype.decrementCounter = function decrementCounter () {
-  this.counter--
+  this.counter--;
 
   if (this.counter <= 0 && this.isClosed()) {
-    this.flush()
+    this.flush();
   }
-}
+};
 
 /**
  * Closes the current segment.  This automatically sets the end time.
@@ -382,20 +384,20 @@ Segment.prototype.decrementCounter = function decrementCounter () {
 
 Segment.prototype.close = function (err, remote) {
   if (!this.end_time) {
-    this.end_time = SegmentUtils.getCurrentTime()
+    this.end_time = SegmentUtils.getCurrentTime();
   }
 
   if (err !== undefined) {
-    this.addError(err, remote)
+    this.addError(err, remote);
   }
 
-  delete this.in_progress
-  delete this.exception
+  delete this.in_progress;
+  delete this.exception;
 
   if (this.counter <= 0) {
-    this.flush()
+    this.flush();
   }
-}
+};
 
 /**
  * Sends the segment to the daemon.
@@ -403,36 +405,36 @@ Segment.prototype.close = function (err, remote) {
 
 Segment.prototype.flush = function flush () {
   if (this.notTraced !== true) {
-    delete this.exception
+    delete this.exception;
 
     const thisCopy = Utils.objectWithoutProperties(
       this,
       ['counter', 'notTraced'],
       true
-    )
+    );
 
-    SegmentEmitter.send(thisCopy)
+    SegmentEmitter.send(thisCopy);
   }
-}
+};
 
 Segment.prototype.format = function format () {
-  const ignore = ['segment', 'parent', 'counter']
+  const ignore = ['segment', 'parent', 'counter'];
 
   if (this.subsegments == null || this.subsegments.length === 0) {
-    ignore.push('subsegments')
+    ignore.push('subsegments');
   }
 
   const thisCopy = Utils.objectWithoutProperties(
     this,
     ignore,
     false
-  )
+  );
 
-  return JSON.stringify(thisCopy)
-}
+  return JSON.stringify(thisCopy);
+};
 
 Segment.prototype.toString = function toString () {
-  return JSON.stringify(this)
-}
+  return JSON.stringify(this);
+};
 
-module.exports = Segment
+module.exports = Segment;
