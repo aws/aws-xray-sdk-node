@@ -3,19 +3,19 @@
  * @module aws_p
  */
 
-var semver = require('semver');
+const semver = require('semver')
 
-var Aws = require('../segments/attributes/aws');
-var contextUtils = require('../context_utils');
-var Utils = require('../utils');
+const Aws = require('../segments/attributes/aws')
+const contextUtils = require('../context_utils')
+const Utils = require('../utils')
 
-var logger = require('../logger');
+const logger = require('../logger')
 
-var minVersion = '2.7.15';
+const minVersion = '2.7.15'
 
-var throttledErrorDefault = function throttledErrorDefault() {
-  return false; // If the customer doesn't provide an aws-sdk with a throttled error function, we can't make assumptions.
-};
+const throttledErrorDefault = function throttledErrorDefault () {
+  return false // If the customer doesn't provide an aws-sdk with a throttled error function, we can't make assumptions.
+}
 
 /**
  * Configures the AWS SDK to automatically capture information for the segment.
@@ -27,20 +27,20 @@ var throttledErrorDefault = function throttledErrorDefault() {
  * @see https://github.com/aws/aws-sdk-js
  */
 
-var captureAWS = function captureAWS(awssdk) {
+const captureAWS = function captureAWS (awssdk) {
   if (!semver.gte(awssdk.VERSION, minVersion)) {
-    throw new Error ('AWS SDK version ' + minVersion + ' or greater required.');
+    throw new Error('AWS SDK version ' + minVersion + ' or greater required.')
   }
 
-  for (var prop in awssdk) {
+  for (const prop in awssdk) {
     if (awssdk[prop].serviceIdentifier) {
-      var Service = awssdk[prop];
-      Service.prototype.customizeRequests(captureAWSRequest);
+      const Service = awssdk[prop]
+      Service.prototype.customizeRequests(captureAWSRequest)
     }
   }
 
-  return awssdk;
-};
+  return awssdk
+}
 
 /**
  * Configures any AWS Client instance to automatically capture information for the segment.
@@ -52,126 +52,125 @@ var captureAWS = function captureAWS(awssdk) {
  * @see https://github.com/aws/aws-sdk-js
  */
 
-var captureAWSClient = function captureAWSClient(service) {
-  service.customizeRequests(captureAWSRequest);
-  return service;
-};
+const captureAWSClient = function captureAWSClient (service) {
+  service.customizeRequests(captureAWSRequest)
+  return service
+}
 
-function captureAWSRequest(req) {
-  var parent = contextUtils.resolveSegment(contextUtils.resolveManualSegmentParams(req.params));
+function captureAWSRequest (req) {
+  const parent = contextUtils.resolveSegment(contextUtils.resolveManualSegmentParams(req.params))
 
   if (!parent) {
-    var output = this.serviceIdentifier + '.' + req.operation;
+    const output = this.serviceIdentifier + '.' + req.operation
 
     if (!contextUtils.isAutomaticMode()) {
       logger.getLogger().info('Call ' + output + ' requires a segment object' +
-        ' on the request params as "XRaySegment" for tracing in manual mode. Ignoring.');
+        ' on the request params as "XRaySegment" for tracing in manual mode. Ignoring.')
     } else {
       logger.getLogger().info('Call ' + output +
-        ' is missing the sub/segment context for automatic mode. Ignoring.');
+        ' is missing the sub/segment context for automatic mode. Ignoring.')
     }
-    return req;
+    return req
   }
 
-  var throttledError = this.throttledError || throttledErrorDefault;
+  const throttledError = this.throttledError || throttledErrorDefault
 
-  var stack = (new Error()).stack;
+  const stack = (new Error()).stack
 
-  let subsegment;
-  if(parent.notTraced == false || parent.subsegments[parent.subsegments.length - 1].isSampled){
-    subsegment = parent.addNewSubsegment(this.serviceIdentifier);
+  let subsegment
+  if (parent.notTraced === false || parent.subsegments[parent.subsegments.length - 1].isSampled) {
+    subsegment = parent.addNewSubsegment(this.serviceIdentifier)
   } else {
-    subsegment = parent.addNewSubsegmentWithoutSampling(this.serviceIdentifier);
+    subsegment = parent.addNewSubsegmentWithoutSampling(this.serviceIdentifier)
   }
 
-  var traceId = parent.segment ? parent.segment.trace_id : parent.trace_id;
+  const traceId = parent.segment ? parent.segment.trace_id : parent.trace_id
 
-  var buildListener = function(req) {
+  const buildListener = function (req) {
     req.httpRequest.headers['X-Amzn-Trace-Id'] = 'Root=' + traceId + ';Parent=' + subsegment.id +
-      ';Sampled=' + (subsegment.isSampled ? '1' : '0');
-      
-  };
+      ';Sampled=' + (subsegment.isSampled ? '1' : '0')
+  }
 
-  var completeListener = function(res) {
-    subsegment.addAttribute('namespace', 'aws');
-    subsegment.addAttribute('aws', new Aws(res, subsegment.name));
+  const completeListener = function (res) {
+    subsegment.addAttribute('namespace', 'aws')
+    subsegment.addAttribute('aws', new Aws(res, subsegment.name))
 
-    var httpRes = res.httpResponse;
+    const httpRes = res.httpResponse
 
     if (httpRes) {
-      subsegment.addAttribute('http', new HttpResponse(httpRes));
+      subsegment.addAttribute('http', new HttpResponse(httpRes))
 
       if (httpRes.statusCode === 429 || (res.error && throttledError(res.error))) {
-        subsegment.addThrottleFlag();
+        subsegment.addThrottleFlag()
       }
     }
 
     if (res.error) {
-      var err = { message: res.error.message, name: res.error.code, stack: stack };
+      const err = { message: res.error.message, name: res.error.code, stack }
 
       if (httpRes && httpRes.statusCode) {
-        if (Utils.getCauseTypeFromHttpStatus(httpRes.statusCode) == 'error') {
-          subsegment.addErrorFlag();
+        if (Utils.getCauseTypeFromHttpStatus(httpRes.statusCode) === 'error') {
+          subsegment.addErrorFlag()
         }
-        subsegment.close(err, true);
+        subsegment.close(err, true)
       } else {
-        subsegment.close(err);
+        subsegment.close(err)
       }
     } else {
       if (httpRes && httpRes.statusCode) {
-        var cause = Utils.getCauseTypeFromHttpStatus(httpRes.statusCode);
+        const cause = Utils.getCauseTypeFromHttpStatus(httpRes.statusCode)
 
         if (cause) {
-          subsegment[cause] = true;
+          subsegment[cause] = true
         }
       }
-      subsegment.close();
+      subsegment.close()
     }
-  };
+  }
 
-  req.on('beforePresign', function(req) {
+  req.on('beforePresign', function (req) {
     // Only the AWS Presigner triggers this event,
     // so we can rely on this event to notify us when
     // a request is for a presigned url
-    parent.removeSubsegment(subsegment);
-    parent.decrementCounter();
-    req.removeListener('build', buildListener);
-    req.removeListener('complete', completeListener);
-  });
+    parent.removeSubsegment(subsegment)
+    parent.decrementCounter()
+    req.removeListener('build', buildListener)
+    req.removeListener('complete', completeListener)
+  })
 
-  req.on('build', buildListener).on('complete', completeListener);
+  req.on('build', buildListener).on('complete', completeListener)
 
   if (!req.__send) {
-    req.__send = req.send;
+    req.__send = req.send
 
-    req.send = function(callback) {
+    req.send = function (callback) {
       if (contextUtils.isAutomaticMode()) {
-        var session = contextUtils.getNamespace();
+        const session = contextUtils.getNamespace()
 
-        session.run(function() {
-          contextUtils.setSegment(subsegment);
-          req.__send(callback);
-        });
+        session.run(function () {
+          contextUtils.setSegment(subsegment)
+          req.__send(callback)
+        })
       } else {
-        req.__send(callback);
+        req.__send(callback)
       }
-    };
+    }
   }
 }
 
-function HttpResponse(res) {
-  this.init(res);
+function HttpResponse (res) {
+  this.init(res)
 }
 
-HttpResponse.prototype.init = function init(res) {
+HttpResponse.prototype.init = function init (res) {
   this.response = {
-    status: res.statusCode || '',
-  };
+    status: res.statusCode || ''
+  }
 
   if (res.headers && res.headers['content-length']) {
-    this.response.content_length = res.headers['content-length'];
+    this.response.content_length = res.headers['content-length']
   }
-};
+}
 
-module.exports.captureAWSClient = captureAWSClient;
-module.exports.captureAWS = captureAWS;
+module.exports.captureAWSClient = captureAWSClient
+module.exports.captureAWS = captureAWS
