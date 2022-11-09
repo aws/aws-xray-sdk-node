@@ -143,15 +143,6 @@ function enableCapture(module, downstreamXRayEnabled, subsegmentCallback) {
         subsegment.addRemoteRequestData(this, null, madeItToDownstream && downstreamXRayEnabled);
         subsegment.close(e);
       }
-
-      // Only need to remove our listener & re-emit if we're not listening using the errorMonitor,
-      // e.g. the app is running on Node 10. Otherwise the errorMonitor will re-emit automatically.
-      // See: https://github.com/aws/aws-xray-sdk-node/issues/318
-      // TODO: Remove this logic once node 12 support is deprecated
-      if (!events.errorMonitor && this.listenerCount('error') <= 1) {
-        this.removeListener('error', errorCapturer);
-        this.emit('error', e);
-      }
     };
 
     const optionsCopy = Utils.objectWithoutProperties(options, ['Segment'], true);
