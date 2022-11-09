@@ -132,8 +132,8 @@ describe('AWS v3 patcher', function() {
 
       it('should inject the tracing headers', async function() {
         await awsClient.send(awsRequest);
-
         assert.isTrue(addNewSubsegmentStub.calledWith('S3'));
+
 
         const expected = new RegExp('^Root=' + traceId + ';Parent=' + sub.id + ';Sampled=1$');
         assert.match(awsRequest.request.headers['X-Amzn-Trace-Id'], expected);
@@ -250,7 +250,7 @@ describe('AWS v3 patcher', function() {
 
 
   describe('#captureAWSRequest-Unsampled', function() {
-    var awsClient, awsRequest, sandbox, segment, stubResolve, addNewSubsegmentStub, sub;
+    var awsClient, awsRequest, sandbox, segment, stubResolve, addNewSubsegmentStub, sub, service, addNewServiceSubsegmentStub;
 
     before(function() {
       awsClient = {
@@ -304,8 +304,12 @@ describe('AWS v3 patcher', function() {
 
       segment = new Segment('testSegment', traceId);
       sub = segment.addNewSubsegmentWithoutSampling('subseg');
-      stubResolve = sandbox.stub(contextUtils, 'resolveSegment').returns(segment);
+      service = sub.addNewSubsegmentWithoutSampling('service');
+
+      stubResolve = sandbox.stub(contextUtils, 'resolveSegment').returns(sub);
       addNewSubsegmentStub = sandbox.stub(segment, 'addNewSubsegmentWithoutSampling').returns(sub);
+      addNewServiceSubsegmentStub = sandbox.stub(sub, 'addNewSubsegmentWithoutSampling').returns(service);
+
     });
 
     afterEach(function() {
@@ -324,8 +328,10 @@ describe('AWS v3 patcher', function() {
 
       it('should inject the tracing headers', async function() {
         await awsClient.send(awsRequest);
+        assert.isTrue(addNewServiceSubsegmentStub.calledWith('S3'));
 
-        const expected = new RegExp('^Root=' + traceId + ';Parent=' + sub.id + ';Sampled=0$');
+
+        const expected = new RegExp('^Root=' + traceId + ';Parent=' + service.id + ';Sampled=0$');
         assert.match(awsRequest.request.headers['X-Amzn-Trace-Id'], expected);
       });
     });

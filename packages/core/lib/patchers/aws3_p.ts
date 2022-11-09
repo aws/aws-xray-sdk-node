@@ -112,12 +112,11 @@ const getXRayMiddleware = (config: RegionResolvedConfig, manualSegment?: Segment
 
   let subsegment: Subsegment;
 
-  if (segment.subsegments && segment.subsegments[segment.subsegments.length - 1].notTraced) {
+  if (segment.notTraced) {
     subsegment = segment.addNewSubsegmentWithoutSampling(service);
   } else {
     subsegment = segment.addNewSubsegment(service);
   }
-
   subsegment.addAttribute('namespace', 'aws');
   const parent = (segment instanceof Subsegment ? segment.segment : segment);
 

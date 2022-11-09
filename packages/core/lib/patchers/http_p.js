@@ -117,7 +117,7 @@ function enableCapture(module, downstreamXRayEnabled, subsegmentCallback) {
     }
 
     let subsegment;
-    if (parent.subsegments && parent.subsegments[parent.subsegments.length - 1].notTraced) {
+    if (parent.notTraced) {
       subsegment = parent.addNewSubsegmentWithoutSampling(hostname);
     } else {
       subsegment = parent.addNewSubsegment(hostname);

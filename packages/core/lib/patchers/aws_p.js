@@ -78,7 +78,7 @@ function captureAWSRequest(req) {
   var stack = (new Error()).stack;
 
   let subsegment;
-  if (parent.subsegments && parent.subsegments[parent.subsegments.length - 1].notTraced) {
+  if (parent.notTraced) {
     subsegment = parent.addNewSubsegmentWithoutSampling(this.serviceIdentifier);
   } else {
     subsegment = parent.addNewSubsegment(this.serviceIdentifier);

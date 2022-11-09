@@ -262,7 +262,7 @@ describe('AWS patcher', function() {
 
 
   describe('#captureAWSRequest-Unsampled', function() {
-    var awsClient, awsRequest, MyEmitter, sandbox, segment, stubResolve, stubResolveManual, sub;
+    var awsClient, awsRequest, MyEmitter, sandbox, segment, stubResolve, addNewSubsegmentStub, sub, addNewServiceSubsegmentStub, service;
 
     before(function() {
       MyEmitter = function() {
@@ -308,10 +308,11 @@ describe('AWS patcher', function() {
 
       segment = new Segment('testSegment', traceId);
       sub = segment.addNewSubsegmentWithoutSampling('subseg');
+      service = sub.addNewSubsegmentWithoutSampling('service');
 
-      stubResolveManual = sandbox.stub(contextUtils, 'resolveManualSegmentParams');
-      stubResolve = sandbox.stub(contextUtils, 'resolveSegment').returns(segment);
-      sandbox.stub(segment, 'addNewSubsegmentWithoutSampling').returns(sub);
+      stubResolve = sandbox.stub(contextUtils, 'resolveSegment').returns(sub);
+      addNewSubsegmentStub = sandbox.stub(segment, 'addNewSubsegmentWithoutSampling').returns(sub);
+      addNewServiceSubsegmentStub = sandbox.stub(sub, 'addNewSubsegmentWithoutSampling').returns(service);
     });
 
     afterEach(function() {
@@ -338,7 +339,7 @@ describe('AWS patcher', function() {
       awsRequest.emitter.emit('build');
 
       setTimeout(function() {
-        var expected = new RegExp('^Root=' + traceId + ';Parent=' + sub.id + ';Sampled=0$');
+        var expected = new RegExp('^Root=' + traceId + ';Parent=' + service.id + ';Sampled=0$');
         assert.match(awsRequest.httpRequest.headers['X-Amzn-Trace-Id'], expected);
         done();
       }, 50);

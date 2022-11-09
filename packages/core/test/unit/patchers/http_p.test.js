@@ -456,20 +456,23 @@ describe('HTTP/S', function() {
 
 
   describe('#captureHTTPsRequest - Unsampled', function() {
-    var addRemoteDataStub, closeStub, httpOptions, newSubsegmentStub, resolveManualStub, sandbox, segment, subsegment;
+    var addRemoteDataStub, closeStub, httpOptions, newSubsegmentStub, resolveManualStub, sandbox, segment, subsegment, httpRequest, addNewRequestSubsegmentStub, stubResolve, addNewSubsegmentStub;
     var traceId = '1-57fbe041-2c7ad569f5d6ff149137be86';
 
     beforeEach(function() {
       sandbox = sinon.createSandbox();
-      segment = new Segment('test', traceId);
-      subsegment = segment.addNewSubsegmentWithoutSampling('testSub');
+      segment = new Segment('testSegment', traceId);
+      subsegment = segment.addNewSubsegmentWithoutSampling('subseg');
+      httpRequest = subsegment.addNewSubsegmentWithoutSampling('http-request');
 
-      newSubsegmentStub = sandbox.stub(segment, 'addNewSubsegmentWithoutSampling').returns(subsegment);
+      // stubResolve = sandbox.stub(contextUtils, 'resolveSegment').returns(subsegment);
+      addNewSubsegmentStub = sandbox.stub(segment, 'addNewSubsegmentWithoutSampling').returns(subsegment);
+      addNewRequestSubsegmentStub = sandbox.stub(subsegment, 'addNewSubsegmentWithoutSampling').returns(httpRequest);
 
       resolveManualStub = sandbox.stub(contextUtils, 'resolveManualSegmentParams');
       sandbox.stub(contextUtils, 'isAutomaticMode').returns(true);
       addRemoteDataStub = sandbox.stub(subsegment, 'addRemoteRequestData').returns();
-      closeStub = sandbox.stub(subsegment, 'close').returns();
+      closeStub = sandbox.stub(httpRequest, 'close').returns();
 
       httpOptions = {
         host: 'myhost',
@@ -483,9 +486,8 @@ describe('HTTP/S', function() {
 
     describe('#withContextAvailable', () => {
       beforeEach(() => {
-        sandbox.stub(contextUtils, 'resolveSegment').returns(segment);
+        sandbox.stub(contextUtils, 'resolveSegment').returns(subsegment);
       });
-
       afterEach(() => {
         sandbox.restore();
       });
@@ -543,30 +545,30 @@ describe('HTTP/S', function() {
         it('should create a new subsegment with name as hostname', function() {
           var options = {hostname: 'hostname', path: '/'};
           capturedHttp.request(options);
-          newSubsegmentStub.should.have.been.calledWith(options.hostname);
+          addNewRequestSubsegmentStub.should.have.been.calledWith(options.hostname);
         });
 
         it('should create a new subsegment with name as host when hostname is missing', function() {
           capturedHttp.request(httpOptions);
-          newSubsegmentStub.should.have.been.calledWith(httpOptions.host);
+          addNewRequestSubsegmentStub.should.have.been.calledWith(httpOptions.host);
         });
 
         it('should create a new subsegment with name as "Unknown host" when host and hostname is missing', function() {
           capturedHttp.request({path: '/'});
-          newSubsegmentStub.should.have.been.calledWith('Unknown host');
+          addNewRequestSubsegmentStub.should.have.been.calledWith('Unknown host');
         });
 
         it('should pass when a string is passed', function() {
           capturedHttp.request('http://hostname/api');
-          newSubsegmentStub.should.have.been.calledWith('hostname');
+          addNewRequestSubsegmentStub.should.have.been.calledWith('hostname');
           capturedHttp.get('http://hostname/api');
-          newSubsegmentStub.should.have.been.calledWith('hostname');
+          addNewRequestSubsegmentStub.should.have.been.calledWith('hostname');
         });
 
         it('should pass when a URL is passed', function() {
           var options = new url.URL('http://hostname/api');
           capturedHttp.request(options);
-          newSubsegmentStub.should.have.been.calledWith('hostname');
+          addNewRequestSubsegmentStub.should.have.been.calledWith('hostname');
         });
 
         it('should call the base method', function() {
@@ -638,18 +640,20 @@ describe('HTTP/S', function() {
           capturedHttp.request(httpOptions);
 
           setTimeout(function() {
-            addRemoteDataStub.should.have.been.calledWithExactly(fakeRequest, fakeResponse, false);
+            addRemoteDataStub.should.not.have.been.called;
             done();
           }, 50);
         });
+        // });
 
-        it('should set "http.traced" on the subsegment if the root is sampled and enableXRayDownstream is set', function(done) {
+        it('should not set "http.traced" on the subsegment if the root is unsampled', function(done) {
           capturedHttp = captureHTTPs(httpClient, true);
           fakeResponse.statusCode = 200;
           capturedHttp.request(httpOptions);
+          // });
 
           setTimeout(function() {
-            addRemoteDataStub.should.have.been.calledWithExactly(fakeRequest, fakeResponse, true);
+            addRemoteDataStub.should.not.have.been.called;
             done();
           }, 50);
         });
@@ -661,7 +665,7 @@ describe('HTTP/S', function() {
           capturedHttp.request(httpOptions);
 
           setTimeout(function() {
-            subsegmentCallback.should.have.been.calledWithExactly(subsegment, fakeRequest, fakeResponse);
+            subsegmentCallback.should.have.been.calledWithExactly(httpRequest, fakeRequest, fakeResponse);
             done();
           }, 50);
         });
@@ -677,7 +681,7 @@ describe('HTTP/S', function() {
         });
 
         it('should flag the subsegment as throttled if status code 429 is seen', function(done) {
-          var addThrottleStub = sandbox.stub(subsegment, 'addThrottleFlag');
+          var addThrottleStub = sandbox.stub(httpRequest, 'addThrottleFlag');
 
           fakeResponse.statusCode = 429;
           capturedHttp.request(httpOptions);
@@ -733,9 +737,9 @@ describe('HTTP/S', function() {
           fakeRequest.emit('error', error);
 
           setTimeout(function() {
-            addRemoteDataStub.should.have.been.calledWith(req);
+            addRemoteDataStub.should.not.have.been.called;
             closeStub.should.have.been.calledWithExactly(error);
-            subsegmentCallback.should.have.been.calledWithExactly(subsegment, fakeRequest, null, error);
+            subsegmentCallback.should.have.been.calledWithExactly(httpRequest, fakeRequest, null, error);
             done();
           }, 50);
         });
@@ -749,7 +753,7 @@ describe('HTTP/S', function() {
           fakeRequest.emit('error', error);
 
           setTimeout(function() {
-            closeStub.should.have.been.calledWithExactly(error, true);
+            closeStub.should.have.been.calledWithExactly(error);
             done();
           }, 50);
         });
@@ -765,7 +769,7 @@ describe('HTTP/S', function() {
           fakeRequest.emit('error', error);
 
           setTimeout(function() {
-            subsegmentCallback.should.have.been.calledWithExactly(subsegment, fakeRequest, null, error);
+            subsegmentCallback.should.have.been.calledWithExactly(httpRequest, fakeRequest, null, error);
             done();
           }, 50);
         });
@@ -801,7 +805,7 @@ describe('HTTP/S', function() {
       it('should return the original request without making a subsegment', () => {
         const request = capturedHttp.request(new url.URL('http://amazon.com'));
         assert.equal(request, fakeRequest);
-        expect(newSubsegmentStub).not.to.be.called;
+        expect(addNewRequestSubsegmentStub).not.to.be.called;
       });
     });
   });
