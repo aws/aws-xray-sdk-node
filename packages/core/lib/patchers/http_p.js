@@ -6,13 +6,13 @@
  * This module patches the HTTP and HTTPS node built-in libraries and returns a copy of the module with tracing enabled.
  */
 
-const url = require('url')
+var url = require('url');
 
-const contextUtils = require('../context_utils')
-const Utils = require('../utils')
+var contextUtils = require('../context_utils');
+var Utils = require('../utils');
 
-const logger = require('../logger')
-const events = require('events')
+var logger = require('../logger');
+var events = require('events');
 
 /**
  * Wraps the http/https.request() and .get() calls to automatically capture information for the segment.
@@ -29,11 +29,11 @@ const events = require('events')
  * @alias module:http_p.captureHTTPsGlobal
  */
 
-const captureHTTPsGlobal = function captureHTTPsGlobal (module, downstreamXRayEnabled, subsegmentCallback) {
+var captureHTTPsGlobal = function captureHTTPsGlobal(module, downstreamXRayEnabled, subsegmentCallback) {
   if (!module.__request) {
-    enableCapture(module, downstreamXRayEnabled, subsegmentCallback)
+    enableCapture(module, downstreamXRayEnabled, subsegmentCallback);
   }
-}
+};
 
 /**
  * Wraps the http/https.request() and .get() calls to automatically capture information for the segment.
@@ -48,106 +48,106 @@ const captureHTTPsGlobal = function captureHTTPsGlobal (module, downstreamXRayEn
  * @returns {http|https}
  */
 
-const captureHTTPs = function captureHTTPs (module, downstreamXRayEnabled, subsegmentCallback) {
+var captureHTTPs = function captureHTTPs(module, downstreamXRayEnabled, subsegmentCallback) {
   if (module.__request) {
-    return module
+    return module;
   }
 
-  const tracedModule = {}
+  var tracedModule = {};
 
-  Object.keys(module).forEach(function (val) {
-    tracedModule[val] = module[val]
-  })
+  Object.keys(module).forEach(function(val) {
+    tracedModule[val] = module[val];
+  });
 
-  enableCapture(tracedModule, downstreamXRayEnabled, subsegmentCallback)
-  return tracedModule
-}
+  enableCapture(tracedModule, downstreamXRayEnabled, subsegmentCallback);
+  return tracedModule;
+};
 
-function enableCapture (module, downstreamXRayEnabled, subsegmentCallback) {
-  function captureOutgoingHTTPs (baseFunc, ...args) {
-    let options
-    let callback
-    let hasUrl
-    let urlObj
+function enableCapture(module, downstreamXRayEnabled, subsegmentCallback) {
+  function captureOutgoingHTTPs(baseFunc, ...args) {
+    let options;
+    let callback;
+    let hasUrl;
+    let urlObj;
 
-    const arg0 = args[0]
+    let arg0 = args[0];
     if (typeof args[1] === 'object') {
-      hasUrl = true
-      urlObj = typeof arg0 === 'string' ? new url.URL(arg0) : arg0
-      options = args[1]
-      callback = args[2]
+      hasUrl = true;
+      urlObj = typeof arg0 === 'string' ? new url.URL(arg0) : arg0;
+      options = args[1],
+      callback = args[2];
     } else {
-      hasUrl = false
-      options = arg0
-      callback = args[1]
+      hasUrl = false;
+      options = arg0;
+      callback = args[1];
     }
 
     // Short circuit if the HTTP request has no options or is already being captured
     if (!options || (options.headers && (options.headers['X-Amzn-Trace-Id']))) {
-      return baseFunc(...args)
+      return baseFunc(...args);
     }
 
     // Case of calling a string URL without options, e.g.: http.request('http://amazon.com', callback)
     if (typeof options === 'string') {
-      options = new url.URL(options)
+      options = new url.URL(options);
     }
 
     if (!hasUrl) {
-      urlObj = options
+      urlObj = options;
     }
 
-    const parent = contextUtils.resolveSegment(contextUtils.resolveManualSegmentParams(options))
-    const hostname = options.hostname || options.host || urlObj.hostname || urlObj.host || 'Unknown host'
+    const parent = contextUtils.resolveSegment(contextUtils.resolveManualSegmentParams(options));
+    const hostname = options.hostname || options.host || urlObj.hostname || urlObj.host || 'Unknown host';
 
     if (!parent) {
-      let output = '[ host: ' + hostname
-      output = options.method ? (output + ', method: ' + options.method) : output
-      output += ', path: ' + (urlObj.pathname || Utils.stripQueryStringFromPath(options.path)) + ' ]'
+      let output = '[ host: ' + hostname;
+      output = options.method ? (output + ', method: ' + options.method) : output;
+      output += ', path: ' + (urlObj.pathname || Utils.stripQueryStringFromPath(options.path)) + ' ]';
 
       if (!contextUtils.isAutomaticMode()) {
         logger.getLogger().info('Options for request ' + output +
-          ' requires a segment object on the options params as "XRaySegment" for tracing in manual mode. Ignoring.')
+          ' requires a segment object on the options params as "XRaySegment" for tracing in manual mode. Ignoring.');
       } else {
         logger.getLogger().info('Options for request ' + output +
-          ' is missing the sub/segment context for automatic mode. Ignoring.')
+          ' is missing the sub/segment context for automatic mode. Ignoring.');
       }
 
       // Options are not modified, only parsed for logging. We can pass in the original arguments.
-      return baseFunc(...args)
+      return baseFunc(...args);
     }
 
-    let subsegment
-    if (parent.notTraced === false || parent.subsegments[parent.subsegments.length - 1].isSampled) {
-      subsegment = parent.addNewSubsegment(hostname)
+    let subsegment;
+    if(parent.notTraced == false || parent.subsegments[parent.subsegments.length - 1].isSampled){
+      subsegment = parent.addNewSubsegment(hostname);
     } else {
-      subsegment = parent.addNewSubsegmentWithoutSampling(hostname)
+      subsegment = parent.addNewSubsegmentWithoutSampling(hostname);
     }
-
-    const root = parent.segment ? parent.segment : parent
-    subsegment.namespace = 'remote'
+    
+    const root = parent.segment ? parent.segment : parent;
+    subsegment.namespace = 'remote';
 
     if (!options.headers) {
-      options.headers = {}
+      options.headers = {};
     }
-
+    
     options.headers['X-Amzn-Trace-Id'] = 'Root=' + root.trace_id + ';Parent=' + subsegment.id +
-      ';Sampled=' + (subsegment.isSampled ? '1' : '0')
+      ';Sampled=' + (subsegment.isSampled ? '1' : '0');
 
-    const errorCapturer = function errorCapturer (e) {
+    const errorCapturer = function errorCapturer(e) {
       if (subsegmentCallback) {
-        subsegmentCallback(subsegment, this, null, e)
+        subsegmentCallback(subsegment, this, null, e);
       }
 
       if (subsegment.http && subsegment.http.response) {
         if (Utils.getCauseTypeFromHttpStatus(subsegment.http.response.status) === 'error') {
-          subsegment.addErrorFlag()
+          subsegment.addErrorFlag();
         }
-        subsegment.close(e, true)
+        subsegment.close(e, true);
       } else {
-        const madeItToDownstream = (e.code !== 'ECONNREFUSED')
+        const madeItToDownstream = (e.code !== 'ECONNREFUSED');
 
-        subsegment.addRemoteRequestData(this, null, madeItToDownstream && downstreamXRayEnabled)
-        subsegment.close(e)
+        subsegment.addRemoteRequestData(this, null, madeItToDownstream && downstreamXRayEnabled);
+        subsegment.close(e);
       }
 
       // Only need to remove our listener & re-emit if we're not listening using the errorMonitor,
@@ -155,74 +155,74 @@ function enableCapture (module, downstreamXRayEnabled, subsegmentCallback) {
       // See: https://github.com/aws/aws-xray-sdk-node/issues/318
       // TODO: Remove this logic once node 12 support is deprecated
       if (!events.errorMonitor && this.listenerCount('error') <= 1) {
-        this.removeListener('error', errorCapturer)
-        this.emit('error', e)
+        this.removeListener('error', errorCapturer);
+        this.emit('error', e);
       }
-    }
+    };
 
-    const optionsCopy = Utils.objectWithoutProperties(options, ['Segment'], true)
+    const optionsCopy = Utils.objectWithoutProperties(options, ['Segment'], true);
 
-    const req = baseFunc(...(hasUrl ? [arg0, optionsCopy] : [options]), function (res) {
-      res.on('end', function () {
+    let req = baseFunc(...(hasUrl ? [arg0, optionsCopy] : [options]), function(res) {
+      res.on('end', function() {
         if (subsegmentCallback) {
-          subsegmentCallback(subsegment, this.req, res)
+          subsegmentCallback(subsegment, this.req, res);
         }
 
         if (res.statusCode === 429) {
-          subsegment.addThrottleFlag()
+          subsegment.addThrottleFlag();
         }
 
-        const cause = Utils.getCauseTypeFromHttpStatus(res.statusCode)
+        const cause = Utils.getCauseTypeFromHttpStatus(res.statusCode);
 
         if (cause) {
-          subsegment[cause] = true
+          subsegment[cause] = true;
         }
 
-        subsegment.addRemoteRequestData(res.req, res, !!downstreamXRayEnabled)
-        subsegment.close()
-      })
+        subsegment.addRemoteRequestData(res.req, res, !!downstreamXRayEnabled);
+        subsegment.close();
+      });
 
       if (typeof callback === 'function') {
         if (contextUtils.isAutomaticMode()) {
-          const session = contextUtils.getNamespace()
+          const session = contextUtils.getNamespace();
 
-          session.run(function () {
-            contextUtils.setSegment(subsegment)
-            callback(res)
-          })
+          session.run(function() {
+            contextUtils.setSegment(subsegment);
+            callback(res);
+          });
         } else {
-          callback(res)
+          callback(res);
         }
         // if no callback provided by user application, AND no explicit response listener
         // added by user application, then we consume the response so the 'end' event fires
         // See: https://nodejs.org/api/http.html#http_class_http_clientrequest
       } else if (res.req && res.req.listenerCount('response') === 0) {
-        res.resume()
+        res.resume();
       }
-    })
+    });
 
     // Use errorMonitor if available (in Node 12.17+), otherwise fall back to standard error listener
     // See: https://nodejs.org/dist/latest-v12.x/docs/api/events.html#events_eventemitter_errormonitor
-    req.on(events.errorMonitor || 'error', errorCapturer)
+    req.on(events.errorMonitor || 'error', errorCapturer);
 
-    return req
+    return req;
   }
 
-  module.__request = module.request
-  function captureHTTPsRequest (...args) {
-    return captureOutgoingHTTPs(module.__request, ...args)
+  module.__request = module.request;
+  function captureHTTPsRequest(...args) {
+    return captureOutgoingHTTPs(module.__request, ...args);
   }
 
-  module.__get = module.get
-  function captureHTTPsGet (...args) {
-    return captureOutgoingHTTPs(module.__get, ...args)
+  module.__get = module.get;
+  function captureHTTPsGet(...args) {
+    return captureOutgoingHTTPs(module.__get, ...args);
   }
 
   Object.defineProperties(module, {
     request: { value: captureHTTPsRequest, configurable: true, enumerable: true, writable: true },
-    get: { value: captureHTTPsGet, configurable: true, enumerable: true, writable: true }
-  })
+    get: { value: captureHTTPsGet, configurable: true, enumerable: true, writable: true },
+  });
 }
 
-module.exports.captureHTTPsGlobal = captureHTTPsGlobal
-module.exports.captureHTTPs = captureHTTPs
+module.exports.captureHTTPsGlobal = captureHTTPsGlobal;
+module.exports.captureHTTPs = captureHTTPs;
