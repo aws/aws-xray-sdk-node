@@ -307,7 +307,7 @@ describe('AWS patcher', function() {
       awsRequest.emitter = new MyEmitter();
 
       segment = new Segment('testSegment', traceId);
-      sub = segment.addNewSubsegmentWithoutSampling("subseg");
+      sub = segment.addNewSubsegmentWithoutSampling('subseg');
 
       stubResolveManual = sandbox.stub(contextUtils, 'resolveManualSegmentParams');
       stubResolve = sandbox.stub(contextUtils, 'resolveSegment').returns(segment);

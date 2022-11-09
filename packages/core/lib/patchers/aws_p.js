@@ -78,18 +78,17 @@ function captureAWSRequest(req) {
   var stack = (new Error()).stack;
 
   let subsegment;
-  if(parent.notTraced == false || parent.subsegments[parent.subsegments.length - 1].isSampled){
-    subsegment = parent.addNewSubsegment(this.serviceIdentifier);
-  } else {
+  if (parent.subsegments && parent.subsegments[parent.subsegments.length - 1].notTraced) {
     subsegment = parent.addNewSubsegmentWithoutSampling(this.serviceIdentifier);
+  } else {
+    subsegment = parent.addNewSubsegment(this.serviceIdentifier);
   }
 
   var traceId = parent.segment ? parent.segment.trace_id : parent.trace_id;
 
   var buildListener = function(req) {
     req.httpRequest.headers['X-Amzn-Trace-Id'] = 'Root=' + traceId + ';Parent=' + subsegment.id +
-      ';Sampled=' + (subsegment.isSampled ? '1' : '0');
-      
+      ';Sampled=' + (subsegment.notTraced ? '0' : '1');
   };
 
   var completeListener = function(res) {

@@ -264,7 +264,7 @@ describe('Segment', function() {
     });
   });
 
-  describe('#addSubsegmentWithoutSampling', function (){
+  describe('#addSubsegmentWithoutSampling', function () {
     let sandbox, setSegmentStub;
 
     beforeEach(function() {
@@ -276,8 +276,8 @@ describe('Segment', function() {
       sandbox.restore();
     });
 
-    it('should have isSampled flag set to false for subsegment of Lambda facade segment', function(){
-      process.env._X_AMZN_TRACE_ID = "Root=1-57ff426a-80c11c39b0c928905eb0828d;Parent=1234abcd1234abcd;Sampled=1";
+    it('should have notTraced flag set to true for unsampled subsegment of Lambda facade segment', function() {
+      process.env._X_AMZN_TRACE_ID = 'Root=1-57ff426a-80c11c39b0c928905eb0828d;Parent=1234abcd1234abcd;Sampled=1';
 
       Lambda.init();
 
@@ -285,63 +285,63 @@ describe('Segment', function() {
 
       let facade = setSegmentStub.args[0][0];
       let unsampledSegment = facade.addNewSubsegmentWithoutSampling('unsampled-subsegment');
-      assert.equal(unsampledSegment.isSampled, false);
-    })
+      assert.equal(unsampledSegment.notTraced, true);
+    });
 
-    it('should have isSampled flag set to true for subsegment of Lambda facade segment', function(){
-      process.env._X_AMZN_TRACE_ID = "Root=1-57ff426a-80c11c39b0c928905eb0828d;Parent=1234abcd1234abcd;Sampled=1";
+    it('should have notTraced flag set to undefined for subsegment of Lambda facade segment', function() {
+      process.env._X_AMZN_TRACE_ID = 'Root=1-57ff426a-80c11c39b0c928905eb0828d;Parent=1234abcd1234abcd;Sampled=1';
       Lambda.init();
 
       setSegmentStub.should.have.been.calledOnce;
 
       let facade = setSegmentStub.args[0][0];
       let sampledSubsegment = facade.addNewSubsegment('sampled-subsegment');
-      assert.equal(sampledSubsegment.isSampled, true);
-    })
+      assert.equal(sampledSubsegment.notTraced, undefined);
+    });
 
-    it('should have isSampled flag set to false', function(){
+    it('should have notTraced flag set to true', function() {
       var segment = new Segment('parent');
       var child = new Subsegment('child');
       segment.addSubsegmentWithoutSampling(child);
 
-      assert.equal(child.isSampled, false);
-    })
+      assert.equal(child.notTraced, true);
+    });
 
-    it('should have isSampled flag set to false for new subsegment', function(){
+    it('should have notTraced flag set to true for new unsampled subsegment', function() {
       var segment = new Segment('parent');
       var child = segment.addNewSubsegmentWithoutSampling('child');
 
-      assert.equal(child.isSampled, false);
-    })
+      assert.equal(child.notTraced, true);
+    });
 
 
 
-    it('should not sample subsegment or subsegment of subsegment', function(){
+    it('should not sample subsegment or subsegment of subsegment', function() {
       var segment = new Segment('parent');
       var child = new Subsegment('child');
       var child2 = new Subsegment('child-2');
       segment.addSubsegmentWithoutSampling(child);
-      child.addSubsegmentWithoutSampling(child2)
+      child.addSubsegmentWithoutSampling(child2);
 
-      assert.equal(child.isSampled, false);
-      assert.equal(child2.isSampled, false);
-    })
+      assert.equal(child.notTraced, true);
+      assert.equal(child2.notTraced, true);
+    });
 
-    it('should not sample subsegment or subsegment of subsegment - mix', function(){
+    it('should not sample subsegment or subsegment of subsegment - mix', function() {
       const segment = new Segment('parent');
       const child = new Subsegment('child');
       const child2 = new Subsegment('child-2');
       const child3 = new Subsegment('child-3');
       segment.addSubsegmentWithoutSampling(child);
-      child.addSubsegment(child2)
-      const child4 = child2.addNewSubsegment('child-4')
+      child.addSubsegment(child2);
+      const child4 = child2.addNewSubsegment('child-4');
       child.addSubsegmentWithoutSampling(child3);
 
-      assert.equal(child.isSampled, false);
-      assert.equal(child2.isSampled, false);
-      assert.equal(child3.isSampled, false);
-      assert.equal(child4.isSampled, false);
-    })
+      assert.equal(child.notTraced, true);
+      assert.equal(child2.notTraced, true);
+      assert.equal(child3.notTraced, true);
+      assert.equal(child4.notTraced, true);
+    });
   });
 
   describe('#addError', function() {

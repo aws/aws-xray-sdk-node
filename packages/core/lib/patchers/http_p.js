@@ -117,21 +117,21 @@ function enableCapture(module, downstreamXRayEnabled, subsegmentCallback) {
     }
 
     let subsegment;
-    if(parent.notTraced == false || parent.subsegments[parent.subsegments.length - 1].isSampled){
-      subsegment = parent.addNewSubsegment(hostname);
-    } else {
+    if (parent.subsegments && parent.subsegments[parent.subsegments.length - 1].notTraced) {
       subsegment = parent.addNewSubsegmentWithoutSampling(hostname);
+    } else {
+      subsegment = parent.addNewSubsegment(hostname);
     }
-    
+
     const root = parent.segment ? parent.segment : parent;
     subsegment.namespace = 'remote';
 
     if (!options.headers) {
       options.headers = {};
     }
-    
+
     options.headers['X-Amzn-Trace-Id'] = 'Root=' + root.trace_id + ';Parent=' + subsegment.id +
-      ';Sampled=' + (subsegment.isSampled ? '1' : '0');
+      ';Sampled=' + (subsegment.notTraced ? '0' : '1');
 
     const errorCapturer = function errorCapturer(e) {
       if (subsegmentCallback) {

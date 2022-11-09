@@ -217,17 +217,17 @@ Segment.prototype.addNewSubsegment = function addNewSubsegment(name) {
   return subsegment;
 };
 
-Segment.prototype.addSubsegmentWithoutSampling = function addSubsegmentWithoutSampling(subsegment){
+Segment.prototype.addSubsegmentWithoutSampling = function addSubsegmentWithoutSampling(subsegment) {
   this.addSubsegment(subsegment);
-  subsegment.isSampled = false;
-  
+  subsegment.notTraced = true;
+
 };
 
-Segment.prototype.addNewSubsegmentWithoutSampling = function addNewSubsegmentWithoutSampling(name){
+Segment.prototype.addNewSubsegmentWithoutSampling = function addNewSubsegmentWithoutSampling(name) {
   const subsegment = new Subsegment(name);
   this.addSubsegment(subsegment);
-    subsegment.isSampled = false;
-  return subsegment; 
+  subsegment.notTraced = true;
+  return subsegment;
 };
 
 /**
@@ -247,7 +247,7 @@ Segment.prototype.addSubsegment = function addSubsegment(subsegment) {
   subsegment.segment = this;
   subsegment.parent = this;
 
-  subsegment.isSampled = !subsegment.parent.notTraced;
+  subsegment.notTraced = subsegment.parent.notTraced;
   this.subsegments.push(subsegment);
 
   if (!subsegment.end_time) {

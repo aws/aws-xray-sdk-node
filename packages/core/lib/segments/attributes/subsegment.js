@@ -28,7 +28,7 @@ Subsegment.prototype.init = function init(name) {
   this.start_time = SegmentUtils.getCurrentTime();
   this.in_progress = true;
   this.counter = 0;
-  this.isSampled = true;
+  this.notTraced = false;
 };
 
 /**
@@ -43,16 +43,16 @@ Subsegment.prototype.addNewSubsegment = function addNewSubsegment(name) {
   return subsegment;
 };
 
-Subsegment.prototype.addSubsegmentWithoutSampling = function addSubsegmentWithoutSampling(subsegment){
+Subsegment.prototype.addSubsegmentWithoutSampling = function addSubsegmentWithoutSampling(subsegment) {
   this.addSubsegment(subsegment);
-  subsegment.isSampled = false;
+  subsegment.notTraced = true;
 };
 
-Subsegment.prototype.addNewSubsegmentWithoutSampling = function addNewSubsegmentWithoutSampling(name){
+Subsegment.prototype.addNewSubsegmentWithoutSampling = function addNewSubsegmentWithoutSampling(name) {
   const subsegment = new Subsegment(name);
   this.addSubsegment(subsegment);
-  subsegment.isSampled = false;
-  return subsegment; 
+  subsegment.notTraced = true;
+  return subsegment;
 };
 
 /**
@@ -64,7 +64,7 @@ Subsegment.prototype.addSubsegment = function(subsegment) {
   if (!(subsegment instanceof Subsegment)) {
     throw new Error('Failed to add subsegment:' + subsegment + ' to subsegment "' + this.name +
       '".  Not a subsegment.');
-  } 
+  }
 
   if (this.subsegments === undefined) {
     this.subsegments = [];
@@ -73,7 +73,7 @@ Subsegment.prototype.addSubsegment = function(subsegment) {
   subsegment.segment = this.segment;
   subsegment.parent = this;
 
-  subsegment.isSampled = subsegment.parent.isSampled;
+  subsegment.notTraced = subsegment.parent.notTraced;
 
   if (subsegment.end_time === undefined) {
     this.incrementCounter(subsegment.counter);
@@ -355,7 +355,7 @@ Subsegment.prototype.flush = function flush() {
   }
 
   if (this.segment.trace_id) {
-    if (this.segment.notTraced !== true && this.isSampled) {
+    if (this.segment.notTraced !== true && !this.notTraced) {
       SegmentEmitter.send(this);
     } else {
       logger.getLogger().debug('Ignoring flush on subsegment ' + this.id + '. Associated segment is marked as not sampled.');
@@ -377,7 +377,7 @@ Subsegment.prototype.streamSubsegments = function streamSubsegments() {
     var open = [];
 
     this.subsegments.forEach(function(child) {
-      if (!child.streamSubsegments()) { 
+      if (!child.streamSubsegments()) {
         open.push(child);
       }
     });

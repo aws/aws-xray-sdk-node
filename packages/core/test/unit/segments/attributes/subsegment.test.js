@@ -103,34 +103,34 @@ describe('Subsegment', function() {
     });
   });
 
-  describe('#addSubsegmentWithoutSampling', function (){
-    it('should have isSampled flag set to false', function(){
+  describe('#addSubsegmentWithoutSampling', function () {
+    it('should have notTraced flag set to true', function() {
       const subsegment = new Subsegment('test');
-      const child = new Subsegment('child')
+      const child = new Subsegment('child');
       subsegment.addSubsegmentWithoutSampling(child);
 
-      assert.equal(subsegment.isSampled, true);
-      assert.equal(child.isSampled, false);
-    })
+      assert.equal(subsegment.notTraced, false);
+      assert.equal(child.notTraced, true);
+    });
 
-    it('should have isSampled flag set to false for new subsegment', function(){
+    it('should have notTraced flag set to true for new unsampled subsegment', function() {
       const subsegment = new Subsegment('test');
       const child = subsegment.addNewSubsegmentWithoutSampling('child');
 
-      assert.equal(subsegment.isSampled, true);
-      assert.equal(child.isSampled, false);
-    })
+      assert.equal(subsegment.notTraced, false);
+      assert.equal(child.notTraced, true);
+    });
 
-    it('should respect the direct parent’s sampling decision', function(){
+    it('should respect the direct parent’s sampling decision', function() {
       const subsegment = new Subsegment('test');
       const child = new Subsegment('child');
       subsegment.addSubsegmentWithoutSampling(child);
       const child2 = child.addNewSubsegment('child2');
 
-      assert.equal(subsegment.isSampled, true);
-      assert.equal(child.isSampled, false);
-      assert.equal(child2.isSampled, false);
-    })
+      assert.equal(subsegment.notTraced, false);
+      assert.equal(child.notTraced, true);
+      assert.equal(child2.notTraced, true);
+    });
   });
 
   describe('#addError', function() {
@@ -323,14 +323,14 @@ describe('Subsegment', function() {
       emitStub.should.have.not.been.called;
     });
 
-    it('should not send if the isSampled property evaluates to false', function() {
+    it('should not send if the notTraced property evaluates to true', function() {
       unsampledChild.flush();
       emitStub.should.have.not.been.called;
     });
 
     it('should send if the notTraced property evaluates to false', function() {
-        child.flush();
-        emitStub.should.have.been.called;
+      child.flush();
+      emitStub.should.have.been.called;
     });
   });
 
