@@ -53,7 +53,7 @@
     "upath": "^1.2.0"
   },
   "engines": {
-    "node": ">= 12.x",
+    "node": ">= 14.x",
     "npm": ">= 2.x"
   },
   "dependencies": {
