@@ -104,21 +104,21 @@ describe('Subsegment', function () {
   })
 
   describe('#addSubsegmentWithoutSampling', function () {
-    it('should have notTraced flag set to true', function () {
+    it('should have isSampled flag set to false', function () {
       const subsegment = new Subsegment('test')
       const child = new Subsegment('child')
       subsegment.addSubsegmentWithoutSampling(child)
 
-      assert.equal(subsegment.notTraced, false)
-      assert.equal(child.notTraced, true)
+      assert.equal(subsegment.isSampled, true)
+      assert.equal(child.isSampled, false)
     })
 
-    it('should have notTraced flag set to true for new unsampled subsegment', function () {
+    it('should have isSampled flag set to false for new subsegment', function () {
       const subsegment = new Subsegment('test')
       const child = subsegment.addNewSubsegmentWithoutSampling('child')
 
-      assert.equal(subsegment.notTraced, false)
-      assert.equal(child.notTraced, true)
+      assert.equal(subsegment.isSampled, true)
+      assert.equal(child.isSampled, false)
     })
 
     it('should respect the direct parent’s sampling decision', function () {
@@ -127,9 +127,9 @@ describe('Subsegment', function () {
       subsegment.addSubsegmentWithoutSampling(child)
       const child2 = child.addNewSubsegment('child2')
 
-      assert.equal(subsegment.notTraced, false)
-      assert.equal(child.notTraced, true)
-      assert.equal(child2.notTraced, true)
+      assert.equal(subsegment.isSampled, true)
+      assert.equal(child.isSampled, false)
+      assert.equal(child2.isSampled, false)
     })
   })
 
@@ -323,7 +323,7 @@ describe('Subsegment', function () {
       emitStub.should.have.not.been.called
     })
 
-    it('should not send if the notTraced property of subsegment evaluates to True', function () {
+    it('should not send if the isSampled property evaluates to false', function () {
       unsampledChild.flush()
       emitStub.should.have.not.been.called
     })

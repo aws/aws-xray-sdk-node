@@ -1,151 +1,151 @@
-const assert = require('chai').assert;
-const expect = require('chai').expect;
-const chai = require('chai');
-const sinon = require('sinon');
-const sinonChai = require('sinon-chai');
-const url = require('url');
-const events = require('events');
+const assert = require('chai').assert
+const expect = require('chai').expect
+const chai = require('chai')
+const sinon = require('sinon')
+const sinonChai = require('sinon-chai')
+const url = require('url')
+const events = require('events')
 
-const captureHTTPs = require('../../../lib/patchers/http_p').captureHTTPs;
-const captureHTTPsGlobal = require('../../../lib/patchers/http_p').captureHTTPsGlobal;
-const contextUtils = require('../../../lib/context_utils');
-const Utils = require('../../../lib/utils');
-const Segment = require('../../../lib/segments/segment');
-const TestEmitter = require('../test_utils').TestEmitter;
+const captureHTTPs = require('../../../lib/patchers/http_p').captureHTTPs
+const captureHTTPsGlobal = require('../../../lib/patchers/http_p').captureHTTPsGlobal
+const contextUtils = require('../../../lib/context_utils')
+const Utils = require('../../../lib/utils')
+const Segment = require('../../../lib/segments/segment')
+const TestEmitter = require('../test_utils').TestEmitter
 
-chai.should();
-chai.use(sinonChai);
+chai.should()
+chai.use(sinonChai)
 
 const buildFakeRequest = function () {
-  const request = new TestEmitter();
-  request.method = 'GET';
-  request.url = '/';
-  request.connection = { remoteAddress: 'myhost' };
-  return request;
-};
+  const request = new TestEmitter()
+  request.method = 'GET'
+  request.url = '/'
+  request.connection = { remoteAddress: 'myhost' }
+  return request
+}
 
 const buildFakeResponse = function () {
-  const response = new TestEmitter();
+  const response = new TestEmitter()
   response.resume = function () {
-    response.emit('resume');
-  };
-  return response;
-};
+    response.emit('resume')
+  }
+  return response
+}
 
 describe('HTTP/S', function () {
   describe('patchers', function () {
-    let httpClient;
+    let httpClient
 
     beforeEach(function () {
       httpClient = {
         request: function request () {},
         get: function get () {}
-      };
-    });
+      }
+    })
 
     describe('#captureHTTPs', function () {
       it('should create a copy of the module', function () {
-        const capturedHttp = captureHTTPs(httpClient, true);
-        assert.notEqual(httpClient, capturedHttp);
-      });
+        const capturedHttp = captureHTTPs(httpClient, true)
+        assert.notEqual(httpClient, capturedHttp)
+      })
 
       it('should stub out the request method for the capture one', function () {
-        const capturedHttp = captureHTTPs(httpClient, true);
-        assert.equal(capturedHttp.request.name, 'captureHTTPsRequest');
-        assert.equal(capturedHttp.__request.name, 'request');
-      });
+        const capturedHttp = captureHTTPs(httpClient, true)
+        assert.equal(capturedHttp.request.name, 'captureHTTPsRequest')
+        assert.equal(capturedHttp.__request.name, 'request')
+      })
 
       it('should stub out the get method for the capture one', function () {
-        const capturedHttp = captureHTTPs(httpClient, true);
-        assert.equal(capturedHttp.get.name, 'captureHTTPsGet');
-        assert.equal(capturedHttp.__get.name, 'get');
-      });
-    });
+        const capturedHttp = captureHTTPs(httpClient, true)
+        assert.equal(capturedHttp.get.name, 'captureHTTPsGet')
+        assert.equal(capturedHttp.__get.name, 'get')
+      })
+    })
 
     describe('#captureHTTPsGlobal', function () {
-      let httpOptions, newSubsegmentStub, sandbox, segment;
+      let httpOptions, newSubsegmentStub, sandbox, segment
 
       beforeEach(function () {
-        sandbox = sinon.createSandbox();
-        segment = new Segment('test');
-        newSubsegmentStub = sandbox.spy(segment, 'addNewSubsegment');
+        sandbox = sinon.createSandbox()
+        segment = new Segment('test')
+        newSubsegmentStub = sandbox.spy(segment, 'addNewSubsegment')
         httpOptions = {
           host: 'myhost',
           path: '/'
-        };
-      });
+        }
+      })
 
       afterEach(function () {
-        sandbox.restore();
-      });
+        sandbox.restore()
+      })
 
       it('should stub out the request method for the capture one', function () {
-        captureHTTPsGlobal(httpClient, true);
-        assert.equal(httpClient.request.name, 'captureHTTPsRequest');
-        assert.equal(httpClient.__request.name, 'request');
-      });
+        captureHTTPsGlobal(httpClient, true)
+        assert.equal(httpClient.request.name, 'captureHTTPsRequest')
+        assert.equal(httpClient.__request.name, 'request')
+      })
 
       it('should stub out the get method for the capture one', function () {
-        captureHTTPsGlobal(httpClient, true);
-        assert.equal(httpClient.get.name, 'captureHTTPsGet');
-        assert.equal(httpClient.__get.name, 'get');
-      });
+        captureHTTPsGlobal(httpClient, true)
+        assert.equal(httpClient.get.name, 'captureHTTPsGet')
+        assert.equal(httpClient.__get.name, 'get')
+      })
 
       it('should not create a subsegment when using uninstrumented client', function () {
-        captureHTTPsGlobal(httpClient, true);
+        captureHTTPsGlobal(httpClient, true)
 
-        httpClient.__request(httpOptions, () => {});
+        httpClient.__request(httpOptions, () => {})
 
-        expect(newSubsegmentStub).not.to.be.called;
-      });
-    });
-  });
+        expect(newSubsegmentStub).not.to.be.called
+      })
+    })
+  })
 
   describe('#captureHTTPsRequest', function () {
-    let addRemoteDataStub, closeStub, httpOptions, newSubsegmentStub, resolveManualStub, sandbox, segment, subsegment;
-    const traceId = '1-57fbe041-2c7ad569f5d6ff149137be86';
+    let addRemoteDataStub, closeStub, httpOptions, newSubsegmentStub, resolveManualStub, sandbox, segment, subsegment
+    const traceId = '1-57fbe041-2c7ad569f5d6ff149137be86'
 
     beforeEach(function () {
-      sandbox = sinon.createSandbox();
-      segment = new Segment('test', traceId);
-      subsegment = segment.addNewSubsegment('testSub');
+      sandbox = sinon.createSandbox()
+      segment = new Segment('test', traceId)
+      subsegment = segment.addNewSubsegment('testSub')
 
-      newSubsegmentStub = sandbox.stub(segment, 'addNewSubsegment').returns(subsegment);
+      newSubsegmentStub = sandbox.stub(segment, 'addNewSubsegment').returns(subsegment)
 
-      resolveManualStub = sandbox.stub(contextUtils, 'resolveManualSegmentParams');
-      sandbox.stub(contextUtils, 'isAutomaticMode').returns(true);
-      addRemoteDataStub = sandbox.stub(subsegment, 'addRemoteRequestData').returns();
-      closeStub = sandbox.stub(subsegment, 'close').returns();
+      resolveManualStub = sandbox.stub(contextUtils, 'resolveManualSegmentParams')
+      sandbox.stub(contextUtils, 'isAutomaticMode').returns(true)
+      addRemoteDataStub = sandbox.stub(subsegment, 'addRemoteRequestData').returns()
+      closeStub = sandbox.stub(subsegment, 'close').returns()
 
       httpOptions = {
         host: 'myhost',
         path: '/'
-      };
-    });
+      }
+    })
 
     afterEach(function () {
-      sandbox.restore();
-    });
+      sandbox.restore()
+    })
 
     describe('#withContextAvailable', () => {
       beforeEach(() => {
-        sandbox.stub(contextUtils, 'resolveSegment').returns(segment);
-      });
+        sandbox.stub(contextUtils, 'resolveSegment').returns(segment)
+      })
 
       afterEach(() => {
-        sandbox.restore();
-      });
+        sandbox.restore()
+      })
 
       describe('on invocation', function () {
-        let capturedHttp, fakeRequest, fakeResponse, httpClient, requestSpy, resumeSpy, sandbox;
+        let capturedHttp, fakeRequest, fakeResponse, httpClient, requestSpy, resumeSpy, sandbox
 
         beforeEach(function () {
-          sandbox = sinon.createSandbox();
-          segment = new Segment('test', traceId);
+          sandbox = sinon.createSandbox()
+          segment = new Segment('test', traceId)
 
-          fakeRequest = buildFakeRequest();
-          fakeResponse = buildFakeResponse();
-          fakeResponse.req = fakeRequest;
+          fakeRequest = buildFakeRequest()
+          fakeResponse = buildFakeResponse()
+          fakeResponse.req = fakeRequest
 
           httpClient = {
             request: function (...args) {
@@ -153,661 +153,661 @@ describe('HTTP/S', function () {
               callback(fakeResponse)
               return fakeRequest
             }
-          };
-          httpClient.get = httpClient.request;
+          }
+          httpClient.get = httpClient.request
 
-          resumeSpy = sandbox.spy(fakeResponse, 'resume');
-          requestSpy = sandbox.spy(httpClient, 'request');
-          capturedHttp = captureHTTPs(httpClient, true);
-        });
+          resumeSpy = sandbox.spy(fakeResponse, 'resume')
+          requestSpy = sandbox.spy(httpClient, 'request')
+          capturedHttp = captureHTTPs(httpClient, true)
+        })
 
         afterEach(function () {
-          sandbox.restore();
-        });
+          sandbox.restore()
+        })
 
         it('should call to resolve any manual params', function () {
-          const options = { hostname: 'hostname', path: '/' };
-          capturedHttp.request(options);
+          const options = { hostname: 'hostname', path: '/' }
+          capturedHttp.request(options)
 
-          resolveManualStub.should.have.been.calledWith(options);
-        });
+          resolveManualStub.should.have.been.calledWith(options)
+        })
 
         it('should consume the response if no callback is provided by user', function () {
-          capturedHttp.request(httpOptions); // no callback
-          resumeSpy.should.have.been.calledOnce;
-        });
+          capturedHttp.request(httpOptions) // no callback
+          resumeSpy.should.have.been.calledOnce
+        })
 
         it('should not consume the response if a callback is provided by user', function () {
-          capturedHttp.request(httpOptions, () => {});
-          resumeSpy.should.not.have.been.called;
-        });
+          capturedHttp.request(httpOptions, () => {})
+          resumeSpy.should.not.have.been.called
+        })
 
         it('should not consume the response if a response listener is provided by user', function () {
-          fakeRequest.on('response', () => {});
-          capturedHttp.request(httpOptions);
-          resumeSpy.should.not.have.been.called;
-        });
+          fakeRequest.on('response', () => {})
+          capturedHttp.request(httpOptions)
+          resumeSpy.should.not.have.been.called
+        })
 
         it('should create a new subsegment with name as hostname', function () {
-          const options = { hostname: 'hostname', path: '/' };
-          capturedHttp.request(options);
-          newSubsegmentStub.should.have.been.calledWith(options.hostname);
-        });
+          const options = { hostname: 'hostname', path: '/' }
+          capturedHttp.request(options)
+          newSubsegmentStub.should.have.been.calledWith(options.hostname)
+        })
 
         it('should create a new subsegment with name as host when hostname is missing', function () {
-          capturedHttp.request(httpOptions);
-          newSubsegmentStub.should.have.been.calledWith(httpOptions.host);
-        });
+          capturedHttp.request(httpOptions)
+          newSubsegmentStub.should.have.been.calledWith(httpOptions.host)
+        })
 
         it('should create a new subsegment with name as "Unknown host" when host and hostname is missing', function () {
-          capturedHttp.request({ path: '/' });
-          newSubsegmentStub.should.have.been.calledWith('Unknown host');
-        });
+          capturedHttp.request({ path: '/' })
+          newSubsegmentStub.should.have.been.calledWith('Unknown host')
+        })
 
         it('should pass when a string is passed', function () {
-          capturedHttp.request('http://hostname/api');
-          newSubsegmentStub.should.have.been.calledWith('hostname');
-          capturedHttp.get('http://hostname/api');
-          newSubsegmentStub.should.have.been.calledWith('hostname');
-        });
+          capturedHttp.request('http://hostname/api')
+          newSubsegmentStub.should.have.been.calledWith('hostname')
+          capturedHttp.get('http://hostname/api')
+          newSubsegmentStub.should.have.been.calledWith('hostname')
+        })
 
         it('should pass when a URL is passed', function () {
-          const options = new url.URL('http://hostname/api');
-          capturedHttp.request(options);
-          newSubsegmentStub.should.have.been.calledWith('hostname');
-        });
+          const options = new url.URL('http://hostname/api')
+          capturedHttp.request(options)
+          newSubsegmentStub.should.have.been.calledWith('hostname')
+        })
 
         it('should call the base method', function () {
-          capturedHttp.request({ Segment: segment });
-          assert(requestSpy.called);
-        });
+          capturedHttp.request({ Segment: segment })
+          assert(requestSpy.called)
+        })
 
         it('should attach an event handler to the "end" event', function () {
-          capturedHttp.request(httpOptions);
-          assert.isFunction(fakeResponse._events.end);
-        });
+          capturedHttp.request(httpOptions)
+          assert.isFunction(fakeResponse._events.end)
+        })
 
         it('should inject the tracing headers', function () {
-          capturedHttp.request(httpOptions);
+          capturedHttp.request(httpOptions)
 
           // example: 'Root=1-59138384-82ff54d5ba9282f0c680adb3;Parent=53af362e4e4efeb8;Sampled=1'
-          const xAmznTraceId = new RegExp('^Root=' + traceId + ';Parent=([a-f0-9]{16});Sampled=1$');
-          const options = requestSpy.firstCall.args[0];
-          assert.match(options.headers['X-Amzn-Trace-Id'], xAmznTraceId);
-        });
+          const xAmznTraceId = new RegExp('^Root=' + traceId + ';Parent=([a-f0-9]{16});Sampled=1$')
+          const options = requestSpy.firstCall.args[0]
+          assert.match(options.headers['X-Amzn-Trace-Id'], xAmznTraceId)
+        })
 
         it('should inject the tracing headers into the options if a URL is also provided', function () {
-          capturedHttp.request(`http://${httpOptions.host}${httpOptions.path}`, httpOptions);
+          capturedHttp.request(`http://${httpOptions.host}${httpOptions.path}`, httpOptions)
 
           // example: 'Root=1-59138384-82ff54d5ba9282f0c680adb3;Parent=53af362e4e4efeb8;Sampled=1'
-          const xAmznTraceId = new RegExp('^Root=' + traceId + ';Parent=([a-f0-9]{16});Sampled=1$');
-          const options = requestSpy.firstCall.args[1];
-          assert.match(options.headers['X-Amzn-Trace-Id'], xAmznTraceId);
-        });
+          const xAmznTraceId = new RegExp('^Root=' + traceId + ';Parent=([a-f0-9]{16});Sampled=1$')
+          const options = requestSpy.firstCall.args[1]
+          assert.match(options.headers['X-Amzn-Trace-Id'], xAmznTraceId)
+        })
 
         it('should return the request object', function () {
-          const request = capturedHttp.request(httpOptions);
-          assert.equal(request, fakeRequest);
-        });
-      });
+          const request = capturedHttp.request(httpOptions)
+          assert.equal(request, fakeRequest)
+        })
+      })
 
       describe('on the "end" event', function () {
-        let capturedHttp, fakeRequest, fakeResponse, httpClient, sandbox;
+        let capturedHttp, fakeRequest, fakeResponse, httpClient, sandbox
 
         beforeEach(function () {
-          sandbox = sinon.createSandbox();
+          sandbox = sinon.createSandbox()
 
-          fakeRequest = buildFakeRequest();
-          fakeResponse = buildFakeResponse();
+          fakeRequest = buildFakeRequest()
+          fakeResponse = buildFakeResponse()
           // We need to manually link resume and end to mimic the real response
           // per https://nodejs.org/api/http.html#http_class_http_clientrequest
           fakeResponse.resume = function () {
-            fakeResponse.emit('end');
-          };
+            fakeResponse.emit('end')
+          }
 
           httpClient = {
             request: function (options, callback) {
-              fakeResponse.req = fakeRequest;
-              callback(fakeResponse);
-              return fakeRequest;
+              fakeResponse.req = fakeRequest
+              callback(fakeResponse)
+              return fakeRequest
             }
-          };
+          }
 
-          capturedHttp = captureHTTPs(httpClient);
-        });
+          capturedHttp = captureHTTPs(httpClient)
+        })
 
         afterEach(function () {
-          sandbox.restore();
-          delete segment.notTraced;
-        });
+          sandbox.restore()
+          delete segment.notTraced
+        })
 
         it('should not set "http.traced" if the enableXRayDownstream flag is not set', function (done) {
-          fakeResponse.statusCode = 200;
-          capturedHttp.request(httpOptions);
+          fakeResponse.statusCode = 200
+          capturedHttp.request(httpOptions)
 
           setTimeout(function () {
-            addRemoteDataStub.should.have.been.calledWithExactly(fakeRequest, fakeResponse, false);
-            done();
-          }, 50);
-        });
+            addRemoteDataStub.should.have.been.calledWithExactly(fakeRequest, fakeResponse, false)
+            done()
+          }, 50)
+        })
 
         it('should set "http.traced" on the subsegment if the root is sampled and enableXRayDownstream is set', function (done) {
-          capturedHttp = captureHTTPs(httpClient, true);
-          fakeResponse.statusCode = 200;
-          capturedHttp.request(httpOptions);
+          capturedHttp = captureHTTPs(httpClient, true)
+          fakeResponse.statusCode = 200
+          capturedHttp.request(httpOptions)
 
           setTimeout(function () {
-            addRemoteDataStub.should.have.been.calledWithExactly(fakeRequest, fakeResponse, true);
-            done();
-          }, 50);
-        });
+            addRemoteDataStub.should.have.been.calledWithExactly(fakeRequest, fakeResponse, true)
+            done()
+          }, 50)
+        })
 
         it('should call any custom subsegment callback', function (done) {
-          const subsegmentCallback = sandbox.spy();
-          capturedHttp = captureHTTPs(httpClient, true, subsegmentCallback);
-          fakeResponse.statusCode = 200;
-          capturedHttp.request(httpOptions);
+          const subsegmentCallback = sandbox.spy()
+          capturedHttp = captureHTTPs(httpClient, true, subsegmentCallback)
+          fakeResponse.statusCode = 200
+          capturedHttp.request(httpOptions)
 
           setTimeout(function () {
-            subsegmentCallback.should.have.been.calledWithExactly(subsegment, fakeRequest, fakeResponse);
-            done();
-          }, 50);
-        });
+            subsegmentCallback.should.have.been.calledWithExactly(subsegment, fakeRequest, fakeResponse)
+            done()
+          }, 50)
+        })
 
         it('should close the subsegment', function (done) {
-          fakeResponse.statusCode = 200;
-          capturedHttp.request(httpOptions);
+          fakeResponse.statusCode = 200
+          capturedHttp.request(httpOptions)
 
           setTimeout(function () {
-            closeStub.should.have.been.calledWithExactly();
-            done();
-          }, 50);
-        });
+            closeStub.should.have.been.calledWithExactly()
+            done()
+          }, 50)
+        })
 
         it('should flag the subsegment as throttled if status code 429 is seen', function (done) {
-          const addThrottleStub = sandbox.stub(subsegment, 'addThrottleFlag');
+          const addThrottleStub = sandbox.stub(subsegment, 'addThrottleFlag')
 
-          fakeResponse.statusCode = 429;
-          capturedHttp.request(httpOptions);
+          fakeResponse.statusCode = 429
+          capturedHttp.request(httpOptions)
 
           setTimeout(function () {
-            addThrottleStub.should.have.been.calledOnce;
-            done();
-          }, 50);
-        });
+            addThrottleStub.should.have.been.calledOnce
+            done()
+          }, 50)
+        })
 
         it('should check the cause of the http status code', function (done) {
-          const utilsCodeStub = sandbox.stub(Utils, 'getCauseTypeFromHttpStatus');
+          const utilsCodeStub = sandbox.stub(Utils, 'getCauseTypeFromHttpStatus')
 
-          fakeResponse.statusCode = 500;
-          capturedHttp.request(httpOptions);
+          fakeResponse.statusCode = 500
+          capturedHttp.request(httpOptions)
 
           setTimeout(function () {
-            utilsCodeStub.should.have.been.calledWith(fakeResponse.statusCode);
-            done();
-          }, 50);
-        });
-      });
+            utilsCodeStub.should.have.been.calledWith(fakeResponse.statusCode)
+            done()
+          }, 50)
+        })
+      })
 
       describe('when the request "error" event fires', function () {
-        let capturedHttp, error, fakeRequest, httpClient, req, sandbox, subsegmentCallback;
+        let capturedHttp, error, fakeRequest, httpClient, req, sandbox, subsegmentCallback
 
         beforeEach(function () {
-          sandbox = sinon.createSandbox();
+          sandbox = sinon.createSandbox()
 
-          httpClient = { request: function () {} };
+          httpClient = { request: function () {} }
 
-          subsegmentCallback = sandbox.spy();
-          capturedHttp = captureHTTPs(httpClient, null, subsegmentCallback);
+          subsegmentCallback = sandbox.spy()
+          capturedHttp = captureHTTPs(httpClient, null, subsegmentCallback)
 
-          fakeRequest = buildFakeRequest();
+          fakeRequest = buildFakeRequest()
 
-          sandbox.stub(capturedHttp, '__request').returns(fakeRequest);
-          error = {};
+          sandbox.stub(capturedHttp, '__request').returns(fakeRequest)
+          error = {}
 
-          req = capturedHttp.request(httpOptions);
-        });
+          req = capturedHttp.request(httpOptions)
+        })
 
         afterEach(function () {
-          sandbox.restore();
-        });
+          sandbox.restore()
+        })
 
         // (request -> ECONNREFUSED -> error event).
         // The way I verify if 'end' fired is if the subsegment.http.response was captured on the alternate code path.
         // The only way to trigger this is a ECONNREFUSED error, as it is the only event which fires and has no response object.
 
         it('should capture the request ECONNREFUSED error', function (done) {
-          fakeRequest.on('error', function () {});
-          fakeRequest.emit('error', error);
+          fakeRequest.on('error', function () {})
+          fakeRequest.emit('error', error)
 
           setTimeout(function () {
-            addRemoteDataStub.should.have.been.calledWith(req);
-            closeStub.should.have.been.calledWithExactly(error);
-            subsegmentCallback.should.have.been.calledWithExactly(subsegment, fakeRequest, null, error);
-            done();
-          }, 50);
-        });
+            addRemoteDataStub.should.have.been.calledWith(req)
+            closeStub.should.have.been.calledWithExactly(error)
+            subsegmentCallback.should.have.been.calledWithExactly(subsegment, fakeRequest, null, error)
+            done()
+          }, 50)
+        })
 
         // (request -> end event, then if error -> error event)
         // sets subsegment.http = { response: { status: 500 }} to set the state that the 'end' event fired.
 
         it('should capture the request code error', function (done) {
-          subsegment.http = { response: { status: 500 } };
-          fakeRequest.on('error', function () {});
-          fakeRequest.emit('error', error);
+          subsegment.http = { response: { status: 500 } }
+          fakeRequest.on('error', function () {})
+          fakeRequest.emit('error', error)
 
           setTimeout(function () {
-            closeStub.should.have.been.calledWithExactly(error, true);
-            done();
-          }, 50);
-        });
+            closeStub.should.have.been.calledWithExactly(error, true)
+            done()
+          }, 50)
+        })
 
         it('should re-emit the error if unhandled', function () {
           assert.throws(function () {
-            fakeRequest.emitter.emit('error', error);
-          });
-        });
+            fakeRequest.emitter.emit('error', error)
+          })
+        })
 
         it('should call any custom subsegment callback', function (done) {
-          fakeRequest.on('error', function () {});
-          fakeRequest.emit('error', error);
+          fakeRequest.on('error', function () {})
+          fakeRequest.emit('error', error)
 
           setTimeout(function () {
-            subsegmentCallback.should.have.been.calledWithExactly(subsegment, fakeRequest, null, error);
-            done();
-          }, 50);
-        });
+            subsegmentCallback.should.have.been.calledWithExactly(subsegment, fakeRequest, null, error)
+            done()
+          }, 50)
+        })
 
         if (process.version.startsWith('v') && process.version >= 'v12.17') {
           it('should still re-emit if there are multiple errorMonitors attached', function () {
-            fakeRequest.on(events.errorMonitor, function () {});
-            fakeRequest.on(events.errorMonitor, function () {});
+            fakeRequest.on(events.errorMonitor, function () {})
+            fakeRequest.on(events.errorMonitor, function () {})
 
             assert.throws(function () {
-              fakeRequest.emitter.emit('error', error);
-            });
-          });
+              fakeRequest.emitter.emit('error', error)
+            })
+          })
         }
-      });
-    });
+      })
+    })
 
     describe('#withoutContextAvailable', function () {
-      let capturedHttp, httpClient, fakeRequest;
+      let capturedHttp, httpClient, fakeRequest
       beforeEach(() => {
-        fakeRequest = { foo: 'bar' };
+        fakeRequest = { foo: 'bar' }
         httpClient = {
           request: () => {
-            return fakeRequest;
+            return fakeRequest
           }
         }
-        capturedHttp = captureHTTPs(httpClient, true);
-        sandbox.stub(contextUtils, 'resolveSegment').returns(null);
-      });
+        capturedHttp = captureHTTPs(httpClient, true)
+        sandbox.stub(contextUtils, 'resolveSegment').returns(null)
+      })
 
       afterEach(() => {
-        sandbox.restore();
-      });
+        sandbox.restore()
+      })
 
       it('should return the original request without making a subsegment', () => {
-        const request = capturedHttp.request(new url.URL('http://amazon.com'));
-        assert.equal(request, fakeRequest);
-        expect(newSubsegmentStub).not.to.be.called;
-      });
-    });
-  });
+        const request = capturedHttp.request(new url.URL('http://amazon.com'))
+        assert.equal(request, fakeRequest)
+        expect(newSubsegmentStub).not.to.be.called
+      })
+    })
+  })
 
   describe('#captureHTTPsRequest - Unsampled', function () {
-    let addRemoteDataStub, closeStub, httpOptions, newSubsegmentStub, resolveManualStub, sandbox, segment, subsegment;
-    const traceId = '1-57fbe041-2c7ad569f5d6ff149137be86';
+    let addRemoteDataStub, closeStub, httpOptions, newSubsegmentStub, resolveManualStub, sandbox, segment, subsegment
+    const traceId = '1-57fbe041-2c7ad569f5d6ff149137be86'
 
     beforeEach(function () {
-      sandbox = sinon.createSandbox();
-      segment = new Segment('test', traceId);
-      subsegment = segment.addNewSubsegmentWithoutSampling('testSub');
+      sandbox = sinon.createSandbox()
+      segment = new Segment('test', traceId)
+      subsegment = segment.addNewSubsegmentWithoutSampling('testSub')
 
-      newSubsegmentStub = sandbox.stub(segment, 'addNewSubsegmentWithoutSampling').returns(subsegment);
+      newSubsegmentStub = sandbox.stub(segment, 'addNewSubsegmentWithoutSampling').returns(subsegment)
 
-      resolveManualStub = sandbox.stub(contextUtils, 'resolveManualSegmentParams');
-      sandbox.stub(contextUtils, 'isAutomaticMode').returns(true);
-      addRemoteDataStub = sandbox.stub(subsegment, 'addRemoteRequestData').returns();
-      closeStub = sandbox.stub(subsegment, 'close').returns();
+      resolveManualStub = sandbox.stub(contextUtils, 'resolveManualSegmentParams')
+      sandbox.stub(contextUtils, 'isAutomaticMode').returns(true)
+      addRemoteDataStub = sandbox.stub(subsegment, 'addRemoteRequestData').returns()
+      closeStub = sandbox.stub(subsegment, 'close').returns()
 
       httpOptions = {
         host: 'myhost',
         path: '/'
-      };
-    });
+      }
+    })
 
     afterEach(function () {
-      sandbox.restore();
-    });
+      sandbox.restore()
+    })
 
     describe('#withContextAvailable', () => {
       beforeEach(() => {
-        sandbox.stub(contextUtils, 'resolveSegment').returns(segment);
-      });
+        sandbox.stub(contextUtils, 'resolveSegment').returns(segment)
+      })
 
       afterEach(() => {
-        sandbox.restore();
-      });
+        sandbox.restore()
+      })
 
       describe('on invocation', function () {
-        let capturedHttp, fakeRequest, fakeResponse, httpClient, requestSpy, resumeSpy, sandbox;
+        let capturedHttp, fakeRequest, fakeResponse, httpClient, requestSpy, resumeSpy, sandbox
 
         beforeEach(function () {
-          sandbox = sinon.createSandbox();
-          segment = new Segment('test', traceId);
+          sandbox = sinon.createSandbox()
+          segment = new Segment('test', traceId)
 
-          fakeRequest = buildFakeRequest();
-          fakeResponse = buildFakeResponse();
-          fakeResponse.req = fakeRequest;
+          fakeRequest = buildFakeRequest()
+          fakeResponse = buildFakeResponse()
+          fakeResponse.req = fakeRequest
 
           httpClient = {
             request: function (...args) {
-              const callback = args[typeof args[1] === 'object' ? 2 : 1];
-              callback(fakeResponse);
-              return fakeRequest;
+              const callback = args[typeof args[1] === 'object' ? 2 : 1]
+              callback(fakeResponse)
+              return fakeRequest
             }
-          };
-          httpClient.get = httpClient.request;
+          }
+          httpClient.get = httpClient.request
 
-          resumeSpy = sandbox.spy(fakeResponse, 'resume');
-          requestSpy = sandbox.spy(httpClient, 'request');
-          capturedHttp = captureHTTPs(httpClient, true);
-        });
+          resumeSpy = sandbox.spy(fakeResponse, 'resume')
+          requestSpy = sandbox.spy(httpClient, 'request')
+          capturedHttp = captureHTTPs(httpClient, true)
+        })
 
         afterEach(function () {
-          sandbox.restore();
-        });
+          sandbox.restore()
+        })
 
         it('should call to resolve any manual params', function () {
-          const options = { hostname: 'hostname', path: '/' };
-          capturedHttp.request(options);
+          const options = { hostname: 'hostname', path: '/' }
+          capturedHttp.request(options)
 
-          resolveManualStub.should.have.been.calledWith(options);
-        });
+          resolveManualStub.should.have.been.calledWith(options)
+        })
 
         it('should consume the response if no callback is provided by user', function () {
-          capturedHttp.request(httpOptions); // no callback
-          resumeSpy.should.have.been.calledOnce;
-        });
+          capturedHttp.request(httpOptions) // no callback
+          resumeSpy.should.have.been.calledOnce
+        })
 
         it('should not consume the response if a callback is provided by user', function () {
-          capturedHttp.request(httpOptions, () => {});
-          resumeSpy.should.not.have.been.called;
-        });
+          capturedHttp.request(httpOptions, () => {})
+          resumeSpy.should.not.have.been.called
+        })
 
         it('should not consume the response if a response listener is provided by user', function () {
-          fakeRequest.on('response', () => {});
-          capturedHttp.request(httpOptions);
-          resumeSpy.should.not.have.been.called;
-        });
+          fakeRequest.on('response', () => {})
+          capturedHttp.request(httpOptions)
+          resumeSpy.should.not.have.been.called
+        })
 
         it('should create a new subsegment with name as hostname', function () {
-          const options = { hostname: 'hostname', path: '/' };
-          capturedHttp.request(options);
-          newSubsegmentStub.should.have.been.calledWith(options.hostname);
-        });
+          const options = { hostname: 'hostname', path: '/' }
+          capturedHttp.request(options)
+          newSubsegmentStub.should.have.been.calledWith(options.hostname)
+        })
 
         it('should create a new subsegment with name as host when hostname is missing', function () {
-          capturedHttp.request(httpOptions);
-          newSubsegmentStub.should.have.been.calledWith(httpOptions.host);
-        });
+          capturedHttp.request(httpOptions)
+          newSubsegmentStub.should.have.been.calledWith(httpOptions.host)
+        })
 
         it('should create a new subsegment with name as "Unknown host" when host and hostname is missing', function () {
-          capturedHttp.request({ path: '/' });
-          newSubsegmentStub.should.have.been.calledWith('Unknown host');
-        });
+          capturedHttp.request({ path: '/' })
+          newSubsegmentStub.should.have.been.calledWith('Unknown host')
+        })
 
         it('should pass when a string is passed', function () {
-          capturedHttp.request('http://hostname/api');
-          newSubsegmentStub.should.have.been.calledWith('hostname');
-          capturedHttp.get('http://hostname/api');
-          newSubsegmentStub.should.have.been.calledWith('hostname');
-        });
+          capturedHttp.request('http://hostname/api')
+          newSubsegmentStub.should.have.been.calledWith('hostname')
+          capturedHttp.get('http://hostname/api')
+          newSubsegmentStub.should.have.been.calledWith('hostname')
+        })
 
         it('should pass when a URL is passed', function () {
-          const options = new url.URL('http://hostname/api');
-          capturedHttp.request(options);
-          newSubsegmentStub.should.have.been.calledWith('hostname');
-        });
+          const options = new url.URL('http://hostname/api')
+          capturedHttp.request(options)
+          newSubsegmentStub.should.have.been.calledWith('hostname')
+        })
 
         it('should call the base method', function () {
-          capturedHttp.request({ Segment: segment });
-          assert(requestSpy.called);
-        });
+          capturedHttp.request({ Segment: segment })
+          assert(requestSpy.called)
+        })
 
         it('should attach an event handler to the "end" event', function () {
-          capturedHttp.request(httpOptions);
-          assert.isFunction(fakeResponse._events.end);
-        });
+          capturedHttp.request(httpOptions)
+          assert.isFunction(fakeResponse._events.end)
+        })
 
         it('should inject the tracing headers', function () {
-          capturedHttp.request(httpOptions);
+          capturedHttp.request(httpOptions)
 
           // example: 'Root=1-59138384-82ff54d5ba9282f0c680adb3;Parent=53af362e4e4efeb8;Sampled=1'
-          const xAmznTraceId = new RegExp('^Root=' + traceId + ';Parent=([a-f0-9]{16});Sampled=0$');
-          const options = requestSpy.firstCall.args[0];
-          assert.match(options.headers['X-Amzn-Trace-Id'], xAmznTraceId);
-        });
+          const xAmznTraceId = new RegExp('^Root=' + traceId + ';Parent=([a-f0-9]{16});Sampled=0$')
+          const options = requestSpy.firstCall.args[0]
+          assert.match(options.headers['X-Amzn-Trace-Id'], xAmznTraceId)
+        })
 
         it('should inject the tracing headers into the options if a URL is also provided', function () {
-          capturedHttp.request(`http://${httpOptions.host}${httpOptions.path}`, httpOptions);
+          capturedHttp.request(`http://${httpOptions.host}${httpOptions.path}`, httpOptions)
 
           // example: 'Root=1-59138384-82ff54d5ba9282f0c680adb3;Parent=53af362e4e4efeb8;Sampled=1'
-          const xAmznTraceId = new RegExp('^Root=' + traceId + ';Parent=([a-f0-9]{16});Sampled=0$');
-          const options = requestSpy.firstCall.args[1];
-          assert.match(options.headers['X-Amzn-Trace-Id'], xAmznTraceId);
-        });
+          const xAmznTraceId = new RegExp('^Root=' + traceId + ';Parent=([a-f0-9]{16});Sampled=0$')
+          const options = requestSpy.firstCall.args[1]
+          assert.match(options.headers['X-Amzn-Trace-Id'], xAmznTraceId)
+        })
 
         it('should return the request object', function () {
-          const request = capturedHttp.request(httpOptions);
-          assert.equal(request, fakeRequest);
-        });
-      });
+          const request = capturedHttp.request(httpOptions)
+          assert.equal(request, fakeRequest)
+        })
+      })
 
       describe('on the "end" event', function () {
-        let capturedHttp, fakeRequest, fakeResponse, httpClient, sandbox;
+        let capturedHttp, fakeRequest, fakeResponse, httpClient, sandbox
 
         beforeEach(function () {
-          sandbox = sinon.createSandbox();
+          sandbox = sinon.createSandbox()
 
-          fakeRequest = buildFakeRequest();
-          fakeResponse = buildFakeResponse();
+          fakeRequest = buildFakeRequest()
+          fakeResponse = buildFakeResponse()
           // We need to manually link resume and end to mimic the real response
           // per https://nodejs.org/api/http.html#http_class_http_clientrequest
           fakeResponse.resume = function () {
-            fakeResponse.emit('end');
-          };
+            fakeResponse.emit('end')
+          }
 
           httpClient = {
             request: function (options, callback) {
-              fakeResponse.req = fakeRequest;
-              callback(fakeResponse);
-              return fakeRequest;
+              fakeResponse.req = fakeRequest
+              callback(fakeResponse)
+              return fakeRequest
             }
-          };
+          }
 
-          capturedHttp = captureHTTPs(httpClient);
-        });
+          capturedHttp = captureHTTPs(httpClient)
+        })
 
         afterEach(function () {
-          sandbox.restore();
-          delete segment.notTraced;
-        });
+          sandbox.restore()
+          delete segment.notTraced
+        })
 
         it('should not set "http.traced" if the enableXRayDownstream flag is not set', function (done) {
-          fakeResponse.statusCode = 200;
-          capturedHttp.request(httpOptions);
+          fakeResponse.statusCode = 200
+          capturedHttp.request(httpOptions)
 
           setTimeout(function () {
-            addRemoteDataStub.should.have.been.calledWithExactly(fakeRequest, fakeResponse, false);
-            done();
-          }, 50);
-        });
+            addRemoteDataStub.should.have.been.calledWithExactly(fakeRequest, fakeResponse, false)
+            done()
+          }, 50)
+        })
 
         it('should set "http.traced" on the subsegment if the root is sampled and enableXRayDownstream is set', function (done) {
-          capturedHttp = captureHTTPs(httpClient, true);
-          fakeResponse.statusCode = 200;
-          capturedHttp.request(httpOptions);
+          capturedHttp = captureHTTPs(httpClient, true)
+          fakeResponse.statusCode = 200
+          capturedHttp.request(httpOptions)
 
           setTimeout(function () {
-            addRemoteDataStub.should.have.been.calledWithExactly(fakeRequest, fakeResponse, true);
-            done();
-          }, 50);
-        });
+            addRemoteDataStub.should.have.been.calledWithExactly(fakeRequest, fakeResponse, true)
+            done()
+          }, 50)
+        })
 
         it('should call any custom subsegment callback', function (done) {
-          const subsegmentCallback = sandbox.spy();
-          capturedHttp = captureHTTPs(httpClient, true, subsegmentCallback);
-          fakeResponse.statusCode = 200;
-          capturedHttp.request(httpOptions);
+          const subsegmentCallback = sandbox.spy()
+          capturedHttp = captureHTTPs(httpClient, true, subsegmentCallback)
+          fakeResponse.statusCode = 200
+          capturedHttp.request(httpOptions)
 
           setTimeout(function () {
-            subsegmentCallback.should.have.been.calledWithExactly(subsegment, fakeRequest, fakeResponse);
-            done();
-          }, 50);
-        });
+            subsegmentCallback.should.have.been.calledWithExactly(subsegment, fakeRequest, fakeResponse)
+            done()
+          }, 50)
+        })
 
         it('should close the subsegment', function (done) {
-          fakeResponse.statusCode = 200;
-          capturedHttp.request(httpOptions);
+          fakeResponse.statusCode = 200
+          capturedHttp.request(httpOptions)
 
           setTimeout(function () {
-            closeStub.should.have.been.calledWithExactly();
-            done();
-          }, 50);
-        });
+            closeStub.should.have.been.calledWithExactly()
+            done()
+          }, 50)
+        })
 
         it('should flag the subsegment as throttled if status code 429 is seen', function (done) {
-          const addThrottleStub = sandbox.stub(subsegment, 'addThrottleFlag');
+          const addThrottleStub = sandbox.stub(subsegment, 'addThrottleFlag')
 
-          fakeResponse.statusCode = 429;
-          capturedHttp.request(httpOptions);
+          fakeResponse.statusCode = 429
+          capturedHttp.request(httpOptions)
 
           setTimeout(function () {
-            addThrottleStub.should.have.been.calledOnce;
-            done();
-          }, 50);
-        });
+            addThrottleStub.should.have.been.calledOnce
+            done()
+          }, 50)
+        })
 
         it('should check the cause of the http status code', function (done) {
-          const utilsCodeStub = sandbox.stub(Utils, 'getCauseTypeFromHttpStatus');
+          const utilsCodeStub = sandbox.stub(Utils, 'getCauseTypeFromHttpStatus')
 
-          fakeResponse.statusCode = 500;
-          capturedHttp.request(httpOptions);
+          fakeResponse.statusCode = 500
+          capturedHttp.request(httpOptions)
 
           setTimeout(function () {
-            utilsCodeStub.should.have.been.calledWith(fakeResponse.statusCode);
-            done();
-          }, 50);
-        });
-      });
+            utilsCodeStub.should.have.been.calledWith(fakeResponse.statusCode)
+            done()
+          }, 50)
+        })
+      })
 
       describe('when the request "error" event fires', function () {
-        let capturedHttp, error, fakeRequest, httpClient, req, sandbox, subsegmentCallback;
+        let capturedHttp, error, fakeRequest, httpClient, req, sandbox, subsegmentCallback
 
         beforeEach(function () {
-          sandbox = sinon.createSandbox();
+          sandbox = sinon.createSandbox()
 
-          httpClient = { request: function () {} };
+          httpClient = { request: function () {} }
 
-          subsegmentCallback = sandbox.spy();
-          capturedHttp = captureHTTPs(httpClient, null, subsegmentCallback);
+          subsegmentCallback = sandbox.spy()
+          capturedHttp = captureHTTPs(httpClient, null, subsegmentCallback)
 
-          fakeRequest = buildFakeRequest();
+          fakeRequest = buildFakeRequest()
 
-          sandbox.stub(capturedHttp, '__request').returns(fakeRequest);
-          error = {};
+          sandbox.stub(capturedHttp, '__request').returns(fakeRequest)
+          error = {}
 
-          req = capturedHttp.request(httpOptions);
-        });
+          req = capturedHttp.request(httpOptions)
+        })
 
         afterEach(function () {
-          sandbox.restore();
-        });
+          sandbox.restore()
+        })
 
         // (request -> ECONNREFUSED -> error event).
         // The way I verify if 'end' fired is if the subsegment.http.response was captured on the alternate code path.
         // The only way to trigger this is a ECONNREFUSED error, as it is the only event which fires and has no response object.
 
         it('should capture the request ECONNREFUSED error', function (done) {
-          fakeRequest.on('error', function () {});
-          fakeRequest.emit('error', error);
+          fakeRequest.on('error', function () {})
+          fakeRequest.emit('error', error)
 
           setTimeout(function () {
-            addRemoteDataStub.should.have.been.calledWith(req);
-            closeStub.should.have.been.calledWithExactly(error);
-            subsegmentCallback.should.have.been.calledWithExactly(subsegment, fakeRequest, null, error);
-            done();
-          }, 50);
-        });
+            addRemoteDataStub.should.have.been.calledWith(req)
+            closeStub.should.have.been.calledWithExactly(error)
+            subsegmentCallback.should.have.been.calledWithExactly(subsegment, fakeRequest, null, error)
+            done()
+          }, 50)
+        })
 
         // (request -> end event, then if error -> error event)
         // sets subsegment.http = { response: { status: 500 }} to set the state that the 'end' event fired.
 
         it('should capture the request code error', function (done) {
-          subsegment.http = { response: { status: 500 } };
-          fakeRequest.on('error', function () {});
-          fakeRequest.emit('error', error);
+          subsegment.http = { response: { status: 500 } }
+          fakeRequest.on('error', function () {})
+          fakeRequest.emit('error', error)
 
           setTimeout(function () {
-            closeStub.should.have.been.calledWithExactly(error, true);
-            done();
-          }, 50);
-        });
+            closeStub.should.have.been.calledWithExactly(error, true)
+            done()
+          }, 50)
+        })
 
         it('should re-emit the error if unhandled', function () {
           assert.throws(function () {
-            fakeRequest.emitter.emit('error', error);
-          });
-        });
+            fakeRequest.emitter.emit('error', error)
+          })
+        })
 
         it('should call any custom subsegment callback', function (done) {
-          fakeRequest.on('error', function () {});
-          fakeRequest.emit('error', error);
+          fakeRequest.on('error', function () {})
+          fakeRequest.emit('error', error)
 
           setTimeout(function () {
-            subsegmentCallback.should.have.been.calledWithExactly(subsegment, fakeRequest, null, error);
-            done();
-          }, 50);
-        });
+            subsegmentCallback.should.have.been.calledWithExactly(subsegment, fakeRequest, null, error)
+            done()
+          }, 50)
+        })
 
         if (process.version.startsWith('v') && process.version >= 'v12.17') {
           it('should still re-emit if there are multiple errorMonitors attached', function () {
-            fakeRequest.on(events.errorMonitor, function () {});
-            fakeRequest.on(events.errorMonitor, function () {});
+            fakeRequest.on(events.errorMonitor, function () {})
+            fakeRequest.on(events.errorMonitor, function () {})
 
             assert.throws(function () {
-              fakeRequest.emitter.emit('error', error);
-            });
-          });
+              fakeRequest.emitter.emit('error', error)
+            })
+          })
         }
-      });
-    });
+      })
+    })
 
     describe('#withoutContextAvailable', function () {
-      let capturedHttp, httpClient, fakeRequest;
+      let capturedHttp, httpClient, fakeRequest
       beforeEach(() => {
-        fakeRequest = { foo: 'bar' };
+        fakeRequest = { foo: 'bar' }
         httpClient = {
           request: () => {
-            return fakeRequest;
+            return fakeRequest
           }
         }
-        capturedHttp = captureHTTPs(httpClient, true);
-        sandbox.stub(contextUtils, 'resolveSegment').returns(null);
-      });
+        capturedHttp = captureHTTPs(httpClient, true)
+        sandbox.stub(contextUtils, 'resolveSegment').returns(null)
+      })
 
       afterEach(() => {
-        sandbox.restore();
-      });
+        sandbox.restore()
+      })
 
       it('should return the original request without making a subsegment', () => {
-        const request = capturedHttp.request(new url.URL('http://amazon.com'));
-        assert.equal(request, fakeRequest);
-        expect(newSubsegmentStub).not.to.be.called;
-      });
-    });
-  });
-});
+        const request = capturedHttp.request(new url.URL('http://amazon.com'))
+        assert.equal(request, fakeRequest)
+        expect(newSubsegmentStub).not.to.be.called
+      })
+    })
+  })
+})

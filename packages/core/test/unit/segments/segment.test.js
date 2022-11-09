@@ -276,7 +276,7 @@ describe('Segment', function () {
       sandbox.restore()
     })
 
-    it('should have notTraced flag set to true for unsampled subsegment of Lambda facade segment', function () {
+    it('should have isSampled flag set to false for subsegment of Lambda facade segment', function () {
       process.env._X_AMZN_TRACE_ID = 'Root=1-57ff426a-80c11c39b0c928905eb0828d;Parent=1234abcd1234abcd;Sampled=1'
 
       Lambda.init()
@@ -285,10 +285,10 @@ describe('Segment', function () {
 
       const facade = setSegmentStub.args[0][0]
       const unsampledSegment = facade.addNewSubsegmentWithoutSampling('unsampled-subsegment')
-      assert.equal(unsampledSegment.notTraced, true)
+      assert.equal(unsampledSegment.isSampled, false)
     })
 
-    it('should have notTraced flag set to false for subsegment of Lambda facade segment', function () {
+    it('should have isSampled flag set to true for subsegment of Lambda facade segment', function () {
       process.env._X_AMZN_TRACE_ID = 'Root=1-57ff426a-80c11c39b0c928905eb0828d;Parent=1234abcd1234abcd;Sampled=1'
       Lambda.init()
 
@@ -296,22 +296,22 @@ describe('Segment', function () {
 
       const facade = setSegmentStub.args[0][0]
       const sampledSubsegment = facade.addNewSubsegment('sampled-subsegment')
-      assert.equal(sampledSubsegment.notTraced, undefined)
+      assert.equal(sampledSubsegment.isSampled, true)
     })
 
-    it('unsampled subsegment should have notTraced flag set to true', function () {
+    it('should have isSampled flag set to false', function () {
       const segment = new Segment('parent')
       const child = new Subsegment('child')
       segment.addSubsegmentWithoutSampling(child)
 
-      assert.equal(child.notTraced, true)
+      assert.equal(child.isSampled, false)
     })
 
-    it('unsampled subsegment should have notTraced flag set to true', function () {
+    it('should have isSampled flag set to false for new subsegment', function () {
       const segment = new Segment('parent')
       const child = segment.addNewSubsegmentWithoutSampling('child')
 
-      assert.equal(child.notTraced, true)
+      assert.equal(child.isSampled, false)
     })
 
     it('should not sample subsegment or subsegment of subsegment', function () {
@@ -321,8 +321,8 @@ describe('Segment', function () {
       segment.addSubsegmentWithoutSampling(child)
       child.addSubsegmentWithoutSampling(child2)
 
-      assert.equal(child.notTraced, true)
-      assert.equal(child2.notTraced, true)
+      assert.equal(child.isSampled, false)
+      assert.equal(child2.isSampled, false)
     })
 
     it('should not sample subsegment or subsegment of subsegment - mix', function () {
@@ -335,10 +335,10 @@ describe('Segment', function () {
       const child4 = child2.addNewSubsegment('child-4')
       child.addSubsegmentWithoutSampling(child3)
 
-      assert.equal(child.notTraced, true)
-      assert.equal(child2.notTraced, true)
-      assert.equal(child3.notTraced, true)
-      assert.equal(child4.notTraced, true)
+      assert.equal(child.isSampled, false)
+      assert.equal(child2.isSampled, false)
+      assert.equal(child3.isSampled, false)
+      assert.equal(child4.isSampled, false)
     })
   })
 
