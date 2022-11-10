@@ -103,6 +103,36 @@ describe('Subsegment', function() {
     });
   });
 
+  describe('#addSubsegmentWithoutSampling', function () {
+    it('should have notTraced flag set to true', function() {
+      const subsegment = new Subsegment('test');
+      const child = new Subsegment('child');
+      subsegment.addSubsegmentWithoutSampling(child);
+
+      assert.equal(subsegment.notTraced, false);
+      assert.equal(child.notTraced, true);
+    });
+
+    it('should have notTraced flag set to true for new unsampled subsegment', function() {
+      const subsegment = new Subsegment('test');
+      const child = subsegment.addNewSubsegmentWithoutSampling('child');
+
+      assert.equal(subsegment.notTraced, false);
+      assert.equal(child.notTraced, true);
+    });
+
+    it('should respect the direct parent’s sampling decision', function() {
+      const subsegment = new Subsegment('test');
+      const child = new Subsegment('child');
+      subsegment.addSubsegmentWithoutSampling(child);
+      const child2 = child.addNewSubsegment('child2');
+
+      assert.equal(subsegment.notTraced, false);
+      assert.equal(child.notTraced, true);
+      assert.equal(child2.notTraced, true);
+    });
+  });
+
   describe('#addError', function() {
     var err, exceptionStub, sandbox, subsegment;
 
@@ -245,7 +275,7 @@ describe('Subsegment', function() {
   });
 
   describe('#flush', function() {
-    var child, emitStub, parent, sandbox, segment;
+    var child, emitStub, parent, sandbox, segment, unsampledChild;
     // Since SegmentEmitter is reused across tests, we need the emitStub
     // to also persist across tests
     emitStub = sinon.stub();
@@ -262,7 +292,9 @@ describe('Subsegment', function() {
       });
 
       child = parent.addNewSubsegment('child');
+      unsampledChild = parent.addNewSubsegmentWithoutSampling('unsampled-child-segment');
       child.segment = segment;
+      unsampledChild.segment = segment;
     });
 
     afterEach(function() {
@@ -288,6 +320,11 @@ describe('Subsegment', function() {
     it('should not send if the notTraced property evaluates to true', function() {
       segment.notTraced = true;
       child.flush();
+      emitStub.should.have.not.been.called;
+    });
+
+    it('should not send if the notTraced property evaluates to true', function() {
+      unsampledChild.flush();
       emitStub.should.have.not.been.called;
     });
 

@@ -10,12 +10,17 @@ declare class Subsegment {
   parent: SegmentLike;
   segment: Segment;
   namespace?: string;
+  notTraced: boolean;
 
   constructor(name: string);
 
   addNewSubsegment(name: string): Subsegment;
 
   addSubsegment(subsegment: Subsegment): void;
+
+  addNewSubsegmentWithoutSampling(name: String): Subsegment;
+
+  addSubsegmentWithoutSampling(subsegment: Subsegment): void;
 
   removeSubsegment(subsegment: Subsegment): void;
 

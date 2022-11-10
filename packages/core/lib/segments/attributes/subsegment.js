@@ -28,6 +28,7 @@ Subsegment.prototype.init = function init(name) {
   this.start_time = SegmentUtils.getCurrentTime();
   this.in_progress = true;
   this.counter = 0;
+  this.notTraced = false;
 };
 
 /**
@@ -37,8 +38,20 @@ Subsegment.prototype.init = function init(name) {
  */
 
 Subsegment.prototype.addNewSubsegment = function addNewSubsegment(name) {
-  var subsegment = new Subsegment(name);
+  const subsegment = new Subsegment(name);
   this.addSubsegment(subsegment);
+  return subsegment;
+};
+
+Subsegment.prototype.addSubsegmentWithoutSampling = function addSubsegmentWithoutSampling(subsegment) {
+  this.addSubsegment(subsegment);
+  subsegment.notTraced = true;
+};
+
+Subsegment.prototype.addNewSubsegmentWithoutSampling = function addNewSubsegmentWithoutSampling(name) {
+  const subsegment = new Subsegment(name);
+  this.addSubsegment(subsegment);
+  subsegment.notTraced = true;
   return subsegment;
 };
 
@@ -60,11 +73,13 @@ Subsegment.prototype.addSubsegment = function(subsegment) {
   subsegment.segment = this.segment;
   subsegment.parent = this;
 
+  subsegment.notTraced = subsegment.parent.notTraced;
+
   if (subsegment.end_time === undefined) {
     this.incrementCounter(subsegment.counter);
   }
-
   this.subsegments.push(subsegment);
+
 };
 
 /**
@@ -340,7 +355,7 @@ Subsegment.prototype.flush = function flush() {
   }
 
   if (this.segment.trace_id) {
-    if (this.segment.notTraced !== true) {
+    if (this.segment.notTraced !== true && !this.notTraced) {
       SegmentEmitter.send(this);
     } else {
       logger.getLogger().debug('Ignoring flush on subsegment ' + this.id + '. Associated segment is marked as not sampled.');

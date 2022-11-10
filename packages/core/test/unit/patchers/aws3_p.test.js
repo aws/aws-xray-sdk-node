@@ -132,8 +132,8 @@ describe('AWS v3 patcher', function() {
 
       it('should inject the tracing headers', async function() {
         await awsClient.send(awsRequest);
-
         assert.isTrue(addNewSubsegmentStub.calledWith('S3'));
+
 
         const expected = new RegExp('^Root=' + traceId + ';Parent=' + sub.id + ';Sampled=1$');
         assert.match(awsRequest.request.headers['X-Amzn-Trace-Id'], expected);
@@ -244,6 +244,95 @@ describe('AWS v3 patcher', function() {
         awsClient = awsPatcher.captureAWSClient(awsClient, otherSeg);
         awsClient.send(awsRequest);
         assert.isTrue(otherAddNewStub.calledWith('S3'));
+      });
+    });
+  });
+
+
+  describe('#captureAWSRequest-Unsampled', function() {
+    var awsClient, awsRequest, sandbox, segment, stubResolve, addNewSubsegmentStub, sub, service, addNewServiceSubsegmentStub;
+
+    before(function() {
+      awsClient = {
+        send: async (req) => {
+          const context = {
+            clientName: 'S3Client',
+            commandName: 'ListBucketsCommand',
+          };
+          const handler = awsClient.middlewareStack.resolve((args) => {
+            const error = req.response.error;
+            if (error) {
+              const err = new Error(error.message);
+              err.name = error.code;
+              err.$metadata = req.response.$metadata;
+              throw err;
+            }
+            return args;
+          }, context);
+          await handler(req);
+          return req.response;
+        },
+        config: {
+          region: async () => 'us-east-1',
+        },
+        middlewareStack: constructStack(),
+      };
+    });
+
+    beforeEach(function() {
+      sandbox = sinon.createSandbox();
+
+      awsRequest = new (class ListBucketsCommand {
+        constructor() {
+          this.request = {
+            method: 'GET',
+            url: '/',
+            connection: {
+              remoteAddress: 'localhost'
+            },
+            headers: {}
+          };
+          this.response = {};
+          this.output = {
+            $metadata: {
+              requestId: '123',
+              extendedRequestId: '456',
+            }
+          };
+        }
+      })();
+
+      segment = new Segment('testSegment', traceId);
+      sub = segment.addNewSubsegmentWithoutSampling('subseg');
+      service = sub.addNewSubsegmentWithoutSampling('service');
+
+      stubResolve = sandbox.stub(contextUtils, 'resolveSegment').returns(sub);
+      addNewSubsegmentStub = sandbox.stub(segment, 'addNewSubsegmentWithoutSampling').returns(sub);
+      addNewServiceSubsegmentStub = sandbox.stub(sub, 'addNewSubsegmentWithoutSampling').returns(service);
+
+    });
+
+    afterEach(function() {
+      sandbox.restore();
+    });
+
+    describe('#automaticMode', () => {
+      beforeEach(() => {
+        sandbox.stub(contextUtils, 'isAutomaticMode').returns(true);
+      });
+
+      before(() => {
+        awsClient = awsPatcher.captureAWSClient(awsClient);
+      });
+
+
+      it('should inject the tracing headers', async function() {
+        await awsClient.send(awsRequest);
+        assert.isTrue(addNewServiceSubsegmentStub.calledWith('S3'));
+
+
+        const expected = new RegExp('^Root=' + traceId + ';Parent=' + service.id + ';Sampled=0$');
+        assert.match(awsRequest.request.headers['X-Amzn-Trace-Id'], expected);
       });
     });
   });

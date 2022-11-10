@@ -35,6 +35,10 @@ declare class Segment {
 
   addSubsegment(subsegment: Subsegment): void;
 
+  addSubsegmentWithoutSampling(subsegment: Subsegment): void;
+
+  addNewSubsegmentWithoutSampling(name: string): Subsegment
+
   removeSubsegment(subsegment: Subsegment): void;
 
   addError(err: Error | string, remote?: boolean): void;

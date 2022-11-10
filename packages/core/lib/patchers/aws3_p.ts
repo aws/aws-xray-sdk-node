@@ -110,7 +110,13 @@ const getXRayMiddleware = (config: RegionResolvedConfig, manualSegment?: Segment
     return next(args);
   }
 
-  const subsegment: Subsegment = segment.addNewSubsegment(service);
+  let subsegment: Subsegment;
+
+  if (segment.notTraced) {
+    subsegment = segment.addNewSubsegmentWithoutSampling(service);
+  } else {
+    subsegment = segment.addNewSubsegment(service);
+  }
   subsegment.addAttribute('namespace', 'aws');
   const parent = (segment instanceof Subsegment ? segment.segment : segment);
 
@@ -118,7 +124,7 @@ const getXRayMiddleware = (config: RegionResolvedConfig, manualSegment?: Segment
     {
       Root: parent.trace_id,
       Parent: subsegment.id,
-      Sampled: parent.notTraced ? '0' : '1',
+      Sampled: subsegment.notTraced ? '0' : '1',
     },
     ';',
   );
