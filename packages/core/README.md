@@ -401,6 +401,37 @@ subsegment.addSubsegment(newSubseg);
 newSubseg.close();
 ```
 
+### Oversampling mitigation 
+To modify the sampling decision at the subsegment level, sampled subsegments can be created using the `addNewSubsegment` and `addSubsegment` APIs, and unsampled subsegments can be created using the `addNewSubsegmentWithoutSampling` and `addSubsegmentWithoutSampling` APIs. 
+
+The code snippet below demonstrates creating a sampled or unsampled subsegment based on the sampling decision of each SQS message processed by Lambda.
+
+```js
+exports.handler = async function(event, context) { 
+    event.Records.forEach(message => {
+
+        const { attributes } = message;
+        let facade = xrayContext.getSegment();
+
+        if(SqsMessageHelper.isSampled(message)){
+          
+          let sampledSubsegment = facade.addNewSubsegment('sqs-subsegment-sampled');
+          console.log("doing batch work - sampled");
+          sampledSubsegment.close();
+
+        } else {
+
+          let unsampledSubsegment = facade.addNewSubsegmentWithoutSampling('sqs-subsegment-unsampled');
+          console.log("doing batch work - unsampled");
+          unsampledSubsegment.close();
+          
+        }
+    });
+
+    return 'Success';
+}
+```
+
 ## Automatic Mode Examples
 
 ### Capture through function calls
