@@ -416,15 +416,15 @@ exports.handler = async function(event, context) {
         if(SqsMessageHelper.isSampled(message)){
           
           let sampledSubsegment = facade.addNewSubsegment('sqs-subsegment-sampled');
-          console.log("doing batch work - sampled");
+          console.log("processing SQS message - sampled");
           sampledSubsegment.close();
 
         } else {
 
           let unsampledSubsegment = facade.addNewSubsegmentWithoutSampling('sqs-subsegment-unsampled');
-          console.log("doing batch work - unsampled");
+          console.log("processing SQS message - unsampled");
           unsampledSubsegment.close();
-          
+
         }
     });
 
