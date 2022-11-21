@@ -416,20 +416,55 @@ exports.handler = async function(event, context) {
         if(SqsMessageHelper.isSampled(message)){
           
           let sampledSubsegment = facade.addNewSubsegment('sqs-subsegment-sampled');
+          xrayContext.setSegment(sampledSubsegment);
           console.log("processing SQS message - sampled");
           sampledSubsegment.close();
+          xrayContext.setSegment(facade);
 
         } else {
 
           let unsampledSubsegment = facade.addNewSubsegmentWithoutSampling('sqs-subsegment-unsampled');
+          xrayContext.setSegment(unsampledSubsegment);
           console.log("processing SQS message - unsampled");
           unsampledSubsegment.close();
+          xrayContext.setSegment(facade);
 
         }
     });
 
     return 'Success';
 }
+```
+
+The code snippet below demonstrates wrapping a downstream AWS SDK request with an unsampled subsegment.
+```js
+const { Segment } = require('aws-xray-sdk');
+const xray = require('aws-xray-sdk');
+ 
+// Instrument AWS SDK Clients
+const AWS = xray.captureAWS(require('aws-sdk'));
+ 
+exports.handler = async (event, context) => {
+  const facade = xray.getSegment();
+ 
+  // Create a not-sampled subsegment, which will coerce the downstream request to be unsampled
+  const unsampled = facade.addNewSubsegmentWithoutSampling('sqs-subsegment-unsampled');
+ 
+  // Set unsampled subsegment in context
+  xray.setSegment(unsampled);
+ 
+  try {
+    const sqs = new AWS.SQS();
+    const data = await sqs.listQueues().promise();
+    console.log(data);
+  } catch (error) {
+    console.log("retrieveFromSqs error:", error);
+    throw error;
+  }
+  unsampled.close();
+  return 'Success';
+}
+
 ```
 
 ## Automatic Mode Examples
