@@ -419,14 +419,12 @@ exports.handler = async function(event, context) {
           xrayContext.setSegment(sampledSubsegment);
           console.log("processing SQS message - sampled");
           sampledSubsegment.close();
-          
-        } else {
 
+        } else {
           let unsampledSubsegment = facade.addNewSubsegmentWithoutSampling('sqs-subsegment-unsampled');
           xrayContext.setSegment(unsampledSubsegment);
           console.log("processing SQS message - unsampled");
           unsampledSubsegment.close();
-          
         }
 
         xrayContext.setSegment(facade);
