@@ -402,7 +402,7 @@ newSubseg.close();
 ```
 
 ### Oversampling mitigation 
-To modify the sampling decision at the subsegment level, sampled subsegments can be created using the `addNewSubsegment` and `addSubsegment` APIs, and unsampled subsegments can be created using the `addNewSubsegmentWithoutSampling` and `addSubsegmentWithoutSampling` APIs. 
+To modify the sampling decision at the subsegment level, subsegments that inherit the decision of their direct parent (segment or subsegment) can be created using the `addNewSubsegment` and `addSubsegment` APIs, and unsampled subsegments can be created using the `addNewSubsegmentWithoutSampling` and `addSubsegmentWithoutSampling` APIs. 
 
 The code snippet below demonstrates creating a sampled or unsampled subsegment based on the sampling decision of each SQS message processed by Lambda.
 
