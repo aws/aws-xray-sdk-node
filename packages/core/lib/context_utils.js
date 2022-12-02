@@ -212,8 +212,8 @@ if (process.env.AWS_XRAY_CONTEXT_MISSING) {
   contextUtils.setContextMissingStrategy(process.env.AWS_XRAY_CONTEXT_MISSING);
   contextOverride = true;
 } else {
-  contextUtils.contextMissingStrategy.contextMissing = contextUtils.CONTEXT_MISSING_STRATEGY.RUNTIME_ERROR.contextMissing;
-  logger.getLogger().debug('Using default context missing strategy: RUNTIME_ERROR');
+  contextUtils.contextMissingStrategy.contextMissing = contextUtils.CONTEXT_MISSING_STRATEGY.LOG_ERROR.contextMissing;
+  logger.getLogger().debug('Using default context missing strategy: LOG_ERROR');
 }
 
 module.exports = contextUtils;
