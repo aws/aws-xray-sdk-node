@@ -75,32 +75,38 @@ describe('Utils', function() {
 
     it('should handle trace header values with excess semicolons correctly', function() {
       assert.deepEqual(Utils.processTraceData('Root=1-58ed6027-14afb2e09172c337713486c0;'), {
-        root: '1-58ed6027-14afb2e09172c337713486c0'
+        root: '1-58ed6027-14afb2e09172c337713486c0',
+        data: {}
       });
     });
 
     it('should handle malformed key=value pairs correctly (missing value)', function() {
       assert.deepEqual(Utils.processTraceData('Root=1-58ed6027-14afb2e09172c337713486c0;Parent'), {
-        root: '1-58ed6027-14afb2e09172c337713486c0'
+        root: '1-58ed6027-14afb2e09172c337713486c0',
+        data: {}
       });
     });
 
     it('should handle malformed key=value pairs correctly (empty key)', function() {
       assert.deepEqual(Utils.processTraceData('Root=1-58ed6027-14afb2e09172c337713486c0;=48af77592b6dd73f'), {
-        root: '1-58ed6027-14afb2e09172c337713486c0'
+        root: '1-58ed6027-14afb2e09172c337713486c0',
+        data: {}
       });
     });
 
     it('should handle malformed key=value pairs correctly (empty value)', function() {
       assert.deepEqual(Utils.processTraceData('Root=1-58ed6027-14afb2e09172c337713486c0;Parent='), {
-        root: '1-58ed6027-14afb2e09172c337713486c0'
+        root: '1-58ed6027-14afb2e09172c337713486c0',
+        data: {}
       });
     });
 
     it('should accept arbitrary key=value pairs', function() {
       assert.deepEqual(Utils.processTraceData('Root=1-58ed6027-14afb2e09172c337713486c0;Foo=bar'), {
         root: '1-58ed6027-14afb2e09172c337713486c0',
-        foo: 'bar'
+        data: {
+          Foo: 'bar'
+        }
       });
     });
 
@@ -108,7 +114,9 @@ describe('Utils', function() {
       var longVal = 'a'.repeat(251);
       assert.deepEqual(Utils.processTraceData(`Root=1-58ed6027-14afb2e09172c337713486c0;Foo=bar;Baz=${longVal}`), {
         root: '1-58ed6027-14afb2e09172c337713486c0',
-        foo: 'bar'
+        data: {
+          Foo: 'bar'
+        }
       });
     });
 
@@ -116,7 +124,9 @@ describe('Utils', function() {
       var longVal = 'a'.repeat(251);
       assert.deepEqual(Utils.processTraceData(`Baz=${longVal};Root=1-58ed6027-14afb2e09172c337713486c0;Foo=bar`), {
         root: '1-58ed6027-14afb2e09172c337713486c0',
-        baz: longVal
+        data: {
+          Baz: longVal
+        }
       });
     });
   });
