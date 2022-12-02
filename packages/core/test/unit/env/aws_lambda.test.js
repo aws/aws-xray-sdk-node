@@ -200,7 +200,7 @@ describe('AWSLambda', function() {
     });
   });
 
-  describe('PopulateUserData', function() {
+  describe('PopulateAdditionalTraceData', function() {
     var sandbox, setSegmentStub;
 
     beforeEach(function() {
