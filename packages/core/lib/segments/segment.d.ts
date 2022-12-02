@@ -13,6 +13,8 @@ declare class Segment {
   subsegments?: Array<Subsegment>;
   notTraced?: boolean;
 
+  additionalTraceData?: object
+
   constructor(name: string, rootId?: string | null, parentId?: string | null);
 
   addIncomingRequestData(data: IncomingRequestData): void;

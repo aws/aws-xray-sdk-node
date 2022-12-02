@@ -5,3 +5,4 @@ docs
 .nyc_output/
 *.lcov
 dist
+*package-lock.json

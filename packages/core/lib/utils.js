@@ -162,33 +162,37 @@ var utils = {
      */
     populateTraceData: function(segment, xAmznTraceId) {
       logger.getLogger().debug('Lambda trace data found: ' + xAmznTraceId);
-      var data = utils.processTraceData(xAmznTraceId);
+      var traceData = utils.processTraceData(xAmznTraceId);
       var valid = false;
 
-      if (!data) {
-        data = {};
+      if (!traceData) {
+        traceData = {};
         logger.getLogger().error('_X_AMZN_TRACE_ID is empty or has an invalid format');
-      } else if (!data.root || !data.parent || !data.sampled) {
+      } else if (!traceData.root || !traceData.parent || !traceData.sampled) {
         logger.getLogger().error('_X_AMZN_TRACE_ID is missing required information');
       } else {
         valid = true;
       }
 
-      segment.trace_id = TraceID.FromString(data.root).toString();  // Will always assign valid trace_id
-      segment.id = data.parent || crypto.randomBytes(8).toString('hex');
+      segment.trace_id = TraceID.FromString(traceData.root).toString();  // Will always assign valid trace_id
+      segment.id = traceData.parent || crypto.randomBytes(8).toString('hex');
 
-      if (data.root && segment.trace_id !== data.root)  {
+      if (traceData.root && segment.trace_id !== traceData.root)  {
         logger.getLogger().error('_X_AMZN_TRACE_ID contains invalid trace ID');
         valid = false;
       }
 
-      if (!parseInt(data.sampled)) {
+      if (!parseInt(traceData.sampled)) {
         segment.notTraced = true;
       } else {
         delete segment.notTraced;
       }
 
-      logger.getLogger().debug('Segment started: ' + JSON.stringify(data));
+      if (traceData.data) {
+        segment.userData = traceData.data;
+      }
+
+      logger.getLogger().debug('Segment started: ' + JSON.stringify(traceData));
       return valid;
     }
   },
@@ -202,6 +206,7 @@ var utils = {
 
   processTraceData: function processTraceData(traceData) {
     var amznTraceData = {};
+    var data = {};
     var reservedKeywords = ['root', 'parent', 'sampled', 'self'];
     var remainingBytes = 256;
 
@@ -217,18 +222,21 @@ var utils = {
       var pair = header.split('=');
 
       if (pair[0] && pair[1]) {
-        var key = pair[0].trim().toLowerCase();
-        var value = pair[1].trim().toLowerCase();
-        var reserved = reservedKeywords.indexOf(key) !== -1;
+        var key = pair[0].trim();
+        var value = pair[1].trim();
+        var lowerCaseKey = key.toLowerCase();
+        var reserved = reservedKeywords.indexOf(lowerCaseKey) !== -1;
 
         if (reserved) {
-          amznTraceData[key] = value;
-        } else if (!reserved && remainingBytes - (key.length + value.length) >= 0) {
-          amznTraceData[key] = value;
+          amznTraceData[lowerCaseKey] = value;
+        } else if (!reserved && remainingBytes - (lowerCaseKey.length + value.length) >= 0) {
+          data[key] = value;
           remainingBytes -= (key.length + value.length);
         }
       }
     });
+
+    amznTraceData['data'] = data;
 
     return amznTraceData;
   },
