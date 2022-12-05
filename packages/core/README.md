@@ -57,7 +57,7 @@ section for different usages.
     AWS_XRAY_TRACING_NAME            For overriding the default segment name to use
     with the middleware. See 'dynamic and fixed naming modes'.
     AWS_XRAY_DAEMON_ADDRESS          For setting the daemon address and port.
-    AWS_XRAY_CONTEXT_MISSING         For setting the SDK behavior when trace context is missing. Valid values are 'RUNTIME_ERROR', 'IGNORE_ERROR' or 'LOG_ERROR'. The SDK's default behavior is 'RUNTIME_ERROR'.
+    AWS_XRAY_CONTEXT_MISSING         For setting the SDK behavior when trace context is missing. Valid values are 'RUNTIME_ERROR', 'IGNORE_ERROR' or 'LOG_ERROR'. The SDK's default behavior is 'LOG_ERROR'.
     AWS_XRAY_LOG_LEVEL               Sets a log level for the SDK built in logger. This value is ignored if AWS_XRAY_DEBUG_MODE is set.
     AWS_XRAY_COLLECT_SQL_QUERIES     Enables SQL query capture (currently only Postgres supported)
 

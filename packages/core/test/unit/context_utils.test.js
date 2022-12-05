@@ -37,8 +37,8 @@ describe('ContextUtils', function() {
       assert.equal(ContextUtils.getNamespace().name, 'AWSXRay');
     });
 
-    it('should set the contextMissingStrategy to RUNTIME_ERROR by default', function() {
-      assert.equal(ContextUtils.contextMissingStrategy.contextMissing.name, RUNTIME_ERROR_FCN_NAME);
+    it('should set the contextMissingStrategy to LOG_ERROR by default', function() {
+      assert.equal(ContextUtils.contextMissingStrategy.contextMissing.name, LOG_ERROR_FCN_NAME);
     });
 
     it('should set the contextMissingStrategy to the process.env.AWS_XRAY_CONTEXT_MISSING strategy if present', function() {
