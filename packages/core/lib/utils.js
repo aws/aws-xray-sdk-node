@@ -162,7 +162,7 @@ var utils = {
      */
     populateTraceData: function(segment, xAmznTraceId) {
       logger.getLogger().debug('Lambda trace data found: ' + xAmznTraceId);
-      var traceData = utils.processTraceData(xAmznTraceId);
+      let traceData = utils.processTraceData(xAmznTraceId);
       var valid = false;
 
       if (!traceData) {
