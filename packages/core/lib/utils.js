@@ -222,10 +222,10 @@ var utils = {
       var pair = header.split('=');
 
       if (pair[0] && pair[1]) {
-        var key = pair[0].trim();
-        var value = pair[1].trim();
-        var lowerCaseKey = key.toLowerCase();
-        var reserved = reservedKeywords.indexOf(lowerCaseKey) !== -1;
+        let key = pair[0].trim();
+        let value = pair[1].trim();
+        let lowerCaseKey = key.toLowerCase();
+        let reserved = reservedKeywords.indexOf(lowerCaseKey) !== -1;
 
         if (reserved) {
           amznTraceData[lowerCaseKey] = value;
