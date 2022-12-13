@@ -199,4 +199,31 @@ describe('AWSLambda', function() {
       });
     });
   });
+
+  describe('PopulateAdditionalTraceData', function() {
+    var sandbox, setSegmentStub;
+
+    beforeEach(function() {
+      sandbox = sinon.createSandbox();
+      sandbox.stub(SegmentEmitter, 'disableReusableSocket');
+      sandbox.stub(LambdaUtils, 'validTraceData').returns(true);
+
+      setSegmentStub = sandbox.stub(contextUtils, 'setSegment');
+    });
+
+    afterEach(function() {
+      delete process.env._X_AMZN_TRACE_ID;
+      sandbox.restore();
+    });
+
+    it('should populate additional trace data', function() {
+      process.env._X_AMZN_TRACE_ID = 'Root=traceId;Lineage=1234abcd:4|3456abcd:6';
+      Lambda.init();
+
+      var facade = setSegmentStub.args[0][0];
+      facade.resolveLambdaTraceData();
+      var userData = facade.userData;
+      assert.equal(userData['Lineage'], '1234abcd:4|3456abcd:6');
+    });
+  });
 });

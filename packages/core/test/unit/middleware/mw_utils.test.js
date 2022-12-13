@@ -72,7 +72,7 @@ describe('Middleware utils', function() {
       req.headers[XRAY_HEADER] = 'Root=' + traceId;
       var headers = MWUtils.processHeaders(req);
 
-      assert.deepEqual(headers, {root: traceId});
+      assert.deepEqual(headers, {root: traceId, data: {}});
     });
 
     it('should return a split array on an request with an "x-amzn-trace-id" header with a root ID and parent ID', function() {
@@ -80,7 +80,7 @@ describe('Middleware utils', function() {
       req.headers[XRAY_HEADER] = 'Root=' + traceId + '; Parent=' + parentId;
       var headers = MWUtils.processHeaders(req);
 
-      assert.deepEqual(headers, {root: traceId, parent: parentId});
+      assert.deepEqual(headers, {root: traceId, parent: parentId, data: {}});
     });
 
     it('should return a split array on an request with an "x-amzn-trace-id" header with a root ID, parent ID and sampling', function() {
@@ -88,7 +88,7 @@ describe('Middleware utils', function() {
       req.headers[XRAY_HEADER] = 'Root=' + traceId + '; Parent=' + parentId + '; Sampled=0';
       var headers = MWUtils.processHeaders(req);
 
-      assert.deepEqual(headers, {root: traceId, parent: parentId, sampled: '0'});
+      assert.deepEqual(headers, {root: traceId, parent: parentId, sampled: '0', data: {}});
     });
   });
 

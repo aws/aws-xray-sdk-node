@@ -85,10 +85,17 @@ function captureAWSRequest(req) {
   }
 
   var traceId = parent.segment ? parent.segment.trace_id : parent.trace_id;
+  const data = parent.segment ? parent.segment.additionalTraceData : parent.additionalTraceData;
 
   var buildListener = function(req) {
-    req.httpRequest.headers['X-Amzn-Trace-Id'] = 'Root=' + traceId + ';Parent=' + subsegment.id +
+    let traceHeader = 'Root=' + traceId + ';Parent=' + subsegment.id +
       ';Sampled=' + (subsegment.notTraced ? '0' : '1');
+    if (data != null) {
+      for (const [key, value] of Object.entries(data)) {
+        traceHeader += ';' + key +'=' + value;
+      }
+    }
+    req.httpRequest.headers['X-Amzn-Trace-Id'] = traceHeader;
   };
 
   var completeListener = function(res) {
