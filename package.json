@@ -57,7 +57,6 @@
     "npm": ">= 2.x"
   },
   "dependencies": {
-    "3": "^2.1.0",
     "aws-xray-sdk": "file:packages/full_sdk",
     "aws-xray-sdk-core": "file:packages/core",
     "aws-xray-sdk-express": "file:packages/express",
