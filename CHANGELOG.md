@@ -1,6 +1,26 @@
 # Changelog for AWS X-Ray SDK for JavaScript
-<!--LATEST=3.4.0-->
+<!--LATEST=3.4.1-->
 <!--ENTRYINSERT-->
+
+## 3.4.1 
+View [the latest changes](https://github.com/aws/aws-xray-sdk-node/compare/aws-xray-sdk-node%403.4.0...aws-xray-sdk-node%403.4.1)
+* `aws-xray-sdk-core` updated to 3.4.1
+  * change: Propagate additional trace data into AWS requests on Lambda [PR #549](https://github.com/aws/aws-xray-sdk-node/pull/549)
+  * change: Modified context missing strategy default to log error [PR #550](https://github.com/aws/aws-xray-sdk-node/pull/550)
+* `aws-xray-sdk-mysql` updated to 3.4.1
+  * No further changes. 
+* `aws-xray-sdk-express` updated to 3.4.1
+  * No further changes.
+* `aws-xray-sdk-postgres` updated to 3.4.1
+  * No further changes.
+* `aws-xray-sdk-restify` updated to 3.4.1
+  * No further changes.
+* `aws-xray-sdk-fastify` updated to 3.4.1
+  * No further changes.
+* `aws-xray-sdk-koa2` updated to 3.4.1
+  * No further changes. 
+* `aws-xray-sdk-hapi` updated to 3.4.1
+  * No further changes.
 
 ## 3.4.0
 View [the latest changes](https://github.com/aws/aws-xray-sdk-node/compare/aws-xray-sdk-node%403.3.8...aws-xray-sdk-node%403.4.0)
