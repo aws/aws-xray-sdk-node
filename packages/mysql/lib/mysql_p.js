@@ -254,19 +254,23 @@ function captureOperation(name) {
       }
     }
 
-    subsegment.addSqlData(createSqlData(config, command));
+    subsegment.addSqlData(createSqlData(config, command, args.sql));
     subsegment.namespace = 'remote';
 
     return command;
   };
 }
 
-function createSqlData(config, command) {
+function createSqlData(config, command, sql) {
   var commandType = command.values ? PREPARED : null;
 
   var data = new SqlData(DATABASE_VERS, DRIVER_VERS, config.user,
     config.host + ':' + config.port + '/' + config.database,
     commandType);
+
+  if (process.env.AWS_XRAY_COLLECT_SQL_QUERIES && sql) {
+    data.sanitized_query = sql;
+  }
 
   return data;
 }
