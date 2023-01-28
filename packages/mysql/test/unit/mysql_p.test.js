@@ -141,7 +141,7 @@ describe('captureMySQL', function() {
         var stubDataInit = sandbox.stub(SqlData.prototype, 'init');
         var config = conn.config;
 
-        query.call(connectionObj, 'sql here');
+        query.call(connectionObj, 'sql here', [1]);
 
         stubDataInit.should.have.been.calledWithExactly(undefined, undefined, config.user,
           config.host + ':' + config.port + '/' + config.database, 'statement');
@@ -253,7 +253,7 @@ describe('captureMySQL', function() {
         var stubDataInit = sandbox.stub(SqlData.prototype, 'init');
         var conParam = connectionObj.config;
 
-        query.call(connectionObj, 'sql here');
+        query.call(connectionObj, 'sql here', [1]);
 
         stubDataInit.should.have.been.calledWithExactly(process.env.MYSQL_DATABASE_VERSION, process.env.MYSQL_DRIVER_VERSION,
           conParam.user, conParam.host + ':' + conParam.port + '/' + conParam.database, 'statement');
@@ -266,7 +266,7 @@ describe('captureMySQL', function() {
         var stubDataInit = sandbox.stub(SqlData.prototype, 'init');
         var conParam = connectionObj.config;
 
-        query.call(connectionObj, 'sql here');
+        query.call(connectionObj, 'sql here', [1]);
 
         stubDataInit.should.have.been.calledWithExactly(process.env.MYSQL_DATABASE_VERSION, process.env.MYSQL_DRIVER_VERSION,
           conParam.user, conParam.host + ':' + conParam.port + '/' + conParam.database, 'statement');
@@ -372,7 +372,6 @@ describe('captureMySQL', function() {
           stubClose.should.have.been.calledWithExactly(err);
         });
       });
-
     });
   });
 
@@ -458,7 +457,7 @@ describe('captureMySQL', function() {
         var stubDataInit = sandbox.stub(SqlData.prototype, 'init');
         var config = conn.config;
 
-        query.call(connectionObj, 'sql here');
+        query.call(connectionObj, 'sql here', [1]);
 
         stubDataInit.should.have.been.calledWithExactly(undefined, undefined, config.user,
           config.host + ':' + config.port + '/' + config.database, 'statement');
@@ -554,7 +553,7 @@ describe('captureMySQL', function() {
         var stubDataInit = sandbox.stub(SqlData.prototype, 'init');
         var config = conn.config;
 
-        query.call(connectionObj, 'sql here');
+        query.call(connectionObj, 'sql here', [1]);
 
         stubDataInit.should.have.been.calledWithExactly(undefined, undefined, config.user,
           config.host + ':' + config.port + '/' + config.database, 'statement');
@@ -701,7 +700,7 @@ describe('captureMySQL', function() {
         var stubDataInit = sandbox.stub(SqlData.prototype, 'init');
         var config = conn.config;
 
-        query.call(connectionObj, 'sql here');
+        query.call(connectionObj, 'sql here', [1]);
 
         stubDataInit.should.have.been.calledWithExactly(undefined, undefined, config.user,
           config.host + ':' + config.port + '/' + config.database, 'statement');

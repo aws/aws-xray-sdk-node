@@ -242,9 +242,7 @@ function captureOperation(name) {
       if (isPromise(command)) {
         command.then(() => {
           subsegment.close();
-        });
-
-        command.catch(errorCapturer);
+        }).catch (errorCapturer);
       } else {
         command.on('end', function() {
           subsegment.close();
@@ -254,16 +252,15 @@ function captureOperation(name) {
       }
     }
 
-    subsegment.addSqlData(createSqlData(config, command, args.sql));
+    subsegment.addSqlData(createSqlData(config, args.values, args.sql));
     subsegment.namespace = 'remote';
 
     return command;
   };
 }
 
-function createSqlData(config, command, sql) {
-  var commandType = command.values ? PREPARED : null;
-
+function createSqlData(config, values, sql) {
+  var commandType = values ? PREPARED : null;
   var data = new SqlData(DATABASE_VERS, DRIVER_VERS, config.user,
     config.host + ':' + config.port + '/' + config.database,
     commandType);
