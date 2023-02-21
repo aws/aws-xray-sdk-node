@@ -259,6 +259,16 @@ function captureOperation(name) {
   };
 }
 
+/**
+ * Generate a SQL data object.  Note that this implementation differs from
+ * that in postgres_p.js because the posgres client structures commands
+ * and prepared statements differently than mysql/mysql2.
+ *
+ * @param {object} config
+ * @param {any} values
+ * @param {string} sql
+ * @returns SQL data object
+ */
 function createSqlData(config, values, sql) {
   var commandType = values ? PREPARED : null;
   var data = new SqlData(DATABASE_VERS, DRIVER_VERS, config.user,
