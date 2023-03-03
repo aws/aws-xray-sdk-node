@@ -22,7 +22,7 @@
     "aws-xray-sdk-express": "3.4.1",
     "chai": "^4.2.0",
     "cls-hooked": "^4.2.2",
-    "codecov": "^3.8.1",
+    "codecov": "^3.8.3",
     "eslint": "^7.5.0",
     "eslint-config-prettier": "^6.11.0",
     "eslint-config-semistandard": "^15.0.1",

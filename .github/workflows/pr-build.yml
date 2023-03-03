@@ -27,15 +27,17 @@ jobs:
             coverage: true
     steps:
       - name: Checkout AWS XRay SDK Node Repository @ default branch latest
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Setup Node ${{ matrix.node-version }}
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node-version }}
+          check-latest: true
+
 
       - name: Cache NPM modules
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: $HOME/.npm
           key: ${{ matrix.os }}-${{ hashFiles('package-lock.json') }}
@@ -68,15 +70,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout AWS XRay SDK Node Repository @ default branch latest
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Setup Node
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v3
         with:
           node-version: 16.x
 
       - name: Cache NPM modules
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: $HOME/.npm
           key: ${{ hashFiles('package-lock.json') }}
