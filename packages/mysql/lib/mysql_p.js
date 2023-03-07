@@ -242,9 +242,7 @@ function captureOperation(name) {
       if (isPromise(command)) {
         command.then(() => {
           subsegment.close();
-        });
-
-        command.catch(errorCapturer);
+        }).catch (errorCapturer);
       } else {
         command.on('end', function() {
           subsegment.close();
@@ -254,19 +252,32 @@ function captureOperation(name) {
       }
     }
 
-    subsegment.addSqlData(createSqlData(config, command));
+    subsegment.addSqlData(createSqlData(config, args.values, args.sql));
     subsegment.namespace = 'remote';
 
     return command;
   };
 }
 
-function createSqlData(config, command) {
-  var commandType = command.values ? PREPARED : null;
-
+/**
+ * Generate a SQL data object.  Note that this implementation differs from
+ * that in postgres_p.js because the posgres client structures commands
+ * and prepared statements differently than mysql/mysql2.
+ *
+ * @param {object} config
+ * @param {any} values
+ * @param {string} sql
+ * @returns SQL data object
+ */
+function createSqlData(config, values, sql) {
+  var commandType = values ? PREPARED : null;
   var data = new SqlData(DATABASE_VERS, DRIVER_VERS, config.user,
     config.host + ':' + config.port + '/' + config.database,
     commandType);
+
+  if (process.env.AWS_XRAY_COLLECT_SQL_QUERIES && sql) {
+    data.sanitized_query = sql;
+  }
 
   return data;
 }
