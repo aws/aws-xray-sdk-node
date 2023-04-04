@@ -1,6 +1,5 @@
 import {
   Pluggable,
-  Client,
   BuildMiddleware,
   MiddlewareStack,
   BuildHandlerOptions,
@@ -189,7 +188,7 @@ const getXRayPlugin = (config: RegionResolvedConfig, manualSegment?: SegmentLike
  * @param manualSegment - Parent segment or subsegment that is passed in for manual mode users
  * @returns - the client with the X-Ray instrumentation middleware added to its middleware stack
  */
-export function captureAWSClient<T extends Client<any, any, any>>(client: T, manualSegment?: SegmentLike): T {
+export function captureAWSClient<T extends { middlewareStack: { remove: any, use: any }, config: any }>(client: T, manualSegment?: SegmentLike): T {
   // Remove existing middleware to ensure operation is idempotent
   client.middlewareStack.remove(XRAY_PLUGIN_NAME);
   client.middlewareStack.use(getXRayPlugin(client.config, manualSegment));
