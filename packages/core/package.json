@@ -1,6 +1,6 @@
 {
   "name": "aws-xray-sdk-core",
-  "version": "3.5.0",
+  "version": "3.4.1",
   "description": "AWS X-Ray SDK for Javascript",
   "author": "Amazon Web Services",
   "contributors": [
@@ -28,7 +28,7 @@
     "@types/cls-hooked": "^4.3.3",
     "atomic-batcher": "^1.0.2",
     "cls-hooked": "^4.2.2",
-    "semver": "^7.3.8"
+    "semver": "^5.3.0"
   },
   "scripts": {
     "prepare": "npm run compile",
@@ -38,6 +38,7 @@
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "test": "npm run compile && mocha --recursive ./dist/test/ -R spec && tsd && mocha --recursive ./dist/test_async/ -R spec",
+    "test-grep": "npm run compile && mocha --recursive ./dist/test/ -R spec --fgrep $TEST && tsd && mocha --recursive ./dist/test_async/ -R spec --fgrep $TEST",
     "test-d": "tsd",
     "test-async": "npm run compile && mocha --recursive ./dist/test_async/ -R spec",
     "clean": "rm -rf dist && rm -rf node_modules",
