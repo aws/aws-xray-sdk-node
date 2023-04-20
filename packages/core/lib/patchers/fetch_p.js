@@ -12,7 +12,7 @@ var Utils = require('../utils');
 var logger = require('../logger');
 
 /**
- * Wrap fetch either in global instance for recent NodeJS or module for older versions,
+ * Wrap fetch either in global instance for recent NodeJS or the node-fetch module for older versions,
  *  to automatically capture information for the segment.
  * This patches the built-in fetch function globally.
  * @param {boolean} downstreamXRayEnabled - when true, adds a "traced:true" property to the subsegment
@@ -25,38 +25,18 @@ var logger = require('../logger');
  */
 function captureFetch(downstreamXRayEnabled, subsegmentCallback) {
   if ('fetch' in globalThis) {
-    return exports.captureFetchGlobal(downstreamXRayEnabled, subsegmentCallback);
-  } else {
-    return exports.captureFetchModule(require('node-fetch', downstreamXRayEnabled, subsegmentCallback));
+    if (!globalThis.__fetch) {
+      globalThis.__fetch = globalThis.fetch;
+      globalThis.fetch = exports._fetchEnableCapture(globalThis.__fetch, globalThis.Request,
+        downstreamXRayEnabled, subsegmentCallback);
+    }
+    return globalThis.fetch;
   }
+  return exports.captureFetchModule(require('node-fetch'), downstreamXRayEnabled, subsegmentCallback);
 }
 
 /**
- * Wrap global fetch to automatically capture information for the segment.
- * This patches the built-in fetch function globally.
- * @param {boolean} downstreamXRayEnabled - when true, adds a "traced:true" property to the subsegment
- *   so the AWS X-Ray service expects a corresponding segment from the downstream service.
- * @param {function} subsegmentCallback - a callback that is called with the subsegment, the Node.js
- *   http.ClientRequest, the Node.js http.IncomingMessage (if a response was received) and any error issued,
- *   allowing custom annotations and metadata to be added.
- *   to be added to the subsegment.
- * @alias module:fetch_p.captureFetchGlobal
- */
-function captureFetchGlobal(downstreamXRayEnabled, subsegmentCallback) {
-  if (!globalThis.fetch) {
-    logger.getLogger().warn('X-ray capture did not detect global fetch, check NodeJS version');
-    return null;
-  }
-  if (!globalThis.__fetch) {
-    globalThis.__fetch = globalThis.fetch;
-  }
-  globalThis.fetch = enableCapture(globalThis.__fetch, globalThis.Request,
-    downstreamXRayEnabled, subsegmentCallback);
-  return globalThis.fetch;
-}
-
-/**
- * Wrap fetch module to automatically capture information for the segment.
+ * Wrap fetch module to capture information for the segment.
  * This patches the fetch function distributed in node-fetch package.
  * @param {fetch} module - The fetch module
  * @param {boolean} downstreamXRayEnabled - when true, adds a "traced:true" property to the subsegment
@@ -74,15 +54,18 @@ function captureFetchModule(module, downstreamXRayEnabled, subsegmentCallback) {
   }
   if (!module.__fetch) {
     module.__fetch = module.default;
+    module.default = exports._fetchEnableCapture(module.__fetch, module.Request,
+      downstreamXRayEnabled, subsegmentCallback);
   }
-  module.default = enableCapture(module.__fetch, module.Request,
-    downstreamXRayEnabled, subsegmentCallback);
   return module.default;
 }
 
-function enableCapture(baseFetchFunction, requestClass, downstreamXRayEnabled, subsegmentCallback) {
+const enableCapture = function enableCapture(baseFetchFunction, requestClass, downstreamXRayEnabled, subsegmentCallback) {
   //  fetch(input: RequestInfo | URL, init?: RequestInit): Promise<Response>;
+
   var overridenFetchAsync = async (...args) => {
+    this.downstreamXRayEnabled = !!downstreamXRayEnabled;
+    this.subsegmentCallback = subsegmentCallback;
     // Standardize request information
     const request = typeof args[0] === 'object' ?
       args[0] :
@@ -93,10 +76,12 @@ function enableCapture(baseFetchFunction, requestClass, downstreamXRayEnabled, s
 
     // Short circuit if the HTTP is already being captured
     if (request.headers.has('X-Amzn-Trace-Id')) {
+
       return await baseFetchFunction(...args);
     }
 
     const url = new URL(request.url);
+    const isAutomaticMode = contextUtils.isAutomaticMode();
 
     const parent = contextUtils.resolveSegment(contextUtils.resolveManualSegmentParams(params));
     const hostname = url.hostname || url.host || 'Unknown host';
@@ -106,12 +91,12 @@ function enableCapture(baseFetchFunction, requestClass, downstreamXRayEnabled, s
         (request.method ? (', method: ' + request.method) : '') +
         ', path: ' + url.pathname + ' ]';
 
-      if (!contextUtils.isAutomaticMode()) {
-        logger.getLogger().info('RequestInit for request ' + output +
-          ' requires a segment object on the options params as "XRaySegment" for tracing in manual mode. Ignoring.');
-      } else {
+      if (isAutomaticMode) {
         logger.getLogger().info('RequestInit for request ' + output +
           ' is missing the sub/segment context for automatic mode. Ignoring.');
+      } else {
+        logger.getLogger().info('RequestInit for request ' + output +
+          ' requires a segment object on the options params as "XRaySegment" for tracing in manual mode. Ignoring.');
       }
 
       // Options are not modified, only parsed for logging. We can pass in the original arguments.
@@ -132,40 +117,56 @@ function enableCapture(baseFetchFunction, requestClass, downstreamXRayEnabled, s
       ';Parent=' + subsegment.id +
       ';Sampled=' + (subsegment.notTraced ? '0' : '1'));
 
-    const requestClone = request.clone();
-    let response = undefined;
-    try {
-      response = await baseFetchFunction(requestClone);
-      if (subsegmentCallback) {
-        subsegmentCallback(subsegment, requestClone, response);
-      }
+    // Set up fetch call and capture any thrown errors
+    const capturedFetch = async () => {
+      const requestClone = request.clone();
+      let response;
+      try {
+        response = await baseFetchFunction(requestClone);
 
-      if (response.statusCode === 429) {
-        subsegment.addThrottleFlag();
-      }
+        if (this.subsegmentCallback) {
+          this.subsegmentCallback(subsegment, requestClone, response);
+        }
 
-      const cause = Utils.getCauseTypeFromHttpStatus(response.statusCode);
-      if (cause) {
-        subsegment[cause] = true;
-      }
+        const statusCode = response.status;
+        if (statusCode === 429) {
+          subsegment.addThrottleFlag();
+        }
 
-      subsegment.addRemoteRequestData(requestClone, response, !!downstreamXRayEnabled);
-      subsegment.close();
-      return response;
-    } catch (e) {
-      if (subsegmentCallback) {
-        subsegmentCallback(subsegment, requestClone, response, e);
+        const cause = Utils.getCauseTypeFromHttpStatus(statusCode);
+        if (cause) {
+          subsegment[cause] = true;
+        }
+
+        subsegment.addRemoteRequestData(requestClone, response, this.downstreamXRayEnabled);
+        subsegment.close();
+        return response;
+      } catch (e) {
+        if (this.subsegmentCallback) {
+          this.subsegmentCallback(subsegment, requestClone, response, e);
+        }
+        const madeItToDownstream = (e.code !== 'ECONNREFUSED');
+        subsegment.addErrorFlag();
+        subsegment.addRemoteRequestData(requestClone, response, madeItToDownstream && this.downstreamXRayEnabled);
+        subsegment.close(e);
+        throw (e);
       }
-      const madeItToDownstream = (e.code !== 'ECONNREFUSED');
-      subsegment.addErrorFlag();
-      subsegment.addRemoteRequestData(requestClone, response, madeItToDownstream && downstreamXRayEnabled);
-      subsegment.close(e);
-      throw (e);
+    };
+
+    if (isAutomaticMode) {
+      const session = contextUtils.getNamespace();
+      return await session.runPromise(async () => {
+        contextUtils.setSegment(subsegment);
+        return await capturedFetch();
+      });
+    } else {
+      return await capturedFetch();
     }
   };
+
   return overridenFetchAsync;
-}
+};
 
 module.exports.captureFetch = captureFetch;
-module.exports.captureFetchGlobal = captureFetchGlobal;
 module.exports.captureFetchModule = captureFetchModule;
+module.exports._fetchEnableCapture = enableCapture;

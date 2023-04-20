@@ -23,60 +23,44 @@ describe('node-fetch', function () {
   describe('capture functions', function () {
 
     let sandbox;
-    let spyLogWarn;
-    let spyCaptureFetchGlobal;
     let spyCaptureFetchModule;
+    let spyEnableCapture;
+    let spyLogWarn;
     let saveGlobalFetch;
     let saveModuleFetch;
 
     beforeEach(function () {
       sandbox = sinon.createSandbox();
+      spyCaptureFetchModule = sandbox.spy(fetch_p, 'captureFetchModule');
+      spyEnableCapture = sandbox.spy(fetch_p, '_fetchEnableCapture');
       spyLogWarn = sandbox.spy();
       sandbox.stub(logger, 'getLogger').returns({
         warn: spyLogWarn
       });
       saveGlobalFetch = globalThis.fetch;
       saveModuleFetch = fetchModule.default;
-      spyCaptureFetchGlobal = sandbox.spy(fetch_p, 'captureFetchGlobal');
-      spyCaptureFetchModule = sandbox.spy(fetch_p, 'captureFetchModule');
     });
 
     afterEach(function () {
-      sandbox.restore();
-      globalThis.fetch = saveGlobalFetch;
       fetchModule.default = saveModuleFetch;
+      globalThis.fetch = saveGlobalFetch;
       delete globalThis.__fetch;
       delete fetchModule.__fetch;
+      sandbox.restore();
+      sandbox.resetHistory();
     });
 
     describe('#captureFetch', function () {
       it('calls global fetch if fetch exists in globalThis', function () {
         globalThis.fetch = sinon.stub();
         fetch_p.captureFetch(true);
-        spyCaptureFetchGlobal.should.have.been.calledOnce;
+        spyEnableCapture.should.have.been.calledOnce;
         spyCaptureFetchModule.should.not.have.been.called;
       });
-      it('calls module fetch if fetch does not exist in globalThis', function () {
+      it('forwards to captureFetchModule if fetch does not exist in globalThis', function () {
         delete globalThis.fetch;
         fetch_p.captureFetch(true);
         spyCaptureFetchModule.should.have.been.calledOnce;
-        spyCaptureFetchGlobal.should.not.have.been.called;
-      });
-    });
-
-    describe('#captureFetchGlobal', function () {
-      it('stubs out the function', function () {
-        const placeholder = sinon.stub();
-        globalThis.fetch = placeholder;
-        fetch_p.captureFetchGlobal(true);
-        globalThis.fetch.should.not.equal(placeholder);
-        globalThis.__fetch.should.equal(placeholder);
-      });
-
-      it('warns if global fetch is not available', function () {
-        delete globalThis.fetch;
-        fetch_p.captureFetchGlobal(true);
-        spyLogWarn.should.have.been.calledOnceWith('X-ray capture did not detect global fetch, check NodeJS version');
       });
     });
 
@@ -122,23 +106,8 @@ describe('node-fetch', function () {
 
     const useGlobalFetch = globalFetchAvailable;
 
-    const getCaptureFetch = (downstreamXRayEnabled, subsegmentCallback) => useGlobalFetch
-      ? fetch_p.captureFetchGlobal(downstreamXRayEnabled, subsegmentCallback)
-      : fetch_p.captureFetchModule(fetchModule, downstreamXRayEnabled, subsegmentCallback);
-
     before(function () {
       sandbox = sinon.createSandbox();
-      // Test against embedded fetch, if available,
-      // otherwise, fall back to fetch module
-      if (useGlobalFetch) {
-        saveFetch = globalThis.fetch;
-        stubFetch = sandbox.stub(globalThis, 'fetch');
-        FetchRequest = globalThis.Request;
-      } else {
-        saveFetch = fetchModule.default;
-        stubFetch = sandbox.stub(fetchModule, 'default');
-        FetchRequest = fetchModule.Request;
-      }
       stubValidResponse = {
         statusCode: 200,
         status: 'OK'
@@ -174,16 +143,22 @@ describe('node-fetch', function () {
 
     after(function () {
       sandbox.restore();
-      if (useGlobalFetch) {
-        globalThis.__fetch = undefined;
-        globalThis.fetch = saveFetch;
-      } else {
-        fetchModule.__fetch = undefined;
-        fetchModule.fetch = saveFetch;
-      }
     });
 
     this.beforeEach(function () {
+      // Test against global fetch, if available,
+      // otherwise, fall back to fetch module
+      if (useGlobalFetch) {
+        saveFetch = globalThis.fetch;
+        stubFetch = sandbox.stub(globalThis, 'fetch');
+        FetchRequest = globalThis.Request;
+      } else {
+        saveFetch = fetchModule.default;
+        console.log('Stubbing fetch module');
+        stubFetch = sandbox.stub(fetchModule, 'default');
+        FetchRequest = fetchModule.Request;
+      }
+
       stubResolveManualSegmentParams.returns(null);
       stubResolveSegment.returns(stubParentSegment);
       stubAddNewSubsegment.returns(stubSubsegment);
@@ -197,11 +172,15 @@ describe('node-fetch', function () {
 
     this.afterEach(function () {
       stubIsAutomaticMode.restore();
+      delete globalThis.__fetch;
+      globalThis.fetch = saveFetch;
+      delete fetchModule.__fetch;
+      fetchModule.fetch = saveFetch;
       sandbox.resetHistory();
     });
 
     it('short circuits if headers include trace ID', async function () {
-      const activeFetch =  getCaptureFetch(true);
+      const activeFetch =  fetch_p.captureFetch(true);
       const request = new FetchRequest('https://www.foo.com', {
         headers: {
           'X-Amzn-Trace-Id': '12345'
@@ -213,7 +192,7 @@ describe('node-fetch', function () {
     });
 
     it('calls base function when no parent and automatic mode', async function () {
-      const activeFetch =  getCaptureFetch(true);
+      const activeFetch =  fetch_p.captureFetch(true);
       stubResolveSegment.returns(null);
       const request = new FetchRequest('https://www.foo.com/test');
       await activeFetch(request);
@@ -222,7 +201,7 @@ describe('node-fetch', function () {
     });
 
     it('calls base function when no parent and not automatic mode', async function () {
-      const activeFetch =  getCaptureFetch(true);
+      const activeFetch =  fetch_p.captureFetch(true);
       stubResolveSegment.returns(null);
       stubIsAutomaticMode.returns(false);
       const request = new FetchRequest('https://www.foo.com/test');
@@ -232,7 +211,7 @@ describe('node-fetch', function () {
     });
 
     it('short circuits and displays info when no parent and no method', async function () {
-      const activeFetch =  getCaptureFetch(true);
+      const activeFetch =  fetch_p.captureFetch(true);
       stubResolveSegment.returns(null);
       stubIsAutomaticMode.returns(false);
       const request = new FetchRequest('https://www.foo.com/test',);
@@ -244,7 +223,7 @@ describe('node-fetch', function () {
     });
 
     it('passes Segment information to resolveManualSegmentParams if included in request configuration', async function () {
-      const activeFetch =  getCaptureFetch(true);
+      const activeFetch =  fetch_p.captureFetch(true);
       const requestInfo = {
         Segment: {}
       };
@@ -253,7 +232,7 @@ describe('node-fetch', function () {
     });
 
     it('adds new segment with sampling if parent notTraced is false', async function () {
-      const activeFetch =  getCaptureFetch(true);
+      const activeFetch =  fetch_p.captureFetch(true);
       stubParentSegment.notTraced = false;
       const request = new FetchRequest('https://www.foo.com/test');
       await activeFetch(request);
@@ -262,7 +241,7 @@ describe('node-fetch', function () {
     });
 
     it('adds new segment without sampling if parent notTraced is true', async function () {
-      const activeFetch =  getCaptureFetch(true);
+      const activeFetch =  fetch_p.captureFetch(true);
       stubParentSegment.notTraced = true;
       const request = new FetchRequest('https://www.foo.com/test');
       await activeFetch(request);
@@ -271,7 +250,7 @@ describe('node-fetch', function () {
     });
 
     it('adds X-Amzn-Trace-Id header with parent\'s segment trace_id', async function () {
-      const activeFetch =  getCaptureFetch(true);
+      const activeFetch =  fetch_p.captureFetch(true);
       stubParentSegment.segment = { trace_id: '12345' };
       stubSubsegment.notTraced = true;
       stubSubsegment.id = '999';
@@ -283,7 +262,7 @@ describe('node-fetch', function () {
     });
 
     it('adds X-Amzn-Trace-Id header with parent\'s trace_id if no parent segment', async function () {
-      const activeFetch =  getCaptureFetch(true);
+      const activeFetch =  fetch_p.captureFetch(true);
       stubParentSegment.trace_id = '12345';
       stubSubsegment.notTraced = true;
       stubSubsegment.id = '999';
@@ -295,7 +274,7 @@ describe('node-fetch', function () {
     });
 
     it('adds X-Amzn-Trace-Id header with sampled off if not traced', async function () {
-      const activeFetch =  getCaptureFetch(true);
+      const activeFetch =  fetch_p.captureFetch(true);
       stubParentSegment.trace_id = '12345';
       stubSubsegment.notTraced = true;
       stubSubsegment.id = '999';
@@ -307,7 +286,7 @@ describe('node-fetch', function () {
     });
 
     it('adds X-Amzn-Trace-Id header with sampled on if traced', async function () {
-      const activeFetch =  getCaptureFetch(true);
+      const activeFetch =  fetch_p.captureFetch(true);
       stubParentSegment.trace_id = '12345';
       stubSubsegment.notTraced = false;
       stubSubsegment.id = '999';
@@ -320,7 +299,7 @@ describe('node-fetch', function () {
 
     it('calls subsegmentCallback on successful response', async function () {
       const spyCallback = sandbox.spy();
-      const activeFetch =  getCaptureFetch(true, spyCallback);
+      const activeFetch =  fetch_p.captureFetch(true, spyCallback);
       const request = new FetchRequest('https://www.foo.com/test');
       const clonedRequest = request.clone();
       const stubClone = sandbox.stub(request, 'clone').returns(clonedRequest);
@@ -330,22 +309,22 @@ describe('node-fetch', function () {
     });
 
     it('calls subsegment.addThrottleFlag on 429', async function () {
-      const activeFetch =  getCaptureFetch(true);
+      const activeFetch =  fetch_p.captureFetch(true);
       const request = new FetchRequest('https://www.foo.com/test');
       stubFetch.resolves({
-        statusCode: 429,
-        status: 'Too Many Requests'
+        status: 429,
+        statusText: 'Too Many Requests'
       });
       await activeFetch(request);
       spyAddThrottleFlag.should.have.been.calledOnce;
     });
 
     it('sets subsegment.cause on failure', async function () {
-      const activeFetch =  getCaptureFetch(true);
+      const activeFetch =  fetch_p.captureFetch(true);
       const utilsCodeStub = sandbox.stub(Utils, 'getCauseTypeFromHttpStatus').returns('nee');
       const request = new FetchRequest('https://www.foo.com/test');
       stubFetch.resolves({
-        statusCode: 500
+        status: 500
       });
       await activeFetch(request);
       stubSubsegment['nee'].should.equal(true);
@@ -353,7 +332,7 @@ describe('node-fetch', function () {
     });
 
     it('calls subsegment.addRemoteRequestData with downstreamXRayEnabled set to true on success', async function () {
-      const activeFetch =  getCaptureFetch(true);
+      const activeFetch =  fetch_p.captureFetch(true);
       const request = new FetchRequest('https://www.foo.com/test');
       const clonedRequest = request.clone();
       const stubClone = sandbox.stub(request, 'clone').returns(clonedRequest);
@@ -363,7 +342,7 @@ describe('node-fetch', function () {
     });
 
     it('calls subsegment.addRemoteRequestData with downstreamXRayEnabled set to false on success', async function () {
-      const activeFetch =  getCaptureFetch(false);
+      const activeFetch =  fetch_p.captureFetch(false);
       const request = new FetchRequest('https://www.foo.com/test');
       const clonedRequest = request.clone();
       const stubClone = sandbox.stub(request, 'clone').returns(clonedRequest);
@@ -373,14 +352,14 @@ describe('node-fetch', function () {
     });
 
     it('calls subsegment.close on success', async function () {
-      const activeFetch =  getCaptureFetch(true);
+      const activeFetch =  fetch_p.captureFetch(true);
       const request = new FetchRequest('https://www.foo.com/test');
       await activeFetch(request);
       spyClose.should.have.been.calledOnce;
     });
 
     it('resolves to response on success', async function () {
-      const activeFetch =  getCaptureFetch(true);
+      const activeFetch =  fetch_p.captureFetch(true);
       const request = new FetchRequest('https://www.foo.com/test');
       const response = await activeFetch(request);
       response.should.equal(stubValidResponse);
@@ -388,7 +367,7 @@ describe('node-fetch', function () {
 
     it('calls subsegmentCallback with error upon fetch throwing', async function () {
       const spyCallback = sandbox.spy();
-      const activeFetch =  getCaptureFetch(true, spyCallback);
+      const activeFetch =  fetch_p.captureFetch(true, spyCallback);
       const request = new FetchRequest('https://www.foo.com/test');
       const clonedRequest = request.clone();
       sandbox.stub(request, 'clone').returns(clonedRequest);
@@ -399,7 +378,7 @@ describe('node-fetch', function () {
     });
 
     it('sets subsegment error flag upon fetch throwing', async function () {
-      const activeFetch =  getCaptureFetch(true);
+      const activeFetch =  fetch_p.captureFetch(true);
       const request = new FetchRequest('https://www.foo.com/test');
       const clonedRequest = request.clone();
       sandbox.stub(request, 'clone').returns(clonedRequest);
@@ -410,7 +389,7 @@ describe('node-fetch', function () {
     });
 
     it('calls addRemoteRequestData upon fetch throwing', async function () {
-      const activeFetch =  getCaptureFetch(true);
+      const activeFetch =  fetch_p.captureFetch(true);
       const request = new FetchRequest('https://www.foo.com/test');
       const clonedRequest = request.clone();
       sandbox.stub(request, 'clone').returns(clonedRequest);
@@ -422,7 +401,7 @@ describe('node-fetch', function () {
     });
 
     it('calls subsegment close with error upon fetch throwing', async function () {
-      const activeFetch =  getCaptureFetch(true);
+      const activeFetch = fetch_p.captureFetch(true);
       const request = new FetchRequest('https://www.foo.com/test');
       const clonedRequest = request.clone();
       sandbox.stub(request, 'clone').returns(clonedRequest);
