@@ -106,6 +106,7 @@ var SegmentEmitter = {
 
   /**
    * Returns the formatted segment JSON string.
+   * @param {Segment} segment - The segment to format.
    */
 
   format: function format(segment) {
