@@ -12,7 +12,7 @@ export function captureModels(
     segment = AWSXRay.resolveSegment(segment);
   }
 
-  if (!attr || attr instanceof Function) {
+  if (typeof attr !== 'object') {
     return attr;
   }
 
