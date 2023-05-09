@@ -17,10 +17,8 @@ var logger = require('../logger');
  * This patches the built-in fetch function globally.
  * @param {boolean} downstreamXRayEnabled - when true, adds a "traced:true" property to the subsegment
  *   so the AWS X-Ray service expects a corresponding segment from the downstream service.
- * @param {function} subsegmentCallback - a callback that is called with the subsegment, the Node.js
- *   http.ClientRequest, the Node.js http.IncomingMessage (if a response was received) and any error issued,
- *   allowing custom annotations and metadata to be added.
- *   to be added to the subsegment.
+ * @param {function} subsegmentCallback - a callback that is called with the subsegment, the fetch request,
+ *   the fetch response and any error issued, allowing custom annotations and metadata to be added.
  * @alias module:fetch_p.captureFetch
  */
 function captureFetch(downstreamXRayEnabled, subsegmentCallback) {

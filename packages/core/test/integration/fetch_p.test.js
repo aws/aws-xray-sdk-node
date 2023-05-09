@@ -39,7 +39,11 @@ describe('node-fetch', function () {
 
   afterEach(function () {
     fetchModule.default = saveModuleFetch;
-    globalThis.fetch = saveGlobalFetch;
+    if (saveGlobalFetch) {
+      globalThis.fetch = saveGlobalFetch;
+    } else {
+      delete globalThis.fetch;
+    }
     delete globalThis.__fetch;
     delete fetchModule.__fetch;
 

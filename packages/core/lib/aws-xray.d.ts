@@ -44,6 +44,8 @@ export { captureAWSClient as captureAWSv3Client } from './patchers/aws3_p';
 
 export { captureHTTPs, captureHTTPsGlobal } from './patchers/http_p';
 
+export { captureFetch } from './patchers/fetch_p';
+
 export { capturePromise } from './patchers/promise_p';
 
 export { utils };

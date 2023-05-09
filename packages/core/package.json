@@ -23,12 +23,16 @@
   },
   "//": "@types/cls-hooked is exposed in API so must be in dependencies, not devDependencies",
   "dependencies": {
-    "@aws-sdk/types": "^3.4.1",
     "@aws-sdk/service-error-classification": "^3.4.1",
+    "@aws-sdk/types": "^3.4.1",
     "@types/cls-hooked": "^4.3.3",
+    "@types/node-fetch": "^2.6.3",
     "atomic-batcher": "^1.0.2",
     "cls-hooked": "^4.2.2",
-    "semver": "^5.3.0"
+    "mocha": "^10.2.0",
+    "semver": "^5.3.0",
+    "tsd": "^0.28.1",
+    "typescript": "^5.0.4"
   },
   "scripts": {
     "prepare": "npm run compile",

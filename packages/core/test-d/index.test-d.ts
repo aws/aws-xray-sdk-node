@@ -2,11 +2,13 @@
 import { Namespace } from 'cls-hooked';
 import * as http from 'http';
 import * as https from 'https';
+import * as fetch from 'node-fetch';
 import { Socket } from 'net';
 import { expectType, expectError } from 'tsd';
 import * as url from 'url';
 import * as AWSXRay from '../lib';
 import { Segment, TraceID } from '../lib';
+import { fetchFunction } from '../lib/patchers/fetch_p';
 
 expectType<void>(AWSXRay.plugins.EC2Plugin.getData((metadata?: AWSXRay.plugins.EC2Metadata) => { }));
 expectType<void>(AWSXRay.plugins.ECSPlugin.getData((metadata?: AWSXRay.plugins.ECSMetadata) => { }));
@@ -83,6 +85,10 @@ function httpSubsegmentCallback(subsegment: AWSXRay.Subsegment, req: http.Client
   console.log({ subsegment, req, res, error });
 }
 
+function fetchCallback(subsegment: AWSXRay.Subsegment, req: fetch.Request, res: fetch.Response | null, error: Error) {
+  console.log({ subsegment, req, res, error });
+}
+
 expectType<typeof http>(AWSXRay.captureHTTPs(http));
 expectType<typeof https>(AWSXRay.captureHTTPs(https));
 expectType<typeof http>(AWSXRay.captureHTTPs(http, true));
@@ -96,6 +102,12 @@ expectType<void>(AWSXRay.captureHTTPsGlobal(http, true));
 expectType<void>(AWSXRay.captureHTTPsGlobal(https, true));
 expectType<void>(AWSXRay.captureHTTPsGlobal(http, true, httpSubsegmentCallback));
 expectType<void>(AWSXRay.captureHTTPsGlobal(https, true, httpSubsegmentCallback));
+
+expectType<typeof fetchFunction>(AWSXRay.captureFetch());
+expectType<typeof fetchFunction>(AWSXRay.captureFetch(true));
+expectType<typeof fetchFunction>(AWSXRay.captureFetch(false));
+expectType<typeof fetchFunction>(AWSXRay.captureFetch(true, fetchCallback));
+expectType<typeof fetchFunction>(AWSXRay.captureFetch(false, fetchCallback));
 
 expectType<void>(AWSXRay.capturePromise());
 expectType<void>(AWSXRay.capturePromise.patchThirdPartyPromise(Promise));

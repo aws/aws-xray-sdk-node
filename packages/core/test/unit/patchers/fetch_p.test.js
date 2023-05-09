@@ -43,7 +43,11 @@ describe('node-fetch', function () {
 
     afterEach(function () {
       fetchModule.default = saveModuleFetch;
-      globalThis.fetch = saveGlobalFetch;
+      if (saveGlobalFetch) {
+        globalThis.fetch = saveGlobalFetch;
+      } else {
+        delete globalThis.fetch;
+      }
       delete globalThis.__fetch;
       delete fetchModule.__fetch;
       sandbox.restore();
@@ -106,7 +110,7 @@ describe('node-fetch', function () {
 
     const useGlobalFetch = globalFetchAvailable;
 
-    before(function () {
+    beforeEach(function () {
       sandbox = sinon.createSandbox();
       stubValidResponse = {
         statusCode: 200,
@@ -139,13 +143,7 @@ describe('node-fetch', function () {
       stubParentSegment = sandbox.stub();
       stubParentSegment.addNewSubsegment = stubAddNewSubsegment;
       stubParentSegment.addNewSubsegmentWithoutSampling = stubAddNewSubsegmentWithoutSampling;
-    });
 
-    after(function () {
-      sandbox.restore();
-    });
-
-    this.beforeEach(function () {
       // Test against global fetch, if available,
       // otherwise, fall back to fetch module
       if (useGlobalFetch) {
@@ -154,7 +152,6 @@ describe('node-fetch', function () {
         FetchRequest = globalThis.Request;
       } else {
         saveFetch = fetchModule.default;
-        console.log('Stubbing fetch module');
         stubFetch = sandbox.stub(fetchModule, 'default');
         FetchRequest = fetchModule.Request;
       }
@@ -172,11 +169,15 @@ describe('node-fetch', function () {
 
     this.afterEach(function () {
       stubIsAutomaticMode.restore();
-      delete globalThis.__fetch;
-      globalThis.fetch = saveFetch;
-      delete fetchModule.__fetch;
-      fetchModule.fetch = saveFetch;
+      if (useGlobalFetch) {
+        delete globalThis.__fetch;
+        globalThis.fetch = saveFetch;
+      } else {
+        delete fetchModule.__fetch;
+        fetchModule.fetch = saveFetch;
+      }
       sandbox.resetHistory();
+      sandbox.restore();
     });
 
     it('short circuits if headers include trace ID', async function () {
