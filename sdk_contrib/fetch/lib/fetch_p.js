@@ -21,10 +21,10 @@ var logger = require('aws-xray-sdk-core/lib/logger');
  * @alias module:fetch_p.captureFetch
  */
 function captureFetch(downstreamXRayEnabled, subsegmentCallback) {
-  if ('fetch' in globalThis) {
-    return exports.captureFetchGlobal(downstreamXRayEnabled, subsegmentCallback);
-  } else {
+  if (globalThis.fetch === undefined) {
     return exports.captureFetchModule(require('node-fetch'), downstreamXRayEnabled, subsegmentCallback);
+  } else {
+    return exports.captureFetchGlobal(downstreamXRayEnabled, subsegmentCallback);
   }
 }
 
@@ -38,6 +38,9 @@ function captureFetch(downstreamXRayEnabled, subsegmentCallback) {
  * @alias module:fetch_p.captureFetch
  */
 function captureFetchGlobal(downstreamXRayEnabled, subsegmentCallback) {
+  if (globalThis.fetch === undefined) {
+    throw new Error('Global fetch is not available in NodeJS');
+  }
   if (!globalThis.__fetch) {
     globalThis.__fetch = globalThis.fetch;
     globalThis.fetch = enableCapture(globalThis.__fetch, globalThis.Request,
@@ -174,7 +177,6 @@ const enableCapture = function enableCapture(baseFetchFunction, requestClass, do
   return overridenFetchAsync;
 };
 
-module.exports.default = captureFetch;
 module.exports.captureFetch = captureFetch;
 module.exports.captureFetchGlobal = captureFetchGlobal;
 module.exports.captureFetchModule = captureFetchModule;

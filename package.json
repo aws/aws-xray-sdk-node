@@ -21,7 +21,6 @@
     "aws-xray-sdk-core": "3.5.0",
     "aws-xray-sdk-express": "3.5.0",
     "chai": "^4.2.0",
-    "chai-as-promised": "^7.1.1",
     "cls-hooked": "^4.2.2",
     "codecov": "^3.8.3",
     "eslint": "^7.5.0",
@@ -49,7 +48,6 @@
     "rewire": "^4.0.1",
     "sinon": "^9.0.2",
     "sinon-chai": "^3.5.0",
-    "ts-node": "^10.9.1",
     "tsd": "^0.25.0",
     "typescript": "^4.4.4",
     "upath": "^1.2.0"
@@ -63,6 +61,7 @@
     "aws-xray-sdk-core": "file:packages/core",
     "aws-xray-sdk-express": "file:packages/express",
     "aws-xray-sdk-fastify": "file:sdk_contrib/fastify",
+    "aws-xray-sdk-fetch": "file:sdk_contrib/fetch",
     "aws-xray-sdk-hapi": "file:sdk_contrib/hapi",
     "aws-xray-sdk-koa2": "file:sdk_contrib/koa",
     "aws-xray-sdk-mysql": "file:packages/mysql",
