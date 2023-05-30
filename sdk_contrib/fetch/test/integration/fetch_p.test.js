@@ -1,12 +1,10 @@
 const chai = require('chai');
-const chaiAsPromised = require('chai-as-promised');
 const sinonChai = require('sinon-chai');
 const sinon = require('sinon');
 const { captureFetch, captureFetchGlobal, captureFetchModule } = require('../../lib/fetch_p');
 
 chai.should();
 chai.use(sinonChai);
-chai.use(chaiAsPromised);
 
 const contextUtils = require('aws-xray-sdk-core/lib/context_utils');
 const fetchModule = require('node-fetch');
