@@ -1,17 +1,17 @@
-import chai from 'chai';
-import chaiAsPromised from 'chai-as-promised';
-import sinonChai from 'sinon-chai';
-import sinon from 'sinon';
-import { captureFetch, captureFetchGlobal, captureFetchModule } from '../../lib/fetch_p';
+const chai = require('chai');
+const chaiAsPromised = require('chai-as-promised');
+const sinonChai = require('sinon-chai');
+const sinon = require('sinon');
+const { captureFetch, captureFetchGlobal, captureFetchModule } = require('../../lib/fetch_p');
 
 chai.should();
 chai.use(sinonChai);
 chai.use(chaiAsPromised);
 
-import contextUtils = require('aws-xray-sdk-core/lib/context_utils');
-import * as fetchModule from 'node-fetch';
-import Segment = require('aws-xray-sdk-core/lib/segments/segment');
-import Subsegment = require('aws-xray-sdk-core/lib/segments/attributes/subsegment');
+const contextUtils = require('aws-xray-sdk-core/lib/context_utils');
+const fetchModule = require('node-fetch');
+const Segment = require('aws-xray-sdk-core/lib/segments/segment');
+const Subsegment = require('aws-xray-sdk-core/lib/segments/attributes/subsegment');
 
 describe('Integration tests', function () {
   const goodUrl = 'https://example.org';
@@ -21,17 +21,17 @@ describe('Integration tests', function () {
 
   describe('captureFetch', function () {
 
-    let saveGlobalFetch: any;
-    let saveModuleFetch: any;
-    let sandbox: sinon.SinonSandbox;
-    let mockSegment: Segment;
-    let mockSubsegment: Subsegment;
-    let stubIsAutomaticMode: sinon.SinonStub;
-    let stubAddNewSubsegment: sinon.SinonStub;
-    let stubResolveSegment: sinon.SinonStub;
-    let stubAddRemoteRequestData: sinon.SinonStub;
-    let stubAddErrorFlag: sinon.SinonStub;
-    let stubClose: sinon.SinonStub;
+    let saveGlobalFetch;
+    let saveModuleFetch;
+    let sandbox;
+    let mockSegment;
+    let mockSubsegment;
+    let stubIsAutomaticMode;
+    let stubAddNewSubsegment;
+    let stubResolveSegment;
+    let stubAddRemoteRequestData;
+    let stubAddErrorFlag;
+    let stubClose;
 
     beforeEach(function () {
       if (hasGlobalFetch) {
@@ -53,14 +53,12 @@ describe('Integration tests', function () {
 
     afterEach(function () {
       if (hasGlobalFetch) {
-        const globalThisAsAny = globalThis as any;
         globalThis.fetch = saveGlobalFetch;
-        delete globalThisAsAny.__fetch;
+        delete globalThis.__fetch;
       }
 
-      const fetchModuleAsAny = fetchModule as any;
-      fetchModuleAsAny.default = saveModuleFetch;
-      delete fetchModuleAsAny.__fetch;
+      fetchModule.default = saveModuleFetch;
+      delete fetchModule.__fetch;
 
       sandbox.restore();
       sandbox.resetHistory();
@@ -95,16 +93,16 @@ describe('Integration tests', function () {
 
   describe('captureFetchModule', function () {
 
-    let saveGlobalFetch: any;
-    let sandbox: sinon.SinonSandbox;
-    let mockSegment: Segment;
-    let mockSubsegment: Subsegment;
-    let stubIsAutomaticMode: sinon.SinonStub;
-    let stubAddNewSubsegment: sinon.SinonStub;
-    let stubResolveSegment: sinon.SinonStub;
-    let stubAddRemoteRequestData: sinon.SinonStub;
-    let stubAddErrorFlag: sinon.SinonStub;
-    let stubClose: sinon.SinonStub;
+    let saveGlobalFetch;
+    let sandbox;
+    let mockSegment;
+    let mockSubsegment;
+    let stubIsAutomaticMode;
+    let stubAddNewSubsegment;
+    let stubResolveSegment;
+    let stubAddRemoteRequestData;
+    let stubAddErrorFlag;
+    let stubClose;
 
     beforeEach(function () {
       saveGlobalFetch = globalThis.fetch;
@@ -122,9 +120,8 @@ describe('Integration tests', function () {
     });
 
     afterEach(function () {
-      const globalThisAsAny = globalThis as any;
       globalThis.fetch = saveGlobalFetch;
-      delete globalThisAsAny.__fetch;
+      delete globalThis.__fetch;
 
       sandbox.restore();
       sandbox.resetHistory();
@@ -164,16 +161,16 @@ describe('Integration tests', function () {
   });
 
   describe('captureFetchModule', function () {
-    let saveModuleFetch: any;
-    let sandbox: sinon.SinonSandbox;
-    let mockSegment: Segment;
-    let mockSubsegment: Subsegment;
-    let stubIsAutomaticMode: sinon.SinonStub;
-    let stubAddNewSubsegment: sinon.SinonStub;
-    let stubResolveSegment: sinon.SinonStub;
-    let stubAddRemoteRequestData: sinon.SinonStub;
-    let stubAddErrorFlag: sinon.SinonStub;
-    let stubClose: sinon.SinonStub;
+    let saveModuleFetch;
+    let sandbox;
+    let mockSegment;
+    let mockSubsegment;
+    let stubIsAutomaticMode;
+    let stubAddNewSubsegment;
+    let stubResolveSegment;
+    let stubAddRemoteRequestData;
+    let stubAddErrorFlag;
+    let stubClose;
 
     beforeEach(function () {
       saveModuleFetch = fetchModule.default;
@@ -191,9 +188,8 @@ describe('Integration tests', function () {
     });
 
     afterEach(function () {
-      const fetchModuleAsAny = fetchModule as any;
-      fetchModuleAsAny.default = saveModuleFetch;
-      delete fetchModuleAsAny.__fetch;
+      fetchModule.default = saveModuleFetch;
+      delete fetchModule.__fetch;
 
       sandbox.restore();
       sandbox.resetHistory();

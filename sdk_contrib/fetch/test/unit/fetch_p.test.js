@@ -1,13 +1,13 @@
-var chai = require('chai');
-var sinon = require('sinon');
-var sinonChai = require('sinon-chai');
-var chaiAsPromised = require('chai-as-promised');
+const chai = require('chai');
+const chaiAsPromised = require('chai-as-promised');
+const sinonChai = require('sinon-chai');
+const sinon = require('sinon');
 
-var contextUtils = require('aws-xray-sdk-core/lib/context_utils');
-var utils = require('aws-xray-sdk-core/lib/utils');
-var logger = require('aws-xray-sdk-core/lib/logger');
+const contextUtils = require('aws-xray-sdk-core/lib/context_utils');
+const utils = require('aws-xray-sdk-core/lib/utils');
+const logger = require('aws-xray-sdk-core/lib/logger');
 
-import * as fetchModule from 'node-fetch';
+const fetchModule = require('node-fetch');
 const { captureFetch, captureFetchGlobal, captureFetchModule } = require('../../lib/fetch_p');
 const fetch_p = require('../../lib/fetch_p');
 
