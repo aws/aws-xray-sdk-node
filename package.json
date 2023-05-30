@@ -62,7 +62,6 @@
     "aws-xray-sdk-core": "file:packages/core",
     "aws-xray-sdk-express": "file:packages/express",
     "aws-xray-sdk-fastify": "file:sdk_contrib/fastify",
-    "aws-xray-sdk-fetch": "file:sdk_contrib/fetch",
     "aws-xray-sdk-hapi": "file:sdk_contrib/hapi",
     "aws-xray-sdk-koa2": "file:sdk_contrib/koa",
     "aws-xray-sdk-mysql": "file:packages/mysql",
