@@ -280,16 +280,19 @@ Segment.prototype.removeSubsegment = function removeSubsegment(subsegment) {
  * Adds error data into the segment.
  * @param {Error|string} err - The error to capture.
  * @param {boolean} [remote] - Flag for whether the exception caught was remote or not.
+ * @param {boolean} [fault] - Flag for whether the fault flag should be set.
  */
 
-Segment.prototype.addError = function addError(err, remote) {
+Segment.prototype.addError = function addError(err, remote, fault) {
   if (err == null || typeof err !== 'object' && typeof(err) !== 'string') {
     logger.getLogger().error('Failed to add error:' + err + ' to subsegment "' + this.name +
     '".  Not an object or string literal.');
     return;
   }
 
-  this.addFaultFlag();
+  if (fault || fault === undefined) {
+    this.addFaultFlag();
+  }
 
   if (this.exception) {
     if (err === this.exception.ex) {
@@ -381,15 +384,16 @@ Segment.prototype.decrementCounter = function decrementCounter() {
  * Closes the current segment.  This automatically sets the end time.
  * @param {Error|string} [err] - The error to capture.
  * @param {boolean} [remote] - Flag for whether the exception caught was remote or not.
+ * @param {boolean} [fault] - Flag for whether the fault flag should be set.
  */
 
-Segment.prototype.close = function(err, remote) {
+Segment.prototype.close = function(err, remote, fault) {
   if (!this.end_time) {
     this.end_time = SegmentUtils.getCurrentTime();
   }
 
   if (err !== undefined) {
-    this.addError(err, remote);
+    this.addError(err, remote, fault);
   }
 
   delete this.in_progress;
