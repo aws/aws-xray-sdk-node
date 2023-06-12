@@ -26,6 +26,8 @@ By default, the SDK is in automatic mode. You can flip the mode of the SDK using
 
     AWSXRay.enableAutomaticMode();
 
+    process.env.AWS_XRAY_MANUAL_MODE
+
 #### Automatic mode
 
 Automatic mode is designed for use with Express, Restify, and Lambda
@@ -54,6 +56,7 @@ section for different usages.
 **Environment variables always override values set in code.**
 
     AWS_XRAY_DEBUG_MODE              Enables logging of debug messages to console output. Logging to a file is no longer built in. See 'configure logging' below.
+    AWS_XRAY_MANUAL_MODE             For overriding the default automatic mode. See 'Automatic mode'.
     AWS_XRAY_TRACING_NAME            For overriding the default segment name to use
     with the middleware. See 'dynamic and fixed naming modes'.
     AWS_XRAY_DAEMON_ADDRESS          For setting the daemon address and port.
