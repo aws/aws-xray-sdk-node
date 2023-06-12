@@ -100,6 +100,7 @@ describe('AWS v3 patcher', function() {
       })();
 
       segment = new Segment('testSegment', traceId);
+      segment.additionalTraceData = {'Foo': 'bar'};
       sub = segment.addNewSubsegment('subseg');
       stubResolve = sandbox.stub(contextUtils, 'resolveSegment').returns(segment);
       addNewSubsegmentStub = sandbox.stub(segment, 'addNewSubsegment').returns(sub);
@@ -135,7 +136,7 @@ describe('AWS v3 patcher', function() {
         assert.isTrue(addNewSubsegmentStub.calledWith('S3'));
 
 
-        const expected = new RegExp('^Root=' + traceId + ';Parent=' + sub.id + ';Sampled=1$');
+        const expected = new RegExp('^Root=' + traceId + ';Parent=' + sub.id + ';Sampled=1' + ';Foo=bar$');
         assert.match(awsRequest.request.headers['X-Amzn-Trace-Id'], expected);
       });
 
@@ -303,6 +304,7 @@ describe('AWS v3 patcher', function() {
       })();
 
       segment = new Segment('testSegment', traceId);
+      segment.additionalTraceData = {'Foo': 'bar'};
       sub = segment.addNewSubsegmentWithoutSampling('subseg');
       service = sub.addNewSubsegmentWithoutSampling('service');
 
@@ -331,7 +333,7 @@ describe('AWS v3 patcher', function() {
         assert.isTrue(addNewServiceSubsegmentStub.calledWith('S3'));
 
 
-        const expected = new RegExp('^Root=' + traceId + ';Parent=' + service.id + ';Sampled=0$');
+        const expected = new RegExp('^Root=' + traceId + ';Parent=' + service.id + ';Sampled=0' + ';Foo=bar$');
         assert.match(awsRequest.request.headers['X-Amzn-Trace-Id'], expected);
       });
     });

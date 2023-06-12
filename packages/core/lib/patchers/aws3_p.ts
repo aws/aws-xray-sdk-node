@@ -118,8 +118,9 @@ const getXRayMiddleware = (config: RegionResolvedConfig, manualSegment?: Segment
   }
   subsegment.addAttribute('namespace', 'aws');
   const parent = (segment instanceof Subsegment ? segment.segment : segment);
+  const data = parent.segment ? parent.segment.additionalTraceData : parent.additionalTraceData;
 
-  args.request.headers['X-Amzn-Trace-Id'] = stringify(
+  let traceHeader = stringify(
     {
       Root: parent.trace_id,
       Parent: subsegment.id,
@@ -127,6 +128,14 @@ const getXRayMiddleware = (config: RegionResolvedConfig, manualSegment?: Segment
     },
     ';',
   );
+
+  if (data != null) {
+    for (const [key, value] of Object.entries(data)) {
+      traceHeader += ';' + key +'=' + value;
+    }
+  }
+
+  args.request.headers['X-Amzn-Trace-Id'] = traceHeader;
 
   let res;
   try {
