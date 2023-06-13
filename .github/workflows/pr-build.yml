@@ -45,9 +45,9 @@ jobs:
       - name: Execute tests with Lerna
         if: '!matrix.coverage'
         run: |
-          npx lerna@5.5.2 bootstrap --hoist
-          npx lerna@5.5.2 run compile
-          npx lerna@5.5.2 run test
+          npx lerna@6.6.2 bootstrap --hoist
+          npx lerna run compile
+          npx lerna run test
         shell: bash
         env:
           CI: true
@@ -57,9 +57,9 @@ jobs:
       - name: Report coverage
         if: matrix.coverage
         run: |
-          npx lerna@5.5.2 bootstrap --hoist
-          npx lerna@5.5.2 run testcov
-          npx lerna@5.5.2 run reportcov
+          npx lerna@6.6.2 bootstrap --hoist
+          npx lerna run testcov
+          npx lerna run reportcov
           echo test
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
@@ -85,5 +85,5 @@ jobs:
 
       - name: Lint repository
         run: |
-          npx lerna@5.5.2 bootstrap --hoist
-          npx lerna@5.5.2 run lint
+          npx lerna@6.6.2 bootstrap --hoist
+          npx lerna run lint
