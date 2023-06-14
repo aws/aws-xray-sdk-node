@@ -21,10 +21,19 @@ jobs:
           - 14.x
           - 16.x
           - 18.x
+          - 20.x
         include:
           - os: ubuntu-latest
             node-version: 16.x
             coverage: true
+        # Issue with npm6 on windows resulting in failing workflows:
+        # https://github.com/srprash/aws-xray-sdk-node/actions/runs/5272315465
+        # Since node14 is EOL, we can drop this set from our tests. 
+        # We still test node14 on other platforms.
+        exclude:
+          - os: windows-latest
+            node-version: 14.x
+
     steps:
       - name: Checkout AWS XRay SDK Node Repository @ default branch latest
         uses: actions/checkout@v3
