@@ -45,7 +45,7 @@ jobs:
             package-lock.json
             packages/*/node_modules
             packages/*/package-lock.json
-          key: ${{ matrix.os }}-${{ matrix.node_version }}-${{ hashFiles('package.json', 'packages/*/package.json') }}-06142023
+          key: ${{ matrix.os }}-${{ matrix.node-version }}-${{ hashFiles('package.json', 'packages/*/package.json') }}-06142023
 
       - name: Bootstrap
         run: |
@@ -55,11 +55,13 @@ jobs:
       - name: Build
         run: |
           npx lerna run compile
+        shell: bash
 
       - name: Execute tests with Lerna
         if: '!matrix.coverage'
         run: |
           npx lerna run test
+        shell: bash
 
       # Only need to report coverage once, so only run instrumented tests on one Node version/OS
       # Use lerna to get reports from all packages
