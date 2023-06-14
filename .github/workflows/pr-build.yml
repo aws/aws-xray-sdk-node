@@ -103,5 +103,5 @@ jobs:
 
       - name: Lint repository
         run: |
-          npx lerna@6.6.2 bootstrap --hoist
+          npx lerna bootstrap --hoist
           npx lerna run lint
