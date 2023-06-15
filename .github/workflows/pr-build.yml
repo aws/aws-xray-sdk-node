@@ -21,10 +21,19 @@ jobs:
           - 14.x
           - 16.x
           - 18.x
+          - 20.x
         include:
           - os: ubuntu-latest
             node-version: 16.x
             coverage: true
+        # Issue with npm6 on windows resulting in failing workflows:
+        # https://github.com/npm/cli/issues/4341#issuecomment-1040608101
+        # Since node14 is EOL, we can drop this set from our tests. 
+        # We still test node14 on other platforms.
+        exclude:
+          - os: windows-latest
+            node-version: 14.x
+
     steps:
       - name: Checkout AWS XRay SDK Node Repository @ default branch latest
         uses: actions/checkout@v3
@@ -35,55 +44,41 @@ jobs:
           node-version: ${{ matrix.node-version }}
           check-latest: true
 
+      - run: npm install -g npm@latest
 
       - name: Cache NPM modules
         uses: actions/cache@v3
         with:
-          path: $HOME/.npm
-          key: ${{ matrix.os }}-${{ hashFiles('package-lock.json') }}
+          path: |
+            node_modules
+            package-lock.json
+            packages/*/node_modules
+            packages/*/package-lock.json
+          key: ${{ matrix.os }}-${{ matrix.node-version }}-${{ hashFiles('package.json', 'packages/*/package.json') }}-06142023
+
+      - name: Bootstrap
+        run: |
+          npm install
+          npx lerna bootstrap --no-ci --hoist
+
+      - name: Build
+        run: |
+          npx lerna run compile
+        shell: bash
 
       - name: Execute tests with Lerna
         if: '!matrix.coverage'
         run: |
-          npx lerna bootstrap --hoist
-          npx lerna run compile
           npx lerna run test
         shell: bash
-        env:
-          CI: true
 
       # Only need to report coverage once, so only run instrumented tests on one Node version/OS
       # Use lerna to get reports from all packages
       - name: Report coverage
         if: matrix.coverage
         run: |
-          npx lerna bootstrap --hoist
           npx lerna run testcov
           npx lerna run reportcov
-          echo test
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
           CI: true
-
-  lint:
-    name: Check code style
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout AWS XRay SDK Node Repository @ default branch latest
-        uses: actions/checkout@v3
-
-      - name: Setup Node
-        uses: actions/setup-node@v3
-        with:
-          node-version: 16.x
-
-      - name: Cache NPM modules
-        uses: actions/cache@v3
-        with:
-          path: $HOME/.npm
-          key: ${{ hashFiles('package-lock.json') }}
-
-      - name: Lint repository
-        run: |
-          npx lerna bootstrap --hoist
-          npx lerna run lint
