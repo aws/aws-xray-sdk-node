@@ -1,6 +1,6 @@
 const { PrismaClient } = require('@prisma/client');
 const awsXray = require('aws-xray-sdk-core');
-const { capturePrisma } = require('../../dist');
+const { capturePrisma } = require('aws-xray-sdk-prisma');
 
 awsXray.enableAutomaticMode();
 
