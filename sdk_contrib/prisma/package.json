@@ -1,6 +1,6 @@
 {
   "name": "aws-xray-sdk-prisma",
-  "version": "3.3.7",
+  "version": "3.5.0",
   "description": "AWS X-Ray Patcher for prisma (Javascript)",
   "author": "Cosva",
   "contributors": [
@@ -9,13 +9,13 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "engines": {
-    "node": ">= 12.x"
+    "node": ">= 14.x"
   },
   "directories": {
     "test": "test"
   },
   "peerDependencies": {
-    "aws-xray-sdk-core": "^3.3.7",
+    "aws-xray-sdk-core": "^3.5.0",
     "@prisma/client": "^4.0.0"
   },
   "scripts": {
@@ -37,5 +37,8 @@
   "repository": "https://github.com/aws/aws-xray-sdk-node/tree/master/packages/prisma",
   "publishConfig": {
     "access": "public"
+  },
+  "devDependencies": {
+    "@prisma/client": "^4.15.0"
   }
 }
