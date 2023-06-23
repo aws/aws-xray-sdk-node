@@ -28,7 +28,7 @@
     "@types/cls-hooked": "^4.3.3",
     "atomic-batcher": "^1.0.2",
     "cls-hooked": "^4.2.2",
-    "semver": "^7.3.8"
+    "semver": "^7.5.3"
   },
   "scripts": {
     "prepare": "npm run compile",
