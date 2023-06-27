@@ -165,8 +165,8 @@ function resolveArguments(argsObj) {
       // Patch for mysql2
       if (argsObj[0].values) {
         args.values = argsObj[0].values; // mysql implementation
-      } else if (typeof argsObj[2] === 'function') {
-        args.values = typeof argsObj[1] !== 'function' ? argsObj[1] : null; // mysql2 implementation
+      } else if (typeof argsObj[1] !== 'function') {
+        args.values = argsObj[1]; // mysql2 implementation
       }
       args.callback = typeof argsObj[1] === 'function'
         ? argsObj[1]
@@ -261,12 +261,12 @@ function captureOperation(name) {
 
 /**
  * Generate a SQL data object.  Note that this implementation differs from
- * that in postgres_p.js because the posgres client structures commands
+ * that in postgres_p.js because the postgres client structures commands
  * and prepared statements differently than mysql/mysql2.
  *
  * @param {object} config
  * @param {any} values
- * @param {string} sql
+ * @param {string|Object} sql
  * @returns SQL data object
  */
 function createSqlData(config, values, sql) {
@@ -276,7 +276,7 @@ function createSqlData(config, values, sql) {
     commandType);
 
   if (process.env.AWS_XRAY_COLLECT_SQL_QUERIES && sql) {
-    data.sanitized_query = sql;
+    data.sanitized_query = typeof sql === 'object' ? sql.sql : sql;
   }
 
   return data;
