@@ -8,6 +8,11 @@
   ],
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
   "engines": {
     "node": ">= 14.x"
   },
@@ -15,8 +20,8 @@
     "test": "test"
   },
   "peerDependencies": {
-    "aws-xray-sdk-core": "^3.5.0",
-    "@prisma/client": "^4.0.0"
+    "@prisma/client": "^4.0.0",
+    "aws-xray-sdk-core": "^3.5.0"
   },
   "scripts": {
     "test": "mocha --recursive ./test/ -R spec && tsd",
@@ -39,6 +44,7 @@
     "access": "public"
   },
   "devDependencies": {
-    "@prisma/client": "^4.15.0"
+    "@prisma/client": "^4.15.0",
+    "eslint-plugin-promise": "^6.1.1"
   }
 }
