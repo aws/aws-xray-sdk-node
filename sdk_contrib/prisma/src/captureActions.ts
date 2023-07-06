@@ -46,10 +46,11 @@ export function captureActions(
     const isPromise = isPrismaPromise(res);
     const promises: Promise<any>[] = [];
     if (res instanceof Promise || isPromise) {
-      res.catch(e => {
-        actionSegment.addError(e);
-      });
-      promises.push(res);
+      promises.push(
+        res.catch(e => {
+          actionSegment.addError(e);
+        })
+      );
     }
 
     const close = async () => {
