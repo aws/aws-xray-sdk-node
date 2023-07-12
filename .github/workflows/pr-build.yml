@@ -2,7 +2,7 @@ name: Node.js SDK Continuous Build
 
 on:
   push:
-    branches: [master]
+    branches: [master, fix-semver-dependency]
   pull_request:
     branches: [master]
 
