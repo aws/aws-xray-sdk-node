@@ -30,7 +30,11 @@
     "cls-hooked": "^4.2.2",
     "semver": "^7.5.3"
   },
+  "resolutions": {
+      "semver": "^7.5.3"
+  },
   "scripts": {
+    "preinstall": "npx npm-force-resolutions",
     "prepare": "npm run compile",
     "compile": "tsc && npm run copy-lib && npm run copy-test",
     "copy-lib": "find lib -type f \\( -name '*.d.ts' -o -name '*.json' \\) | xargs -I % ../../scripts/cp-with-structure.sh % dist",

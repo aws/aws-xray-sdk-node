@@ -3,6 +3,9 @@
   "version": "3.5.0",
   "private": true,
   "license": "Apache-2.0",
+  "resolutions": {
+    "semver": "^7.5.3"
+  },
   "devDependencies": {
     "@aws-sdk/config-resolver": "^3.4.1",
     "@aws-sdk/middleware-stack": "^3.3.0",
@@ -55,6 +58,9 @@
   "engines": {
     "node": ">= 14.x",
     "npm": ">= 2.x"
+  },
+  "scripts": {
+    "preinstall": "npx npm-force-resolutions"
   },
   "dependencies": {
     "aws-xray-sdk": "file:packages/full_sdk",
