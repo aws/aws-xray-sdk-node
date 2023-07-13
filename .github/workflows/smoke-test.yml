@@ -1,8 +1,6 @@
 name: Node.js Continuous Integration Smoke Test
 
 on:
-  push:
-    branches: [fix-semver-dependency]
   pull_request:
     branches: [master]
 
