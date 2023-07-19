@@ -9,6 +9,7 @@ View [the latest changes](https://github.com/aws/aws-xray-sdk-node/compare/aws-x
   * fix: Incorrect data variable usage + missing data injection in AWS v3 clients [PR #596](https://github.com/aws/aws-xray-sdk-node/pull/596)
   * fix: Update semver dependency [PR #598](https://github.com/aws/aws-xray-sdk-node/pull/598)
   * fix: Override transitive semver dependency [PR #604](https://github.com/aws/aws-xray-sdk-node/pull/604)
+    * fix improvement: Better dependency override + Npm 8 in workflows [PR #607](https://github.com/aws/aws-xray-sdk-node/pull/607)
 * `aws-xray-sdk-mysql` updated to 3.5.1
   * No further changes.
 * `aws-xray-sdk-express` updated to 3.5.1
