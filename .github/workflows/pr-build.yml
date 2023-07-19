@@ -44,7 +44,7 @@ jobs:
           node-version: ${{ matrix.node-version }}
           check-latest: true
 
-      - run: npm install -g npm@latest
+      - run: npm install -g npm@8.19.4
 
       - name: Cache NPM modules
         uses: actions/cache@v3
@@ -58,7 +58,7 @@ jobs:
 
       - name: Bootstrap
         run: |
-          npm install
+          npm ci
           npx lerna bootstrap --no-ci --hoist
 
       - name: Build
