@@ -2,7 +2,6 @@ var assert = require('chai').assert;
 var chai = require('chai');
 var sinon = require('sinon');
 var sinonChai = require('sinon-chai');
-var util = require('util');
 
 var Aws = require('../../../lib/segments/attributes/aws');
 var awsPatcher = require('../../../lib/patchers/aws3_p');
