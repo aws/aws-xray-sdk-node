@@ -141,6 +141,7 @@ describe('AWS v3 patcher', function () {
           };
           this.response = {};
           this.output = {
+            ConsumedCapacity: 10,
             $metadata: {
               requestId: '123',
               extendedRequestId: '456',
@@ -263,7 +264,7 @@ describe('AWS v3 patcher', function () {
 
         assert.isTrue(addNewSubsegmentStub.calledWith('DynamoDB'));
         addNewSubsegmentStub.returnValues[0].should.have.property('aws');
-        addNewSubsegmentStub.returnValues[0].aws.should.include({ consistent_read: true, table_name: 'TestTableName' });
+        addNewSubsegmentStub.returnValues[0].aws.should.include({ consistent_read: true, table_name: 'TestTableName', consumed_capacity: 10 });
       });
     });
 
