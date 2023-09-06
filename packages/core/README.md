@@ -22,11 +22,15 @@ mechanisms, but a few are supplied. See Capturing Function Calls below.
 The AWS X-Ray SDK has two modes: `manual` and `automatic`.
 By default, the SDK is in automatic mode. You can flip the mode of the SDK using the following:
 
-    AWSXRay.enableManualMode();
+```js
+AWSXRay.enableAutomaticMode();
 
-    AWSXRay.enableAutomaticMode();
+AWSXRay.enableManualMode();
 
-    process.env.AWS_XRAY_MANUAL_MODE
+process.env.AWS_XRAY_MANUAL_MODE = 'true';
+```
+
+see [ #595](https://github.com/aws/aws-xray-sdk-node/pull/595) for details
 
 #### Automatic mode
 
