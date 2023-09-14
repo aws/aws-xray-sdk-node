@@ -47,7 +47,7 @@ describe('AWS v3 patcher', function () {
   });
 
   describe('#captureAWSRequest', function () {
-    var awsClient, awsRequest, ddbClient, ddbGetRequest, sandbox, segment, stubResolve, addNewSubsegmentStub, sub;
+    let awsClient, awsRequest, ddbClient, ddbGetRequest, sandbox, segment, stubResolve, addNewSubsegmentStub, sub;
 
     before(function () {
       awsClient = {
@@ -77,7 +77,7 @@ describe('AWS v3 patcher', function () {
 
       ddbClient = {
         send: async (req) => {
-          const context = {
+          const middlewareContext = {
             clientName: 'DynamoDBClient',
             commandName: 'GetItemCommand',
           };
@@ -90,7 +90,7 @@ describe('AWS v3 patcher', function () {
               throw err;
             }
             return args;
-          }, context);
+          }, middlewareContext);
           await handler(req);
           return req.response;
         },
@@ -124,7 +124,7 @@ describe('AWS v3 patcher', function () {
         }
       })();
 
-      ddbGetRequest = new (class PutCommand {
+      ddbGetRequest = new (class GetItemCommand {
         constructor() {
           this.request = {
             method: 'GET',
@@ -144,7 +144,7 @@ describe('AWS v3 patcher', function () {
             $metadata: {
               requestId: '123',
               extendedRequestId: '456',
-            }
+            },
           };
         }
       })();
@@ -258,7 +258,7 @@ describe('AWS v3 patcher', function () {
         closeStub.should.have.been.calledWithExactly(sinon.match({ message: error.message, name: error.code }), true);
       });
 
-      it('should pass params into segment', async function () {
+      it('should pass params into aws subsegment', async function () {
         await ddbClient.send(ddbGetRequest);
 
         assert.isTrue(addNewSubsegmentStub.calledWith('DynamoDB'));
