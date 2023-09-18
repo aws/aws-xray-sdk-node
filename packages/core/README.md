@@ -27,10 +27,12 @@ AWSXRay.enableAutomaticMode();
 
 AWSXRay.enableManualMode();
 
+/* see https://github.com/aws/aws-xray-sdk-node/pull/595
+ for details on using this environment variable
+ to prevent memory leaks when using manual mode
+ */
 process.env.AWS_XRAY_MANUAL_MODE = 'true';
 ```
-
-see [ #595](https://github.com/aws/aws-xray-sdk-node/pull/595) for details
 
 #### Automatic mode
 
