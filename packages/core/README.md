@@ -22,9 +22,17 @@ mechanisms, but a few are supplied. See Capturing Function Calls below.
 The AWS X-Ray SDK has two modes: `manual` and `automatic`.
 By default, the SDK is in automatic mode. You can flip the mode of the SDK using the following:
 
-    AWSXRay.enableManualMode();
+```js
+AWSXRay.enableAutomaticMode();
 
-    AWSXRay.enableAutomaticMode();
+AWSXRay.enableManualMode();
+
+/* see https://github.com/aws/aws-xray-sdk-node/pull/595
+ for details on using this environment variable
+ to prevent memory leaks when using manual mode
+ */
+process.env.AWS_XRAY_MANUAL_MODE = 'true';
+```
 
 #### Automatic mode
 
@@ -54,6 +62,7 @@ section for different usages.
 **Environment variables always override values set in code.**
 
     AWS_XRAY_DEBUG_MODE              Enables logging of debug messages to console output. Logging to a file is no longer built in. See 'configure logging' below.
+    AWS_XRAY_MANUAL_MODE             For overriding the default automatic mode. See 'Automatic mode'.
     AWS_XRAY_TRACING_NAME            For overriding the default segment name to use
     with the middleware. See 'dynamic and fixed naming modes'.
     AWS_XRAY_DAEMON_ADDRESS          For setting the daemon address and port.
