@@ -43,4 +43,14 @@ describe('SegmentUtils', function() {
       assert.deepEqual(emptyRes, {});
     });
   });
+
+  describe('#getJsonStringifyReplacer', () => {
+    it('should stringify BigInts', () => {
+      const obj = {foo: 1n, bar: BigInt(2)};
+      const replacer = SegmentUtils.getJsonStringifyReplacer();
+      const result = JSON.stringify(obj, replacer);
+
+      assert.equal(result, '{"foo":"1","bar":"2"}');
+    });
+  });
 });

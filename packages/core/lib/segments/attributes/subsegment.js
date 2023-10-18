@@ -432,13 +432,10 @@ Subsegment.prototype.toJSON = function toJSON() {
  * Returns the serialized subsegment JSON string, replacing any BigInts with strings.
  */
 Subsegment.prototype.serialize = function serialize(object) {
-  return JSON.stringify(object ?? this, (_, value) => {
-    if (typeof value === 'bigint') {
-      return value.toString();
-    }
-
-    return value;
-  });
+  return JSON.stringify(
+    object ?? this,
+    SegmentUtils.getJsonStringifyReplacer()
+  );
 };
 
 module.exports = Subsegment;

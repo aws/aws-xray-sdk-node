@@ -439,13 +439,10 @@ Segment.prototype.toString = function toString() {
 };
 
 Segment.prototype.serialize = function serialize(object) {
-  return JSON.stringify(object ?? this, (_, value) => {
-    if (typeof value === 'bigint') {
-      return value.toString();
-    }
-
-    return value;
-  });
+  return JSON.stringify(
+    object ?? this,
+    SegmentUtils.getJsonStringifyReplacer()
+  );
 };
 
 module.exports = Segment;
