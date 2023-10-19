@@ -33,10 +33,14 @@ describe('Prisma', function () {
   });
 
   describe('capturePrisma', function () {
-    var client, sandbox;
+    var client, sandbox, segment;
     beforeEach(function () {
       xray.enableManualMode();
-      client = capturePrisma(prisma);
+
+      segment = new Segment('test');
+      client = capturePrisma(prisma, {
+        segment,
+      });
       sandbox = sinon.createSandbox();
     });
 
@@ -80,10 +84,12 @@ describe('Prisma', function () {
 
     it('Segment should not be set', function () {
       const ns = xray.getNamespace();
-      assert.Throw(() => {
-        ns.run(() => {
-          client.company.create();
-        });
+      const error = sinon.stub();
+      const logger = xray.getLogger();
+      logger.error = error;
+      ns.run(async () => {
+        client.company.create();
+        assert.isTrue(error.calledOnce);
       });
     });
 
@@ -130,8 +136,10 @@ describe('Prisma', function () {
     var client, segment, sandbox;
     beforeEach(function () {
       xray.enableManualMode();
-      client = capturePrisma(prisma);
       segment = new Segment('test');
+      client = capturePrisma(prisma, {
+        segment,
+      });
       sandbox = sinon.createSandbox();
     });
 
@@ -180,8 +188,8 @@ describe('Prisma', function () {
     var client, segment, subsegment, sandbox;
     beforeEach(function () {
       xray.enableManualMode();
-      client = capturePrisma(prisma);
       segment = new Segment('test');
+      client = capturePrisma(prisma, { segment });
       subsegment = segment.addNewSubsegment('test');
       sandbox = sinon.createSandbox();
     });
