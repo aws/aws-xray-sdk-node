@@ -40,6 +40,11 @@ export function capturePrisma<T extends PrismaClient>(
       });
     });
   }
+
+  if (!segment) {
+    console.error('No segment provided when is manual mode');
+  }
+
   return new Proxy(prisma, {
     get(obj, modelKey): any {
       const attr = obj[modelKey as keyof T];
