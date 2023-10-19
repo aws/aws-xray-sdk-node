@@ -5,11 +5,11 @@ import {
   BuildHandlerOptions,
 } from '@aws-sdk/types';
 
-import { RegionResolvedConfig } from '@aws-sdk/config-resolver';
+import { RegionResolvedConfig } from '@smithy/config-resolver';
 
-import { isThrottlingError } from '@aws-sdk/service-error-classification';
+import { isThrottlingError } from '@smithy/service-error-classification';
 
-import { SdkError } from '@aws-sdk/smithy-client';
+import { SdkError } from '@smithy/smithy-client';
 
 import ServiceSegment from '../segments/attributes/aws';
 
