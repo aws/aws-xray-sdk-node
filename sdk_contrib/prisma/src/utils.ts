@@ -1,4 +1,4 @@
-import { DMMF } from '@prisma/client/runtime';
+import { DMMF } from '@prisma/client/runtime/binary';
 import { PrismaPromise } from './types';
 
 const { ModelAction } = DMMF;
