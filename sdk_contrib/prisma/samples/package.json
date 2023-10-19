@@ -1,0 +1,21 @@
+{
+  "name": "aws-xray-sdk-prisma-samples",
+  "version": "1.0.0",
+  "description": "AWS X-Ray samples",
+  "author": "Eduard Castellanos",
+  "scripts": {
+    "generate": "prisma generate",
+    "auto": "node auto/simple.js",
+    "manual": "node manual/simple.js"
+  },
+  "prisma": {
+    "schema": "prisma/schema.prisma"
+  },
+  "devDependencies": {
+    "prisma": "^4.15.0"
+  },
+  "dependencies": {
+    "@prisma/client": "^4.15.0",
+    "aws-xray-sdk-prisma": "file:.."
+  }
+}
