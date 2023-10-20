@@ -65,7 +65,7 @@ declare class Segment {
 
   toString(): string;
 
-  serialize(object?: Segment): string;
+  serialize(segment?: Segment): string;
 }
 
 export = Segment;
