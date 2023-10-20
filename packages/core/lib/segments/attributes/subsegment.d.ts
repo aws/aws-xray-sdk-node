@@ -62,7 +62,7 @@ declare class Subsegment {
 
   toJSON(): { [key: string]: any };
 
-  serialize(object?: Subsegment): string;
+  serialize(subsegment?: Subsegment): string;
 }
 
 export = Subsegment;
