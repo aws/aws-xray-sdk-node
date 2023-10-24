@@ -9,7 +9,7 @@ var contextUtils = require('../../../lib/context_utils');
 var Segment = require('../../../lib/segments/segment');
 var Utils = require('../../../lib/utils');
 
-var { constructStack } = require('@aws-sdk/middleware-stack');
+var { constructStack } = require('@smithy/middleware-stack');
 
 var logger = require('../../../lib/logger').getLogger();
 
