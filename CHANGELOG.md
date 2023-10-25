@@ -2,6 +2,26 @@
 <!--LATEST=3.5.2-->
 <!--ENTRYINSERT-->
 
+## 3.5.3
+View [the latest changes](https://github.com/aws/aws-xray-sdk-node/compare/aws-xray-sdk-node%403.5.2...aws-xray-sdk-node%403.5.3)
+* `aws-xray-sdk-core` updated to 3.5.3
+  * fix: serialize bigint in metadata to string [PR #619](https://github.com/aws/aws-xray-sdk-node/pull/619)
+  * fix: Update deprecated @aws-sdk package dependencies [PR #621](https://github.com/aws/aws-xray-sdk-node/pull/621)
+* `aws-xray-sdk-mysql` updated to 3.5.3
+  * No further changes.
+* `aws-xray-sdk-express` updated to 3.5.3
+  * No further changes.
+* `aws-xray-sdk-postgres` updated to 3.5.3
+  * No further changes.
+* `aws-xray-sdk-restify` updated to 3.5.3
+  * No further changes.
+* `aws-xray-sdk-fastify` updated to 3.5.3
+  * No further changes.
+* `aws-xray-sdk-koa2` updated to 3.5.3
+  * No further changes.
+* `aws-xray-sdk-hapi` updated to 3.5.3
+  * No further changes.
+
 ## 3.5.2
 View [the latest changes](https://github.com/aws/aws-xray-sdk-node/compare/aws-xray-sdk-node%403.5.1...aws-xray-sdk-node%403.5.2)
 * `aws-xray-sdk-core` updated to 3.5.2
