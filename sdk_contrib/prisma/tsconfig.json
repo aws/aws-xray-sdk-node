@@ -4,7 +4,7 @@
     "target": "es2019",
     "strict": true,
     "strictNullChecks": true,
-    "declaration": false,
+    "declaration": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
     "allowJs": true,
