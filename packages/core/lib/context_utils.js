@@ -205,8 +205,13 @@ var contextUtils = {
   }
 };
 
-cls.createNamespace(NAMESPACE);
-logger.getLogger().debug('Starting the AWS X-Ray SDK in automatic mode (default).');
+if (process.env.AWS_XRAY_MANUAL_MODE) {
+  cls_mode = false;
+  logger.getLogger().debug('Starting the AWS X-Ray SDK in manual mode.');
+} else {
+  cls.createNamespace(NAMESPACE);
+  logger.getLogger().debug('Starting the AWS X-Ray SDK in automatic mode (default).');
+}
 
 if (process.env.AWS_XRAY_CONTEXT_MISSING) {
   contextUtils.setContextMissingStrategy(process.env.AWS_XRAY_CONTEXT_MISSING);

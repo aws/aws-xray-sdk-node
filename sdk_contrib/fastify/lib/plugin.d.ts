@@ -1,5 +1,5 @@
 import * as AWSXRay from 'aws-xray-sdk-core';
-import { FastityLoggerInstance } from 'fastify';
+import { FastifyLoggerInstance } from 'fastify';
 
 declare module 'fastify' {
   interface FastifyRequest {
@@ -12,7 +12,7 @@ export interface XRayFastifyPluginOptions {
   captureAWS: boolean;
   captureHTTP: boolean;
   capturePromises: boolean;
-  logger: FastityLoggerInstance;
+  logger: FastifyLoggerInstance;
   automaticMode: boolean;
   plugins: AWSXRay.plugins.Plugin[];
 }

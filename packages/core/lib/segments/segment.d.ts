@@ -64,6 +64,8 @@ declare class Segment {
   format(): string;
 
   toString(): string;
+
+  serialize(segment?: Segment): string;
 }
 
 export = Segment;

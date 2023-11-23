@@ -11,6 +11,7 @@ var RUNTIME_ERROR = 'RUNTIME_ERROR';
 var RUNTIME_ERROR_FCN_NAME = 'contextMissingRuntimeError';
 var IGNORE_ERROR = 'IGNORE_ERROR';
 var IGNORE_ERROR_FCN_NAME = 'contextMissingIgnoreError';
+var cls = require('cls-hooked/context');
 
 describe('ContextUtils', function() {
   function reloadContextUtils() {
@@ -30,11 +31,20 @@ describe('ContextUtils', function() {
     afterEach(function() {
       sandbox.restore();
       delete process.env.AWS_XRAY_CONTEXT_MISSING;
+      delete process.env.AWS_XRAY_MANUAL_MODE;
+      cls.reset();
       reloadContextUtils();
     });
 
+    it('should start in manual mode when process.env.AWS_XRAY_MANUAL_MODE is present', function() {
+      process.env.AWS_XRAY_MANUAL_MODE = '1';
+      cls.reset();
+      reloadContextUtils();
+      assert.equal(cls.getNamespace('AWSXRay'), undefined);
+    });
+
     it('should start in automatic mode by creating the X-Ray namespace', function() {
-      assert.equal(ContextUtils.getNamespace().name, 'AWSXRay');
+      assert.notEqual(cls.getNamespace('AWSXRay'), undefined);
     });
 
     it('should set the contextMissingStrategy to LOG_ERROR by default', function() {

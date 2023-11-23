@@ -1,6 +1,6 @@
 {
   "name": "aws-xray-sdk-core",
-  "version": "3.5.0",
+  "version": "3.5.3",
   "description": "AWS X-Ray SDK for Javascript",
   "author": "Amazon Web Services",
   "contributors": [
@@ -24,11 +24,11 @@
   "//": "@types/cls-hooked is exposed in API so must be in dependencies, not devDependencies",
   "dependencies": {
     "@aws-sdk/types": "^3.4.1",
-    "@aws-sdk/service-error-classification": "^3.4.1",
+    "@smithy/service-error-classification": "^2.0.4",
     "@types/cls-hooked": "^4.3.3",
     "atomic-batcher": "^1.0.2",
     "cls-hooked": "^4.2.2",
-    "semver": "^7.3.8"
+    "semver": "^7.5.3"
   },
   "scripts": {
     "prepare": "npm run compile",

@@ -222,8 +222,8 @@ describe('AWSLambda', function() {
 
       var facade = setSegmentStub.args[0][0];
       facade.resolveLambdaTraceData();
-      var userData = facade.userData;
-      assert.equal(userData['Lineage'], '1234abcd:4|3456abcd:6');
+      var additionalTraceData = facade.additionalTraceData;
+      assert.equal(additionalTraceData['Lineage'], '1234abcd:4|3456abcd:6');
     });
   });
 });
