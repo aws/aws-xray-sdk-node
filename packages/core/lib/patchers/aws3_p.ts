@@ -5,11 +5,11 @@ import {
   BuildHandlerOptions,
 } from '@aws-sdk/types';
 
-import { RegionResolvedConfig } from '@aws-sdk/config-resolver';
+import { RegionResolvedConfig } from '@smithy/config-resolver';
 
-import { isThrottlingError } from '@aws-sdk/service-error-classification';
+import { isThrottlingError } from '@smithy/service-error-classification';
 
-import { SdkError } from '@aws-sdk/smithy-client';
+import { SdkError } from '@smithy/smithy-client';
 
 import ServiceSegment from '../segments/attributes/aws';
 
@@ -39,6 +39,7 @@ const buildAttributesFromMetadata = async (
   service: string,
   operation: string,
   region: string,
+  commandInput: any,
   res: any | null,
   error: SdkError | null,
 ): Promise<[ServiceSegment, HttpResponse]> => {
@@ -49,8 +50,10 @@ const buildAttributesFromMetadata = async (
       extendedRequestId,
       requestId,
       retryCount: attempts,
+      data: res?.output,
       request: {
         operation,
+        params: commandInput,
         httpRequest: {
           region,
           statusCode,
@@ -93,11 +96,13 @@ function addFlags(http: HttpResponse, subsegment: Subsegment, err?: SdkError): v
 const getXRayMiddleware = (config: RegionResolvedConfig, manualSegment?: SegmentLike): BuildMiddleware<any, any> => (next: any, context: any) => async (args: any) => {
   const segment = contextUtils.isAutomaticMode() ? contextUtils.resolveSegment() : manualSegment;
   const {clientName, commandName} = context;
-  const operation: string = commandName.slice(0, -7); // Strip trailing "Command" string
+  const commandInput = args?.input ?? {};
+  const commandOperation: string = commandName.slice(0, -7); // Strip trailing "Command" string
+  const operation: string = commandOperation.charAt(0).toLowerCase() + commandOperation.slice(1);
   const service: string = clientName.slice(0, -6);    // Strip trailing "Client" string
 
   if (!segment) {
-    const output = service + '.' + operation.charAt(0).toLowerCase() + operation.slice(1);
+    const output = service + '.' + operation;
 
     if (!contextUtils.isAutomaticMode()) {
       logger.getLogger().info('Call ' + output + ' requires a segment object' +
@@ -118,8 +123,9 @@ const getXRayMiddleware = (config: RegionResolvedConfig, manualSegment?: Segment
   }
   subsegment.addAttribute('namespace', 'aws');
   const parent = (segment instanceof Subsegment ? segment.segment : segment);
+  const data = parent.segment ? parent.segment.additionalTraceData : parent.additionalTraceData;
 
-  args.request.headers['X-Amzn-Trace-Id'] = stringify(
+  let traceHeader = stringify(
     {
       Root: parent.trace_id,
       Parent: subsegment.id,
@@ -127,6 +133,14 @@ const getXRayMiddleware = (config: RegionResolvedConfig, manualSegment?: Segment
     },
     ';',
   );
+
+  if (data != null) {
+    for (const [key, value] of Object.entries(data)) {
+      traceHeader += ';' + key +'=' + value;
+    }
+  }
+
+  args.request.headers['X-Amzn-Trace-Id'] = traceHeader;
 
   let res;
   try {
@@ -139,6 +153,7 @@ const getXRayMiddleware = (config: RegionResolvedConfig, manualSegment?: Segment
       service,
       operation,
       await config.region(),
+      commandInput,
       res,
       null,
     );
@@ -155,6 +170,7 @@ const getXRayMiddleware = (config: RegionResolvedConfig, manualSegment?: Segment
         service,
         operation,
         await config.region(),
+        commandInput,
         null,
         err,
       );

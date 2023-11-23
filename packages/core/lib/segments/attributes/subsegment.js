@@ -401,7 +401,7 @@ Subsegment.prototype.format = function format() {
     this.trace_id = this.segment.trace_id;
   }
 
-  return JSON.stringify(this);
+  return this.serialize();
 };
 
 /**
@@ -409,7 +409,7 @@ Subsegment.prototype.format = function format() {
  */
 
 Subsegment.prototype.toString = function toString() {
-  return JSON.stringify(this);
+  return this.serialize();
 };
 
 Subsegment.prototype.toJSON = function toJSON() {
@@ -426,6 +426,16 @@ Subsegment.prototype.toJSON = function toJSON() {
   );
 
   return thisCopy;
+};
+
+/**
+ * Returns the serialized subsegment JSON string, replacing any BigInts with strings.
+ */
+Subsegment.prototype.serialize = function serialize(object) {
+  return JSON.stringify(
+    object ?? this,
+    SegmentUtils.getJsonStringifyReplacer()
+  );
 };
 
 module.exports = Subsegment;

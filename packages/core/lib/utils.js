@@ -189,7 +189,7 @@ var utils = {
       }
 
       if (traceData.data) {
-        segment.userData = traceData.data;
+        segment.additionalTraceData = traceData.data;
       }
 
       logger.getLogger().debug('Segment started: ' + JSON.stringify(traceData));

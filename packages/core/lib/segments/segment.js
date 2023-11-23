@@ -431,11 +431,18 @@ Segment.prototype.format = function format() {
     false
   );
 
-  return JSON.stringify(thisCopy);
+  return this.serialize(thisCopy);
 };
 
 Segment.prototype.toString = function toString() {
-  return JSON.stringify(this);
+  return this.serialize();
+};
+
+Segment.prototype.serialize = function serialize(object) {
+  return JSON.stringify(
+    object ?? this,
+    SegmentUtils.getJsonStringifyReplacer()
+  );
 };
 
 module.exports = Segment;

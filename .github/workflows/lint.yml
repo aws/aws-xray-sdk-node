@@ -1,0 +1,40 @@
+name: Lint
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+jobs:
+  lint:
+    name: Check code style
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout AWS XRay SDK Node Repository @ default branch latest
+        uses: actions/checkout@v3
+
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16.x
+
+      - run: npm install -g npm@8.19.4
+
+      - name: Cache NPM modules
+        uses: actions/cache@v3
+        with:
+          path: |
+            node_modules
+            package-lock.json
+            packages/*/node_modules
+            packages/*/package-lock.json
+          key: lint-${{ runner.os }}-${{ hashFiles('package.json', 'packages/*/package.json') }}-06142023
+
+      - name: Bootstrap
+        run: |
+          npm ci
+          npx lerna bootstrap --no-ci --hoist
+
+      - name: Lint
+        run: npx lerna run lint

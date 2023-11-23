@@ -1,6 +1,69 @@
 # Changelog for AWS X-Ray SDK for JavaScript
-<!--LATEST=3.5.0-->
+<!--LATEST=3.5.2-->
 <!--ENTRYINSERT-->
+
+## 3.5.3
+View [the latest changes](https://github.com/aws/aws-xray-sdk-node/compare/aws-xray-sdk-node%403.5.2...aws-xray-sdk-node%403.5.3)
+* `aws-xray-sdk-core` updated to 3.5.3
+  * fix: serialize bigint in metadata to string [PR #619](https://github.com/aws/aws-xray-sdk-node/pull/619)
+  * fix: Update deprecated @aws-sdk package dependencies [PR #621](https://github.com/aws/aws-xray-sdk-node/pull/621)
+* `aws-xray-sdk-mysql` updated to 3.5.3
+  * No further changes.
+* `aws-xray-sdk-express` updated to 3.5.3
+  * No further changes.
+* `aws-xray-sdk-postgres` updated to 3.5.3
+  * No further changes.
+* `aws-xray-sdk-restify` updated to 3.5.3
+  * No further changes.
+* `aws-xray-sdk-fastify` updated to 3.5.3
+  * No further changes.
+* `aws-xray-sdk-koa2` updated to 3.5.3
+  * No further changes.
+* `aws-xray-sdk-hapi` updated to 3.5.3
+  * No further changes.
+
+## 3.5.2
+View [the latest changes](https://github.com/aws/aws-xray-sdk-node/compare/aws-xray-sdk-node%403.5.1...aws-xray-sdk-node%403.5.2)
+* `aws-xray-sdk-core` updated to 3.5.2
+  * fix: capture command data for SDK v3 clients [PR #611](https://github.com/aws/aws-xray-sdk-node/pull/611)
+  * fix: memory leaks caused by cls-hooked [PR #595](https://github.com/aws/aws-xray-sdk-node/pull/595)
+* `aws-xray-sdk-mysql` updated to 3.5.2
+  * No further changes.
+* `aws-xray-sdk-express` updated to 3.5.2
+  * No further changes.
+* `aws-xray-sdk-postgres` updated to 3.5.2
+  * No further changes.
+* `aws-xray-sdk-restify` updated to 3.5.2
+  * No further changes.
+* `aws-xray-sdk-fastify` updated to 3.5.2
+  * No further changes.
+* `aws-xray-sdk-koa2` updated to 3.5.2
+  * No further changes.
+* `aws-xray-sdk-hapi` updated to 3.5.2
+  * No further changes.
+
+## 3.5.1
+View [the latest changes](https://github.com/aws/aws-xray-sdk-node/compare/aws-xray-sdk-node%403.5.0...aws-xray-sdk-node%403.5.1)
+* `aws-xray-sdk-core` updated to 3.5.1
+  * fix: Add TS declaration file for SegmentEmitter [PR #586](https://github.com/aws/aws-xray-sdk-node/pull/586)
+  * fix: Incorrect data variable usage + missing data injection in AWS v3 clients [PR #596](https://github.com/aws/aws-xray-sdk-node/pull/596)
+  * fix: Update semver dependency [PR #598](https://github.com/aws/aws-xray-sdk-node/pull/598)
+  * fix: Override transitive semver dependency [PR #604](https://github.com/aws/aws-xray-sdk-node/pull/604)
+    * fix improvement: Better dependency override + Npm 8 in workflows [PR #607](https://github.com/aws/aws-xray-sdk-node/pull/607)
+* `aws-xray-sdk-mysql` updated to 3.5.1
+  * No further changes.
+* `aws-xray-sdk-express` updated to 3.5.1
+  * No further changes.
+* `aws-xray-sdk-postgres` updated to 3.5.1
+  * No further changes.
+* `aws-xray-sdk-restify` updated to 3.5.1
+  * No further changes.
+* `aws-xray-sdk-fastify` updated to 3.5.1
+  * fix: Fix typo in fastify logger type declaration [PR #589](https://github.com/aws/aws-xray-sdk-node/pull/589)
+* `aws-xray-sdk-koa2` updated to 3.5.1
+  * No further changes.
+* `aws-xray-sdk-hapi` updated to 3.5.1
+  * No further changes.
 
 ## 3.5.0
 View [the latest changes](https://github.com/aws/aws-xray-sdk-node/compare/aws-xray-sdk-node%403.4.1...aws-xray-sdk-node%403.5.0)
