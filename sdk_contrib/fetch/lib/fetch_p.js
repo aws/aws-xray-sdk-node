@@ -6,9 +6,9 @@
  * This module patches the global fetch instance for NodeJS 18+
  */
 
-var contextUtils = require('aws-xray-sdk-core/lib/context_utils');
-var utils = require('aws-xray-sdk-core/lib/utils');
-var logger = require('aws-xray-sdk-core/lib/logger');
+const contextUtils = require('aws-xray-sdk-core/lib/context_utils');
+const utils = require('aws-xray-sdk-core/lib/utils');
+const logger = require('aws-xray-sdk-core/lib/logger');
 
 /**
  * Wrap fetch either in global instance for recent NodeJS or the node-fetch module for older versions,
@@ -74,7 +74,7 @@ function captureFetchModule(module, downstreamXRayEnabled, subsegmentCallback) {
 
 const enableCapture = function enableCapture(baseFetchFunction, requestClass, downstreamXRayEnabled, subsegmentCallback) {
 
-  var overridenFetchAsync = async (...args) => {
+  const overridenFetchAsync = async (...args) => {
     const thisDownstreamXRayEnabled = !!downstreamXRayEnabled;
     const thisSubsegmentCallback = subsegmentCallback;
     // Standardize request information
