@@ -1,7 +1,7 @@
 const chai = require('chai');
 const sinonChai = require('sinon-chai');
 const sinon = require('sinon');
-const { captureFetch, captureFetchGlobal, captureFetchModule } = require('../../lib/fetch_p');
+const { captureFetchGlobal, captureFetchModule } = require('../../lib/fetch_p');
 
 chai.should();
 chai.use(sinonChai);
@@ -16,78 +16,6 @@ describe('Integration tests', function () {
   const badUrl = 'http://localhost:1';
 
   const hasGlobalFetch = globalThis.fetch !== undefined;
-
-  describe('captureFetch', function () {
-
-    let saveGlobalFetch;
-    let saveModuleFetch;
-    let sandbox;
-    let mockSegment;
-    let mockSubsegment;
-    let stubIsAutomaticMode;
-    let stubAddNewSubsegment;
-    let stubResolveSegment;
-    let stubAddRemoteRequestData;
-    let stubAddErrorFlag;
-    let stubClose;
-
-    beforeEach(function () {
-      if (hasGlobalFetch) {
-        saveGlobalFetch = globalThis.fetch;
-      }
-      saveModuleFetch = fetchModule.default;
-
-      sandbox = sinon.createSandbox();
-      mockSegment = new Segment('foo');
-      mockSubsegment = new Subsegment('bar');
-
-      stubIsAutomaticMode = sandbox.stub(contextUtils, 'isAutomaticMode').returns(false);
-      stubAddNewSubsegment = sandbox.stub(mockSegment, 'addNewSubsegment').returns(mockSubsegment);
-      stubResolveSegment = sandbox.stub(contextUtils, 'resolveSegment').returns(mockSegment);
-      stubAddRemoteRequestData = sandbox.stub(mockSubsegment, 'addRemoteRequestData');
-      stubAddErrorFlag = sandbox.stub(mockSubsegment, 'addErrorFlag');
-      stubClose = sandbox.stub(mockSubsegment, 'close');
-    });
-
-    afterEach(function () {
-      if (hasGlobalFetch) {
-        globalThis.fetch = saveGlobalFetch;
-        delete globalThis.__fetch;
-      }
-
-      fetchModule.default = saveModuleFetch;
-      delete fetchModule.__fetch;
-
-      sandbox.restore();
-      sandbox.resetHistory();
-    });
-
-    it('retrieves content and call AddRemoteRequestData', async function () {
-      const spyCallback = sandbox.spy();
-      const fetch = captureFetch(true, spyCallback);
-      const response = await fetch(goodUrl);
-      response.status.should.equal(200);
-      (await response.text()).should.contain('Example');
-      stubIsAutomaticMode.should.have.been.called;
-      stubAddNewSubsegment.should.have.been.calledOnce;
-      stubResolveSegment.should.have.been.calledOnce;
-      stubAddRemoteRequestData.should.have.been.calledOnce;
-      stubAddErrorFlag.should.not.have.been.calledOnce;
-      stubClose.should.have.been.calledOnce;
-    });
-
-    it('sets error flag on failed fetch when fetch exists', async function () {
-      const spyCallback = sandbox.spy();
-      const fetch = captureFetch(true, spyCallback);
-      await fetch(badUrl).should.eventually.be.rejected;
-      stubIsAutomaticMode.should.have.been.called;
-      stubAddNewSubsegment.should.have.been.calledOnce;
-      stubResolveSegment.should.have.been.calledOnce;
-      stubAddRemoteRequestData.should.have.been.calledOnce;
-      stubAddErrorFlag.should.have.been.calledOnce;
-      stubClose.should.have.been.calledOnce;
-    });
-  });
 
   describe('captureFetchModule', function () {
 

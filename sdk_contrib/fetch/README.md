@@ -17,14 +17,9 @@ const { captureFetchModule } = require('aws-xray-sdk-fetch');
 const fetchModule = require('node-fetch');
 const fetch = captureFetchModule(fetchModule); // Note, first parameter *must* be the node-fetch module
 const result = await fetch('https://foo.com');
-
-// To auto-detect globally defined fetch and fallback to node-fetch if not available...
-const { captureFetch } = require('aws-xray-sdk-fetch');
-const fetch = captureFetch();
-const result = await fetch('https://foo.com');
 ```
 
-There are two optional parameters you can pass when calling the `captureFetch` modules:
+There are two optional parameters you can pass when calling `captureFetchGlobal` / `captureFetchModule`:
 
 * **downstreamXRayEnabled**: when True, adds a "traced:true" property to the subsegment so the AWS X-Ray service expects a corresponding segment from the downstream service (default = False)
 * **subsegmentCallback**: a callback that is called with the subsegment, the fetch request, the fetch response and any error issued, allowing custom annotations and metadata to be added
@@ -38,7 +33,7 @@ Unit and integration tests can be run using `npm run test`.  Typings file tess c
 ## Errata
 
 1. This package CommonJS to conform with the rest of the AWSXRay codebase.  As such, it is incompatible with node-fetch 3, which is ESM only.  As such, it is written
-to be compatible with [node-fetch version 2[(https://www.npmjs.com/package/node-fetch#CommonJS)], which should still receive critical fixes.  If you are using global
+to be compatible with [node-fetch version 2](https://www.npmjs.com/package/node-fetch#CommonJS), which should still receive critical fixes.  If you are using global
 fetch (available in NodeJS 18+) then this isn't an issue for you.
 
 2. This package is designed working under the assumption that the NodeJS implementation of fetch is compatible with node-fetch, albeit with its own separate, 

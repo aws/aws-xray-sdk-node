@@ -8,8 +8,7 @@ const utils = require('aws-xray-sdk-core/lib/utils');
 const logger = require('aws-xray-sdk-core/lib/logger');
 
 const fetchModule = require('node-fetch');
-const { captureFetch, captureFetchGlobal, captureFetchModule } = require('../../lib/fetch_p');
-const fetch_p = require('../../lib/fetch_p');
+const { captureFetchGlobal, captureFetchModule } = require('../../lib/fetch_p');
 
 chai.should();
 chai.use(sinonChai);
@@ -24,16 +23,12 @@ describe('Unit tests', function () {
   describe('capture functions', function () {
 
     let sandbox;
-    let spyCaptureFetchGlobal;
-    let spyCaptureFetchModule;
     let spyLogWarn;
     let saveGlobalFetch;
     let saveModuleFetch;
 
     beforeEach(function () {
       sandbox = sinon.createSandbox();
-      spyCaptureFetchGlobal = sandbox.spy(fetch_p, 'captureFetchGlobal');
-      spyCaptureFetchModule = sandbox.spy(fetch_p, 'captureFetchModule');
       spyLogWarn = sandbox.spy();
       sandbox.stub(logger, 'getLogger').returns({
         warn: spyLogWarn
@@ -53,21 +48,6 @@ describe('Unit tests', function () {
       delete fetchModule.__fetch;
       sandbox.restore();
       sandbox.resetHistory();
-    });
-
-    describe('captureFetch', function () {
-      it('captures global fetch if fetch exists in globalThis', function () {
-        globalThis.fetch = sinon.stub();
-        captureFetch(true);
-        spyCaptureFetchGlobal.should.have.been.calledOnce;
-        spyCaptureFetchModule.should.not.have.been.calledOnce;
-      });
-      it('captures module fetch if fetch does not exist in globalThis', function () {
-        delete globalThis.fetch;
-        captureFetch(true);
-        spyCaptureFetchGlobal.should.not.have.been.calledOnce;
-        spyCaptureFetchModule.should.have.been.calledOnce;
-      });
     });
 
     describe('captureFetchGlobal', function () {
@@ -124,6 +104,7 @@ describe('Unit tests', function () {
     let spyClose;
 
     const useGlobalFetch = globalFetchAvailable;
+    const captureFetch = useGlobalFetch ? captureFetchGlobal : captureFetchModule;
 
     beforeEach(function () {
       sandbox = sinon.createSandbox();

@@ -11,24 +11,6 @@ const utils = require('aws-xray-sdk-core/lib/utils');
 const logger = require('aws-xray-sdk-core/lib/logger');
 
 /**
- * Wrap fetch either in global instance for recent NodeJS or the node-fetch module for older versions,
- *  to automatically capture information for the segment.
- * This patches the built-in fetch function globally.
- * @param {boolean} downstreamXRayEnabled - when true, adds a "traced:true" property to the subsegment
- *   so the AWS X-Ray service expects a corresponding segment from the downstream service.
- * @param {function} subsegmentCallback - a callback that is called with the subsegment, the fetch request,
- *   the fetch response and any error issued, allowing custom annotations and metadata to be added.
- * @alias module:fetch_p.captureFetch
- */
-function captureFetch(downstreamXRayEnabled, subsegmentCallback) {
-  if (globalThis.fetch === undefined) {
-    return exports.captureFetchModule(require('node-fetch'), downstreamXRayEnabled, subsegmentCallback);
-  } else {
-    return exports.captureFetchGlobal(downstreamXRayEnabled, subsegmentCallback);
-  }
-}
-
-/**
  * Wrap fetch global instance for recent NodeJS to automatically capture information for the segment.
  * This patches the built-in fetch function globally.
  * @param {boolean} downstreamXRayEnabled - when true, adds a "traced:true" property to the subsegment
@@ -177,7 +159,6 @@ const enableCapture = function enableCapture(baseFetchFunction, requestClass, do
   return overridenFetchAsync;
 };
 
-module.exports.captureFetch = captureFetch;
 module.exports.captureFetchGlobal = captureFetchGlobal;
 module.exports.captureFetchModule = captureFetchModule;
 module.exports._fetchEnableCapture = enableCapture;
