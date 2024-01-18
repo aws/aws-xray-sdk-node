@@ -33,7 +33,7 @@ jobs:
           npm install ../mysql/$mysql_tar
           npm install ../postgres/$postgres_tar
           full_tar=$(npm pack | tail -1)
-          echo "::set-output name=full_sdk::$full_tar"
+          echo "full_sdk=$full_tar" >> $GITHUB_OUTPUT
 
       # Manually install the locally bundled packages first, then pull in other test dependencies from NPM
       # Remove the entire source code directory to force smoke test to depend on packed tarball
