@@ -1,30 +1,30 @@
-const chai = require('chai');
-const chaiAsPromised = require('chai-as-promised');
-const sinonChai = require('sinon-chai');
-const sinon = require('sinon');
-
-const AWSXray = require('aws-xray-sdk-core');
-const utils = AWSXray.utils;
-
-let sandbox = sinon.createSandbox();
-let spyLogWarn = sandbox.spy();
-let spyLogInfo = sandbox.spy();
-sandbox.stub(AWSXray, 'getLogger').returns({
-  warn: spyLogWarn,
-  info: spyLogInfo
-});
-
-
-const fetchModule = require('node-fetch');
-const { captureFetchGlobal, captureFetchModule } = require('../../lib/fetch_p');
-
-chai.should();
-chai.use(sinonChai);
-chai.use(chaiAsPromised);
-
-const globalFetchAvailable = 'fetch' in globalThis;
 
 describe('Unit tests', function () {
+
+  const chai = require('chai');
+  const chaiAsPromised = require('chai-as-promised');
+  const sinonChai = require('sinon-chai');
+  const sinon = require('sinon');
+
+  const global = require('../global');
+  const AWSXray = global.AWSXray;
+  const sandbox = global.sandbox;
+  const spyLogWarn = global.spyLogWarn;
+  const spyLogInfo = global.spyLogInfo;
+  const stubResolveSegment = global.stubResolveSegment;
+  const stubResolveManualSegmentParams = global.stubResolveManualSegmentParams;
+  const stubIsAutomaticMode = global.stubIsAutomaticMode;
+
+  const utils = AWSXray.utils;
+
+  const fetchModule = require('node-fetch');
+  const { captureFetchGlobal, captureFetchModule } = require('../../lib/fetch_p');
+
+  chai.should();
+  chai.use(sinonChai);
+  chai.use(chaiAsPromised);
+
+  const globalFetchAvailable = 'fetch' in globalThis;
 
   // These unit tests need to work across NodeJS versions that
   // do and do not include fetch built-in
@@ -47,7 +47,6 @@ describe('Unit tests', function () {
       }
       delete globalThis.__fetch;
       delete fetchModule.__fetch;
-      sandbox.resetHistory();
     });
 
     describe('captureFetchGlobal', function () {
@@ -77,7 +76,6 @@ describe('Unit tests', function () {
 
       it('warns if module fetch is not available', function () {
         captureFetchModule({}, true);
-        console.log(spyLogWarn);
         spyLogWarn.should.have.been.calledOnceWith('X-ray capture did not find fetch function in module');
       });
     });
@@ -89,9 +87,6 @@ describe('Unit tests', function () {
     let saveFetch;
     let stubFetch;
     let stubValidResponse;
-    let stubResolveSegment;
-    let stubResolveManualSegmentParams;
-    let stubIsAutomaticMode;
     let stubParentSegment;
     let stubSubsegment;
     let stubAddNewSubsegmentWithoutSampling;
@@ -111,9 +106,6 @@ describe('Unit tests', function () {
         statusCode: 200,
         status: 'OK'
       };
-
-      stubResolveSegment = sandbox.stub(AWSXray, 'resolveSegment');
-      stubResolveManualSegmentParams = sandbox.stub(AWSXray, 'resolveManualSegmentParams');
 
       stubSubsegment = sandbox.stub();
       spyAddRemoteRequestData = sandbox.spy();
@@ -149,14 +141,9 @@ describe('Unit tests', function () {
       stubAddNewSubsegment.returns(stubSubsegment);
       stubAddNewSubsegmentWithoutSampling.returns(stubSubsegment);
       stubFetch.resolves(stubValidResponse);
-
-      // We have to create and re-create this stub here because promise_p.test doesn't use sandboxes
-      stubIsAutomaticMode = sandbox.stub(AWSXray, 'isAutomaticMode');
-      stubIsAutomaticMode.returns(true);
     });
 
     this.afterEach(function () {
-      stubIsAutomaticMode.restore();
       if (useGlobalFetch) {
         delete globalThis.__fetch;
         globalThis.fetch = saveFetch;
@@ -164,7 +151,6 @@ describe('Unit tests', function () {
         delete fetchModule.__fetch;
         fetchModule.fetch = saveFetch;
       }
-      sandbox.resetHistory();
     });
 
     it('short circuits if headers include trace ID', async function () {
@@ -182,6 +168,7 @@ describe('Unit tests', function () {
     it('calls base function when no parent and automatic mode', async function () {
       const activeFetch = captureFetch(true);
       stubResolveSegment.returns(null);
+      stubIsAutomaticMode.returns(true);
       const request = new FetchRequest('https://www.foo.com/test');
       await activeFetch(request);
       spyLogInfo.should.have.been.calledOnceWith('RequestInit for request [ host: www.foo.com, method: GET, path: /test ] is missing the sub/segment context for automatic mode. Ignoring.');
@@ -203,11 +190,10 @@ describe('Unit tests', function () {
       stubResolveSegment.returns(null);
       stubIsAutomaticMode.returns(false);
       const request = new FetchRequest('https://www.foo.com/test',);
-      const stubRequestMethod = sandbox.stub(request, 'method').get(sandbox.stub().returns(undefined));
+      sandbox.stub(request, 'method').get(sandbox.stub().returns(undefined));
       await activeFetch(request);
       spyLogInfo.should.have.been.calledOnceWith('RequestInit for request [ host: www.foo.com, path: /test ] requires a segment object on the options params as "XRaySegment" for tracing in manual mode. Ignoring.');
       stubFetch.should.have.been.calledOnceWith(request);
-      stubRequestMethod.restore();
     });
 
     it('passes Segment information to resolveManualSegmentParams if included in request configuration', async function () {
@@ -290,10 +276,9 @@ describe('Unit tests', function () {
       const activeFetch = captureFetch(true, spyCallback);
       const request = new FetchRequest('https://www.foo.com/test');
       const clonedRequest = request.clone();
-      const stubClone = sandbox.stub(request, 'clone').returns(clonedRequest);
+      sandbox.stub(request, 'clone').returns(clonedRequest);
       await activeFetch(request);
       spyCallback.should.have.been.calledOnceWith(stubSubsegment, clonedRequest, stubValidResponse);
-      stubClone.restore();
     });
 
     it('calls subsegment.addThrottleFlag on 429', async function () {
@@ -323,10 +308,9 @@ describe('Unit tests', function () {
       const activeFetch = captureFetch(true);
       const request = new FetchRequest('https://www.foo.com/test');
       const clonedRequest = request.clone();
-      const stubClone = sandbox.stub(request, 'clone').returns(clonedRequest);
+      sandbox.stub(request, 'clone').returns(clonedRequest);
       await activeFetch(request);
       spyAddRemoteRequestData.should.have.been.calledOnceWith(clonedRequest, stubValidResponse, true);
-      stubClone.restore();
     });
 
     it('calls subsegment.addRemoteRequestData with downstreamXRayEnabled set to false on success', async function () {

@@ -8,6 +8,7 @@
 const AWSXRay = require('aws-xray-sdk-core');
 const utils = AWSXRay.utils;
 const getLogger = AWSXRay.getLogger;
+
 // const contextUtils = require('aws-xray-sdk-core/dist/lib/context_utils');
 // const utils = require('aws-xray-sdk-core/dist/lib/utils');
 // const logger = require('aws-xray-sdk-core/dist/lib/logger');
@@ -45,7 +46,6 @@ function captureFetchGlobal(downstreamXRayEnabled, subsegmentCallback) {
  */
 function captureFetchModule(module, downstreamXRayEnabled, subsegmentCallback) {
   if (!module.default) {
-    console.log(`module.default: ${module.default}, getLogger: ${getLogger}`);
     getLogger().warn('X-ray capture did not find fetch function in module');
     return null;
   }

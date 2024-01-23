@@ -1,0 +1,14 @@
+{
+    "editor.tabSize": 2,
+    "mochaExplorer.files": "./packages/core/test/**/*.test.js",
+    "mochaExplorer.require": "ts-node/register",
+    // "mochaExplorer.watch": "./packages/core/test/**/*.test.js",
+    "mochaExplorer.debuggerPort": 9229,
+    "mochaExplorer.timeout": 120000,
+    "mochaExplorer.exit": true,
+    "mochaExplorer.env": {
+      "NODE_ENV": "test",
+      "TS_NODE_PROJECT": "./packages/core/tsconfig.debug.json"
+    },
+    "mochaExplorer.logpanel": false    
+}

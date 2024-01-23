@@ -1,17 +1,22 @@
-const chai = require('chai');
-const sinonChai = require('sinon-chai');
-const sinon = require('sinon');
-const { captureFetchGlobal, captureFetchModule } = require('../../lib/fetch_p');
-
-chai.should();
-chai.use(sinonChai);
-
-const AWSXray = require('aws-xray-sdk-core');
-const fetchModule = require('node-fetch');
-const Segment = AWSXray.Segment;
-const Subsegment = AWSXray.Subsegment;
-
 describe('Integration tests', function () {
+  const chai = require('chai');
+  const sinonChai = require('sinon-chai');
+  const sinon = require('sinon');
+  console.log('In integration test');
+  const { captureFetchGlobal, captureFetchModule } = require('../../lib/fetch_p');
+
+  chai.should();
+  chai.use(sinonChai);
+
+  const global = require('../global');
+  const AWSXray = global.AWSXray;
+  const sandbox = global.sandbox;
+  const stubResolveSegment = global.stubResolveSegment;
+  const stubIsAutomaticMode = global.stubIsAutomaticMode;
+
+  const fetchModule = require('node-fetch');
+  const Segment = AWSXray.Segment;
+  const Subsegment = AWSXray.Subsegment;
   const goodUrl = 'https://example.org';
   const badUrl = 'http://localhost:1';
 
@@ -20,12 +25,9 @@ describe('Integration tests', function () {
   describe('captureFetchModule', function () {
 
     let saveGlobalFetch;
-    let sandbox;
     let mockSegment;
     let mockSubsegment;
-    let stubIsAutomaticMode;
     let stubAddNewSubsegment;
-    let stubResolveSegment;
     let stubAddRemoteRequestData;
     let stubAddErrorFlag;
     let stubClose;
@@ -33,13 +35,12 @@ describe('Integration tests', function () {
     beforeEach(function () {
       saveGlobalFetch = globalThis.fetch;
 
-      sandbox = sinon.createSandbox();
       mockSegment = new Segment('foo');
       mockSubsegment = new Subsegment('bar');
 
-      stubIsAutomaticMode = sandbox.stub(AWSXray, 'isAutomaticMode').returns(false);
+      stubIsAutomaticMode.returns(false);
       stubAddNewSubsegment = sandbox.stub(mockSegment, 'addNewSubsegment').returns(mockSubsegment);
-      stubResolveSegment = sandbox.stub(AWSXray, 'resolveSegment').returns(mockSegment);
+      stubResolveSegment.returns(mockSegment);
       stubAddRemoteRequestData = sandbox.stub(mockSubsegment, 'addRemoteRequestData');
       stubAddErrorFlag = sandbox.stub(mockSubsegment, 'addErrorFlag');
       stubClose = sandbox.stub(mockSubsegment, 'close');
@@ -48,9 +49,6 @@ describe('Integration tests', function () {
     afterEach(function () {
       globalThis.fetch = saveGlobalFetch;
       delete globalThis.__fetch;
-
-      sandbox.restore();
-      sandbox.resetHistory();
     });
 
     if (hasGlobalFetch) {
@@ -88,12 +86,9 @@ describe('Integration tests', function () {
 
   describe('captureFetchModule', function () {
     let saveModuleFetch;
-    let sandbox;
     let mockSegment;
     let mockSubsegment;
-    let stubIsAutomaticMode;
     let stubAddNewSubsegment;
-    let stubResolveSegment;
     let stubAddRemoteRequestData;
     let stubAddErrorFlag;
     let stubClose;
@@ -101,13 +96,12 @@ describe('Integration tests', function () {
     beforeEach(function () {
       saveModuleFetch = fetchModule.default;
 
-      sandbox = sinon.createSandbox();
       mockSegment = new Segment('foo');
       mockSubsegment = new Subsegment('bar');
 
-      stubIsAutomaticMode = sandbox.stub(AWSXray, 'isAutomaticMode').returns(false);
+      stubIsAutomaticMode.returns(false);
       stubAddNewSubsegment = sandbox.stub(mockSegment, 'addNewSubsegment').returns(mockSubsegment);
-      stubResolveSegment = sandbox.stub(AWSXray, 'resolveSegment').returns(mockSegment);
+      stubResolveSegment.returns(mockSegment);
       stubAddRemoteRequestData = sandbox.stub(mockSubsegment, 'addRemoteRequestData');
       stubAddErrorFlag = sandbox.stub(mockSubsegment, 'addErrorFlag');
       stubClose = sandbox.stub(mockSubsegment, 'close');
@@ -116,9 +110,6 @@ describe('Integration tests', function () {
     afterEach(function () {
       fetchModule.default = saveModuleFetch;
       delete fetchModule.__fetch;
-
-      sandbox.restore();
-      sandbox.resetHistory();
     });
 
     it('should retrieve content and call AddRemoteRequestData', async function () {

@@ -1,0 +1,26 @@
+{
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Debug Mocha Tests",
+      "type": "node",
+      "request": "attach",
+      "continueOnAttach": true,
+      "autoAttachChildProcesses": false,
+      "cwd": "${workspaceFolder}/sdk_contrib/fetch",
+      "env": {
+        "TS_NODE_PROJECT": "tsconfig.debug.json"
+      },
+      "resolveSourceMapLocations": [
+        "!**/node_modules/**",
+        "!**/.vscode/extensions/hbenl.vscode-mocha-test-adapter-*/**"
+      ],
+      "skipFiles": [
+        "<node_internals>/**"
+      ]
+    }
+  ]
+}
