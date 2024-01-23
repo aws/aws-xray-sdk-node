@@ -16,7 +16,7 @@ const getLogger = AWSXRay.getLogger;
  *   so the AWS X-Ray service expects a corresponding segment from the downstream service.
  * @param {function} subsegmentCallback - a callback that is called with the subsegment, the fetch request,
  *   the fetch response and any error issued, allowing custom annotations and metadata to be added.
- * @alias module:fetch_p.captureFetch
+ * @alias module:fetch_p.captureFetchGlobal
  */
 function captureFetchGlobal(downstreamXRayEnabled, subsegmentCallback) {
   if (globalThis.fetch === undefined) {
