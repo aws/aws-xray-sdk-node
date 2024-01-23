@@ -1,6 +1,6 @@
 {
   "name": "aws-xray-sdk-fetch",
-  "version": "3.5.0",
+  "version": "3.5.3",
   "description": "AWS X-Ray plugin for node-fetch",
   "author": "Amazon Web Services",
   "contributors": [

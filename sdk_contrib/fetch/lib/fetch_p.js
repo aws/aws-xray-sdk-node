@@ -9,10 +9,6 @@ const AWSXRay = require('aws-xray-sdk-core');
 const utils = AWSXRay.utils;
 const getLogger = AWSXRay.getLogger;
 
-// const contextUtils = require('aws-xray-sdk-core/dist/lib/context_utils');
-// const utils = require('aws-xray-sdk-core/dist/lib/utils');
-// const logger = require('aws-xray-sdk-core/dist/lib/logger');
-
 /**
  * Wrap fetch global instance for recent NodeJS to automatically capture information for the segment.
  * This patches the built-in fetch function globally.
