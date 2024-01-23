@@ -26,7 +26,6 @@
     "aws-xray-sdk-core": "3.5.3",
     "aws-xray-sdk-express": "3.5.3",
     "chai": "^4.2.0",
-    "chai-as-promised": "^7.1.1",
     "cls-hooked": "^4.2.2",
     "codecov": "^3.8.3",
     "eslint": "^7.5.0",
