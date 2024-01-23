@@ -3,9 +3,17 @@ const chaiAsPromised = require('chai-as-promised');
 const sinonChai = require('sinon-chai');
 const sinon = require('sinon');
 
-const contextUtils = require('aws-xray-sdk-core/lib/context_utils');
-const utils = require('aws-xray-sdk-core/lib/utils');
-const logger = require('aws-xray-sdk-core/lib/logger');
+const AWSXray = require('aws-xray-sdk-core');
+const utils = AWSXray.utils;
+
+let sandbox = sinon.createSandbox();
+let spyLogWarn = sandbox.spy();
+let spyLogInfo = sandbox.spy();
+sandbox.stub(AWSXray, 'getLogger').returns({
+  warn: spyLogWarn,
+  info: spyLogInfo
+});
+
 
 const fetchModule = require('node-fetch');
 const { captureFetchGlobal, captureFetchModule } = require('../../lib/fetch_p');
@@ -22,17 +30,10 @@ describe('Unit tests', function () {
   // do and do not include fetch built-in
   describe('capture functions', function () {
 
-    let sandbox;
-    let spyLogWarn;
     let saveGlobalFetch;
     let saveModuleFetch;
 
     beforeEach(function () {
-      sandbox = sinon.createSandbox();
-      spyLogWarn = sandbox.spy();
-      sandbox.stub(logger, 'getLogger').returns({
-        warn: spyLogWarn
-      });
       saveGlobalFetch = globalThis.fetch;
       saveModuleFetch = fetchModule.default;
     });
@@ -46,7 +47,6 @@ describe('Unit tests', function () {
       }
       delete globalThis.__fetch;
       delete fetchModule.__fetch;
-      sandbox.restore();
       sandbox.resetHistory();
     });
 
@@ -77,6 +77,7 @@ describe('Unit tests', function () {
 
       it('warns if module fetch is not available', function () {
         captureFetchModule({}, true);
+        console.log(spyLogWarn);
         spyLogWarn.should.have.been.calledOnceWith('X-ray capture did not find fetch function in module');
       });
     });
@@ -84,13 +85,10 @@ describe('Unit tests', function () {
 
   describe('captured fetch', function () {
 
-    let sandbox;
     let FetchRequest;
     let saveFetch;
     let stubFetch;
     let stubValidResponse;
-    let spyLogWarn;
-    let spyLogInfo;
     let stubResolveSegment;
     let stubResolveManualSegmentParams;
     let stubIsAutomaticMode;
@@ -104,24 +102,18 @@ describe('Unit tests', function () {
     let spyClose;
 
     const useGlobalFetch = globalFetchAvailable;
-    const captureFetch = useGlobalFetch ? captureFetchGlobal : captureFetchModule;
+    const captureFetch = useGlobalFetch
+      ? (downstreamXRayEnabled, subsegmentCallback) => captureFetchGlobal(downstreamXRayEnabled, subsegmentCallback)
+      : (downstreamXRayEnabled, subsegmentCallback) => captureFetchModule(fetchModule, downstreamXRayEnabled, subsegmentCallback);
 
     beforeEach(function () {
-      sandbox = sinon.createSandbox();
       stubValidResponse = {
         statusCode: 200,
         status: 'OK'
       };
 
-      stubResolveSegment = sandbox.stub(contextUtils, 'resolveSegment');
-      stubResolveManualSegmentParams = sandbox.stub(contextUtils, 'resolveManualSegmentParams');
-
-      spyLogWarn = sandbox.spy();
-      spyLogInfo = sandbox.spy();
-      sandbox.stub(logger, 'getLogger').returns({
-        warn: spyLogWarn,
-        info: spyLogInfo
-      });
+      stubResolveSegment = sandbox.stub(AWSXray, 'resolveSegment');
+      stubResolveManualSegmentParams = sandbox.stub(AWSXray, 'resolveManualSegmentParams');
 
       stubSubsegment = sandbox.stub();
       spyAddRemoteRequestData = sandbox.spy();
@@ -159,7 +151,7 @@ describe('Unit tests', function () {
       stubFetch.resolves(stubValidResponse);
 
       // We have to create and re-create this stub here because promise_p.test doesn't use sandboxes
-      stubIsAutomaticMode = sandbox.stub(contextUtils, 'isAutomaticMode');
+      stubIsAutomaticMode = sandbox.stub(AWSXray, 'isAutomaticMode');
       stubIsAutomaticMode.returns(true);
     });
 
@@ -173,7 +165,6 @@ describe('Unit tests', function () {
         fetchModule.fetch = saveFetch;
       }
       sandbox.resetHistory();
-      sandbox.restore();
     });
 
     it('short circuits if headers include trace ID', async function () {

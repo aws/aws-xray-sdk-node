@@ -5,10 +5,12 @@
 /**
  * This module patches the global fetch instance for NodeJS 18+
  */
-
-const contextUtils = require('aws-xray-sdk-core/lib/context_utils');
-const utils = require('aws-xray-sdk-core/lib/utils');
-const logger = require('aws-xray-sdk-core/lib/logger');
+const AWSXRay = require('aws-xray-sdk-core');
+const utils = AWSXRay.utils;
+const getLogger = AWSXRay.getLogger;
+// const contextUtils = require('aws-xray-sdk-core/dist/lib/context_utils');
+// const utils = require('aws-xray-sdk-core/dist/lib/utils');
+// const logger = require('aws-xray-sdk-core/dist/lib/logger');
 
 /**
  * Wrap fetch global instance for recent NodeJS to automatically capture information for the segment.
@@ -43,7 +45,8 @@ function captureFetchGlobal(downstreamXRayEnabled, subsegmentCallback) {
  */
 function captureFetchModule(module, downstreamXRayEnabled, subsegmentCallback) {
   if (!module.default) {
-    logger.getLogger().warn('X-ray capture did not find fetch function in module');
+    console.log(`module.default: ${module.default}, getLogger: ${getLogger}`);
+    getLogger().warn('X-ray capture did not find fetch function in module');
     return null;
   }
   if (!module.__fetch) {
@@ -73,9 +76,9 @@ const enableCapture = function enableCapture(baseFetchFunction, requestClass, do
     }
 
     const url = new URL(request.url);
-    const isAutomaticMode = contextUtils.isAutomaticMode();
+    const isAutomaticMode = AWSXRay.isAutomaticMode();
 
-    const parent = contextUtils.resolveSegment(contextUtils.resolveManualSegmentParams(params));
+    const parent = AWSXRay.resolveSegment(AWSXRay.resolveManualSegmentParams(params));
     const hostname = url.hostname || url.host || 'Unknown host';
 
     if (!parent) {
@@ -84,10 +87,10 @@ const enableCapture = function enableCapture(baseFetchFunction, requestClass, do
         ', path: ' + url.pathname + ' ]';
 
       if (isAutomaticMode) {
-        logger.getLogger().info('RequestInit for request ' + output +
+        getLogger().info('RequestInit for request ' + output +
           ' is missing the sub/segment context for automatic mode. Ignoring.');
       } else {
-        logger.getLogger().info('RequestInit for request ' + output +
+        getLogger().info('RequestInit for request ' + output +
           ' requires a segment object on the options params as "XRaySegment" for tracing in manual mode. Ignoring.');
       }
 
@@ -146,9 +149,9 @@ const enableCapture = function enableCapture(baseFetchFunction, requestClass, do
     };
 
     if (isAutomaticMode) {
-      const session = contextUtils.getNamespace();
+      const session = AWSXRay.getNamespace();
       return await session.runPromise(async () => {
-        contextUtils.setSegment(subsegment);
+        AWSXRay.setSegment(subsegment);
         return await capturedFetch();
       });
     } else {

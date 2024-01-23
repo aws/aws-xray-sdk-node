@@ -6,10 +6,10 @@ const { captureFetchGlobal, captureFetchModule } = require('../../lib/fetch_p');
 chai.should();
 chai.use(sinonChai);
 
-const contextUtils = require('aws-xray-sdk-core/lib/context_utils');
+const AWSXray = require('aws-xray-sdk-core');
 const fetchModule = require('node-fetch');
-const Segment = require('aws-xray-sdk-core/lib/segments/segment');
-const Subsegment = require('aws-xray-sdk-core/lib/segments/attributes/subsegment');
+const Segment = AWSXray.Segment;
+const Subsegment = AWSXray.Subsegment;
 
 describe('Integration tests', function () {
   const goodUrl = 'https://example.org';
@@ -37,9 +37,9 @@ describe('Integration tests', function () {
       mockSegment = new Segment('foo');
       mockSubsegment = new Subsegment('bar');
 
-      stubIsAutomaticMode = sandbox.stub(contextUtils, 'isAutomaticMode').returns(false);
+      stubIsAutomaticMode = sandbox.stub(AWSXray, 'isAutomaticMode').returns(false);
       stubAddNewSubsegment = sandbox.stub(mockSegment, 'addNewSubsegment').returns(mockSubsegment);
-      stubResolveSegment = sandbox.stub(contextUtils, 'resolveSegment').returns(mockSegment);
+      stubResolveSegment = sandbox.stub(AWSXray, 'resolveSegment').returns(mockSegment);
       stubAddRemoteRequestData = sandbox.stub(mockSubsegment, 'addRemoteRequestData');
       stubAddErrorFlag = sandbox.stub(mockSubsegment, 'addErrorFlag');
       stubClose = sandbox.stub(mockSubsegment, 'close');
@@ -105,9 +105,9 @@ describe('Integration tests', function () {
       mockSegment = new Segment('foo');
       mockSubsegment = new Subsegment('bar');
 
-      stubIsAutomaticMode = sandbox.stub(contextUtils, 'isAutomaticMode').returns(false);
+      stubIsAutomaticMode = sandbox.stub(AWSXray, 'isAutomaticMode').returns(false);
       stubAddNewSubsegment = sandbox.stub(mockSegment, 'addNewSubsegment').returns(mockSubsegment);
-      stubResolveSegment = sandbox.stub(contextUtils, 'resolveSegment').returns(mockSegment);
+      stubResolveSegment = sandbox.stub(AWSXray, 'resolveSegment').returns(mockSegment);
       stubAddRemoteRequestData = sandbox.stub(mockSubsegment, 'addRemoteRequestData');
       stubAddErrorFlag = sandbox.stub(mockSubsegment, 'addErrorFlag');
       stubClose = sandbox.stub(mockSubsegment, 'close');

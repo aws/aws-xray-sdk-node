@@ -1,0 +1,11 @@
+services:
+  node14:
+    image: aws-xray-core-node14
+    container_name: aws-xray-core-node14
+    build:
+      context: .
+      dockerfile: ./.docker/Node14/Dockerfile
+    command: npm test
+    working_dir: /app/sdk_contrib/fetch
+    volumes:
+      - ./:/app
