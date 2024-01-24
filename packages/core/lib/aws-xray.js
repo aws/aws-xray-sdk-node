@@ -277,6 +277,15 @@ var AWSXRay = {
   resolveSegment: contextUtils.resolveSegment,
 
   /**
+   * Resolves the segment or subsegment given manual mode and params on the call required.
+   * @param [Segment|Subsegment] segment - The segment manually provided via params.XraySegment, if provided.
+   * @returns {Segment|Subsegment}
+   * @alias module:context_utils.resolveManualSegmentParams
+   */
+
+  resolveManualSegmentParams: contextUtils.resolveManualSegmentParams,
+
+  /**
    * Returns the current segment or subsegment. For use with automatic mode only.
    * @memberof AWSXRay
    * @function
