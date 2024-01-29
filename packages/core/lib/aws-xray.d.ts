@@ -58,6 +58,7 @@ export { middleware };
 export {
   getNamespace,
   resolveSegment,
+  resolveManualSegmentParams,
   getSegment,
   setSegment,
   isAutomaticMode,
