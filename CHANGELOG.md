@@ -1,6 +1,25 @@
 # Changelog for AWS X-Ray SDK for JavaScript
-<!--LATEST=3.5.2-->
+<!--LATEST=3.5.4-->
 <!--ENTRYINSERT-->
+
+## 3.5.4
+View [the latest changes](https://github.com/aws/aws-xray-sdk-node/compare/aws-xray-sdk-node%403.5.3...aws-xray-sdk-node%403.5.4)
+* `aws-xray-sdk-core` updated to 3.5.4
+  * change: Add export for resolveManualSegmentParams to AWSXRay [PR #628](https://github.com/aws/aws-xray-sdk-node/pull/628)
+* `aws-xray-sdk-mysql` updated to 3.5.4
+  * No further changes.
+* `aws-xray-sdk-express` updated to 3.5.4
+  * No further changes.
+* `aws-xray-sdk-postgres` updated to 3.5.4
+  * No further changes.
+* `aws-xray-sdk-restify` updated to 3.5.4
+  * No further changes.
+* `aws-xray-sdk-fastify` updated to 3.5.4
+  * No further changes.
+* `aws-xray-sdk-koa2` updated to 3.5.4
+  * No further changes.
+* `aws-xray-sdk-hapi` updated to 3.5.4
+  * No further changes.
 
 ## 3.5.3
 View [the latest changes](https://github.com/aws/aws-xray-sdk-node/compare/aws-xray-sdk-node%403.5.2...aws-xray-sdk-node%403.5.3)
