@@ -1,7 +1,7 @@
-import * as AWSXRay from 'aws-xray-sdk-core/lib';
-import { captureFetchGlobal, captureFetchModule } from '../lib/fetch_p';
+import AWSXRay from 'aws-xray-sdk-core';
 import * as fetchModule from 'node-fetch';
 import { expectType } from 'ts-expect';
+import { captureFetchGlobal, captureFetchModule } from '../lib/fetch_p';
 
 type ModuleFetch = (url: URL | fetchModule.RequestInfo, init?: fetchModule.RequestInit | undefined) => Promise<fetchModule.Response>;
 
