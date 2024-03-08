@@ -1,7 +1,6 @@
 describe('Integration tests', function () {
   const chai = require('chai');
   const sinonChai = require('sinon-chai');
-  const sinon = require('sinon');
   console.log('In integration test');
   const { captureFetchGlobal, captureFetchModule } = require('../../lib/fetch_p');
 
@@ -28,7 +27,7 @@ describe('Integration tests', function () {
     let mockSegment;
     let mockSubsegment;
     let stubAddNewSubsegment;
-    let stubAddRemoteRequestData;
+    let stubAddFetchRequestData;
     let stubAddErrorFlag;
     let stubClose;
 
@@ -41,7 +40,7 @@ describe('Integration tests', function () {
       stubIsAutomaticMode.returns(false);
       stubAddNewSubsegment = sandbox.stub(mockSegment, 'addNewSubsegment').returns(mockSubsegment);
       stubResolveSegment.returns(mockSegment);
-      stubAddRemoteRequestData = sandbox.stub(mockSubsegment, 'addRemoteRequestData');
+      stubAddFetchRequestData = sandbox.stub(mockSubsegment, 'addFetchRequestData');
       stubAddErrorFlag = sandbox.stub(mockSubsegment, 'addErrorFlag');
       stubClose = sandbox.stub(mockSubsegment, 'close');
     });
@@ -52,7 +51,7 @@ describe('Integration tests', function () {
     });
 
     if (hasGlobalFetch) {
-      it('retrieves content and call AddRemoteRequestData when global fetch exists', async function () {
+      it('retrieves content and call addRemoteRequestData when global fetch exists', async function () {
         const spyCallback = sandbox.spy();
         const fetch = captureFetchGlobal(true, spyCallback);
         const response = await fetch(goodUrl);
@@ -61,7 +60,7 @@ describe('Integration tests', function () {
         stubIsAutomaticMode.should.have.been.called;
         stubAddNewSubsegment.should.have.been.calledOnce;
         stubResolveSegment.should.have.been.calledOnce;
-        stubAddRemoteRequestData.should.have.been.calledOnce;
+        stubAddFetchRequestData.should.have.been.calledOnce;
         stubAddErrorFlag.should.not.have.been.calledOnce;
         stubClose.should.have.been.calledOnce;
       });
@@ -73,7 +72,7 @@ describe('Integration tests', function () {
         stubIsAutomaticMode.should.have.been.called;
         stubAddNewSubsegment.should.have.been.calledOnce;
         stubResolveSegment.should.have.been.calledOnce;
-        stubAddRemoteRequestData.should.have.been.calledOnce;
+        stubAddFetchRequestData.should.have.been.calledOnce;
         stubAddErrorFlag.should.have.been.calledOnce;
         stubClose.should.have.been.calledOnce;
       });
@@ -89,7 +88,7 @@ describe('Integration tests', function () {
     let mockSegment;
     let mockSubsegment;
     let stubAddNewSubsegment;
-    let stubAddRemoteRequestData;
+    let stubAddFetchRequestData;
     let stubAddErrorFlag;
     let stubClose;
 
@@ -102,7 +101,7 @@ describe('Integration tests', function () {
       stubIsAutomaticMode.returns(false);
       stubAddNewSubsegment = sandbox.stub(mockSegment, 'addNewSubsegment').returns(mockSubsegment);
       stubResolveSegment.returns(mockSegment);
-      stubAddRemoteRequestData = sandbox.stub(mockSubsegment, 'addRemoteRequestData');
+      stubAddFetchRequestData = sandbox.stub(mockSubsegment, 'addFetchRequestData');
       stubAddErrorFlag = sandbox.stub(mockSubsegment, 'addErrorFlag');
       stubClose = sandbox.stub(mockSubsegment, 'close');
     });
@@ -112,7 +111,7 @@ describe('Integration tests', function () {
       delete fetchModule.__fetch;
     });
 
-    it('should retrieve content and call AddRemoteRequestData', async function () {
+    it('should retrieve content and call addFetchRequestData', async function () {
       const spyCallback = sandbox.spy();
       const fetch = captureFetchModule(fetchModule, true, spyCallback);
       const response = await fetch(goodUrl);
@@ -121,7 +120,7 @@ describe('Integration tests', function () {
       stubIsAutomaticMode.should.have.been.called;
       stubAddNewSubsegment.should.have.been.calledOnce;
       stubResolveSegment.should.have.been.calledOnce;
-      stubAddRemoteRequestData.should.have.been.calledOnce;
+      stubAddFetchRequestData.should.have.been.calledOnce;
       stubAddErrorFlag.should.not.have.been.calledOnce;
       stubClose.should.have.been.calledOnce;
     });
@@ -133,7 +132,7 @@ describe('Integration tests', function () {
       stubIsAutomaticMode.should.have.been.called;
       stubAddNewSubsegment.should.have.been.calledOnce;
       stubResolveSegment.should.have.been.calledOnce;
-      stubAddRemoteRequestData.should.have.been.calledOnce;
+      stubAddFetchRequestData.should.have.been.calledOnce;
       stubAddErrorFlag.should.have.been.calledOnce;
       stubClose.should.have.been.calledOnce;
     });

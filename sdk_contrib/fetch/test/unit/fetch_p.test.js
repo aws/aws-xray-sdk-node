@@ -1,3 +1,5 @@
+const { Subsegment } = require('aws-xray-sdk-core');
+const fetch = require('node-fetch');
 
 describe('Unit tests', function () {
 
@@ -91,7 +93,7 @@ describe('Unit tests', function () {
     let stubSubsegment;
     let stubAddNewSubsegmentWithoutSampling;
     let stubAddNewSubsegment;
-    let spyAddRemoteRequestData;
+    let spyAddFetchRequestData;
     let spyAddErrorFlag;
     let spyAddThrottleFlag;
     let spyClose;
@@ -108,8 +110,8 @@ describe('Unit tests', function () {
       };
 
       stubSubsegment = sandbox.stub();
-      spyAddRemoteRequestData = sandbox.spy();
-      stubSubsegment.addRemoteRequestData = spyAddRemoteRequestData;
+      spyAddFetchRequestData = sandbox.spy();
+      stubSubsegment.addFetchRequestData = spyAddFetchRequestData;
       spyAddErrorFlag = sandbox.spy();
       stubSubsegment.addErrorFlag = spyAddErrorFlag;
       spyAddThrottleFlag = sandbox.spy();
@@ -304,22 +306,22 @@ describe('Unit tests', function () {
       utilsCodeStub.should.have.been.calledOnceWith(500);
     });
 
-    it('calls subsegment.addRemoteRequestData with downstreamXRayEnabled set to true on success', async function () {
+    it('calls subsegment.addFetchRequestData with downstreamXRayEnabled set to true on success', async function () {
       const activeFetch = captureFetch(true);
       const request = new FetchRequest('https://www.foo.com/test');
       const clonedRequest = request.clone();
       sandbox.stub(request, 'clone').returns(clonedRequest);
       await activeFetch(request);
-      spyAddRemoteRequestData.should.have.been.calledOnceWith(clonedRequest, stubValidResponse, true);
+      spyAddFetchRequestData.should.have.been.calledOnceWith(clonedRequest, stubValidResponse, true);
     });
 
-    it('calls subsegment.addRemoteRequestData with downstreamXRayEnabled set to false on success', async function () {
+    it('calls subsegment.addFetchRequestData with downstreamXRayEnabled set to false on success', async function () {
       const activeFetch = captureFetch(false);
       const request = new FetchRequest('https://www.foo.com/test');
       const clonedRequest = request.clone();
       const stubClone = sandbox.stub(request, 'clone').returns(clonedRequest);
       await activeFetch(request);
-      spyAddRemoteRequestData.should.have.been.calledOnceWith(clonedRequest, stubValidResponse, false);
+      spyAddFetchRequestData.should.have.been.calledOnceWith(clonedRequest, stubValidResponse, false);
       stubClone.restore();
     });
 
@@ -360,7 +362,7 @@ describe('Unit tests', function () {
       spyAddErrorFlag.should.have.been.calledOnce;
     });
 
-    it('calls addRemoteRequestData upon fetch throwing', async function () {
+    it('calls addFetchRequestData upon fetch throwing', async function () {
       const activeFetch = captureFetch(true);
       const request = new FetchRequest('https://www.foo.com/test');
       const clonedRequest = request.clone();
@@ -368,7 +370,7 @@ describe('Unit tests', function () {
       const error = new Error('Nee!');
       stubFetch.rejects(error);
       await activeFetch(request).should.eventually.be.rejectedWith('Nee!');
-      spyAddRemoteRequestData.should.have.been.calledOnceWith(clonedRequest, undefined, true);
+      spyAddFetchRequestData.should.have.been.calledOnceWith(clonedRequest, undefined, true);
 
     });
 
@@ -381,6 +383,76 @@ describe('Unit tests', function () {
       stubFetch.rejects(error);
       await activeFetch(request).should.eventually.be.rejectedWith('Nee!');
       spyClose.should.have.been.calledOnceWith(error);
+    });
+  });
+
+  describe('Subsegment addFetchRequestData', () => {
+
+    it('adds request URL and method', async () => {
+      const subsegment = new Subsegment('test');
+      const request = new fetch.Request('https://foo.com', {
+        method: 'POST'
+      });
+      subsegment.addFetchRequestData(request, null, false);
+      subsegment.http.should.deep.equal({
+        request: {
+          url: 'https://foo.com/',
+          method: 'POST'
+        }
+      });
+    });
+
+    it('sets request.traced when downstreamXRayEnabled is true', () => {
+      const subsegment = new Subsegment('test');
+      const request = new fetch.Request('https://foo.com', {
+        method: 'POST'
+      });
+      subsegment.addFetchRequestData(request, null, true);
+      subsegment.traced.should.equal(true);
+    });
+
+    it('sets response.status', () => {
+      const subsegment = new Subsegment('test');
+      const request = new fetch.Request('https://foo.com', {
+        method: 'POST'
+      });
+      const response = new fetch.Response(undefined, {
+        status: 200
+      });
+      subsegment.addFetchRequestData(request, response, false);
+      subsegment.http.should.deep.equal({
+        request: {
+          url: 'https://foo.com/',
+          method: 'POST'
+        },
+        response: {
+          status: 200
+        },
+      });
+    });
+
+    it('sets response.content_length', () => {
+      const subsegment = new Subsegment('test');
+      const request = new fetch.Request('https://foo.com', {
+        method: 'POST'
+      });
+      const response = new fetch.Response(undefined, {
+        status: 200,
+        headers: new fetch.Headers({
+          'content-length': 100
+        })
+      });
+      subsegment.addFetchRequestData(request, response, false);
+      subsegment.http.should.deep.equal({
+        request: {
+          url: 'https://foo.com/',
+          method: 'POST'
+        },
+        response: {
+          status: 200,
+          content_length: 100
+        },
+      });
     });
   });
 });

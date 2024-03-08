@@ -8,6 +8,7 @@
 const AWSXRay = require('aws-xray-sdk-core');
 const utils = AWSXRay.utils;
 const getLogger = AWSXRay.getLogger;
+require('./subsegment_fetch');
 
 /**
  * Wrap fetch global instance for recent NodeJS to automatically capture information for the segment.
@@ -129,7 +130,7 @@ const enableCapture = function enableCapture(baseFetchFunction, requestClass, do
           subsegment[cause] = true;
         }
 
-        subsegment.addRemoteRequestData(requestClone, response, thisDownstreamXRayEnabled);
+        subsegment.addFetchRequestData(requestClone, response, thisDownstreamXRayEnabled);
         subsegment.close();
         return response;
       } catch (e) {
@@ -138,7 +139,7 @@ const enableCapture = function enableCapture(baseFetchFunction, requestClass, do
         }
         const madeItToDownstream = (e.code !== 'ECONNREFUSED');
         subsegment.addErrorFlag();
-        subsegment.addRemoteRequestData(requestClone, response, madeItToDownstream && thisDownstreamXRayEnabled);
+        subsegment.addFetchRequestData(requestClone, response, madeItToDownstream && thisDownstreamXRayEnabled);
         subsegment.close(e);
         throw (e);
       }
