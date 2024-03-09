@@ -402,6 +402,18 @@ describe('Unit tests', function () {
       });
     });
 
+    it('defaults url and method to empty string if missing', async () => {
+      const subsegment = new Subsegment('test');
+      subsegment.addFetchRequestData({}, null, false);
+      subsegment.http.should.deep.equal({
+        request: {
+          url: '',
+          method: ''
+        }
+      });
+    });
+
+
     it('sets request.traced when downstreamXRayEnabled is true', () => {
       const subsegment = new Subsegment('test');
       const request = new fetch.Request('https://foo.com', {

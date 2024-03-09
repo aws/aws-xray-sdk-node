@@ -1,8 +1,8 @@
 const {Subsegment} = require('aws-xray-sdk-core');
 
 /**
- * Appends remote request data to subsegment similar to what Subsegment.prototype.addRemoteRequestData
- * does in core/lib/segments/attributes/subsegment.js
+ * Extends Subsegment to append remote request data to subsegment, similar to what
+ * Subsegment.prototype.addRemoteRequestData does in core/lib/segments/attributes/subsegment.js
  * @param {Subsegment} subsegment
  * @param {Fetch Request} request
  * @param {Fetch Request or null|undefined} response
@@ -11,8 +11,8 @@ const {Subsegment} = require('aws-xray-sdk-core');
 Subsegment.prototype.addFetchRequestData = function addFetchRequestData(request, response, downstreamXRayEnabled) {
   this.http = {
     request: {
-      url: request.url.toString(),
-      method: request.method
+      url: request.url?.toString() ?? '',
+      method: request.method ?? ''
     }
   };
 
