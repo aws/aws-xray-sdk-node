@@ -1,5 +1,6 @@
 import * as http from 'http';
 import { Segment, SegmentLike } from '../../aws-xray';
+import RemoteRequestData from './remote_request_data';
 
 declare class Subsegment {
   id: string;
@@ -11,6 +12,8 @@ declare class Subsegment {
   segment: Segment;
   namespace?: string;
   notTraced: boolean;
+
+  http?: RemoteRequestData;
 
   constructor(name: string);
 
