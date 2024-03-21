@@ -1,6 +1,6 @@
 {
   "name": "aws-xray-sdk-fastify",
-  "version": "3.5.4",
+  "version": "3.6.0",
   "description": "AWS X-Ray plugin for Fastify",
   "author": "Amazon Web Services",
   "contributors": [
@@ -22,7 +22,7 @@
     "node": ">= 14.x"
   },
   "peerDependencies": {
-    "aws-xray-sdk-core": "^3.5.4",
+    "aws-xray-sdk-core": "^3.6.0",
     "fastify": "^3.29.0",
     "fastify-plugin": "^4.2.0"
   },
