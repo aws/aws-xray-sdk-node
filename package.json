@@ -45,7 +45,7 @@
     "grunt-contrib-clean": "^1.0.0",
     "grunt-jsdoc": "^2.4.0",
     "koa": "^2.13.0",
-    "lerna": "^5.6.2",
+    "lerna": "^6.4.1",
     "mocha": "^10.2.0",
     "nock": "^13.2.9",
     "nyc": "^15.1.0",
