@@ -9,7 +9,7 @@ global fetch support starting with [NodeJS 18](https://nodejs.org/en/blog/announ
 const { captureFetchGlobal } = require('aws-xray-sdk-fetch');
 
 // To use globally defined fetch (available in NodeJS 18+)
-const fetch = captureFetchGloba();
+const fetch = captureFetchGlobal();
 const result = await fetch('https://foo.com');
 
 // To use node-fetch module
