@@ -6,7 +6,7 @@ import { captureFetchGlobal, captureFetchModule } from '../lib/fetch_p';
 type ModuleFetch = (url: URL | fetchModule.RequestInfo, init?: fetchModule.RequestInit | undefined) => Promise<fetchModule.Response>;
 
 if (globalThis.fetch !== undefined) {
-  function fetchGlobalCallback(subsegment: AWSXRay.Subsegment, req: Request, res: Response | null, error: Error) {
+  function fetchGlobalCallback(subsegment: AWSXRay.Subsegment, req: Request, res: Response | null, error?: Error | undefined) {
     console.log({ subsegment, req, res, error });
   }
 
@@ -17,7 +17,7 @@ if (globalThis.fetch !== undefined) {
   expectType<typeof globalThis.fetch>(captureFetchGlobal(false, fetchGlobalCallback));
 }
 
-function fetchModuleCallback(subsegment: AWSXRay.Subsegment, req: fetchModule.Request, res: fetchModule.Response | null, error: Error) {
+function fetchModuleCallback(subsegment: AWSXRay.Subsegment, req: fetchModule.Request, res: fetchModule.Response | null, error?: Error | undefined) {
   console.log({ subsegment, req, res, error });
 }
 
