@@ -26,12 +26,22 @@ jobs:
           - os: ubuntu-latest
             node-version: 16.x
             coverage: true
-        # Issue with npm6 on windows resulting in failing workflows:
-        # https://github.com/npm/cli/issues/4341#issuecomment-1040608101
-        # Since node14 is EOL, we can drop this set from our tests. 
-        # We still test node14 on other platforms.
+          - os: macos-13
+            node-version: 14.x
         exclude:
+          # Issue with npm6 on windows resulting in failing workflows:
+          # https://github.com/npm/cli/issues/4341#issuecomment-1040608101
+          # Since node14 is EOL, we can drop this set from our tests.
+          # We still test node14 on other platforms.
           - os: windows-latest
+            node-version: 14.x
+          # https://github.com/actions/runner-images/issues/9741
+          # macos-latest provides only ARM hosts
+          # https://github.com/nodejs/node/issues/36161
+          # https://github.com/nodejs/node/issues/40126
+          # Without workarounds, Node.js 14 isn't supported on ARM macos
+          # As workaround, test on macos-13 version instead
+          - os: macos-latest
             node-version: 14.x
 
     steps:
