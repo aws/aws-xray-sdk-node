@@ -39,5 +39,5 @@
     "lib": "lib"
   },
   "license": "Apache-2.0",
-  "repository": "https://github.com/aws/aws-xray-sdk-node/tree/sdk_contrib/koa"
+  "repository": "https://github.com/aws/aws-xray-sdk-node/tree/master/sdk_contrib/hapi"
 }
