@@ -88,8 +88,11 @@ function captureAWSRequest(req) {
   const data = parent.segment ? parent.segment.additionalTraceData : parent.additionalTraceData;
 
   var buildListener = function(req) {
-    let traceHeader = 'Root=' + traceId + ';Parent=' + subsegment.id +
-      ';Sampled=' + (subsegment.notTraced ? '0' : '1');
+    let traceHeader = 'Root=' + traceId;
+    // Only append parent and sample if not in Lambda PassThrough mode
+    if (!(parent && parent.noOp)) {
+      traceHeader += ';Parent=' + subsegment.id + ';Sampled=' + (subsegment.notTraced ? '0' : '1');
+    }
     if (data != null) {
       for (const [key, value] of Object.entries(data)) {
         traceHeader += ';' + key +'=' + value;
@@ -99,6 +102,9 @@ function captureAWSRequest(req) {
   };
 
   var completeListener = function(res) {
+    if (subsegment == null) {
+      return
+    }
     subsegment.addAttribute('namespace', 'aws');
     subsegment.addAttribute('aws', new Aws(res, subsegment.name));
 
