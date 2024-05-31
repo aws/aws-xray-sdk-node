@@ -103,7 +103,7 @@ function captureAWSRequest(req) {
 
   var completeListener = function(res) {
     if (subsegment == null) {
-      return
+      return;
     }
     subsegment.addAttribute('namespace', 'aws');
     subsegment.addAttribute('aws', new Aws(res, subsegment.name));

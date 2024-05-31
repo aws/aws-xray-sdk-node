@@ -39,8 +39,7 @@ module.exports.init = function init() {
 
   if (LambdaUtils.validTraceData(process.env._X_AMZN_TRACE_ID)) {
     contextUtils.setSegment(facadeSegment());
-  }
-  else {
+  } else {
     contextUtils.setSegment(noOpSegment());
   }
 };
