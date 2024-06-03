@@ -125,14 +125,10 @@ const getXRayMiddleware = (config: RegionResolvedConfig, manualSegment?: Segment
   const parent = (segment instanceof Subsegment ? segment.segment : segment);
   const data = parent.segment ? parent.segment.additionalTraceData : parent.additionalTraceData;
 
-  let traceHeader = stringify(
-    {
-      Root: parent.trace_id,
-      Parent: subsegment.id,
-      Sampled: subsegment.notTraced ? '0' : '1',
-    },
-    ';',
-  );
+  let traceHeader = 'Root=' + parent.trace_id;
+  if (!(parent && parent.noOp)) {
+    traceHeader += ';Parent=' + subsegment.id + ';Sampled=' + (subsegment.notTraced ? '0' : '1');
+  }
 
   if (data != null) {
     for (const [key, value] of Object.entries(data)) {

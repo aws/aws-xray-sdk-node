@@ -175,13 +175,14 @@ var noOpSegment = function noOpSegment() {
     }
   };
 
-  // Test for valid trace data during SDK startup. It's likely we're still in the cold-start portion of the
-  // code at this point and a valid trace header has not been set
-  if (LambdaUtils.validTraceData(xAmznTraceId)) {
-    if (LambdaUtils.populateTraceData(segment, xAmznTraceId)) {
-      xAmznTraceIdPrev = xAmznTraceId;
-    }
+  // Since we're in a no-op segment, do not check if the trace data is valid; simply propagate the information
+  if (LambdaUtils.populateTraceData(segment, xAmznTraceId)) {
+    xAmznTraceIdPrev = xAmznTraceId;
   }
 
   return segment;
 };
+
+// For testing
+export const exportedFacadeSegment = { facadeSegment };
+export const exportedNoOpSegment = { noOpSegment };

@@ -81,7 +81,7 @@ describe('AWSLambda', function() {
       assert.equal(facade.trace_id, TraceID.Invalid().toString());
     });
 
-    describe('the facade segment', function() {
+    describe('the facade/no-op segment', function() {
       afterEach(function() {
         populateStub.returns(true);
         delete process.env._X_AMZN_TRACE_ID;
@@ -95,17 +95,25 @@ describe('AWSLambda', function() {
         validateStub.should.have.been.calledWith(process.env._X_AMZN_TRACE_ID);
       });
 
-      it('should call populateTraceData if validTraceData returns true', function() {
+      it('should call populateTraceData on Facade if validTraceData returns true', function() {
         Lambda.init();
+
+        var segment = setSegmentStub.args[0][0];
+        assert.equal(segment.name, 'facade');
+        assert.isTrue(segment.facade);
 
         populateStub.should.have.been.calledOnce;
       });
 
-      it('should not call populateTraceData if validTraceData returns false', function() {
+      it('should call populateTraceData on No-Op if validTraceData returns false', function() {
         validateStub.returns(false);
         Lambda.init();
 
-        populateStub.should.have.not.been.called;
+        var segment = setSegmentStub.args[0][0];
+        assert.equal(segment.name, 'no-op');
+        assert.isTrue(segment.noOp);
+
+        populateStub.should.have.been.calledOnce;
       });
     });
   });
