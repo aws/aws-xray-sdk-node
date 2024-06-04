@@ -168,6 +168,8 @@ var utils = {
       if (!traceData) {
         traceData = {};
         logger.getLogger().error('_X_AMZN_TRACE_ID is empty or has an invalid format');
+      } else if (segment.noOp == true && traceData.root) {
+        valid = true;
       } else if (!traceData.root || !traceData.parent || !traceData.sampled) {
         logger.getLogger().error('_X_AMZN_TRACE_ID is missing required information');
       } else {

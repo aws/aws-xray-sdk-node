@@ -36,7 +36,12 @@ module.exports.init = function init() {
 
   var namespace = contextUtils.getNamespace();
   namespace.enter(namespace.createContext());
-  contextUtils.setSegment(facadeSegment());
+
+  if (LambdaUtils.validTraceData(process.env._X_AMZN_TRACE_ID)) {
+    contextUtils.setSegment(facadeSegment());
+  } else {
+    contextUtils.setSegment(noOpSegment());
+  }
 };
 
 var facadeSegment = function facadeSegment() {
@@ -109,3 +114,75 @@ var facadeSegment = function facadeSegment() {
 
   return segment;
 };
+
+var noOpSegment = function noOpSegment() {
+  var segment = new Segment('no-op');
+  var whitelistFcn = [];
+  var silentFcn = ['addNewSubsegment', 'addSubsegment', 'removeSubsegment', 'toString', 'addSubsegmentWithoutSampling', 'addNewSubsegmentWithoutSampling', 'incrementCounter', 'decrementCounter', 'isClosed', 'close', 'format', 'flush'];
+  var xAmznTraceId = process.env._X_AMZN_TRACE_ID;
+
+  for (var key in segment) {
+    if (typeof segment[key] === 'function' && whitelistFcn.indexOf(key) === -1) {
+      if (silentFcn.indexOf(key) === -1) {
+        segment[key] = (function() {
+          var func = key;
+          return function noOp() {
+            logger.getLogger().warn('Function "' + func + '" cannot be called on an AWS Lambda segment. Please use a subsegment to record data.');
+            return;
+          };
+        })();
+      } else {
+        segment[key] = function noOp() {
+          return;
+        };
+      }
+    }
+  }
+
+  segment.trace_id = TraceID.Invalid().toString();
+  segment.isClosed = function() {
+    return true;
+  };
+  segment.in_progress = false;
+  segment.counter = 1;
+  segment.notTraced = true;
+  segment.noOp = true;
+
+  segment.reset = function reset() {
+    this.trace_id = TraceID.Invalid().toString();
+    this.id = '00000000';
+    delete this.subsegments;
+    this.notTraced = true;
+  };
+
+  segment.resolveLambdaTraceData = function resolveLambdaTraceData() {
+    var xAmznLambda = process.env._X_AMZN_TRACE_ID;
+
+    if (xAmznLambda) {
+
+      // This check resets the trace data whenever a new trace header is read to not leak data between invocations
+      if (xAmznLambda != xAmznTraceIdPrev) {
+        this.reset();
+
+        if (LambdaUtils.populateTraceData(segment, xAmznLambda)) {
+          xAmznTraceIdPrev = xAmznLambda;
+        }
+      }
+    } else {
+      this.reset();
+      contextUtils.contextMissingStrategy.contextMissing('Missing AWS Lambda trace data for X-Ray. ' +
+          'Ensure Active Tracing is enabled and no subsegments are created outside the function handler.');
+    }
+  };
+
+  // Since we're in a no-op segment, do not check if the trace data is valid; simply propagate the information
+  if (LambdaUtils.populateTraceData(segment, xAmznTraceId)) {
+    xAmznTraceIdPrev = xAmznTraceId;
+  }
+
+  return segment;
+};
+
+// For testing
+export const exportedFacadeSegment = { facadeSegment };
+export const exportedNoOpSegment = { noOpSegment };
