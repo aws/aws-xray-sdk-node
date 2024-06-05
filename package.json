@@ -1,6 +1,6 @@
 {
   "name": "aws-xray-sdk-node",
-  "version": "3.6.0",
+  "version": "3.7.0",
   "private": true,
   "license": "Apache-2.0",
   "overrides": {
@@ -23,8 +23,8 @@
     "@typescript-eslint/eslint-plugin": "^4.25.0",
     "@typescript-eslint/parser": "^4.25.0",
     "aws-sdk": "^2.304.0",
-    "aws-xray-sdk-core": "3.6.0",
-    "aws-xray-sdk-express": "3.6.0",
+    "aws-xray-sdk-core": "3.7.0",
+    "aws-xray-sdk-express": "3.7.0",
     "chai": "^4.2.0",
     "cls-hooked": "^4.2.2",
     "codecov": "^3.8.3",
@@ -45,7 +45,7 @@
     "grunt-contrib-clean": "^1.0.0",
     "grunt-jsdoc": "^2.4.0",
     "koa": "^2.13.0",
-    "lerna": "^6.4.1",
+    "lerna": "^6.6.2",
     "mocha": "^10.2.0",
     "nock": "^13.2.9",
     "nyc": "^15.1.0",
