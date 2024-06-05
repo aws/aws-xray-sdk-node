@@ -22,7 +22,7 @@ View [the latest changes](https://github.com/aws/aws-xray-sdk-node/compare/aws-x
 * `aws-xray-sdk-hapi` updated to 3.7.0
   * No further changes.
 * `aws-xray-sdk-fetch` added in 3.7.0
-  * No further changes.
+  * Fix: fix subsegment callback error parameter type [PR #644](https://github.com/aws/aws-xray-sdk-node/pull/644)
 
 ## 3.6.0
 View [the latest changes](https://github.com/aws/aws-xray-sdk-node/compare/aws-xray-sdk-node%403.5.4...aws-xray-sdk-node%403.6.0)
