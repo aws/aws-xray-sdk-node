@@ -1,6 +1,28 @@
 # Changelog for AWS X-Ray SDK for JavaScript
-<!--LATEST=3.6.0-->
+<!--LATEST=3.7.0-->
 <!--ENTRYINSERT-->
+
+## 3.7.0
+View [the latest changes](https://github.com/aws/aws-xray-sdk-node/compare/aws-xray-sdk-node%403.6.0...aws-xray-sdk-node%403.7.0)
+* `aws-xray-sdk-core` updated to 3.7.0
+  * Feature: Replace Facade segment with No-Op if trace header is missing data in AWS Lambda PassThrough mode [PR #651](https://github.com/aws/aws-xray-sdk-node/pull/651)
+  * Fix: TraceId timestamp supports string starts with '0' [PR #641](https://github.com/aws/aws-xray-sdk-node/pull/641)
+* `aws-xray-sdk-mysql` updated to 3.7.0
+  * No further changes.
+* `aws-xray-sdk-express` updated to 3.7.0
+  * No further changes.
+* `aws-xray-sdk-postgres` updated to 3.7.0
+  * No further changes.
+* `aws-xray-sdk-restify` updated to 3.7.0
+  * No further changes.
+* `aws-xray-sdk-fastify` updated to 3.7.0
+  * No further changes.
+* `aws-xray-sdk-koa2` updated to 3.7.0
+  * No further changes.
+* `aws-xray-sdk-hapi` updated to 3.7.0
+  * No further changes.
+* `aws-xray-sdk-fetch` added in 3.7.0
+  * Fix: fix subsegment callback error parameter type [PR #644](https://github.com/aws/aws-xray-sdk-node/pull/644)
 
 ## 3.6.0
 View [the latest changes](https://github.com/aws/aws-xray-sdk-node/compare/aws-xray-sdk-node%403.5.4...aws-xray-sdk-node%403.6.0)
