@@ -123,18 +123,15 @@ function enableCapture(module, downstreamXRayEnabled, subsegmentCallback) {
       subsegment = parent.addNewSubsegment(hostname);
     }
 
+    const root = parent.segment ? parent.segment : parent;
     subsegment.namespace = 'remote';
 
     if (!options.headers) {
       options.headers = {};
     }
 
-    let traceHeader = 'Root=' + (parent.segment ? parent.segment : parent).trace_id;
-    if (!(parent && parent.noOp)) {
-      traceHeader += ';Parent=' + subsegment.id + ';Sampled=' + (subsegment.notTraced ? '0' : '1');
-    }
-
-    options.headers['X-Amzn-Trace-Id'] = traceHeader;
+    options.headers['X-Amzn-Trace-Id'] = 'Root=' + root.trace_id + ';Parent=' + subsegment.id +
+      ';Sampled=' + (subsegment.notTraced ? '0' : '1');
 
     const errorCapturer = function errorCapturer(e) {
       if (subsegmentCallback) {

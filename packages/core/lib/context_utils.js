@@ -99,10 +99,8 @@ var contextUtils = {
 
       if (!segment) {
         contextUtils.contextMissingStrategy.contextMissing('Failed to get the current sub/segment from the context.');
-      } else if (segment instanceof Segment && process.env.LAMBDA_TASK_ROOT) {
-        if (segment.facade == true || segment.noOp == true) {
-          segment.resolveLambdaTraceData();
-        }
+      } else if (segment instanceof Segment && process.env.LAMBDA_TASK_ROOT && segment.facade == true) {
+        segment.resolveLambdaTraceData();
       }
 
       return segment;

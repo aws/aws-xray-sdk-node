@@ -13,10 +13,6 @@ var Utils = require('../../../lib/utils');
 
 var logger = require('../../../lib/logger').getLogger();
 
-import { exportedFacadeSegment, exportedNoOpSegment } from '../../../lib/env/aws_lambda';
-const { facadeSegment } = exportedFacadeSegment;
-const { noOpSegment } = exportedNoOpSegment;
-
 chai.should();
 chai.use(sinonChai);
 
@@ -346,93 +342,6 @@ describe('AWS patcher', function() {
 
       setTimeout(function() {
         var expected = new RegExp('^Root=' + traceId + ';Parent=' + service.id + ';Sampled=0' + ';Foo=bar$');
-        assert.match(awsRequest.httpRequest.headers['X-Amzn-Trace-Id'], expected);
-        done();
-      }, 50);
-    });
-
-  });
-
-
-  describe('#captureAWSRequest-Lambda-PassThrough', function() {
-    var awsClient, awsRequest, MyEmitter, sandbox, segment, stubResolve, tempHeader;
-
-    before(function() {
-      MyEmitter = function() {
-        EventEmitter.call(this);
-      };
-
-      awsClient = {
-        customizeRequests: function customizeRequests(captureAWSRequest) {
-          this.call = captureAWSRequest;
-        },
-        throttledError: function throttledError() {}
-      };
-      awsClient = awsPatcher.captureAWSClient(awsClient);
-
-      util.inherits(MyEmitter, EventEmitter);
-    });
-
-    beforeEach(function() {
-      sandbox = sinon.createSandbox();
-
-      awsRequest = {
-        httpRequest: {
-          method: 'GET',
-          url: '/',
-          connection: {
-            remoteAddress: 'localhost'
-          },
-          headers: {}
-        },
-        response: {}
-      };
-
-      awsRequest.on = function(event, fcn) {
-        if (event === 'complete') {
-          this.emitter.on(event, fcn.bind(this, this.response));
-        } else {
-          this.emitter.on(event, fcn.bind(this, this));
-        }
-        return this;
-      };
-
-      awsRequest.emitter = new MyEmitter();
-
-      tempHeader = process.env._X_AMZN_TRACE_ID;
-      process.env._X_AMZN_TRACE_ID = 'Root=' + traceId + ';Foo=bar';
-
-      segment = noOpSegment();
-
-      stubResolve = sandbox.stub(contextUtils, 'resolveSegment').returns(segment);
-    });
-
-    afterEach(function() {
-      process.env._X_AMZN_TRACE_ID = tempHeader;
-      sandbox.restore();
-    });
-
-    it('should log an info statement and exit if parent is not found on the context or on the call params', function(done) {
-      stubResolve.returns();
-      var logStub = sandbox.stub(logger, 'info');
-
-      awsClient.call(awsRequest);
-
-      setTimeout(function() {
-        logStub.should.have.been.calledOnce;
-        done();
-      }, 50);
-    });
-
-    it('should inject the tracing headers', function(done) {
-      sandbox.stub(contextUtils, 'isAutomaticMode').returns(true);
-
-      awsClient.call(awsRequest);
-
-      awsRequest.emitter.emit('build');
-
-      setTimeout(function() {
-        var expected = new RegExp('^Root=' + traceId + ';Foo=bar$');
         assert.match(awsRequest.httpRequest.headers['X-Amzn-Trace-Id'], expected);
         done();
       }, 50);
