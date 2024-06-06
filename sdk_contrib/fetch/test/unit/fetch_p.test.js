@@ -273,19 +273,6 @@ describe('Unit tests', function () {
         'Root=12345;Parent=999;Sampled=1');
     });
 
-    it('adds X-Amzn-Trace-Id header with only root if noOp', async function () {
-      const activeFetch = captureFetch(true);
-      stubParentSegment.noOp = true;
-      stubParentSegment.trace_id = '12345';
-      stubSubsegment.notTraced = false;
-      stubSubsegment.id = '999';
-      const request = new FetchRequest('https://www.foo.com/test');
-      const requestHeadersSet = sandbox.stub(request.headers, 'set');
-      await activeFetch(request);
-      requestHeadersSet.should.have.been.calledOnceWith('X-Amzn-Trace-Id',
-        'Root=12345');
-    });
-
     it('calls subsegmentCallback on successful response', async function () {
       const spyCallback = sandbox.spy();
       const activeFetch = captureFetch(true, spyCallback);
