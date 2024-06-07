@@ -104,10 +104,12 @@ const enableCapture = function enableCapture(baseFetchFunction, requestClass, do
 
     subsegment.namespace = 'remote';
 
-    request.headers.set('X-Amzn-Trace-Id',
-      'Root=' + (parent.segment ? parent.segment : parent).trace_id +
-      ';Parent=' + subsegment.id +
-      ';Sampled=' + (subsegment.notTraced ? '0' : '1'));
+    if (!parent.noOp) {
+      request.headers.set('X-Amzn-Trace-Id',
+        'Root=' + (parent.segment ? parent.segment : parent).trace_id +
+        ';Parent=' + subsegment.id +
+        ';Sampled=' + (subsegment.notTraced ? '0' : '1'));
+    }
 
     // Set up fetch call and capture any thrown errors
     const capturedFetch = async () => {
