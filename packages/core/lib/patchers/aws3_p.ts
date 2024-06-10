@@ -140,7 +140,9 @@ const getXRayMiddleware = (config: RegionResolvedConfig, manualSegment?: Segment
     }
   }
 
-  args.request.headers['X-Amzn-Trace-Id'] = traceHeader;
+  if (!segment.noOp) {
+    args.request.headers['X-Amzn-Trace-Id'] = traceHeader;
+  }
 
   let res;
   try {

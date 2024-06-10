@@ -248,6 +248,7 @@ Segment.prototype.addSubsegment = function addSubsegment(subsegment) {
   subsegment.parent = this;
 
   subsegment.notTraced = subsegment.parent.notTraced;
+  subsegment.noOp = subsegment.parent.noOp;
   this.subsegments.push(subsegment);
 
   if (!subsegment.end_time) {

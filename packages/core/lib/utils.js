@@ -168,6 +168,10 @@ var utils = {
       if (!traceData) {
         traceData = {};
         logger.getLogger().error('_X_AMZN_TRACE_ID is empty or has an invalid format');
+      } else if (traceData.root && !traceData.parent && !traceData.sampled) {
+        // Lambda PassThrough only has root, treat as valid in this case and mark the segment
+        segment.noOp = true;
+        valid = true;
       } else if (!traceData.root || !traceData.parent || !traceData.sampled) {
         logger.getLogger().error('_X_AMZN_TRACE_ID is missing required information');
       } else {
