@@ -260,6 +260,19 @@ describe('captureMySQL', function() {
         stubAddSql.should.have.been.calledWithExactly(sinon.match.instanceOf(SqlData));
         stubAddSql.should.have.been.calledWithExactly(sinon.match.has('sanitized_query', 'sql here'));
       });
+      it('should add query to the subsegments sql data when query options are used', function () {
+        sandbox.stub(process, 'env').value({ ...AWSXRay, 'AWS_XRAY_COLLECT_SQL_QUERIES': true });
+        var stubAddSql = sandbox.stub(subsegment, 'addSqlData');
+        var stubDataInit = sandbox.stub(SqlData.prototype, 'init');
+        var conParam = connectionObj.config;
+
+        query.call(connectionObj, { sql: 'sql with values binding = ?' }, [1]);
+
+        stubDataInit.should.have.been.calledWithExactly(process.env.MYSQL_DATABASE_VERSION, process.env.MYSQL_DRIVER_VERSION,
+          conParam.user, conParam.host + ':' + conParam.port + '/' + conParam.database, 'statement');
+        stubAddSql.should.have.been.calledWithExactly(sinon.match.instanceOf(SqlData));
+        stubAddSql.should.have.been.calledWithExactly(sinon.match.has('sanitized_query', 'sql with values binding = ?'));
+      });
       it('should NOT add query to the subsegments sql data when AWS_XRAY_COLLECT_SQL_QUERIES is not set', function () {
         sandbox.stub(process, 'env').value({ ...AWSXRay, 'AWS_XRAY_COLLECT_SQL_QUERIES': undefined });
         var stubAddSql = sandbox.stub(subsegment, 'addSqlData');
