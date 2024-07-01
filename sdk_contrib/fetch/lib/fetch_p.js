@@ -116,7 +116,7 @@ const enableCapture = function enableCapture(baseFetchFunction, requestClass, do
       const requestClone = request.clone();
       let response;
       try {
-        response = await baseFetchFunction(requestClone);
+        response = await baseFetchFunction(...args);
 
         if (thisSubsegmentCallback) {
           thisSubsegmentCallback(subsegment, requestClone, response);
