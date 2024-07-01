@@ -63,10 +63,6 @@ const enableCapture = function enableCapture(baseFetchFunction, requestClass, do
     const request = typeof args[0] === 'object' ?
       args[0] :
       new requestClass(...args);
-    let fetchOptions = undefined;
-    if (args[1] && 'dispatcher' in args[1]) {
-      fetchOptions = { dispatcher: args[1].dispatcher };
-    }
 
     // Facilitate the addition of Segment information via the request arguments
     const params = args.length > 1 ? args[1] : {};
@@ -120,7 +116,7 @@ const enableCapture = function enableCapture(baseFetchFunction, requestClass, do
       const requestClone = request.clone();
       let response;
       try {
-        response = await baseFetchFunction(requestClone, fetchOptions);
+        response = await baseFetchFunction(...args);
 
         if (thisSubsegmentCallback) {
           thisSubsegmentCallback(subsegment, requestClone, response);
