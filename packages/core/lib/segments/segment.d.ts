@@ -14,6 +14,7 @@ declare class Segment {
   notTraced?: boolean;
 
   additionalTraceData?: object
+  http?: IncomingRequestData;
 
   constructor(name: string, rootId?: string | null, parentId?: string | null);
 
