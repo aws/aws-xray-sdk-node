@@ -1,6 +1,27 @@
 # Changelog for AWS X-Ray SDK for JavaScript
-<!--LATEST=3.9.0-->
+<!--LATEST=3.10.0-->
 <!--ENTRYINSERT-->
+
+## 3.10.0
+View [the latest changes](https://github.com/aws/aws-xray-sdk-node/compare/aws-xray-sdk-node%403.9.0...aws-xray-sdk-node%403.10.0)
+* `aws-xray-sdk-core` updated to 3.10.0
+  * No further changes. 
+* `aws-xray-sdk-mysql` updated to 3.10.0
+  * Fix: Add schema to database URLs [PR #667](https://github.com/aws/aws-xray-sdk-node/pull/667)
+* `aws-xray-sdk-express` updated to 3.10.0
+  * No further changes.
+* `aws-xray-sdk-postgres` updated to 3.10.0
+  * No further changes.
+* `aws-xray-sdk-restify` updated to 3.10.0
+  * No further changes.
+* `aws-xray-sdk-fastify` updated to 3.10.0
+  * No further changes.
+* `aws-xray-sdk-koa2` updated to 3.10.0
+  * No further changes.
+* `aws-xray-sdk-hapi` updated to 3.10.0
+  * No further changes.
+* `aws-xray-sdk-fetch` added in 3.10.0
+  * Feature: Enable proxy usage through dispatcher in global fetch [PR #653](https://github.com/aws/aws-xray-sdk-node/pull/653)
 
 ## 3.9.0
 View [the latest changes](https://github.com/aws/aws-xray-sdk-node/compare/aws-xray-sdk-node%403.8.0...aws-xray-sdk-node%403.9.0)
