@@ -23,7 +23,7 @@
   },
   "peerDependencies": {
     "aws-xray-sdk-core": "^3.10.0",
-    "fastify": "^3.29.0",
+    "fastify": "^4.0.1",
     "fastify-plugin": "^4.2.0"
   },
   "keywords": [
