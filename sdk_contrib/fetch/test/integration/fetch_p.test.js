@@ -21,7 +21,7 @@ describe('Integration tests', function () {
 
   const hasGlobalFetch = globalThis.fetch !== undefined;
 
-  describe('captureFetchModule', function () {
+  describe('captureFetchGlobal', function () {
 
     let saveGlobalFetch;
     let mockSegment;
