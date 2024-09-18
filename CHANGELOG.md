@@ -1,7 +1,7 @@
 # Changelog for AWS X-Ray SDK for JavaScript
 <!--LATEST=3.10.0-->
 <!--ENTRYINSERT-->
-## 3.10.11
+## 3.10.1
 View [the latest changes](https://github.com/aws/aws-xray-sdk-node/compare/aws-xray-sdk-node%403.9.0...aws-xray-sdk-node%403.10.0)
 * `aws-xray-sdk-core` updated to 3.10.1
   * Bump dependency version for body-parser, express and find-my-way
