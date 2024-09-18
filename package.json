@@ -1,6 +1,6 @@
 {
   "name": "aws-xray-sdk-node",
-  "version": "3.10.0",
+  "version": "3.10.1",
   "private": true,
   "license": "Apache-2.0",
   "overrides": {
@@ -23,8 +23,8 @@
     "@typescript-eslint/eslint-plugin": "^4.25.0",
     "@typescript-eslint/parser": "^4.25.0",
     "aws-sdk": "^2.304.0",
-    "aws-xray-sdk-core": "3.10.0",
-    "aws-xray-sdk-express": "3.10.0",
+    "aws-xray-sdk-core": "3.10.1",
+    "aws-xray-sdk-express": "3.10.1",
     "chai": "^4.2.0",
     "cls-hooked": "^4.2.2",
     "codecov": "^3.8.3",

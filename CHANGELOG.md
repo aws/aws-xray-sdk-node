@@ -1,6 +1,27 @@
 # Changelog for AWS X-Ray SDK for JavaScript
 <!--LATEST=3.10.0-->
 <!--ENTRYINSERT-->
+## 3.10.1
+View [the latest changes](https://github.com/aws/aws-xray-sdk-node/compare/aws-xray-sdk-node%403.9.0...aws-xray-sdk-node%403.10.0)
+* `aws-xray-sdk-core` updated to 3.10.1
+  * Bump dependency version for body-parser, express and find-my-way
+  * These dependency version changes apply to all packages
+* `aws-xray-sdk-mysql` updated to 3.10.1
+  *  No further changes.
+* `aws-xray-sdk-express` updated to 3.10.1
+  * No further changes.
+* `aws-xray-sdk-postgres` updated to 3.10.1
+  *  No further changes.
+* `aws-xray-sdk-restify` updated to 3.10.1
+  * No further changes.
+* `aws-xray-sdk-fastify` updated to 3.10.1
+  * No further changes.
+* `aws-xray-sdk-koa2` updated to 3.10.1
+  * No further changes.
+* `aws-xray-sdk-hapi` updated to 3.10.1
+  * No further changes.
+* `aws-xray-sdk-fetch` added in 3.10.1
+  *  No further changes.
 
 ## 3.10.0
 View [the latest changes](https://github.com/aws/aws-xray-sdk-node/compare/aws-xray-sdk-node%403.9.0...aws-xray-sdk-node%403.10.0)

@@ -1,6 +1,6 @@
 {
   "name": "aws-xray-sdk-hapi",
-  "version": "3.10.0",
+  "version": "3.10.1",
   "description": "AWS X-Ray plugin for Hapi.JS",
   "author": "Amazon Web Services",
   "contributors": [
@@ -24,7 +24,7 @@
   },
   "peerDependencies": {
     "@hapi/hapi": ">=18.x",
-    "aws-xray-sdk-core": "^3.10.0"
+    "aws-xray-sdk-core": "^3.10.1"
   },
   "keywords": [
     "amazon",
