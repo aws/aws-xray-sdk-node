@@ -9,7 +9,7 @@ before(() => {
   // Create an HTTP server to receive requests.
   const http = require('http');
   server = http.createServer((req, res) => {
-    receivedHeaders = {...req.headers}
+    receivedHeaders = { ...req.headers };
     // Respond with something
     res.writeHead(200, { 'Content-Type': 'text/plain' });
     res.end('Example reply\n');
@@ -19,12 +19,12 @@ before(() => {
   const address = server.address();
   const host = address.family === 'IPv6' ? `[${address.address}]` : address.address;
   goodUrl = `http://${host}:${address.port}/test`;
-})
+});
 
 after(() => {
   // close http server
   listener.close();
-})
+});
 
 describe('Integration tests', function () {
   const chai = require('chai');
