@@ -17,3 +17,9 @@ export function captureFetchModule(
   subsegmentCallback?: (subsegment: AWSXRay.Subsegment, req: fetchModule.Request, res: fetchModule.Response | null, error?: Error | undefined) => void):
   (url: URL | fetchModule.RequestInfo, init?: fetchModule.RequestInit | undefined) => Promise<fetchModule.Response>;
 
+export function enableCapture<Fetch, Request>(
+  fetch: Fetch,
+  request: Request,
+  downstreamXRayEnabled?: boolean,
+  subsegmentCallback?: (subsegment: AWSXRay.Subsegment, req: Request, res: Response | null, error?: Error | undefined) => void
+): Fetch;

@@ -43,3 +43,4 @@ I could find that this will happen, but throwing it out there "just in case".
 ## Contributors
 
 - [Jason Terando](https://github.com/jasonterando)
+- [Bernd Fuhrmann](https://github.com/berndfuhrmann)
