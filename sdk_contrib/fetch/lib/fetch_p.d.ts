@@ -20,5 +20,6 @@ export function captureFetchModule(
 export function enableCapture<Fetch extends typeof globalThis.fetch, Request extends typeof globalThis.Request>(
   fetch: Fetch,
   request: Request,
+  downstreamXRayEnabled?: boolean,
   subsegmentCallback?: (subsegment: AWSXRay.Subsegment, req: Request, res: Response | null, error?: Error | undefined) => void
 ): Fetch;
