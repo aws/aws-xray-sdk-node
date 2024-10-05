@@ -3,6 +3,8 @@
 
 AWS SDK v2.7.15 or greater if using `captureAWS` or `captureAWSClient`
 
+test
+
 ## AWS X-Ray
 
 The AWS X-Ray SDK (the SDK) allows developers to instrument their web applications 
