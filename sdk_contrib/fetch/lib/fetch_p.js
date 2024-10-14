@@ -54,7 +54,18 @@ function captureFetchModule(module, downstreamXRayEnabled, subsegmentCallback) {
   return module.default;
 }
 
-const enableCapture = function enableCapture(baseFetchFunction, requestClass, downstreamXRayEnabled, subsegmentCallback) {
+/**
+ * Return a fetch function that will pass segment information to the target host.
+ * This does not change any globals
+ * @param {function} baseFetchFunction fetch function to use as basis
+ * @param {function} requestClass Request class to use. This should correspond to the supplied fetch function.
+ * @param {boolean} downstreamXRayEnabled - when true, adds a "traced:true" property to the subsegment
+ *   so the AWS X-Ray service expects a corresponding segment from the downstream service.
+ * @param {function} subsegmentCallback - a callback that is called with the subsegment, the fetch request,
+ *   the fetch response and any error issued, allowing custom annotations and metadata to be added.
+ * @returns Response
+ */
+function enableCapture(baseFetchFunction, requestClass, downstreamXRayEnabled, subsegmentCallback) {
 
   const overridenFetchAsync = async (...args) => {
     const thisDownstreamXRayEnabled = !!downstreamXRayEnabled;
@@ -116,7 +127,7 @@ const enableCapture = function enableCapture(baseFetchFunction, requestClass, do
       const requestClone = request.clone();
       let response;
       try {
-        response = await baseFetchFunction(...args);
+        response = await baseFetchFunction(requestClone);
 
         if (thisSubsegmentCallback) {
           thisSubsegmentCallback(subsegment, requestClone, response);
@@ -159,8 +170,8 @@ const enableCapture = function enableCapture(baseFetchFunction, requestClass, do
   };
 
   return overridenFetchAsync;
-};
+}
 
 module.exports.captureFetchGlobal = captureFetchGlobal;
 module.exports.captureFetchModule = captureFetchModule;
-module.exports._fetchEnableCapture = enableCapture;
+module.exports.enableCapture = enableCapture;

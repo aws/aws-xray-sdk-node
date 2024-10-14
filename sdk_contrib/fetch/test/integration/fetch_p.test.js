@@ -1,3 +1,31 @@
+
+let listener;
+let server;
+let goodUrl;
+let receivedHeaders;
+
+
+before(() => {
+  // Create an HTTP server to receive requests.
+  const http = require('http');
+  server = http.createServer((req, res) => {
+    receivedHeaders = { ...req.headers };
+    // Respond with something
+    res.writeHead(200, { 'Content-Type': 'text/plain' });
+    res.end('Example reply\n');
+  });
+
+  listener = server.listen();
+  const address = server.address();
+  const host = address.family === 'IPv6' ? `[${address.address}]` : address.address;
+  goodUrl = `http://${host}:${address.port}/test`;
+});
+
+after(() => {
+  // close http server
+  listener.close();
+});
+
 describe('Integration tests', function () {
   const chai = require('chai');
   const sinonChai = require('sinon-chai');
@@ -16,12 +44,11 @@ describe('Integration tests', function () {
   const fetchModule = require('node-fetch');
   const Segment = AWSXray.Segment;
   const Subsegment = AWSXray.Subsegment;
-  const goodUrl = 'https://example.org';
   const badUrl = 'http://localhost:1';
 
   const hasGlobalFetch = globalThis.fetch !== undefined;
 
-  describe('captureFetchModule', function () {
+  describe('captureFetchGlobal', function () {
 
     let saveGlobalFetch;
     let mockSegment;
@@ -43,6 +70,7 @@ describe('Integration tests', function () {
       stubAddFetchRequestData = sandbox.stub(mockSubsegment, 'addFetchRequestData');
       stubAddErrorFlag = sandbox.stub(mockSubsegment, 'addErrorFlag');
       stubClose = sandbox.stub(mockSubsegment, 'close');
+      receivedHeaders = {};
     });
 
     afterEach(function () {
@@ -56,6 +84,24 @@ describe('Integration tests', function () {
         const fetch = captureFetchGlobal(true, spyCallback);
         const response = await fetch(goodUrl);
         response.status.should.equal(200);
+        (await response.text()).should.contain('Example');
+        stubIsAutomaticMode.should.have.been.called;
+        stubAddNewSubsegment.should.have.been.calledOnce;
+        stubResolveSegment.should.have.been.calledOnce;
+        stubAddFetchRequestData.should.have.been.calledOnce;
+        stubAddErrorFlag.should.not.have.been.calledOnce;
+        stubClose.should.have.been.calledOnce;
+      });
+
+      it('adds header', async function () {
+        const spyCallback = sandbox.spy();
+        const fetch = captureFetchGlobal(true, spyCallback);
+        const response = await fetch(goodUrl, { headers: {
+          'foo': 'bar'
+        }});
+        response.status.should.equal(200);
+        receivedHeaders.should.to.have.property('x-amzn-trace-id');
+        receivedHeaders.should.to.have.property('foo', 'bar');
         (await response.text()).should.contain('Example');
         stubIsAutomaticMode.should.have.been.called;
         stubAddNewSubsegment.should.have.been.calledOnce;
@@ -116,6 +162,7 @@ describe('Integration tests', function () {
       const fetch = captureFetchModule(fetchModule, true, spyCallback);
       const response = await fetch(goodUrl);
       response.status.should.equal(200);
+      receivedHeaders.should.to.have.property('x-amzn-trace-id');
       (await response.text()).should.contain('Example');
       stubIsAutomaticMode.should.have.been.called;
       stubAddNewSubsegment.should.have.been.calledOnce;

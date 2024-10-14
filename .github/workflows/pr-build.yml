@@ -90,5 +90,12 @@ jobs:
           npx lerna run testcov
           npx lerna run reportcov
         env:
-          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
           CI: true
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        if: matrix.coverage
+        with:
+          directory: ./packages/core/
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./coverage.lcov
+          verbose: true
