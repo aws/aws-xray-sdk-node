@@ -16,3 +16,5 @@ const xRayFastifyPlugin = async (fastify, opts) => {
 };
 
 module.exports = xRayFastifyPlugin;
+
+exports.xRayFastifyPlugin = xRayFastifyPlugin;
