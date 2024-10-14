@@ -42,7 +42,7 @@
     "test-async": "npm run compile && mocha --recursive ./dist/test_async/ -R spec",
     "clean": "rm -rf dist && rm -rf node_modules",
     "testcov": "nyc npm run test",
-    "reportcov": "nyc report --reporter=text-lcov > coverage.lcov && codecov"
+    "reportcov": "nyc report --reporter=text-lcov > coverage.lcov"
   },
   "keywords": [
     "amazon",
