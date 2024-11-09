@@ -1,8 +1,30 @@
 # Changelog for AWS X-Ray SDK for JavaScript
 <!--LATEST=3.10.0-->
 <!--ENTRYINSERT-->
+
+## 3.10.2
+View [the latest changes](https://github.com/aws/aws-xray-sdk-node/compare/aws-xray-sdk-node%403.10.1...aws-xray-sdk-node%403.10.2)
+* `aws-xray-sdk-core` updated to 3.10.2
+  *  No further changes.
+* `aws-xray-sdk-mysql` updated to 3.10.2
+  *  No further changes.
+* `aws-xray-sdk-express` updated to 3.10.2
+  * No further changes.
+* `aws-xray-sdk-postgres` updated to 3.10.2
+  *  No further changes.
+* `aws-xray-sdk-restify` updated to 3.10.2
+  * No further changes.
+* `aws-xray-sdk-fastify` updated to 3.10.2
+  * Add default export and named export for fastify plugin
+* `aws-xray-sdk-koa2` updated to 3.10.2
+  * No further changes.
+* `aws-xray-sdk-hapi` updated to 3.10.2
+  * No further changes.
+* `aws-xray-sdk-fetch` updated to 3.10.2
+  * Fix missing X-Ray headers for fetch, add export for fetch enableCapture utility
+
 ## 3.10.1
-View [the latest changes](https://github.com/aws/aws-xray-sdk-node/compare/aws-xray-sdk-node%403.9.0...aws-xray-sdk-node%403.10.0)
+View [the latest changes](https://github.com/aws/aws-xray-sdk-node/compare/aws-xray-sdk-node%403.10.0...aws-xray-sdk-node%403.10.1)
 * `aws-xray-sdk-core` updated to 3.10.1
   * Bump dependency version for body-parser, express and find-my-way
   * These dependency version changes apply to all packages
@@ -20,7 +42,7 @@ View [the latest changes](https://github.com/aws/aws-xray-sdk-node/compare/aws-x
   * No further changes.
 * `aws-xray-sdk-hapi` updated to 3.10.1
   * No further changes.
-* `aws-xray-sdk-fetch` added in 3.10.1
+* `aws-xray-sdk-fetch` updated to 3.10.1
   *  No further changes.
 
 ## 3.10.0
@@ -41,7 +63,7 @@ View [the latest changes](https://github.com/aws/aws-xray-sdk-node/compare/aws-x
   * No further changes.
 * `aws-xray-sdk-hapi` updated to 3.10.0
   * No further changes.
-* `aws-xray-sdk-fetch` added in 3.10.0
+* `aws-xray-sdk-fetch` updated to 3.10.0
   *  Pass dispatcher options to global fetch [PR #653](https://github.com/aws/aws-xray-sdk-node/pull/653)
 
 ## 3.9.0
@@ -62,7 +84,7 @@ View [the latest changes](https://github.com/aws/aws-xray-sdk-node/compare/aws-x
   * No further changes.
 * `aws-xray-sdk-hapi` updated to 3.9.0
   * No further changes.
-* `aws-xray-sdk-fetch` added in 3.9.0
+* `aws-xray-sdk-fetch` updated to 3.9.0
   * No further changes.
 
 ## 3.8.0
@@ -83,7 +105,7 @@ View [the latest changes](https://github.com/aws/aws-xray-sdk-node/compare/aws-x
   * No further changes.
 * `aws-xray-sdk-hapi` updated to 3.8.0
   * No further changes.
-* `aws-xray-sdk-fetch` added in 3.8.0
+* `aws-xray-sdk-fetch` updated to 3.8.0
   * No further changes.
 
 ## 3.7.0
@@ -105,7 +127,7 @@ View [the latest changes](https://github.com/aws/aws-xray-sdk-node/compare/aws-x
   * No further changes.
 * `aws-xray-sdk-hapi` updated to 3.7.0
   * No further changes.
-* `aws-xray-sdk-fetch` added in 3.7.0
+* `aws-xray-sdk-fetch` updated to 3.7.0
   * Fix: fix subsegment callback error parameter type [PR #644](https://github.com/aws/aws-xray-sdk-node/pull/644)
 
 ## 3.6.0
