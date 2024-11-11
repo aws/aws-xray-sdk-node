@@ -23,7 +23,7 @@ Manual mode requires that you pass around the segment reference. See the example
 
 ```js
 var AWSXRay = require('aws-xray-sdk');
-var pg = AWSXRay.captureMySQL(require('mysql'));
+var mysql = AWSXRay.captureMySQL(require('mysql'));
 
 ...
 
@@ -47,7 +47,7 @@ var config = { ... };
 var connection = mysql.createConnection(config);
 
 connection.query('SELECT * FROM cats', function(err, rows) {
-  //Automatically captures query information and errors (if any)
+  // Automatically captures query information and errors (if any)
 });
 
 ...
@@ -55,7 +55,7 @@ connection.query('SELECT * FROM cats', function(err, rows) {
 var pool = mysql.createPool(config);
 
 pool.query('SELECT * FROM cats', function(err, rows, fields) {
-  //Automatically captures query information and errors (if any)
+  // Automatically captures query information and errors (if any)
 }
 ```
 
@@ -74,7 +74,7 @@ var config = { ... };
 var connection = mysql.createConnection(config);
 
 connection.query('SELECT * FROM cats', function(err, rows) {
-  //Automatically captures query information and errors (if any)
+  // Automatically captures query information and errors (if any)
 }, segment);
 
 ...
@@ -82,6 +82,23 @@ connection.query('SELECT * FROM cats', function(err, rows) {
 var pool = mysql.createPool(config);
 
 pool.query('SELECT * FROM cats', function(err, rows, fields) {
-  //Automatically captures query information and errors (if any)
+  // Automatically captures query information and errors (if any)
 }, segment);
 ```
+
+## AWS X-Ray and MySQL2
+
+The AWS X-Ray MySQL package also supports [MySQL2](https://www.npmjs.com/package/mysql2). Similar to above for MySQL, simply patch the MySQL2 package via `captureMySQL` as shown below.
+
+```js
+var AWSXRay = require('aws-xray-sdk');
+var mysql2 = AWSXRay.captureMySQL(require('mysql2'));
+
+...
+
+exports.handler = function (event, context, callback) {
+  // Make MySQL2 queries normally
+}
+```
+
+Note that support for `mysql2/promise` is not currently provided.
