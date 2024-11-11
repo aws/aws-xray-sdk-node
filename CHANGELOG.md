@@ -1,6 +1,28 @@
 # Changelog for AWS X-Ray SDK for JavaScript
-<!--LATEST=3.10.0-->
+<!--LATEST=3.10.2-->
 <!--ENTRYINSERT-->
+
+## 3.10.2
+View [the latest changes](https://github.com/aws/aws-xray-sdk-node/compare/aws-xray-sdk-node%403.10.1...aws-xray-sdk-node%403.10.2)
+* `aws-xray-sdk-core` updated to 3.10.2
+  *  No further changes.
+* `aws-xray-sdk-mysql` updated to 3.10.2
+  *  No further changes.
+* `aws-xray-sdk-express` updated to 3.10.2
+  * No further changes.
+* `aws-xray-sdk-postgres` updated to 3.10.2
+  *  No further changes.
+* `aws-xray-sdk-restify` updated to 3.10.2
+  * No further changes.
+* `aws-xray-sdk-fastify` updated to 3.10.2
+  * Add default export and named export for fastify plugin
+* `aws-xray-sdk-koa2` updated to 3.10.2
+  * No further changes.
+* `aws-xray-sdk-hapi` updated to 3.10.2
+  * No further changes.
+* `aws-xray-sdk-fetch` updated to 3.10.2
+  * Fix missing X-Ray headers for fetch, add export for fetch enableCapture utility
+
 ## 3.10.1
 View [the latest changes](https://github.com/aws/aws-xray-sdk-node/compare/aws-xray-sdk-node%403.10.0...aws-xray-sdk-node%403.10.1)
 * `aws-xray-sdk-core` updated to 3.10.1
