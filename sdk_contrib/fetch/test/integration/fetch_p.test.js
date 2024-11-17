@@ -3,6 +3,9 @@ let listener;
 let server;
 let goodUrl;
 let receivedHeaders;
+let proxyServer;
+let proxyUrl;
+let proxyListener;
 
 
 before(() => {
@@ -19,11 +22,37 @@ before(() => {
   const address = server.address();
   const host = address.family === 'IPv6' ? `[${address.address}]` : address.address;
   goodUrl = `http://${host}:${address.port}/test`;
+
+  proxyServer = http.createServer();
+  proxyServer.on('connect', (req, socket) => {
+    const res = new http.ServerResponse(req);
+    res.assignSocket(socket);
+
+    const lastColon = req.url.lastIndexOf(':');
+    const host = req.url.substring(0, lastColon);
+    const port = parseInt(req.url.substring(lastColon + 1), 10);
+    const opts = {host: host.replace(/^\[|\]$/g, ''), port};
+
+    const net = require('net');
+    const target = net.connect(opts, () => {
+      res.writeHead(200);
+      res.flushHeaders();
+      res.detachSocket(socket);
+
+      socket.pipe(target);
+      target.pipe(socket);
+    });
+  });
+  proxyListener = proxyServer.listen();
+  const proxyAddress = proxyServer.address();
+  const proxyHost = proxyAddress.family === 'IPv6' ? `[${proxyAddress.address}]` : proxyAddress.address;
+  proxyUrl = `http://${proxyHost}:${proxyAddress.port}`;
 });
 
 after(() => {
   // close http server
   listener.close();
+  proxyListener.close();
 });
 
 describe('Integration tests', function () {
@@ -99,6 +128,23 @@ describe('Integration tests', function () {
         const response = await fetch(goodUrl, { headers: {
           'foo': 'bar'
         }});
+        response.status.should.equal(200);
+        receivedHeaders.should.to.have.property('x-amzn-trace-id');
+        receivedHeaders.should.to.have.property('foo', 'bar');
+        (await response.text()).should.contain('Example');
+        stubIsAutomaticMode.should.have.been.called;
+        stubAddNewSubsegment.should.have.been.calledOnce;
+        stubResolveSegment.should.have.been.calledOnce;
+        stubAddFetchRequestData.should.have.been.calledOnce;
+        stubAddErrorFlag.should.not.have.been.calledOnce;
+        stubClose.should.have.been.calledOnce;
+      });
+
+      it('adds headers when called with fetchOptions', async function () {
+        const spyCallback = sandbox.spy();
+        const fetch = captureFetchGlobal(true, spyCallback);
+        const undici = require('undici');
+        const response = await fetch(goodUrl, {dispatcher: new undici.ProxyAgent(proxyUrl), headers: {'foo': 'bar'}});
         response.status.should.equal(200);
         receivedHeaders.should.to.have.property('x-amzn-trace-id');
         receivedHeaders.should.to.have.property('foo', 'bar');
