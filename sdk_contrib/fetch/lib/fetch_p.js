@@ -64,7 +64,7 @@ function transferDispatcherNodeJSBuggyUndici(request, requestClone) {
 function getTransferDispatcherNodeJSBuggyUndici(requestClass) {
   try {
     const { Agent } = require('http');
-    const request = new requestClass({ dispatcher: new Agent });
+    const request = new requestClass('http://example.org', { dispatcher: new Agent });
     const requestClone = request.clone();
     const dispatcherSymbol = Object.getOwnPropertySymbols(request).find(symbol => symbol.description === 'dispatcher');
     if (request[dispatcherSymbol] && !requestClone[dispatcherSymbol]) {
@@ -92,7 +92,7 @@ function enableCapture(baseFetchFunction, requestClass, downstreamXRayEnabled, s
     const thisDownstreamXRayEnabled = !!downstreamXRayEnabled;
     const thisSubsegmentCallback = subsegmentCallback;
     // Standardize request information
-    const request = typeof args[0] === 'object' ?
+    const request = args[0] instanceof requestClass ?
       args[0] :
       new requestClass(...args);
 
