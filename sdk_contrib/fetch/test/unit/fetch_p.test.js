@@ -189,6 +189,48 @@ describe('Unit tests', function () {
       }
     });
 
+    it('transfers dispatcher property for undici with Request object', async function () {
+      const activeFetch = captureFetch(true);
+      const agent = new Agent({
+        maxSockets: 1234
+      });
+      await activeFetch(new Request('https://www.foo.com'), {
+        dispatcher: agent
+      });
+      stubFetch.should.have.been.calledOnceWith(sinon.match({ url: 'https://www.foo.com/' }));
+      stubResolveSegment.should.have.been.called;
+
+      // check if dispatcher was transferred
+      const dummyRequest = new Request('https://www.foo.com', {
+        dispatcher: agent
+      });
+      const dispatcherSymbol = Object.getOwnPropertySymbols(dummyRequest).find(symbol => symbol.description === 'dispatcher');
+      if (dispatcherSymbol) {
+        stubFetch.should.have.been.calledOnceWith(sinon.match({ [dispatcherSymbol]: agent }));
+      }
+    });
+
+    it('transfers dispatcher property for undici with url and init', async function () {
+      const activeFetch = captureFetch(true);
+      const agent = new Agent({
+        maxSockets: 1234
+      });
+      await activeFetch('https://www.foo.com', {
+        dispatcher: agent
+      });
+      stubFetch.should.have.been.calledOnceWith(sinon.match({ url: 'https://www.foo.com/' }));
+      stubResolveSegment.should.have.been.called;
+
+      // check if dispatcher was transferred
+      const dummyRequest = new Request('https://www.foo.com', {
+        dispatcher: agent
+      });
+      const dispatcherSymbol = Object.getOwnPropertySymbols(dummyRequest).find(symbol => symbol.description === 'dispatcher');
+      if (dispatcherSymbol) {
+        stubFetch.should.have.been.calledOnceWith(sinon.match({ [dispatcherSymbol]: agent }));
+      }
+    });
+
     it('calls base function when no parent and automatic mode', async function () {
       const activeFetch = captureFetch(true);
       stubResolveSegment.returns(null);
