@@ -1,4 +1,5 @@
 const { Subsegment } = require('aws-xray-sdk-core');
+const { Agent } = require('http');
 const fetch = require('node-fetch');
 
 describe('Unit tests', function () {
@@ -165,6 +166,27 @@ describe('Unit tests', function () {
       await activeFetch(request);
       stubFetch.should.have.been.calledOnceWith(request);
       stubResolveSegment.should.not.have.been.called;
+    });
+
+    it('transfers dispatcher property for undici', async function () {
+      const activeFetch = captureFetch(true);
+      const agent = new Agent({
+        maxSockets: 1234
+      });
+      await activeFetch('https://www.foo.com', {
+        dispatcher: agent
+      });
+      stubFetch.should.have.been.calledOnceWith(sinon.match({ url: 'https://www.foo.com/' }));
+      stubResolveSegment.should.have.been.called;
+
+      // check if dispatcher was transferred
+      const dummyRequest = new Request('https://www.foo.com', {
+        dispatcher: agent
+      });
+      const dispatcherSymbol = Object.getOwnPropertySymbols(dummyRequest).find(symbol => symbol.description === 'dispatcher');
+      if (dispatcherSymbol) {
+        stubFetch.should.have.been.calledOnceWith(sinon.match({ [dispatcherSymbol]: agent })); 
+      }
     });
 
     it('calls base function when no parent and automatic mode', async function () {
