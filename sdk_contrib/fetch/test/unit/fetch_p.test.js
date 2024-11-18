@@ -1,5 +1,4 @@
 const { Subsegment } = require('aws-xray-sdk-core');
-const { Agent } = require('http');
 const fetch = require('node-fetch');
 
 describe('Unit tests', function () {
