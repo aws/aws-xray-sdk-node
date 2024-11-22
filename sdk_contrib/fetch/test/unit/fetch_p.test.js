@@ -158,7 +158,7 @@ describe('Unit tests', function () {
 
     it('short circuits if headers include trace ID', async function () {
       const activeFetch = captureFetch(true);
-      const request = new Request('https://www.foo.com', {
+      const request = new FetchRequest('https://www.foo.com', {
         headers: {
           'X-Amzn-Trace-Id': '12345'
         }
@@ -180,7 +180,7 @@ describe('Unit tests', function () {
       stubResolveSegment.should.have.been.called;
 
       // check if dispatcher was transferred
-      const dummyRequest = new Request('https://www.foo.com', {
+      const dummyRequest = new FetchRequest('https://www.foo.com', {
         dispatcher: agent
       });
       const dispatcherSymbol = Object.getOwnPropertySymbols(dummyRequest).find(symbol => symbol.description === 'dispatcher');
@@ -194,14 +194,14 @@ describe('Unit tests', function () {
       const agent = new Agent({
         maxSockets: 1234
       });
-      await activeFetch(new Request('https://www.foo.com'), {
+      await activeFetch(new FetchRequest('https://www.foo.com'), {
         dispatcher: agent
       });
       stubFetch.should.have.been.calledOnceWith(sinon.match({ url: 'https://www.foo.com/' }));
       stubResolveSegment.should.have.been.called;
 
       // check if dispatcher was transferred
-      const dummyRequest = new Request('https://www.foo.com', {
+      const dummyRequest = new FetchRequest('https://www.foo.com', {
         dispatcher: agent
       });
       const dispatcherSymbol = Object.getOwnPropertySymbols(dummyRequest).find(symbol => symbol.description === 'dispatcher');
@@ -222,7 +222,7 @@ describe('Unit tests', function () {
       stubResolveSegment.should.have.been.called;
 
       // check if dispatcher was transferred
-      const dummyRequest = new Request('https://www.foo.com', {
+      const dummyRequest = new FetchRequest('https://www.foo.com', {
         dispatcher: agent
       });
       const dispatcherSymbol = Object.getOwnPropertySymbols(dummyRequest).find(symbol => symbol.description === 'dispatcher');
