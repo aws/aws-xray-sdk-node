@@ -157,7 +157,7 @@ describe('Unit tests', function () {
 
     it('short circuits if headers include trace ID', async function () {
       const activeFetch = captureFetch(true);
-      const request = new Request('https://www.foo.com', {
+      const request = new FetchRequest('https://www.foo.com', {
         headers: {
           'X-Amzn-Trace-Id': '12345'
         }
