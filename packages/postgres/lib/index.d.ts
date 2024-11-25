@@ -1,1 +1,2 @@
-export * from './postgres_p';
+import capturePostgres from './postgres_p';
+export = capturePostgres

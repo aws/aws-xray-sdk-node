@@ -1,1 +1,2 @@
-export * from './mysql_p';
+import captureMySQL from './mysql_p';
+export = captureMySQL;
