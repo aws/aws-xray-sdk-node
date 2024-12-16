@@ -88,6 +88,9 @@ function captureAWSRequest(req) {
   const data = parent.segment ? parent.segment.additionalTraceData : parent.additionalTraceData;
 
   var buildListener = function(req) {
+    if (parent.noOp) {
+      return;
+    }
     let traceHeader = 'Root=' + traceId + ';Parent=' + subsegment.id +
       ';Sampled=' + (subsegment.notTraced ? '0' : '1');
     if (data != null) {
