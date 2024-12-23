@@ -157,13 +157,13 @@ describe('Unit tests', function () {
 
     it('short circuits if headers include trace ID', async function () {
       const activeFetch = captureFetch(true);
-      const request = new fetchModule.Request('https://www.foo.com', {
+      const request = new FetchRequest('https://www.foo.com', {
         headers: {
           'X-Amzn-Trace-Id': '12345'
         }
       });
       await activeFetch(request);
-      stubFetch.should.have.been.calledOnceWith(request);
+      stubFetch.should.have.been.calledOnceWith(sinon.match({ url: 'https://www.foo.com/'}));
       stubResolveSegment.should.not.have.been.called;
     });
 
