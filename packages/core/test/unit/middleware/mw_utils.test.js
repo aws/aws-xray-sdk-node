@@ -148,7 +148,7 @@ describe('Middleware utils', function() {
   });
 
   describe('#resolveSampling', function() {
-    var res, sandbox, segment, responseHeader, shouldSampleStub;
+    var res, sandbox, segment, responseHeaders, shouldSampleStub;
 
     beforeEach(function() {
       sandbox = sinon.createSandbox();
@@ -157,7 +157,7 @@ describe('Middleware utils', function() {
       shouldSampleStub = sandbox.stub(MWUtils.sampler, 'shouldSample').returns(true);
 
       segment = {};
-      responseHeader = {};
+      responseHeaders = {};
       res = {
         req: {
           headers: { host: 'moop.hello.com' },
@@ -165,14 +165,14 @@ describe('Middleware utils', function() {
           method: 'GET',
         },
         header: (headerKey, headerValue) => {
-          responseHeader[headerKey] = headerValue;
+          responseHeaders[headerKey] = headerValue;
         }
       };
     });
 
     afterEach(function() {
       sandbox.restore();
-      responseHeader = {};
+      responseHeaders = {};
     });
 
     it('should not mark segment as not traced if the sampled header is set to "1"', function() {
@@ -212,7 +212,7 @@ describe('Middleware utils', function() {
       MWUtils.resolveSampling(headers, segment, res);
 
       var expected = new RegExp('^Root=' + traceId + ';Sampled=1$');
-      assert.match(responseHeader[XRAY_HEADER], expected);
+      assert.match(responseHeaders[XRAY_HEADER], expected);
     });
 
     it('should mark segment as not traced if the sampling rules check returns false', function() {
@@ -271,13 +271,13 @@ describe('Middleware utils', function() {
         method: 'GET',
       };
       var segment;
-      var responseHeader = {};
+      var responseHeaders = {};
 
       var res = {
         req: req,
         on: (name, callback) => {},
         header: (headerKey, headerValue) => {
-          responseHeader[headerKey] = headerValue;
+          responseHeaders[headerKey] = headerValue;
         }
       };
       shouldSampleStub.returns(false);
@@ -288,7 +288,7 @@ describe('Middleware utils', function() {
         }
       );
       assert.equal(segment.notTraced, true);
-      assert.equal(responseHeader[XRAY_HEADER], 'Root=' + traceId + ';Sampled=0');
+      assert.equal(responseHeaders[XRAY_HEADER], 'Root=' + traceId + ';Sampled=0');
     });
   });
 
