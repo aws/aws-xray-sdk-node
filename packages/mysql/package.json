@@ -4,6 +4,7 @@
   "description": "AWS X-Ray Patcher for MySQL (Javascript)",
   "author": "Amazon Web Services",
   "contributors": [
+    "Ross Rhodes",
     "Sandra McMullen <mcmuls@amazon.com>"
   ],
   "main": "lib/index.js",
@@ -15,7 +16,8 @@
     "test": "test"
   },
   "dependencies": {
-    "@types/mysql": "*"
+    "@types/mysql": "*",
+    "mysql2": "*"
   },
   "peerDependencies": {
     "aws-xray-sdk-core": "^3.10.2"
