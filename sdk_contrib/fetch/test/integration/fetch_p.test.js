@@ -111,6 +111,26 @@ describe('Integration tests', function () {
         stubClose.should.have.been.calledOnce;
       });
 
+      it('works with stringifyable objects', async function () {
+        const spyCallback = sandbox.spy();
+        const fetch = captureFetchGlobal(true, spyCallback);
+        const response = await fetch(new URL(goodUrl), {
+          headers: {
+            'foo': 'bar'
+          }
+        });
+        response.status.should.equal(200);
+        receivedHeaders.should.to.have.property('x-amzn-trace-id');
+        receivedHeaders.should.to.have.property('foo', 'bar');
+        (await response.text()).should.contain('Example');
+        stubIsAutomaticMode.should.have.been.called;
+        stubAddNewSubsegment.should.have.been.calledOnce;
+        stubResolveSegment.should.have.been.calledOnce;
+        stubAddFetchRequestData.should.have.been.calledOnce;
+        stubAddErrorFlag.should.not.have.been.calledOnce;
+        stubClose.should.have.been.calledOnce;
+      });
+
       it('sets error flag on failed fetch when global fetch exists', async function () {
         const spyCallback = sandbox.spy();
         const fetch = captureFetchGlobal(true, spyCallback);
