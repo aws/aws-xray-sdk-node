@@ -1,6 +1,27 @@
 # Changelog for AWS X-Ray SDK for JavaScript
-<!--LATEST=3.10.2-->
+<!--LATEST=3.10.3-->
 <!--ENTRYINSERT-->
+
+## 3.10.3
+View [the latest changes](https://github.com/aws/aws-xray-sdk-node/compare/aws-xray-sdk-node%403.10.2...aws-xray-sdk-node%403.10.3)
+* `aws-xray-sdk-core` updated to 3.10.3
+  *  Fix error due to missing header in the response in resolveSampling method.
+* `aws-xray-sdk-mysql` updated to 3.10.3
+  *  No further changes.
+* `aws-xray-sdk-express` updated to 3.10.3
+  * No further changes.
+* `aws-xray-sdk-postgres` updated to 3.10.3
+  *  No further changes.
+* `aws-xray-sdk-restify` updated to 3.10.3
+  * No further changes.
+* `aws-xray-sdk-fastify` updated to 3.10.3
+  * Enable automatic mode and expose hooks
+* `aws-xray-sdk-koa2` updated to 3.10.3
+  * No further changes.
+* `aws-xray-sdk-hapi` updated to 3.10.3
+  * No further changes.
+* `aws-xray-sdk-fetch` updated to 3.10.3
+  * No further changes.
 
 ## 3.10.2
 View [the latest changes](https://github.com/aws/aws-xray-sdk-node/compare/aws-xray-sdk-node%403.10.1...aws-xray-sdk-node%403.10.2)
