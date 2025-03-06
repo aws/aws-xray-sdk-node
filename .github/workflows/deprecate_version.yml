@@ -1,0 +1,31 @@
+name: Deprecate X-Ray Node SDK Version
+on:
+  workflow_dispatch:
+
+jobs:
+  deprecate_xray_node_sdk_version:
+    name: Deprecate X-Ray Node SDK version in NPM registry
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup Node
+        uses: actions/setup-node@v1
+        with:
+          node-version: '16.x'
+          registry-url: 'https://registry.npmjs.org'
+
+      - run: npm install -g npm@8.19.4
+
+      - name: Deprecate Version 3.7.0
+        run: |
+          npm deprecate aws-xray-sdk@3.7.0 "3.7.0 is deprecated due to known issue in Lambda"
+          npm deprecate aws-xray-sdk-core@3.7.0 "3.7.0 is deprecated due to known issue in Lambda"
+          npm deprecate aws-xray-sdk-express@3.7.0 "3.7.0 is deprecated due to known issue in Lambda"
+          npm deprecate aws-xray-sdk-postgres@3.7.0 "3.7.0 is deprecated due to known issue in Lambda"
+          npm deprecate aws-xray-sdk-mysql@3.7.0 "3.7.0 is deprecated due to known issue in Lambda"
+          npm deprecate aws-xray-sdk-restify@3.7.0 "3.7.0 is deprecated due to known issue in Lambda"
+          npm deprecate aws-xray-sdk-hapi@3.7.0 "3.7.0 is deprecated due to known issue in Lambda"
+          npm deprecate aws-xray-sdk-koa2@3.7.0 "3.7.0 is deprecated due to known issue in Lambda"
+          npm deprecate aws-xray-sdk-fastify@3.7.0 "3.7.0 is deprecated due to known issue in Lambda"
+          npm deprecate aws-xray-sdk-fetch@3.7.0 "3.7.0 is deprecated due to known issue in Lambda"
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

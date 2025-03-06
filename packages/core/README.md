@@ -13,7 +13,7 @@ EC2, ECS, and Elastic Beanstalk metadata (via plugins). Currently, [Express](htt
 applications are supported for automatic capturing via middleware. AWS Lambda functions can also be instrumented.
 
 The SDK exposes the Segment and Subsegment objects so you can create your own capturing
-mechanisms, but a few are supplied. See Capturing Function Calls below.
+mechanisms, but a few are supplied. See [Capturing Function Calls](https://github.com/aws/aws-xray-sdk-node/tree/master/packages/core#capturing-function-calls) below.
 
 ## Setup
 

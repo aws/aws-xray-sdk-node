@@ -56,6 +56,8 @@ class TraceID {
     if (timestamp === 'NaN') {
       logger.getLogger().error('Trace ID timestamp must be a hex-encoded value');
       return traceID;
+    } else {
+      timestamp = timestamp.padStart(8, '0');
     }
 
     traceID.version = version;

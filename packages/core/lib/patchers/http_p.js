@@ -130,8 +130,10 @@ function enableCapture(module, downstreamXRayEnabled, subsegmentCallback) {
       options.headers = {};
     }
 
-    options.headers['X-Amzn-Trace-Id'] = 'Root=' + root.trace_id + ';Parent=' + subsegment.id +
-      ';Sampled=' + (subsegment.notTraced ? '0' : '1');
+    if (!parent.noOp) {
+      options.headers['X-Amzn-Trace-Id'] = 'Root=' + root.trace_id + ';Parent=' + subsegment.id +
+        ';Sampled=' + (subsegment.notTraced ? '0' : '1');
+    }
 
     const errorCapturer = function errorCapturer(e) {
       if (subsegmentCallback) {

@@ -16,6 +16,7 @@ module.exports = function onRequestHook(request, reply, done) {
 
     ns.run(() => {
       AWSXRay.setSegment(segment);
+      done();
     });
   } else {
     request.log.info('Manual mode, skipping segment');
@@ -25,7 +26,7 @@ module.exports = function onRequestHook(request, reply, done) {
     } else {
       request.log.warn('Request already has a segment, skipping');
     }
-  }
 
-  done();
+    done();
+  }
 };

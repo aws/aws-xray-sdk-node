@@ -144,7 +144,7 @@ describe('captureMySQL', function() {
         query.call(connectionObj, 'sql here', [1]);
 
         stubDataInit.should.have.been.calledWithExactly(undefined, undefined, config.user,
-          config.host + ':' + config.port + '/' + config.database, 'statement');
+          'mysql://' + config.host + ':' + config.port + '/' + config.database, 'statement');
         stubAddSql.should.have.been.calledWithExactly(sinon.match.instanceOf(SqlData));
       });
 
@@ -256,7 +256,7 @@ describe('captureMySQL', function() {
         query.call(connectionObj, 'sql here', [1]);
 
         stubDataInit.should.have.been.calledWithExactly(process.env.MYSQL_DATABASE_VERSION, process.env.MYSQL_DRIVER_VERSION,
-          conParam.user, conParam.host + ':' + conParam.port + '/' + conParam.database, 'statement');
+          conParam.user, 'mysql://' + conParam.host + ':' + conParam.port + '/' + conParam.database, 'statement');
         stubAddSql.should.have.been.calledWithExactly(sinon.match.instanceOf(SqlData));
         stubAddSql.should.have.been.calledWithExactly(sinon.match.has('sanitized_query', 'sql here'));
       });
@@ -269,7 +269,7 @@ describe('captureMySQL', function() {
         query.call(connectionObj, 'sql here', [1]);
 
         stubDataInit.should.have.been.calledWithExactly(process.env.MYSQL_DATABASE_VERSION, process.env.MYSQL_DRIVER_VERSION,
-          conParam.user, conParam.host + ':' + conParam.port + '/' + conParam.database, 'statement');
+          conParam.user, 'mysql://' + conParam.host + ':' + conParam.port + '/' + conParam.database, 'statement');
         stubAddSql.should.have.been.calledWithExactly(sinon.match.instanceOf(SqlData));
         sinon.assert.match(sinon.match, {
           'sanitized_query': undefined
@@ -349,7 +349,7 @@ describe('captureMySQL', function() {
 
         resolvedConn.query('sql here').then(function() {
           stubDataInit.should.have.been.calledWithExactly(undefined, undefined, config.user,
-            config.host + ':' + config.port + '/' + config.database, 'statement');
+            'mysql://' + config.host + ':' + config.port + '/' + config.database, 'statement');
           stubAddSql.should.have.been.calledWithExactly(sinon.match.instanceOf(SqlData));
         });
       });
@@ -460,7 +460,7 @@ describe('captureMySQL', function() {
         query.call(connectionObj, 'sql here', [1]);
 
         stubDataInit.should.have.been.calledWithExactly(undefined, undefined, config.user,
-          config.host + ':' + config.port + '/' + config.database, 'statement');
+          'mysql://' + config.host + ':' + config.port + '/' + config.database, 'statement');
         stubAddSql.should.have.been.calledWithExactly(sinon.match.instanceOf(SqlData));
       });
 
@@ -556,7 +556,7 @@ describe('captureMySQL', function() {
         query.call(connectionObj, 'sql here', [1]);
 
         stubDataInit.should.have.been.calledWithExactly(undefined, undefined, config.user,
-          config.host + ':' + config.port + '/' + config.database, 'statement');
+          'mysql://' + config.host + ':' + config.port + '/' + config.database, 'statement');
         stubAddSql.should.have.been.calledWithExactly(sinon.match.instanceOf(SqlData));
       });
 
@@ -703,7 +703,7 @@ describe('captureMySQL', function() {
         query.call(connectionObj, 'sql here', [1]);
 
         stubDataInit.should.have.been.calledWithExactly(undefined, undefined, config.user,
-          config.host + ':' + config.port + '/' + config.database, 'statement');
+          'mysql://' + config.host + ':' + config.port + '/' + config.database, 'statement');
         stubAddSql.should.have.been.calledWithExactly(sinon.match.instanceOf(SqlData));
       });
 

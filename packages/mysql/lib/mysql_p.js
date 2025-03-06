@@ -272,7 +272,7 @@ function captureOperation(name) {
 function createSqlData(config, values, sql) {
   var commandType = values ? PREPARED : null;
   var data = new SqlData(DATABASE_VERS, DRIVER_VERS, config.user,
-    config.host + ':' + config.port + '/' + config.database,
+    'mysql://' + config.host + ':' + config.port + '/' + config.database,
     commandType);
 
   if (process.env.AWS_XRAY_COLLECT_SQL_QUERIES && sql) {

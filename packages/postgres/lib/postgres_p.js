@@ -126,7 +126,7 @@ function createSqlData(connParams, query) {
   var queryType = query.name ? PREPARED : undefined;
 
   var data = new SqlData(DATABASE_VERS, DRIVER_VERS, connParams.user,
-    connParams.host + ':' + connParams.port + '/' + connParams.database,
+    'postgresql://' + connParams.host + ':' + connParams.port + '/' + connParams.database,
     queryType);
   if (process.env.AWS_XRAY_COLLECT_SQL_QUERIES) {
     data.sanitized_query = query.text;

@@ -332,6 +332,12 @@ describe('Subsegment', function() {
       child.flush();
       emitStub.should.have.been.called;
     });
+
+    it('should stringify bigint objects correctly', function() {
+      child.addMetadata('key', BigInt(9007199254740991));
+      child.flush();
+      emitStub.should.have.been.calledOnce;
+    });
   });
 
   describe('#streamSubsegments', function() {
