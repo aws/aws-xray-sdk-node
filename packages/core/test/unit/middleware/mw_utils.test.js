@@ -14,6 +14,7 @@ describe('Middleware utils', function() {
   var envVarName = 'envDefaultName';
   var hostName = 'www.myhost.com';
   var traceId = '1-f9194208-2c7ad569f5d6ff149137be86';
+  var parentId = '74051af127d2bcba';
 
   function reloadMWUtils() {
     var path = '../../../lib/logger';
@@ -45,8 +46,6 @@ describe('Middleware utils', function() {
   });
 
   describe('#processHeaders', function() {
-    var parentId = '74051af127d2bcba';
-
     it('should return an empty array on an undefined request', function() {
       var headers = MWUtils.processHeaders();
 
@@ -149,7 +148,7 @@ describe('Middleware utils', function() {
   });
 
   describe('#resolveSampling', function() {
-    var res, sandbox, segment, shouldSampleStub;
+    var res, sandbox, segment, responseHeaders, shouldSampleStub;
 
     beforeEach(function() {
       sandbox = sinon.createSandbox();
@@ -158,18 +157,22 @@ describe('Middleware utils', function() {
       shouldSampleStub = sandbox.stub(MWUtils.sampler, 'shouldSample').returns(true);
 
       segment = {};
+      responseHeaders = {};
       res = {
         req: {
           headers: { host: 'moop.hello.com' },
           url: '/evergreen',
           method: 'GET',
         },
-        header: {}
+        header: (headerKey, headerValue) => {
+          responseHeaders[headerKey] = headerValue;
+        }
       };
     });
 
     afterEach(function() {
       sandbox.restore();
+      responseHeaders = {};
     });
 
     it('should not mark segment as not traced if the sampled header is set to "1"', function() {
@@ -209,7 +212,7 @@ describe('Middleware utils', function() {
       MWUtils.resolveSampling(headers, segment, res);
 
       var expected = new RegExp('^Root=' + traceId + ';Sampled=1$');
-      assert.match(res.header[XRAY_HEADER], expected);
+      assert.match(responseHeaders[XRAY_HEADER], expected);
     });
 
     it('should mark segment as not traced if the sampling rules check returns false', function() {
@@ -219,6 +222,73 @@ describe('Middleware utils', function() {
       MWUtils.resolveSampling(headers, segment, res);
 
       assert.equal(segment.notTraced, true);
+    });
+
+    it('should not throw error when res.header is undefined and Sampled=?', function() {
+      var resWithoutHeader = {
+        req: {
+          headers: {},
+          url: '/api/move/up',
+          method: 'GET',
+        }
+      };
+      shouldSampleStub.returns(false);
+      var headers = { root: traceId, sampled: '?' };
+
+      assert.doesNotThrow(
+        () => {
+          MWUtils.resolveSampling(headers, segment, resWithoutHeader);
+        }
+      );
+
+      assert.equal(segment.notTraced, true);
+    });
+  });
+
+
+  describe('#traceRequestResponseCycle', function() {
+    var sandbox, shouldSampleStub;
+
+    beforeEach(function() {
+      sandbox = sinon.createSandbox();
+      MWUtils.sampler = localSampler;
+      MWUtils.setDefaultName(defaultName);
+
+      shouldSampleStub = sandbox.stub(MWUtils.sampler, 'shouldSample').returns(true);
+    });
+
+    afterEach(function() {
+      sandbox.restore();
+    });
+
+    it('should not throw error when Sampled=?', function() {
+      var req = {
+        headers: {
+          url: '/api/move/up',
+          [XRAY_HEADER]: 'Root=' + traceId + ';Parent=' + parentId + ';Sampled=?'
+        },
+        host: hostName,
+        method: 'GET',
+      };
+      var segment;
+      var responseHeaders = {};
+
+      var res = {
+        req: req,
+        on: (name, callback) => {},
+        header: (headerKey, headerValue) => {
+          responseHeaders[headerKey] = headerValue;
+        }
+      };
+      shouldSampleStub.returns(false);
+
+      assert.doesNotThrow(
+        () => {
+          segment = MWUtils.traceRequestResponseCycle(req, res);
+        }
+      );
+      assert.equal(segment.notTraced, true);
+      assert.equal(responseHeaders[XRAY_HEADER], 'Root=' + traceId + ';Sampled=0');
     });
   });
 
