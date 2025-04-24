@@ -2,7 +2,7 @@
 import * as AWSXRay from 'aws-xray-sdk-core';
 import * as PG from 'pg';
 import { expectType } from 'tsd';
-import { capturePostgres } from '../lib';
+import capturePostgres from '../lib';
 
 const segment = AWSXRay.getSegment();
 
