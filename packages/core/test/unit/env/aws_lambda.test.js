@@ -3,6 +3,7 @@ var chai = require('chai');
 var sinon = require('sinon');
 var sinonChai = require('sinon-chai');
 
+chai.should();
 chai.use(sinonChai);
 
 var contextUtils = require('../../../lib/context_utils');
@@ -13,6 +14,7 @@ var Segment = require('../../../lib/segments/segment');
 var SegmentUtils = require('../../../lib/segments/segment_utils');
 var SegmentEmitter = require('../../../lib/segment_emitter');
 const TraceID = require('../../../lib/segments/attributes/trace_id');
+const { InvokeStore } = require('@aws/lambda-invoke-store');
 
 describe('AWSLambda', function() {
   var sandbox;
@@ -147,6 +149,8 @@ describe('AWSLambda', function() {
 
     describe('#resolveLambdaTraceData', function() {
       var sandbox, traceId;
+      var INVOKE_STORE_TRACE_ID = 'Root=1-12345678-12345678901234567890abcd;Parent=abcdef0123456789;Sampled=1';
+      var ENV_TRACE_ID = 'Root=1-87654321-09876543210987654321dcba;Parent=fedcba9876543210;Sampled=0';
 
       beforeEach(function() {
         sandbox = sinon.createSandbox();
@@ -196,6 +200,47 @@ describe('AWSLambda', function() {
         var facade = setSegmentStub.args[0][0];
         facade.resolveLambdaTraceData();
         populateStub.should.have.not.been.called;
+      });
+
+      it('should prioritize InvokeStore trace ID over environment variable if both are defined', function() {
+        process.env._X_AMZN_TRACE_ID = ENV_TRACE_ID;
+        Lambda.init();
+
+        sandbox.stub(InvokeStore, 'getXRayTraceId').returns(INVOKE_STORE_TRACE_ID);
+        populateStub.reset();
+
+        var facade = setSegmentStub.args[0][0];
+        facade.resolveLambdaTraceData();
+
+        populateStub.should.have.been.calledWith(facade, INVOKE_STORE_TRACE_ID);
+      });
+
+      it('should use InvokeStore trace ID when environment variable is undefined', function() {
+        delete process.env._X_AMZN_TRACE_ID;
+
+        Lambda.init();
+
+        sandbox.stub(InvokeStore, 'getXRayTraceId').returns(INVOKE_STORE_TRACE_ID);
+        populateStub.reset();
+
+        var facade = setSegmentStub.args[0][0];
+        facade.resolveLambdaTraceData();
+
+        populateStub.should.have.been.calledWith(facade, INVOKE_STORE_TRACE_ID);
+      });
+
+      it('should use environment variable when InvokeStore returns undefined', function() {
+        process.env._X_AMZN_TRACE_ID = INVOKE_STORE_TRACE_ID;
+        Lambda.init();
+
+        process.env._X_AMZN_TRACE_ID = ENV_TRACE_ID;
+        sandbox.stub(InvokeStore, 'getXRayTraceId').returns(undefined);
+        populateStub.reset();
+
+        var facade = setSegmentStub.args[0][0];
+        facade.resolveLambdaTraceData();
+
+        populateStub.should.have.been.calledWith(facade, ENV_TRACE_ID);
       });
     });
   });
