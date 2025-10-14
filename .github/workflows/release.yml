@@ -1,4 +1,6 @@
 name: Release X-Ray Node SDK to Github and NPM
+permissions:
+  contents: write
 on:
   workflow_dispatch:
     inputs:
