@@ -1,4 +1,6 @@
 name: Node.js SDK Continuous Build
+permissions:
+  contents: read
 
 on:
   push:
