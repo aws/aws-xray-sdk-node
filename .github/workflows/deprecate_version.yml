@@ -1,4 +1,6 @@
 name: Deprecate X-Ray Node SDK Version
+permissions:
+  contents: read
 on:
   workflow_dispatch:
 
