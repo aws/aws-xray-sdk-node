@@ -7,6 +7,8 @@ on:
 jobs:
   smoke-test:
     name: Run smoke test
+    permissions:
+      contents: read
     runs-on: ubuntu-latest
     steps:
       - name: Checkout AWS XRay SDK Node Repository @ default branch latest
