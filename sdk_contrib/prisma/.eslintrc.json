@@ -1,4 +1,7 @@
 {
   "extends": "../../.eslintrc.json",
-  "plugins": ["promise"]
+  "plugins": ["promise"],
+  "rules": {
+    "quotes": "off"
+  }
 }

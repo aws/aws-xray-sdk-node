@@ -37,10 +37,12 @@ export function captureActions(
       return call();
     }
 
-    const model = [modelPrefix, modelKey].filter(Boolean).join(divider);
-    const actionSegment = segment.addNewSubsegment(
-      [model, action].join(divider)
-    );
+    // If modelKey is empty and action starts with $, use only action
+    const model = modelKey
+      ? [modelPrefix, modelKey].filter(Boolean).join(divider)
+      : '';
+    const segmentName = model ? [model, action].join(divider) : action;
+    const actionSegment = segment.addNewSubsegment(segmentName);
     actionSegment.namespace = namespace;
     const res = call();
     const isPromise = isPrismaPromise(res);
