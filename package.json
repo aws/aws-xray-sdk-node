@@ -54,7 +54,7 @@
     "sinon": "^9.0.2",
     "sinon-chai": "^3.5.0",
     "tsd": "^0.25.0",
-    "typescript": "^4.4.4",
+    "typescript": "^4.9.5",
     "upath": "^1.2.0"
   },
   "engines": {
@@ -72,6 +72,7 @@
     "aws-xray-sdk-mysql": "file:packages/mysql",
     "aws-xray-sdk-node": "file:",
     "aws-xray-sdk-postgres": "file:packages/postgres",
+    "aws-xray-sdk-prisma": "file:sdk_contrib/prisma",
     "aws-xray-sdk-restify": "file:packages/restify",
     "test-aws-xray-sdk-express": "file:packages/test_express"
   }
