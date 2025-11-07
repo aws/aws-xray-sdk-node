@@ -1,6 +1,6 @@
 {
   "name": "aws-xray-sdk-prisma",
-  "version": "3.11.0",
+  "version": "3.11.1",
   "description": "AWS X-Ray Patcher for prisma (Javascript)",
   "author": "Cosva",
   "contributors": [
