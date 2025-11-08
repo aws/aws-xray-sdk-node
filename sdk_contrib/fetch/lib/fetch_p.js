@@ -77,6 +77,7 @@ function enableCapture(baseFetchFunction, requestClass, downstreamXRayEnabled, s
 
     // Facilitate the addition of Segment information via the request arguments
     const params = args.length > 1 ? args[1] : {};
+    const fetchOptions = 'dispatcher' in params ? {dispatcher: params.dispatcher} : undefined;
 
     // Short circuit if the HTTP is already being captured
     if (request.headers.has('X-Amzn-Trace-Id')) {
@@ -127,7 +128,7 @@ function enableCapture(baseFetchFunction, requestClass, downstreamXRayEnabled, s
       const requestClone = request.clone();
       let response;
       try {
-        response = await baseFetchFunction(requestClone);
+        response = await baseFetchFunction(requestClone, fetchOptions);
 
         if (thisSubsegmentCallback) {
           thisSubsegmentCallback(subsegment, requestClone, response);
