@@ -15,6 +15,17 @@ var SegmentUtils = require('../../../lib/segments/segment_utils');
 var SegmentEmitter = require('../../../lib/segment_emitter');
 const TraceID = require('../../../lib/segments/attributes/trace_id');
 
+async function setupInvokeStore() {
+  let invokeStore = (await import("@aws/lambda-invoke-store")).InvokeStore;
+  const testing = invokeStore._testing;
+  if (testing) {
+    testing.reset();
+  } else {
+    throw "testing needs to be defined";
+  }
+  return await invokeStore.getInstanceAsync();
+}
+
 describe('AWSLambda', function () {
   var sandbox;
 
@@ -198,24 +209,13 @@ describe('AWSLambda', function () {
         populateStub.should.have.not.been.called;
       });
 
-      async function setupInvokeStore() {
-        let invokeStore = (await import("@aws/lambda-invoke-store")).InvokeStore;
-        const testing = invokeStore._testing;
-        if (testing) {
-          testing.reset();
-        } else {
-          throw "testing needs to be defined";
-        }
-        return await invokeStore.getInstanceAsync();
-      }
-
       it('should prioritize InvokeStore trace ID over environment variable if both are defined', async function () {
         process.env._X_AMZN_TRACE_ID = ENV_TRACE_ID;
         process.env.AWS_LAMBDA_BENCHMARK_MODE = "1";
         process.env.AWS_LAMBDA_MAX_CONCURRENCY = 2;
         Lambda.init();
         const invokeStore = await setupInvokeStore();
-      
+
         const getXRayTraceIdStub = sandbox.stub(invokeStore, 'getXRayTraceId').returns(INVOKE_STORE_TRACE_ID);
 
         populateStub.reset();
@@ -248,13 +248,13 @@ describe('AWSLambda', function () {
         process.env.AWS_LAMBDA_BENCHMARK_MODE = "1";
         process.env.AWS_LAMBDA_MAX_CONCURRENCY = 2;
         Lambda.init();
-        
+
         const invokeStore = await setupInvokeStore();
         const getXRayTraceIdStub = sandbox.stub(invokeStore, 'getXRayTraceId').returns(undefined);
 
         // Set the environment variable after init so it's treated as a new trace ID
         process.env._X_AMZN_TRACE_ID = ENV_TRACE_ID;
-        
+
         populateStub.reset();
 
         var facade = setSegmentStub.args[0][0];
@@ -281,17 +281,6 @@ describe('AWSLambda', function () {
       delete process.env._X_AMZN_TRACE_ID;
       delete globalThis.awslambda;
     });
-
-    async function setupInvokeStore() {
-      let invokeStore = (await import("@aws/lambda-invoke-store")).InvokeStore;
-      const testing = invokeStore._testing;
-      if (testing) {
-        testing.reset();
-      } else {
-        throw "testing needs to be defined";
-      }
-      return await invokeStore.getInstanceAsync();
-    }
 
     it('should populate additional trace data', async function () {
       process.env._X_AMZN_TRACE_ID = 'Root=traceId;Lineage=1234abcd:4|3456abcd:6';
