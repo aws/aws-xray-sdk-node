@@ -14,9 +14,8 @@ var Segment = require('../../../lib/segments/segment');
 var SegmentUtils = require('../../../lib/segments/segment_utils');
 var SegmentEmitter = require('../../../lib/segment_emitter');
 const TraceID = require('../../../lib/segments/attributes/trace_id');
-const { InvokeStore } = require('@aws/lambda-invoke-store');
 
-describe('AWSLambda', function() {
+describe('AWSLambda', function () {
   var sandbox;
 
   function resetState() {
@@ -28,24 +27,24 @@ describe('AWSLambda', function() {
     Lambda = require(path);
   }
 
-  beforeEach(function() {
+  beforeEach(function () {
     resetState();
 
     sandbox = sinon.createSandbox();
     sandbox.stub(contextUtils, 'getNamespace').returns({
-      enter: function() {},
-      createContext: function() {}
+      enter: function () { },
+      createContext: function () { }
     });
   });
 
-  afterEach(function() {
+  afterEach(function () {
     sandbox.restore();
   });
 
-  describe('#init', function() {
+  describe('#init', function () {
     var disableReusableSocketStub, disableCentralizedSamplingStub, populateStub, sandbox, setSegmentStub, validateStub;
 
-    beforeEach(function() {
+    beforeEach(function () {
       sandbox = sinon.createSandbox();
       disableReusableSocketStub = sandbox.stub(SegmentEmitter, 'disableReusableSocket');
       disableCentralizedSamplingStub = sandbox.stub(mwUtils, 'disableCentralizedSampling');
@@ -54,26 +53,26 @@ describe('AWSLambda', function() {
       setSegmentStub = sandbox.stub(contextUtils, 'setSegment');
     });
 
-    afterEach(function() {
+    afterEach(function () {
       sandbox.restore();
     });
 
-    it('should disable reusable socket', function() {
+    it('should disable reusable socket', function () {
       Lambda.init();
       disableReusableSocketStub.should.have.been.calledOnce;
     });
 
-    it('should disable centralized sampling', function() {
+    it('should disable centralized sampling', function () {
       Lambda.init();
       disableCentralizedSamplingStub.should.have.been.calledOnce;
     });
 
-    it('should override the default streaming threshold', function() {
+    it('should override the default streaming threshold', function () {
       Lambda.init();
       assert.equal(SegmentUtils.streamingThreshold, 0);
     });
 
-    it('should set a facade segment on the context', function() {
+    it('should set a facade segment on the context', function () {
       Lambda.init();
       setSegmentStub.should.have.been.calledOnce;
       setSegmentStub.should.have.been.calledWith(sinon.match.instanceOf(Segment));
@@ -83,27 +82,27 @@ describe('AWSLambda', function() {
       assert.equal(facade.trace_id, TraceID.Invalid().toString());
     });
 
-    describe('the facade segment', function() {
-      afterEach(function() {
+    describe('the facade segment', function () {
+      afterEach(function () {
         populateStub.returns(true);
         delete process.env._X_AMZN_TRACE_ID;
         validateStub.reset();
       });
 
-      it('should call validTraceData with process.env._X_AMZN_TRACE_ID', function() {
+      it('should call validTraceData with process.env._X_AMZN_TRACE_ID', function () {
         process.env._X_AMZN_TRACE_ID;
         Lambda.init();
 
         validateStub.should.have.been.calledWith(process.env._X_AMZN_TRACE_ID);
       });
 
-      it('should call populateTraceData if validTraceData returns true', function() {
+      it('should call populateTraceData if validTraceData returns true', function () {
         Lambda.init();
 
         populateStub.should.have.been.calledOnce;
       });
 
-      it('should not call populateTraceData if validTraceData returns false', function() {
+      it('should not call populateTraceData if validTraceData returns false', function () {
         validateStub.returns(false);
         Lambda.init();
 
@@ -112,11 +111,10 @@ describe('AWSLambda', function() {
     });
   });
 
-  describe('FacadeSegment', function() {
-    var populateStub, sandbox, setSegmentStub;
+  describe('FacadeSegment', function () {
+    var populateStub, setSegmentStub;
 
-    beforeEach(function() {
-      sandbox = sinon.createSandbox();
+    beforeEach(function () {
       sandbox.stub(SegmentEmitter, 'disableReusableSocket');
 
       sandbox.stub(LambdaUtils, 'validTraceData').returns(true);
@@ -124,19 +122,18 @@ describe('AWSLambda', function() {
       setSegmentStub = sandbox.stub(contextUtils, 'setSegment');
     });
 
-    afterEach(function() {
+    afterEach(function () {
       delete process.env._X_AMZN_TRACE_ID;
-      sandbox.restore();
     });
 
-    describe('#reset', function() {
-      it('should check reset the facade', function() {
+    describe('#reset', function () {
+      it('should check reset the facade', function () {
         Lambda.init();
 
         var facade = setSegmentStub.args[0][0];
         facade.trace_id = 'traceIdHere';
         facade.id = 'parentIdHere';
-        facade.subsegments = [ { subsegment: 'here' } ];
+        facade.subsegments = [{ subsegment: 'here' }];
 
         facade.reset();
 
@@ -147,21 +144,20 @@ describe('AWSLambda', function() {
       });
     });
 
-    describe('#resolveLambdaTraceData', function() {
-      var sandbox, traceId;
+    describe('#resolveLambdaTraceData', function () {
+      var traceId;
       var INVOKE_STORE_TRACE_ID = 'Root=1-12345678-12345678901234567890abcd;Parent=abcdef0123456789;Sampled=1';
       var ENV_TRACE_ID = 'Root=1-87654321-09876543210987654321dcba;Parent=fedcba9876543210;Sampled=0';
 
-      beforeEach(function() {
-        sandbox = sinon.createSandbox();
+      beforeEach(function () {
         traceId = 'xAmznTraceId;xAmznTraceId;xAmznTraceId';
       });
 
-      afterEach(function() {
-        sandbox.restore();
+      afterEach(function () {
+        delete globalThis.awslambda;
       });
 
-      it('should throw an error if _X_AMZN_TRACE_ID is not set', function() {
+      it('should throw an error if _X_AMZN_TRACE_ID is not set', function () {
         Lambda.init();
         populateStub.reset();
 
@@ -170,7 +166,7 @@ describe('AWSLambda', function() {
         populateStub.should.have.not.been.called;
       });
 
-      it('should call populate if _X_AMZN_TRACE_ID has changed post init', function() {
+      it('should call populate if _X_AMZN_TRACE_ID has changed post init', function () {
         process.env._X_AMZN_TRACE_ID = traceId;
         Lambda.init();
         process.env._X_AMZN_TRACE_ID = 'xAmznTraceId2';
@@ -181,7 +177,7 @@ describe('AWSLambda', function() {
         populateStub.should.have.been.calledOnce;
       });
 
-      it('should call reset if _X_AMZN_TRACE_ID has changed post init', function() {
+      it('should call reset if _X_AMZN_TRACE_ID has changed post init', function () {
         process.env._X_AMZN_TRACE_ID = traceId;
         Lambda.init();
         process.env._X_AMZN_TRACE_ID = 'xAmznTraceId2';
@@ -192,7 +188,7 @@ describe('AWSLambda', function() {
         resetStub.should.have.been.calledOnce;
       });
 
-      it('should not call populate if _X_AMZN_TRACE_ID is the same post init', function() {
+      it('should not call populate if _X_AMZN_TRACE_ID is the same post init', function () {
         process.env._X_AMZN_TRACE_ID = traceId;
         Lambda.init();
         populateStub.reset();
@@ -202,68 +198,106 @@ describe('AWSLambda', function() {
         populateStub.should.have.not.been.called;
       });
 
-      it('should prioritize InvokeStore trace ID over environment variable if both are defined', function() {
-        process.env._X_AMZN_TRACE_ID = ENV_TRACE_ID;
-        Lambda.init();
+      async function setupInvokeStore() {
+        let invokeStore = (await import("@aws/lambda-invoke-store")).InvokeStore;
+        const testing = invokeStore._testing;
+        if (testing) {
+          testing.reset();
+        } else {
+          throw "testing needs to be defined";
+        }
+        return await invokeStore.getInstanceAsync();
+      }
 
-        sandbox.stub(InvokeStore, 'getXRayTraceId').returns(INVOKE_STORE_TRACE_ID);
+      it('should prioritize InvokeStore trace ID over environment variable if both are defined', async function () {
+        process.env._X_AMZN_TRACE_ID = ENV_TRACE_ID;
+        process.env.AWS_LAMBDA_BENCHMARK_MODE = "1";
+        process.env.AWS_LAMBDA_MAX_CONCURRENCY = 2;
+        Lambda.init();
+        const invokeStore = await setupInvokeStore();
+      
+        const getXRayTraceIdStub = sandbox.stub(invokeStore, 'getXRayTraceId').returns(INVOKE_STORE_TRACE_ID);
+
         populateStub.reset();
 
         var facade = setSegmentStub.args[0][0];
         facade.resolveLambdaTraceData();
 
+        getXRayTraceIdStub.should.have.been.calledOnce;
         populateStub.should.have.been.calledWith(facade, INVOKE_STORE_TRACE_ID);
       });
 
-      it('should use InvokeStore trace ID when environment variable is undefined', function() {
+      it('should use InvokeStore trace ID when environment variable is undefined', async function () {
         delete process.env._X_AMZN_TRACE_ID;
-
+        process.env.AWS_LAMBDA_BENCHMARK_MODE = "1";
+        process.env.AWS_LAMBDA_MAX_CONCURRENCY = 2;
         Lambda.init();
+        const invokeStore = await setupInvokeStore();
+        const getXRayTraceIdStub = sandbox.stub(invokeStore, 'getXRayTraceId').returns(INVOKE_STORE_TRACE_ID);
 
-        sandbox.stub(InvokeStore, 'getXRayTraceId').returns(INVOKE_STORE_TRACE_ID);
         populateStub.reset();
 
         var facade = setSegmentStub.args[0][0];
         facade.resolveLambdaTraceData();
 
+        getXRayTraceIdStub.should.have.been.calledOnce;
         populateStub.should.have.been.calledWith(facade, INVOKE_STORE_TRACE_ID);
       });
 
-      it('should use environment variable when InvokeStore returns undefined', function() {
-        process.env._X_AMZN_TRACE_ID = INVOKE_STORE_TRACE_ID;
+      it('should use environment variable when InvokeStore returns undefined', async function () {
+        process.env.AWS_LAMBDA_BENCHMARK_MODE = "1";
+        process.env.AWS_LAMBDA_MAX_CONCURRENCY = 2;
         Lambda.init();
+        
+        const invokeStore = await setupInvokeStore();
+        const getXRayTraceIdStub = sandbox.stub(invokeStore, 'getXRayTraceId').returns(undefined);
 
+        // Set the environment variable after init so it's treated as a new trace ID
         process.env._X_AMZN_TRACE_ID = ENV_TRACE_ID;
-        sandbox.stub(InvokeStore, 'getXRayTraceId').returns(undefined);
+        
         populateStub.reset();
 
         var facade = setSegmentStub.args[0][0];
         facade.resolveLambdaTraceData();
 
+        getXRayTraceIdStub.should.have.been.calledOnce;
+        populateStub.should.have.been.calledOnce;
         populateStub.should.have.been.calledWith(facade, ENV_TRACE_ID);
       });
     });
   });
 
-  describe('PopulateAdditionalTraceData', function() {
-    var sandbox, setSegmentStub;
+  describe('PopulateAdditionalTraceData', function () {
+    var setSegmentStub;
 
-    beforeEach(function() {
-      sandbox = sinon.createSandbox();
+    beforeEach(function () {
       sandbox.stub(SegmentEmitter, 'disableReusableSocket');
       sandbox.stub(LambdaUtils, 'validTraceData').returns(true);
 
       setSegmentStub = sandbox.stub(contextUtils, 'setSegment');
     });
 
-    afterEach(function() {
+    afterEach(function () {
       delete process.env._X_AMZN_TRACE_ID;
-      sandbox.restore();
+      delete globalThis.awslambda;
     });
 
-    it('should populate additional trace data', function() {
+    async function setupInvokeStore() {
+      let invokeStore = (await import("@aws/lambda-invoke-store")).InvokeStore;
+      const testing = invokeStore._testing;
+      if (testing) {
+        testing.reset();
+      } else {
+        throw "testing needs to be defined";
+      }
+      return await invokeStore.getInstanceAsync();
+    }
+
+    it('should populate additional trace data', async function () {
       process.env._X_AMZN_TRACE_ID = 'Root=traceId;Lineage=1234abcd:4|3456abcd:6';
+      process.env.AWS_LAMBDA_BENCHMARK_MODE = "1";
       Lambda.init();
+      await setupInvokeStore();
 
       var facade = setSegmentStub.args[0][0];
       facade.resolveLambdaTraceData();

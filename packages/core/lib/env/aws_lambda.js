@@ -4,11 +4,8 @@ var LambdaUtils = require('../utils').LambdaUtils;
 var Segment = require('../segments/segment');
 var SegmentEmitter = require('../segment_emitter');
 var SegmentUtils = require('../segments/segment_utils');
-
 var logger = require('../logger');
 const TraceID = require('../segments/attributes/trace_id');
-
-const { InvokeStore } = require('@aws/lambda-invoke-store');
 
 /**
  * @namespace
@@ -82,7 +79,8 @@ var facadeSegment = function facadeSegment() {
   };
 
   segment.resolveLambdaTraceData = function resolveLambdaTraceData() {
-    const traceIdFromInvokeStore = InvokeStore.getXRayTraceId();
+    const invokeStore = globalThis.awslambda?.InvokeStore;
+    const traceIdFromInvokeStore = invokeStore?.getXRayTraceId();
     const traceIdFromEnv = process.env._X_AMZN_TRACE_ID;
     var xAmznLambda = traceIdFromInvokeStore ?? traceIdFromEnv;
 
