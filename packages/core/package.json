@@ -24,12 +24,14 @@
   "//": "@types/cls-hooked is exposed in API so must be in dependencies, not devDependencies",
   "dependencies": {
     "@aws-sdk/types": "^3.4.1",
-    "@aws/lambda-invoke-store": "^0.0.1",
     "@smithy/service-error-classification": "^2.0.4",
     "@types/cls-hooked": "^4.3.3",
     "atomic-batcher": "^1.0.2",
     "cls-hooked": "^4.2.2",
     "semver": "^7.5.3"
+  },
+  "devDependencies": {
+    "@aws/lambda-invoke-store": "^0.2.0"
   },
   "scripts": {
     "prepare": "npm run compile",
