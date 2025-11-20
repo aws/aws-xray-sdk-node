@@ -1,6 +1,27 @@
 # Changelog for AWS X-Ray SDK for JavaScript
-<!--LATEST=3.11.0-->
+<!--LATEST=3.12.0-->
 <!--ENTRYINSERT-->
+
+## 3.12.0
+View [the latest changes](https://github.com/aws/aws-xray-sdk-node/compare/aws-xray-sdk-node%403.11.0...aws-xray-sdk-node%403.12.0)
+* `aws-xray-sdk-core` updated to 3.12.0
+  * change: Use Lambda Invoke Store from globalThis in Lambda Environments for extracting X-Ray Trace Header [PR #732](https://github.com/aws/aws-xray-sdk-node/pull/732)
+* `aws-xray-sdk-mysql` updated to 3.12.0
+  * No further changes.
+* `aws-xray-sdk-express` updated to 3.12.0
+  * No further changes.
+* `aws-xray-sdk-postgres` updated to 3.12.0
+  * No further changes.
+* `aws-xray-sdk-restify` updated to 3.12.0
+  * No further changes.
+* `aws-xray-sdk-fastify` updated to 3.12.0
+  * No further changes.
+* `aws-xray-sdk-koa2` updated to 3.12.0
+  * No further changes.
+* `aws-xray-sdk-hapi` updated to 3.12.0
+  * No further changes.
+* `aws-xray-sdk-fetch` updated to 3.12.0
+  * No further changes.
 
 ## 3.11.0
 View [the latest changes](https://github.com/aws/aws-xray-sdk-node/compare/aws-xray-sdk-node%403.10.3...aws-xray-sdk-node%403.11.0)
