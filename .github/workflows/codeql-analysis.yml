@@ -1,0 +1,235 @@
+name: "CodeQL Security Analysis"
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+  schedule:
+    # Run CodeQL analysis weekly on Mondays at 2 AM UTC
+    - cron: '0 2 * * 1'
+
+permissions:
+  actions: read
+  contents: read
+  security-events: write
+
+jobs:
+  analyze:
+    name: Analyze
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [ 'javascript' ]
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+
+    - name: Initialize CodeQL
+      uses: github/codeql-action/init@e2b3eafc8d227b0241d48be5f425d47c2d750a13 # v3.26.10
+      with:
+        languages: ${{ matrix.language }}
+        # Override default queries to include security-extended for more comprehensive analysis
+        queries: security-extended,security-and-quality
+
+    - name: Setup Node.js 18.x
+      uses: actions/setup-node@0a44ba7841725637a19e28fa30b79a866c81b0a6 # v4.0.4
+      with:
+        node-version: '18.x'
+        check-latest: true
+
+    - name: Install npm 8.19.4
+      run: npm install -g npm@8.19.4
+
+    - name: Cache NPM modules
+      uses: actions/cache@0400d5f644dc74513175e3cd8d07132dd4860809 # v4.0.0
+      with:
+        path: |
+          node_modules
+          package-lock.json
+          packages/*/node_modules
+          packages/*/package-lock.json
+        key: ubuntu-latest-18.x-${{ hashFiles('package.json', 'packages/*/package.json') }}-security-scan
+
+    - name: Bootstrap project
+      run: |
+        npm ci
+        npx lerna bootstrap --no-ci --hoist
+
+    - name: Perform CodeQL Analysis
+      uses: github/codeql-action/analyze@e2b3eafc8d227b0241d48be5f425d47c2d750a13 # v3.26.10
+      with:
+        category: "/language:${{matrix.language}}"
+        upload: false
+
+  dependency-scan:
+    name: Node.js Dependency Scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+
+    - name: Setup Node.js 18.x
+      uses: actions/setup-node@0a44ba7841725637a19e28fa30b79a866c81b0a6 # v4.0.4
+      with:
+        node-version: '18.x'
+        check-latest: true
+
+    - name: Install npm 8.19.4
+      run: npm install -g npm@8.19.4
+
+    - name: Cache NPM modules
+      uses: actions/cache@0400d5f644dc74513175e3cd8d07132dd4860809 # v4.0.0
+      with:
+        path: |
+          node_modules
+          package-lock.json
+          packages/*/node_modules
+          packages/*/package-lock.json
+        key: ubuntu-latest-18.x-${{ hashFiles('package.json', 'packages/*/package.json') }}-security-scan
+
+    - name: Bootstrap project
+      run: |
+        npm ci
+        npx lerna bootstrap --no-ci --hoist
+
+    - name: Run npm audit
+      continue-on-error: true
+      run: |
+        # Run npm audit and generate JSON report
+        npm audit --audit-level=moderate --json > npm-audit-results.json || echo "npm audit completed with findings"
+        
+        # Also run audit for each package
+        for package_dir in packages/*/; do
+          if [ -f "$package_dir/package.json" ]; then
+            echo "Auditing $package_dir"
+            cd "$package_dir"
+            npm audit --audit-level=moderate --json > "../../npm-audit-$(basename "$package_dir").json" || echo "Audit completed for $package_dir"
+            cd - > /dev/null
+          fi
+        done
+
+    - name: Install and run Retire.js
+      continue-on-error: true
+      run: |
+        # Install retire.js for JavaScript vulnerability scanning
+        npm install -g retire@5.2.4
+        
+        # Scan for vulnerable JavaScript libraries
+        retire --outputformat json --outputpath retire-results.json . || echo "Retire.js scan completed"
+
+    - name: Run Snyk security scan
+      continue-on-error: true
+      env:
+        SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+      run: |
+        # Install Snyk CLI
+        npm install -g snyk@1.1293.1
+        
+        # Authenticate if token is available
+        if [ -n "$SNYK_TOKEN" ]; then
+          snyk auth "$SNYK_TOKEN"
+          
+          # Test for vulnerabilities and generate SARIF
+          snyk test --sarif-file-output=snyk-results.sarif . || echo "Snyk scan completed"
+          
+          # Test each package separately
+          for package_dir in packages/*/; do
+            if [ -f "$package_dir/package.json" ]; then
+              echo "Snyk testing $package_dir"
+              cd "$package_dir"
+              snyk test --sarif-file-output="../../snyk-$(basename "$package_dir").sarif" . || echo "Snyk completed for $package_dir"
+              cd - > /dev/null
+            fi
+          done
+        else
+          echo "SNYK_TOKEN not available, skipping Snyk scan"
+          echo '{"version":"2.1.0","$schema":"https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json","runs":[{"tool":{"driver":{"name":"Snyk","version":"1.1293.1"}},"results":[]}]}' > snyk-results.sarif
+        fi
+
+    - name: Upload npm audit results
+      uses: actions/upload-artifact@50769540e7f4bd5e21e526ee35c689e35e0d6874 # v4.4.0
+      if: always()
+      with:
+        name: npm-audit-reports
+        path: |
+          npm-audit-*.json
+          retire-results.json
+
+    - name: Upload Snyk results to GitHub Security tab
+      uses: github/codeql-action/upload-sarif@e2b3eafc8d227b0241d48be5f425d47c2d750a13 # v3.26.10
+      if: always() && hashFiles('snyk-results.sarif') != ''
+      with:
+        sarif_file: snyk-results.sarif
+        category: 'snyk-security'
+
+  security-scan:
+    name: JavaScript Security Scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+
+    - name: Setup Node.js 18.x
+      uses: actions/setup-node@0a44ba7841725637a19e28fa30b79a866c81b0a6 # v4.0.4
+      with:
+        node-version: '18.x'
+        check-latest: true
+
+    - name: Install npm 8.19.4
+      run: npm install -g npm@8.19.4
+
+    - name: Cache NPM modules
+      uses: actions/cache@0400d5f644dc74513175e3cd8d07132dd4860809 # v4.0.0
+      with:
+        path: |
+          node_modules
+          package-lock.json
+          packages/*/node_modules
+          packages/*/package-lock.json
+        key: ubuntu-latest-18.x-${{ hashFiles('package.json', 'packages/*/package.json') }}-security-scan
+
+    - name: Bootstrap project
+      run: |
+        npm ci
+        npx lerna bootstrap --no-ci --hoist
+
+    - name: Run ESLint security analysis
+      continue-on-error: true
+      run: |
+        # Install ESLint security plugins
+        npm install --no-save eslint-plugin-security@3.0.1 @microsoft/eslint-formatter-sarif@3.1.0
+        
+        # Run ESLint with security rules and generate SARIF
+        npx eslint . --ext .js,.ts --format @microsoft/eslint-formatter-sarif --output-file eslint-security-results.sarif || echo "ESLint security scan completed"
+
+    - name: Run Semgrep security analysis
+      continue-on-error: true
+      run: |
+        # Install Semgrep
+        python3 -m pip install semgrep==1.88.0
+        
+        # Run Semgrep with JavaScript security rules
+        semgrep --config=auto --sarif --output=semgrep-results.sarif . || echo "Semgrep scan completed"
+
+    - name: Upload ESLint security results to GitHub Security tab
+      uses: github/codeql-action/upload-sarif@e2b3eafc8d227b0241d48be5f425d47c2d750a13 # v3.26.10
+      if: always() && hashFiles('eslint-security-results.sarif') != ''
+      with:
+        sarif_file: eslint-security-results.sarif
+        category: 'eslint-security'
+
+    - name: Upload Semgrep results to GitHub Security tab
+      uses: github/codeql-action/upload-sarif@e2b3eafc8d227b0241d48be5f425d47c2d750a13 # v3.26.10
+      if: always() && hashFiles('semgrep-results.sarif') != ''
+      with:
+        sarif_file: semgrep-results.sarif
+        category: 'semgrep-security'

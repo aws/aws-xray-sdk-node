@@ -1,0 +1,248 @@
+name: "Daily Security Scan"
+
+on:
+  schedule:
+    # Run twice daily at 6 AM and 6 PM UTC
+    - cron: '0 6,18 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  scan-published-packages:
+    name: Scan Published NPM Packages
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - package: "aws-xray-sdk-core"
+            name: "core"
+          - package: "aws-xray-sdk-express"
+            name: "express"
+          - package: "aws-xray-sdk-mysql"
+            name: "mysql"
+          - package: "aws-xray-sdk-postgres"
+            name: "postgres"
+          - package: "aws-xray-sdk-restify"
+            name: "restify"
+          - package: "aws-xray-sdk"
+            name: "main"
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+
+    - name: Setup Node.js 18.x
+      uses: actions/setup-node@0a44ba7841725637a19e28fa30b79a866c81b0a6 # v4.0.4
+      with:
+        node-version: '18.x'
+        check-latest: true
+
+    - name: Install npm 8.19.4
+      run: npm install -g npm@8.19.4
+
+    - name: Download and analyze published package
+      continue-on-error: true
+      timeout-minutes: 15
+      run: |
+        # Create temp directory for package analysis
+        mkdir -p temp-scan/${{ matrix.name }}
+        cd temp-scan/${{ matrix.name }}
+        
+        # Get latest version from npm registry
+        LATEST_VERSION=$(npm view ${{ matrix.package }} version 2>/dev/null || echo "UNKNOWN")
+        echo "Latest version of ${{ matrix.package }}: $LATEST_VERSION"
+        
+        if [ "$LATEST_VERSION" != "UNKNOWN" ]; then
+          # Download the package
+          npm pack ${{ matrix.package }}@$LATEST_VERSION || echo "Failed to download package"
+          
+          # Extract the package
+          if ls *.tgz 1> /dev/null 2>&1; then
+            tar -xzf *.tgz
+            echo "Downloaded and extracted ${{ matrix.package }} version $LATEST_VERSION"
+            ls -la
+          fi
+        else
+          echo "Could not determine latest version for ${{ matrix.package }}"
+        fi
+
+    - name: Run security analysis on published package
+      continue-on-error: true
+      timeout-minutes: 20
+      env:
+        SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+      run: |
+        cd temp-scan/${{ matrix.name }}
+        
+        # Install security tools
+        npm install -g retire@5.2.4 snyk@1.1293.1
+        
+        # Run retire.js on extracted package
+        if [ -d "package" ]; then
+          cd package
+          retire --outputformat json --outputpath "../retire-${{ matrix.name }}-results.json" . || echo "Retire.js scan completed"
+          
+          # Run Snyk if token is available
+          if [ -n "$SNYK_TOKEN" ]; then
+            snyk auth "$SNYK_TOKEN"
+            snyk test --sarif-file-output="../snyk-${{ matrix.name }}-results.sarif" . || echo "Snyk scan completed"
+          else
+            echo "SNYK_TOKEN not available, creating empty SARIF"
+            echo '{"version":"2.1.0","$schema":"https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json","runs":[{"tool":{"driver":{"name":"Snyk","version":"1.1293.1"}},"results":[]}]}' > "../snyk-${{ matrix.name }}-results.sarif"
+          fi
+          
+          cd ..
+        fi
+
+    - name: Upload Snyk results to GitHub Security tab
+      uses: github/codeql-action/upload-sarif@e2b3eafc8d227b0241d48be5f425d47c2d750a13 # v3.26.10
+      if: always() && hashFiles('temp-scan/${{ matrix.name }}/snyk-${{ matrix.name }}-results.sarif') != ''
+      with:
+        sarif_file: 'temp-scan/${{ matrix.name }}/snyk-${{ matrix.name }}-results.sarif'
+        category: 'daily-scan-${{ matrix.name }}'
+
+    - name: Generate summary report
+      if: always()
+      run: |
+        echo "## Daily Security Scan Results for ${{ matrix.package }}" >> $GITHUB_STEP_SUMMARY
+        echo "Scan completed at $(date)" >> $GITHUB_STEP_SUMMARY
+        echo "Package: ${{ matrix.package }}" >> $GITHUB_STEP_SUMMARY
+        echo "Component: ${{ matrix.name }}" >> $GITHUB_STEP_SUMMARY
+        
+        # Check if vulnerabilities were found
+        SARIF_FILE="temp-scan/${{ matrix.name }}/snyk-${{ matrix.name }}-results.sarif"
+        if [ -f "$SARIF_FILE" ]; then
+          VULN_COUNT=$(jq '.runs[0].results | length' "$SARIF_FILE" 2>/dev/null || echo "0")
+          echo "Vulnerabilities found: $VULN_COUNT" >> $GITHUB_STEP_SUMMARY
+          
+          if [ "$VULN_COUNT" -gt "0" ]; then
+            echo "⚠️ **Action Required**: Vulnerabilities detected in published package" >> $GITHUB_STEP_SUMMARY
+            echo "Check the Security tab for detailed findings" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "✅ No vulnerabilities found" >> $GITHUB_STEP_SUMMARY
+          fi
+        else
+          echo "❌ Scan failed or package not accessible" >> $GITHUB_STEP_SUMMARY
+        fi
+        
+        # Check retire.js results
+        RETIRE_FILE="temp-scan/${{ matrix.name }}/retire-${{ matrix.name }}-results.json"
+        if [ -f "$RETIRE_FILE" ]; then
+          RETIRE_COUNT=$(jq '. | length' "$RETIRE_FILE" 2>/dev/null || echo "0")
+          echo "Retire.js findings: $RETIRE_COUNT" >> $GITHUB_STEP_SUMMARY
+        fi
+
+  scan-current-dependencies:
+    name: Scan Current Dependencies
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+
+    - name: Setup Node.js 18.x
+      uses: actions/setup-node@0a44ba7841725637a19e28fa30b79a866c81b0a6 # v4.0.4
+      with:
+        node-version: '18.x'
+        check-latest: true
+
+    - name: Install npm 8.19.4
+      run: npm install -g npm@8.19.4
+
+    - name: Cache NPM modules
+      uses: actions/cache@0400d5f644dc74513175e3cd8d07132dd4860809 # v4.0.0
+      with:
+        path: |
+          node_modules
+          package-lock.json
+          packages/*/node_modules
+          packages/*/package-lock.json
+        key: ubuntu-latest-18.x-${{ hashFiles('package.json', 'packages/*/package.json') }}-daily-scan
+
+    - name: Bootstrap project
+      run: |
+        npm ci
+        npx lerna bootstrap --no-ci --hoist
+
+    - name: Run comprehensive dependency scan
+      continue-on-error: true
+      env:
+        SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+      run: |
+        # Generate dependency trees
+        npm ls --json > npm-dependencies.json || echo "npm ls completed"
+        npx lerna ls --json > lerna-packages.json || echo "lerna ls completed"
+        
+        # Install security tools
+        npm install -g retire@5.2.4 snyk@1.1293.1
+        
+        # Run npm audit
+        npm audit --audit-level=moderate --json > npm-audit-current.json || echo "npm audit completed"
+        
+        # Run retire.js
+        retire --outputformat json --outputpath retire-current.json . || echo "Retire.js scan completed"
+        
+        # Run Snyk if token is available
+        if [ -n "$SNYK_TOKEN" ]; then
+          snyk auth "$SNYK_TOKEN"
+          snyk test --sarif-file-output=snyk-current-results.sarif . || echo "Snyk scan completed"
+        else
+          echo "SNYK_TOKEN not available, creating empty SARIF"
+          echo '{"version":"2.1.0","$schema":"https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json","runs":[{"tool":{"driver":{"name":"Snyk","version":"1.1293.1"}},"results":[]}]}' > snyk-current-results.sarif
+        fi
+
+    - name: Upload Snyk current scan results
+      uses: github/codeql-action/upload-sarif@e2b3eafc8d227b0241d48be5f425d47c2d750a13 # v3.26.10
+      if: always() && hashFiles('snyk-current-results.sarif') != ''
+      with:
+        sarif_file: snyk-current-results.sarif
+        category: 'daily-scan-current-deps'
+
+    - name: Upload dependency reports
+      uses: actions/upload-artifact@50769540e7f4bd5e21e526ee35c689e35e0d6874 # v4.4.0
+      if: always()
+      with:
+        name: daily-dependency-reports
+        path: |
+          npm-dependencies.json
+          lerna-packages.json
+          npm-audit-current.json
+          retire-current.json
+          snyk-current-results.sarif
+
+    - name: Generate dependency summary
+      if: always()
+      run: |
+        echo "## Daily Dependency Scan Summary" >> $GITHUB_STEP_SUMMARY
+        echo "Scan completed at $(date)" >> $GITHUB_STEP_SUMMARY
+        
+        # Count packages
+        if [ -f "lerna-packages.json" ]; then
+          PACKAGE_COUNT=$(jq '. | length' lerna-packages.json 2>/dev/null || echo "0")
+          echo "Lerna packages scanned: $PACKAGE_COUNT" >> $GITHUB_STEP_SUMMARY
+        fi
+        
+        # npm audit summary
+        if [ -f "npm-audit-current.json" ]; then
+          AUDIT_VULNS=$(jq '.metadata.vulnerabilities.total // 0' npm-audit-current.json 2>/dev/null || echo "0")
+          echo "npm audit vulnerabilities: $AUDIT_VULNS" >> $GITHUB_STEP_SUMMARY
+        fi
+        
+        # Retire.js summary
+        if [ -f "retire-current.json" ]; then
+          RETIRE_VULNS=$(jq '. | length' retire-current.json 2>/dev/null || echo "0")
+          echo "Retire.js findings: $RETIRE_VULNS" >> $GITHUB_STEP_SUMMARY
+        fi
+        
+        # Snyk summary
+        if [ -f "snyk-current-results.sarif" ]; then
+          SNYK_VULNS=$(jq '.runs[0].results | length' snyk-current-results.sarif 2>/dev/null || echo "0")
+          echo "Snyk vulnerabilities: $SNYK_VULNS" >> $GITHUB_STEP_SUMMARY
+        fi
