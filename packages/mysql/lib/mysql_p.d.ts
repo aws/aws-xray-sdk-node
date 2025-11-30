@@ -1,7 +1,8 @@
 import * as AWSXRay from 'aws-xray-sdk-core';
 import * as MySQL from 'mysql';
 
-export function captureMySQL(mysql: typeof MySQL): captureMySQL.PatchedMySQL;
+declare function captureMySQL(mysql: typeof MySQL): captureMySQL.PatchedMySQL;
+export = captureMySQL;
 
 declare namespace captureMySQL {
   interface PatchedQueryFunction {
