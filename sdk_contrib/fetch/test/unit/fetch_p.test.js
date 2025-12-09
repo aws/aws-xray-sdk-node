@@ -1,4 +1,5 @@
 const { Subsegment } = require('aws-xray-sdk-core');
+const { Agent } = require('http');
 const fetch = require('node-fetch');
 
 describe('Unit tests', function () {
@@ -157,14 +158,77 @@ describe('Unit tests', function () {
 
     it('short circuits if headers include trace ID', async function () {
       const activeFetch = captureFetch(true);
-      const request = new fetchModule.Request('https://www.foo.com', {
+      const request = new FetchRequest('https://www.foo.com', {
         headers: {
           'X-Amzn-Trace-Id': '12345'
         }
       });
       await activeFetch(request);
-      stubFetch.should.have.been.calledOnceWith(request);
+      stubFetch.should.have.been.calledOnceWith(sinon.match({ url: 'https://www.foo.com/'}));
       stubResolveSegment.should.not.have.been.called;
+    });
+
+    it('transfers dispatcher property for undici', async function () {
+      const activeFetch = captureFetch(true);
+      const agent = new Agent({
+        maxSockets: 1234
+      });
+      await activeFetch('https://www.foo.com', {
+        dispatcher: agent
+      });
+      stubFetch.should.have.been.calledOnceWith(sinon.match({ url: 'https://www.foo.com/' }));
+      stubResolveSegment.should.have.been.called;
+
+      // check if dispatcher was transferred
+      const dummyRequest = new FetchRequest('https://www.foo.com', {
+        dispatcher: agent
+      });
+      const dispatcherSymbol = Object.getOwnPropertySymbols(dummyRequest).find(symbol => symbol.description === 'dispatcher');
+      if (dispatcherSymbol) {
+        stubFetch.should.have.been.calledOnceWith(sinon.match({ [dispatcherSymbol]: agent }));
+      }
+    });
+
+    it('transfers dispatcher property for undici with Request object', async function () {
+      const activeFetch = captureFetch(true);
+      const agent = new Agent({
+        maxSockets: 1234
+      });
+      await activeFetch(new FetchRequest('https://www.foo.com'), {
+        dispatcher: agent
+      });
+      stubFetch.should.have.been.calledOnceWith(sinon.match({ url: 'https://www.foo.com/' }));
+      stubResolveSegment.should.have.been.called;
+
+      // check if dispatcher was transferred
+      const dummyRequest = new FetchRequest('https://www.foo.com', {
+        dispatcher: agent
+      });
+      const dispatcherSymbol = Object.getOwnPropertySymbols(dummyRequest).find(symbol => symbol.description === 'dispatcher');
+      if (dispatcherSymbol) {
+        stubFetch.should.have.been.calledOnceWith(sinon.match({ [dispatcherSymbol]: agent }));
+      }
+    });
+
+    it('transfers dispatcher property for undici with url and init', async function () {
+      const activeFetch = captureFetch(true);
+      const agent = new Agent({
+        maxSockets: 1234
+      });
+      await activeFetch('https://www.foo.com', {
+        dispatcher: agent
+      });
+      stubFetch.should.have.been.calledOnceWith(sinon.match({ url: 'https://www.foo.com/' }));
+      stubResolveSegment.should.have.been.called;
+
+      // check if dispatcher was transferred
+      const dummyRequest = new FetchRequest('https://www.foo.com', {
+        dispatcher: agent
+      });
+      const dispatcherSymbol = Object.getOwnPropertySymbols(dummyRequest).find(symbol => symbol.description === 'dispatcher');
+      if (dispatcherSymbol) {
+        stubFetch.should.have.been.calledOnceWith(sinon.match({ [dispatcherSymbol]: agent }));
+      }
     });
 
     it('calls base function when no parent and automatic mode', async function () {

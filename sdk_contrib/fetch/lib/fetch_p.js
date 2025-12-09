@@ -54,6 +54,27 @@ function captureFetchModule(module, downstreamXRayEnabled, subsegmentCallback) {
   return module.default;
 }
 
+function transferDispatcherNodeJSBuggyUndici(request, requestClone) {
+  const dispatcherSymbol = Object.getOwnPropertySymbols(request).find(symbol => symbol.description === 'dispatcher');
+  if (dispatcherSymbol) {
+    requestClone[dispatcherSymbol] = request[dispatcherSymbol];
+  }
+}
+
+function getTransferDispatcherNodeJSBuggyUndici(requestClass) {
+  try {
+    const { Agent } = require('http');
+    const request = new requestClass('http://example.org', { dispatcher: new Agent });
+    const requestClone = request.clone();
+    const dispatcherSymbol = Object.getOwnPropertySymbols(request).find(symbol => symbol.description === 'dispatcher');
+    if (request[dispatcherSymbol] && !requestClone[dispatcherSymbol]) {
+      return transferDispatcherNodeJSBuggyUndici;
+    }
+  } catch {
+  }
+  return function() {};
+}
+
 /**
  * Return a fetch function that will pass segment information to the target host.
  * This does not change any globals
@@ -66,12 +87,12 @@ function captureFetchModule(module, downstreamXRayEnabled, subsegmentCallback) {
  * @returns Response
  */
 function enableCapture(baseFetchFunction, requestClass, downstreamXRayEnabled, subsegmentCallback) {
-
+  const transferDispatcher = getTransferDispatcherNodeJSBuggyUndici(requestClass);
   const overridenFetchAsync = async (...args) => {
     const thisDownstreamXRayEnabled = !!downstreamXRayEnabled;
     const thisSubsegmentCallback = subsegmentCallback;
     // Standardize request information
-    const request = typeof args[0] === 'object' ?
+    const request = (args[0] instanceof requestClass && args.length === 1) ?
       args[0] :
       new requestClass(...args);
 
@@ -125,6 +146,9 @@ function enableCapture(baseFetchFunction, requestClass, downstreamXRayEnabled, s
     // Set up fetch call and capture any thrown errors
     const capturedFetch = async () => {
       const requestClone = request.clone();
+
+      transferDispatcher(request, requestClone);
+
       let response;
       try {
         response = await baseFetchFunction(requestClone);
