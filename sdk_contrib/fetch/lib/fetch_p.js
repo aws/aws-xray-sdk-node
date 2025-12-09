@@ -71,7 +71,7 @@ function enableCapture(baseFetchFunction, requestClass, downstreamXRayEnabled, s
     const thisDownstreamXRayEnabled = !!downstreamXRayEnabled;
     const thisSubsegmentCallback = subsegmentCallback;
     // Standardize request information
-    const request = typeof args[0] === 'object' ?
+    const request = (args[0] instanceof requestClass && args.length === 1) ?
       args[0] :
       new requestClass(...args);
 
