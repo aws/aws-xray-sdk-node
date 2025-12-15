@@ -18,6 +18,7 @@ Manual mode requires that you pass around the segment reference. See the example
 
     MYSQL_DATABASE_VERSION           Sets additional data for the sql subsegment.
     MYSQL_DRIVER_VERSION             Sets additional data for the sql subsegment.
+    AWS_XRAY_COLLECT_SQL_QUERIES     Add query to the subsegments sql data.
 
 ### Lambda Example
 
