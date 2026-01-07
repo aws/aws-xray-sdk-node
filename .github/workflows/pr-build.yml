@@ -28,7 +28,7 @@ jobs:
           - os: ubuntu-latest
             node-version: 16.x
             coverage: true
-          - os: macos-13
+          - os: macos-15-intel
             node-version: 14.x
         exclude:
           # Issue with npm6 on windows resulting in failing workflows:
