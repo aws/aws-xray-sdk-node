@@ -339,6 +339,20 @@ describe('Unit tests', function () {
       response.should.equal(stubValidResponse);
     });
 
+    it('resolves to response through proxy when fetch options are supplied', async function () {
+      const activeFetch = captureFetch(true);
+      const proxyStub = sinon.stub();
+      const request = new FetchRequest('https://www.foo.com/test');
+      const response = await activeFetch(request, {
+        dispatcher: proxyStub
+      });
+      stubFetch.should.have.been.calledOnce;
+      const callArgs = stubFetch.firstCall.args;
+      callArgs[0].should.contain(request);
+      callArgs[1].dispatcher.should.equal(proxyStub);
+      response.should.equal(stubValidResponse);
+    });
+
     it('calls subsegmentCallback with error upon fetch throwing', async function () {
       const spyCallback = sandbox.spy();
       const activeFetch = captureFetch(true, spyCallback);
