@@ -21,7 +21,7 @@ jobs:
         with:
           node-version: 16.x
 
-      - run: npm install -g npm@8.19.4
+      - run: npm install -g npm@npm@11.7.0
 
       - name: Cache NPM modules
         uses: actions/cache@v3
