@@ -15,7 +15,7 @@ jobs:
           node-version: '16.x'
           registry-url: 'https://registry.npmjs.org'
 
-      - run: npm install -g npm@11.7.0
+      - run: npm install -g npm@8.19.4
 
       - name: Deprecate Version 3.7.0
         run: |
