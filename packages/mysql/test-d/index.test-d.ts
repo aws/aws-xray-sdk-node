@@ -2,7 +2,7 @@
 import * as AWSXRay from 'aws-xray-sdk-core';
 import * as MySQL from 'mysql';
 import { expectType } from 'tsd';
-import { captureMySQL } from '../lib';
+import captureMySQL from '../lib';
 
 const segment = AWSXRay.getSegment();
 
