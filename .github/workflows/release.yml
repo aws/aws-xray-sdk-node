@@ -1,6 +1,7 @@
 name: Release X-Ray Node SDK to Github and NPM
 permissions:
   contents: write
+  id-token: write
 on:
   workflow_dispatch:
     inputs:
@@ -21,10 +22,10 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v1
         with:
-          node-version: '16.x'
+          node-version: '20'
           registry-url: 'https://registry.npmjs.org'
 
-      - run: npm install -g npm@8.19.4
+      - run: npm install -g npm@11.7.0
 
       - name: Cache NPM modules
         uses: actions/cache@v3
@@ -53,8 +54,6 @@ jobs:
 
       - name: Publish package to npm
         run: npx lerna publish from-package --yes --exact --no-verify-access
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Create Release
         id: create_release
