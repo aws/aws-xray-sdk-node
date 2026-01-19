@@ -304,6 +304,11 @@
           "request_parameters": [
             "TopicArn"
           ]
+        },
+        "publishBatch": {
+          "request_parameters": [
+            "TopicArn"
+          ]
         }
       }
     },

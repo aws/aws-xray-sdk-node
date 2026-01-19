@@ -1,4 +1,7 @@
 name: Release X-Ray Node SDK to Github and NPM
+permissions:
+  contents: write
+  id-token: write
 on:
   workflow_dispatch:
     inputs:
@@ -19,25 +22,38 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v1
         with:
-          node-version: '14.x'
+          node-version: '20'
           registry-url: 'https://registry.npmjs.org'
 
+      - run: npm install -g npm@11.7.0
+
       - name: Cache NPM modules
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
-          path: $HOME/.npm
-          key: ${{ matrix.os }}-${{ hashFiles('package-lock.json') }}
+          path: |
+            node_modules
+            package-lock.json
+            packages/*/node_modules
+            packages/*/package-lock.json
+          key: release-ubuntu-latest-${{ hashFiles('package.json', 'packages/*/package.json') }}-06142023
+
+      - name: Bootstrap
+        run: |
+          npm ci
+          npx lerna bootstrap --no-ci --hoist
+
+      - name: Build
+        run: |
+          npx lerna run compile
+        shell: bash
 
       - name: Execute tests with Lerna
         run: |
-          npx lerna bootstrap --hoist
-          npx lerna run compile
           npx lerna run test
+        shell: bash
 
       - name: Publish package to npm
         run: npx lerna publish from-package --yes --exact --no-verify-access
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Create Release
         id: create_release

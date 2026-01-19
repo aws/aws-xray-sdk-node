@@ -1,6 +1,415 @@
 # Changelog for AWS X-Ray SDK for JavaScript
-<!--LATEST=3.3.5-->
+<!--LATEST=3.12.0-->
 <!--ENTRYINSERT-->
+
+## 3.12.0
+View [the latest changes](https://github.com/aws/aws-xray-sdk-node/compare/aws-xray-sdk-node%403.11.0...aws-xray-sdk-node%403.12.0)
+* `aws-xray-sdk-core` updated to 3.12.0
+  * change: Use Lambda Invoke Store from globalThis in Lambda Environments for extracting X-Ray Trace Header [PR #732](https://github.com/aws/aws-xray-sdk-node/pull/732)
+* `aws-xray-sdk-mysql` updated to 3.12.0
+  * No further changes.
+* `aws-xray-sdk-express` updated to 3.12.0
+  * No further changes.
+* `aws-xray-sdk-postgres` updated to 3.12.0
+  * No further changes.
+* `aws-xray-sdk-restify` updated to 3.12.0
+  * No further changes.
+* `aws-xray-sdk-fastify` updated to 3.12.0
+  * No further changes.
+* `aws-xray-sdk-koa2` updated to 3.12.0
+  * No further changes.
+* `aws-xray-sdk-hapi` updated to 3.12.0
+  * No further changes.
+* `aws-xray-sdk-fetch` updated to 3.12.0
+  * No further changes.
+
+## 3.11.0
+View [the latest changes](https://github.com/aws/aws-xray-sdk-node/compare/aws-xray-sdk-node%403.10.3...aws-xray-sdk-node%403.11.0)
+* `aws-xray-sdk-core` updated to 3.11.0
+  * change: Support extracting X-Ray Trace Header via Lambda Invoke Store in Lambda Environments [PR #722](https://github.com/aws/aws-xray-sdk-node/pull/722)
+* `aws-xray-sdk-mysql` updated to 3.11.0
+  * No further changes.
+* `aws-xray-sdk-express` updated to 3.11.0
+  * No further changes.
+* `aws-xray-sdk-postgres` updated to 3.11.0
+  * No further changes.
+* `aws-xray-sdk-restify` updated to 3.11.0
+  * No further changes.
+* `aws-xray-sdk-fastify` updated to 3.11.0
+  * No further changes.
+* `aws-xray-sdk-koa2` updated to 3.11.0
+  * No further changes.
+* `aws-xray-sdk-hapi` updated to 3.11.0
+  * No further changes.
+* `aws-xray-sdk-fetch` updated to 3.11.0
+  * No further changes.
+
+## 3.10.3
+View [the latest changes](https://github.com/aws/aws-xray-sdk-node/compare/aws-xray-sdk-node%403.10.2...aws-xray-sdk-node%403.10.3)
+* `aws-xray-sdk-core` updated to 3.10.3
+  *  Fix error due to missing header in the response in resolveSampling method.
+* `aws-xray-sdk-mysql` updated to 3.10.3
+  *  No further changes.
+* `aws-xray-sdk-express` updated to 3.10.3
+  * No further changes.
+* `aws-xray-sdk-postgres` updated to 3.10.3
+  *  No further changes.
+* `aws-xray-sdk-restify` updated to 3.10.3
+  * No further changes.
+* `aws-xray-sdk-fastify` updated to 3.10.3
+  * Enable automatic mode and expose hooks
+* `aws-xray-sdk-koa2` updated to 3.10.3
+  * No further changes.
+* `aws-xray-sdk-hapi` updated to 3.10.3
+  * No further changes.
+* `aws-xray-sdk-fetch` updated to 3.10.3
+  * No further changes.
+
+## 3.10.2
+View [the latest changes](https://github.com/aws/aws-xray-sdk-node/compare/aws-xray-sdk-node%403.10.1...aws-xray-sdk-node%403.10.2)
+* `aws-xray-sdk-core` updated to 3.10.2
+  *  No further changes.
+* `aws-xray-sdk-mysql` updated to 3.10.2
+  *  No further changes.
+* `aws-xray-sdk-express` updated to 3.10.2
+  * No further changes.
+* `aws-xray-sdk-postgres` updated to 3.10.2
+  *  No further changes.
+* `aws-xray-sdk-restify` updated to 3.10.2
+  * No further changes.
+* `aws-xray-sdk-fastify` updated to 3.10.2
+  * Add default export and named export for fastify plugin
+* `aws-xray-sdk-koa2` updated to 3.10.2
+  * No further changes.
+* `aws-xray-sdk-hapi` updated to 3.10.2
+  * No further changes.
+* `aws-xray-sdk-fetch` updated to 3.10.2
+  * Fix missing X-Ray headers for fetch, add export for fetch enableCapture utility
+
+## 3.10.1
+View [the latest changes](https://github.com/aws/aws-xray-sdk-node/compare/aws-xray-sdk-node%403.10.0...aws-xray-sdk-node%403.10.1)
+* `aws-xray-sdk-core` updated to 3.10.1
+  * Bump dependency version for body-parser, express and find-my-way
+  * These dependency version changes apply to all packages
+* `aws-xray-sdk-mysql` updated to 3.10.1
+  *  No further changes.
+* `aws-xray-sdk-express` updated to 3.10.1
+  * No further changes.
+* `aws-xray-sdk-postgres` updated to 3.10.1
+  *  No further changes.
+* `aws-xray-sdk-restify` updated to 3.10.1
+  * No further changes.
+* `aws-xray-sdk-fastify` updated to 3.10.1
+  * No further changes.
+* `aws-xray-sdk-koa2` updated to 3.10.1
+  * No further changes.
+* `aws-xray-sdk-hapi` updated to 3.10.1
+  * No further changes.
+* `aws-xray-sdk-fetch` updated to 3.10.1
+  *  No further changes.
+
+## 3.10.0
+View [the latest changes](https://github.com/aws/aws-xray-sdk-node/compare/aws-xray-sdk-node%403.9.0...aws-xray-sdk-node%403.10.0)
+* `aws-xray-sdk-core` updated to 3.10.0
+  * No further changes
+* `aws-xray-sdk-mysql` updated to 3.10.0
+  *  Prefix SQL URLs with scheme [PR #667](https://github.com/aws/aws-xray-sdk-node/pull/667)
+* `aws-xray-sdk-express` updated to 3.10.0
+  * No further changes.
+* `aws-xray-sdk-postgres` updated to 3.10.0
+  *  Prefix SQL URLs with scheme [PR #667](https://github.com/aws/aws-xray-sdk-node/pull/667)
+* `aws-xray-sdk-restify` updated to 3.10.0
+  * No further changes.
+* `aws-xray-sdk-fastify` updated to 3.10.0
+  * No further changes.
+* `aws-xray-sdk-koa2` updated to 3.10.0
+  * No further changes.
+* `aws-xray-sdk-hapi` updated to 3.10.0
+  * No further changes.
+* `aws-xray-sdk-fetch` updated to 3.10.0
+  *  Pass dispatcher options to global fetch [PR #653](https://github.com/aws/aws-xray-sdk-node/pull/653)
+
+## 3.9.0
+View [the latest changes](https://github.com/aws/aws-xray-sdk-node/compare/aws-xray-sdk-node%403.8.0...aws-xray-sdk-node%403.9.0)
+* `aws-xray-sdk-core` updated to 3.9.0
+  * Feature: Lambda PassThrough trace header support [PR #660](https://github.com/aws/aws-xray-sdk-node/pull/660)
+* `aws-xray-sdk-mysql` updated to 3.9.0
+  * No further changes.
+* `aws-xray-sdk-express` updated to 3.9.0
+  * No further changes.
+* `aws-xray-sdk-postgres` updated to 3.9.0
+  * No further changes.
+* `aws-xray-sdk-restify` updated to 3.9.0
+  * No further changes.
+* `aws-xray-sdk-fastify` updated to 3.9.0
+  * No further changes.
+* `aws-xray-sdk-koa2` updated to 3.9.0
+  * No further changes.
+* `aws-xray-sdk-hapi` updated to 3.9.0
+  * No further changes.
+* `aws-xray-sdk-fetch` updated to 3.9.0
+  * No further changes.
+
+## 3.8.0
+View [the latest changes](https://github.com/aws/aws-xray-sdk-node/compare/aws-xray-sdk-node%403.7.0...aws-xray-sdk-node%403.8.0)
+* `aws-xray-sdk-core` updated to 3.8.0
+  * Fix: Revert #651 [Lambda] Replace Facade with No-Op if trace header is missing data [PR #657](https://github.com/aws/aws-xray-sdk-node/pull/657)
+* `aws-xray-sdk-mysql` updated to 3.8.0
+  * No further changes.
+* `aws-xray-sdk-express` updated to 3.8.0
+  * No further changes.
+* `aws-xray-sdk-postgres` updated to 3.8.0
+  * No further changes.
+* `aws-xray-sdk-restify` updated to 3.8.0
+  * No further changes.
+* `aws-xray-sdk-fastify` updated to 3.8.0
+  * No further changes.
+* `aws-xray-sdk-koa2` updated to 3.8.0
+  * No further changes.
+* `aws-xray-sdk-hapi` updated to 3.8.0
+  * No further changes.
+* `aws-xray-sdk-fetch` updated to 3.8.0
+  * No further changes.
+
+## 3.7.0
+View [the latest changes](https://github.com/aws/aws-xray-sdk-node/compare/aws-xray-sdk-node%403.6.0...aws-xray-sdk-node%403.7.0)
+* `aws-xray-sdk-core` updated to 3.7.0
+  * Feature: Replace Facade segment with No-Op if trace header is missing data in AWS Lambda PassThrough mode [PR #651](https://github.com/aws/aws-xray-sdk-node/pull/651)
+  * Fix: TraceId timestamp supports string starts with '0' [PR #641](https://github.com/aws/aws-xray-sdk-node/pull/641)
+* `aws-xray-sdk-mysql` updated to 3.7.0
+  * No further changes.
+* `aws-xray-sdk-express` updated to 3.7.0
+  * No further changes.
+* `aws-xray-sdk-postgres` updated to 3.7.0
+  * No further changes.
+* `aws-xray-sdk-restify` updated to 3.7.0
+  * No further changes.
+* `aws-xray-sdk-fastify` updated to 3.7.0
+  * No further changes.
+* `aws-xray-sdk-koa2` updated to 3.7.0
+  * No further changes.
+* `aws-xray-sdk-hapi` updated to 3.7.0
+  * No further changes.
+* `aws-xray-sdk-fetch` updated to 3.7.0
+  * Fix: fix subsegment callback error parameter type [PR #644](https://github.com/aws/aws-xray-sdk-node/pull/644)
+
+## 3.6.0
+View [the latest changes](https://github.com/aws/aws-xray-sdk-node/compare/aws-xray-sdk-node%403.5.4...aws-xray-sdk-node%403.6.0)
+* `aws-xray-sdk-core` updated to 3.6.0
+  * No further changes.
+* `aws-xray-sdk-mysql` updated to 3.6.0
+  * No further changes.
+* `aws-xray-sdk-express` updated to 3.6.0
+  * No further changes.
+* `aws-xray-sdk-postgres` updated to 3.6.0
+  * No further changes.
+* `aws-xray-sdk-restify` updated to 3.6.0
+  * No further changes.
+* `aws-xray-sdk-fastify` updated to 3.6.0
+  * No further changes.
+* `aws-xray-sdk-koa2` updated to 3.6.0
+  * No further changes.
+* `aws-xray-sdk-hapi` updated to 3.6.0
+  * No further changes.
+* `aws-xray-sdk-fetch` added in 3.6.0
+  * Feature: Added aws-xray-sdk-fetch package as an sdk_contrib instrumentation [PR #590](https://github.com/aws/aws-xray-sdk-node/pull/590)
+
+## 3.5.4
+View [the latest changes](https://github.com/aws/aws-xray-sdk-node/compare/aws-xray-sdk-node%403.5.3...aws-xray-sdk-node%403.5.4)
+* `aws-xray-sdk-core` updated to 3.5.4
+  * change: Add export for resolveManualSegmentParams to AWSXRay [PR #628](https://github.com/aws/aws-xray-sdk-node/pull/628)
+* `aws-xray-sdk-mysql` updated to 3.5.4
+  * No further changes.
+* `aws-xray-sdk-express` updated to 3.5.4
+  * No further changes.
+* `aws-xray-sdk-postgres` updated to 3.5.4
+  * No further changes.
+* `aws-xray-sdk-restify` updated to 3.5.4
+  * No further changes.
+* `aws-xray-sdk-fastify` updated to 3.5.4
+  * No further changes.
+* `aws-xray-sdk-koa2` updated to 3.5.4
+  * No further changes.
+* `aws-xray-sdk-hapi` updated to 3.5.4
+  * No further changes.
+
+## 3.5.3
+View [the latest changes](https://github.com/aws/aws-xray-sdk-node/compare/aws-xray-sdk-node%403.5.2...aws-xray-sdk-node%403.5.3)
+* `aws-xray-sdk-core` updated to 3.5.3
+  * fix: serialize bigint in metadata to string [PR #619](https://github.com/aws/aws-xray-sdk-node/pull/619)
+  * fix: Update deprecated @aws-sdk package dependencies [PR #621](https://github.com/aws/aws-xray-sdk-node/pull/621)
+* `aws-xray-sdk-mysql` updated to 3.5.3
+  * No further changes.
+* `aws-xray-sdk-express` updated to 3.5.3
+  * No further changes.
+* `aws-xray-sdk-postgres` updated to 3.5.3
+  * No further changes.
+* `aws-xray-sdk-restify` updated to 3.5.3
+  * No further changes.
+* `aws-xray-sdk-fastify` updated to 3.5.3
+  * No further changes.
+* `aws-xray-sdk-koa2` updated to 3.5.3
+  * No further changes.
+* `aws-xray-sdk-hapi` updated to 3.5.3
+  * No further changes.
+
+## 3.5.2
+View [the latest changes](https://github.com/aws/aws-xray-sdk-node/compare/aws-xray-sdk-node%403.5.1...aws-xray-sdk-node%403.5.2)
+* `aws-xray-sdk-core` updated to 3.5.2
+  * fix: capture command data for SDK v3 clients [PR #611](https://github.com/aws/aws-xray-sdk-node/pull/611)
+  * fix: memory leaks caused by cls-hooked [PR #595](https://github.com/aws/aws-xray-sdk-node/pull/595)
+* `aws-xray-sdk-mysql` updated to 3.5.2
+  * No further changes.
+* `aws-xray-sdk-express` updated to 3.5.2
+  * No further changes.
+* `aws-xray-sdk-postgres` updated to 3.5.2
+  * No further changes.
+* `aws-xray-sdk-restify` updated to 3.5.2
+  * No further changes.
+* `aws-xray-sdk-fastify` updated to 3.5.2
+  * No further changes.
+* `aws-xray-sdk-koa2` updated to 3.5.2
+  * No further changes.
+* `aws-xray-sdk-hapi` updated to 3.5.2
+  * No further changes.
+
+## 3.5.1
+View [the latest changes](https://github.com/aws/aws-xray-sdk-node/compare/aws-xray-sdk-node%403.5.0...aws-xray-sdk-node%403.5.1)
+* `aws-xray-sdk-core` updated to 3.5.1
+  * fix: Add TS declaration file for SegmentEmitter [PR #586](https://github.com/aws/aws-xray-sdk-node/pull/586)
+  * fix: Incorrect data variable usage + missing data injection in AWS v3 clients [PR #596](https://github.com/aws/aws-xray-sdk-node/pull/596)
+  * fix: Update semver dependency [PR #598](https://github.com/aws/aws-xray-sdk-node/pull/598)
+  * fix: Override transitive semver dependency [PR #604](https://github.com/aws/aws-xray-sdk-node/pull/604)
+    * fix improvement: Better dependency override + Npm 8 in workflows [PR #607](https://github.com/aws/aws-xray-sdk-node/pull/607)
+* `aws-xray-sdk-mysql` updated to 3.5.1
+  * No further changes.
+* `aws-xray-sdk-express` updated to 3.5.1
+  * No further changes.
+* `aws-xray-sdk-postgres` updated to 3.5.1
+  * No further changes.
+* `aws-xray-sdk-restify` updated to 3.5.1
+  * No further changes.
+* `aws-xray-sdk-fastify` updated to 3.5.1
+  * fix: Fix typo in fastify logger type declaration [PR #589](https://github.com/aws/aws-xray-sdk-node/pull/589)
+* `aws-xray-sdk-koa2` updated to 3.5.1
+  * No further changes.
+* `aws-xray-sdk-hapi` updated to 3.5.1
+  * No further changes.
+
+## 3.5.0
+View [the latest changes](https://github.com/aws/aws-xray-sdk-node/compare/aws-xray-sdk-node%403.4.1...aws-xray-sdk-node%403.5.0)
+* `aws-xray-sdk-core` updated to 3.5.0
+  * change: Updated type declaration of captureAWSv3Client to fix TS errors [PR #575](https://github.com/aws/aws-xray-sdk-node/pull/575)
+* `aws-xray-sdk-mysql` updated to 3.5.0
+  * change: Add support for including sql query in sql subsegment for MySQL [PR #564](https://github.com/aws/aws-xray-sdk-node/pull/564)
+* `aws-xray-sdk-express` updated to 3.5.0
+  * No further changes.
+* `aws-xray-sdk-postgres` updated to 3.5.0
+  * No further changes.
+* `aws-xray-sdk-restify` updated to 3.5.0
+  * No further changes.
+* `aws-xray-sdk-fastify` updated to 3.5.0
+  * No further changes.
+* `aws-xray-sdk-koa2` updated to 3.5.0
+  * No further changes. 
+* `aws-xray-sdk-hapi` updated to 3.5.0
+  * No further changes.
+
+## 3.4.1 
+View [the latest changes](https://github.com/aws/aws-xray-sdk-node/compare/aws-xray-sdk-node%403.4.0...aws-xray-sdk-node%403.4.1)
+* `aws-xray-sdk-core` updated to 3.4.1
+  * change: Propagate additional trace data into AWS requests on Lambda [PR #549](https://github.com/aws/aws-xray-sdk-node/pull/549)
+  * change: Modified context missing strategy default to log error [PR #550](https://github.com/aws/aws-xray-sdk-node/pull/550)
+* `aws-xray-sdk-mysql` updated to 3.4.1
+  * No further changes. 
+* `aws-xray-sdk-express` updated to 3.4.1
+  * No further changes.
+* `aws-xray-sdk-postgres` updated to 3.4.1
+  * No further changes.
+* `aws-xray-sdk-restify` updated to 3.4.1
+  * No further changes.
+* `aws-xray-sdk-fastify` updated to 3.4.1
+  * No further changes.
+* `aws-xray-sdk-koa2` updated to 3.4.1
+  * No further changes. 
+* `aws-xray-sdk-hapi` updated to 3.4.1
+  * No further changes.
+
+## 3.4.0
+View [the latest changes](https://github.com/aws/aws-xray-sdk-node/compare/aws-xray-sdk-node%403.3.8...aws-xray-sdk-node%403.4.0)
+* `aws-xray-sdk-core` updated to 3.4.0
+  * change: Allow list TopicArn for SNS PublishBatch [PR #539](https://github.com/aws/aws-xray-sdk-node/pull/539)
+  * change: Oversampling Mitigation [PR #541](https://github.com/aws/aws-xray-sdk-node/pull/541)
+* `aws-xray-sdk-mysql` updated to 3.4.0
+  * No further changes. 
+* `aws-xray-sdk-express` updated to 3.4.0
+  * No further changes.
+* `aws-xray-sdk-postgres` updated to 3.4.0
+  * No further changes.
+* `aws-xray-sdk-restify` updated to 3.4.0
+  * No further changes.
+* `aws-xray-sdk-fastify` updated to 3.4.0
+  * No further changes.
+* `aws-xray-sdk-koa2` updated to 3.4.0
+  * No further changes. 
+* `aws-xray-sdk-hapi` updated to 3.4.0
+  * No further changes.
+
+## 3.3.8
+View [the latest changes](https://github.com/aws/aws-xray-sdk-node/compare/aws-xray-sdk-node%403.3.7...aws-xray-sdk-node%403.3.8)
+* `aws-xray-sdk-core` updated to 3.3.8
+  * fix: update lerna package to fix security vulnerabilities [PR #536](https://github.com/aws/aws-xray-sdk-node/pull/536)
+* `aws-xray-sdk-mysql` updated to 3.3.8
+  * No further changes. 
+* `aws-xray-sdk-express` updated to 3.3.8
+  * No further changes.
+* `aws-xray-sdk-postgres` updated to 3.3.8
+  * No further changes.
+* `aws-xray-sdk-restify` updated to 3.3.8
+  * No further changes.
+* `aws-xray-sdk-fastify` updated to 3.3.8
+  * improvement: fastify SDK contrib [PR #523](https://github.com/aws/aws-xray-sdk-node/pull/523)
+* `aws-xray-sdk-koa2` updated to 3.3.8
+  * No further changes. 
+* `aws-xray-sdk-hapi` updated to 3.3.8
+  * No further changes.
+## 3.3.7
+View [the latest changes](https://github.com/aws/aws-xray-sdk-node/compare/aws-xray-sdk-node%403.3.6...aws-xray-sdk-node%403.3.7)
+* `aws-xray-sdk-core` updated to 3.3.7
+  * fix: Stop throwing unnecessary errors with adding annotations, metadata, errors [PR #467](https://github.com/aws/aws-xray-sdk-node/pull/467)
+  * fix: Fix TS declaration of TraceId to match definition [PR #520](https://github.com/aws/aws-xray-sdk-node/pull/520)
+  * fix: Fix prototype pollution issue [PR #529](https://github.com/aws/aws-xray-sdk-node/pull/529)
+* `aws-xray-sdk-mysql` updated to 3.3.7
+  * No further changes. 
+* `aws-xray-sdk-express` updated to 3.3.7
+  * No further changes.
+* `aws-xray-sdk-postgres` updated to 3.3.7
+  * No further changes.
+* `aws-xray-sdk-restify` updated to 3.3.7
+  * No further changes.
+* `aws-xray-sdk-koa2` updated to 3.3.7
+  * fix: Change Koa openSegment middleware declaration return type to match expected Koa.Middleware type [PR #525](https://github.com/aws/aws-xray-sdk-node/pull/525)
+* `aws-xray-sdk-hapi` updated to 3.3.7
+  * No further changes.
+
+## 3.3.6
+View [the latest changes](https://github.com/aws/aws-xray-sdk-node/compare/aws-xray-sdk-node%403.3.5...aws-xray-sdk-node%403.3.6)
+* `aws-xray-sdk-core` updated to 3.3.6
+  * fix: Check `serviceName` is null even if it should never be [PR #457](https://github.com/aws/aws-xray-sdk-node/pull/457)
+  * fix: Populate vars to avoid `unshift undefined` error [PR #508](https://github.com/aws/aws-xray-sdk-node/pull/508)
+* `aws-xray-sdk-mysql` updated to 3.3.6
+  * fix: avoid fake .then() method on mysql2 Query class [PR #501](https://github.com/aws/aws-xray-sdk-node/pull/501)
+* `aws-xray-sdk-express` updated to 3.3.6
+  * No further changes.
+* `aws-xray-sdk-postgres` updated to 3.3.6
+  * No further changes.
+* `aws-xray-sdk-restify` updated to 3.3.6
+  * No further changes.
+* `aws-xray-sdk-koa2` updated to 3.3.6
+  * No further changes.
+* `aws-xray-sdk-hapi` updated to 3.3.6
+  * No further changes.
+
 ## 3.3.5
 * change: Updated aws-xray-sdk-core to 3.3.5.
   * bugfix: added ids to exception objects [PR #475](https://github.com/aws/aws-xray-sdk-node/pull/475)

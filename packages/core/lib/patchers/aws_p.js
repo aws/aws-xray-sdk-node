@@ -76,12 +76,29 @@ function captureAWSRequest(req) {
   var throttledError = this.throttledError || throttledErrorDefault;
 
   var stack = (new Error()).stack;
-  var subsegment = parent.addNewSubsegment(this.serviceIdentifier);
+
+  let subsegment;
+  if (parent.notTraced) {
+    subsegment = parent.addNewSubsegmentWithoutSampling(this.serviceIdentifier);
+  } else {
+    subsegment = parent.addNewSubsegment(this.serviceIdentifier);
+  }
+
   var traceId = parent.segment ? parent.segment.trace_id : parent.trace_id;
+  const data = parent.segment ? parent.segment.additionalTraceData : parent.additionalTraceData;
 
   var buildListener = function(req) {
-    req.httpRequest.headers['X-Amzn-Trace-Id'] = 'Root=' + traceId + ';Parent=' + subsegment.id +
-      ';Sampled=' + (subsegment.segment.notTraced ? '0' : '1');
+    if (parent.noOp) {
+      return;
+    }
+    let traceHeader = 'Root=' + traceId + ';Parent=' + subsegment.id +
+      ';Sampled=' + (subsegment.notTraced ? '0' : '1');
+    if (data != null) {
+      for (const [key, value] of Object.entries(data)) {
+        traceHeader += ';' + key +'=' + value;
+      }
+    }
+    req.httpRequest.headers['X-Amzn-Trace-Id'] = traceHeader;
   };
 
   var completeListener = function(res) {

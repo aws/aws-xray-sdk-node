@@ -4,7 +4,6 @@ var LambdaUtils = require('../utils').LambdaUtils;
 var Segment = require('../segments/segment');
 var SegmentEmitter = require('../segment_emitter');
 var SegmentUtils = require('../segments/segment_utils');
-
 var logger = require('../logger');
 const TraceID = require('../segments/attributes/trace_id');
 
@@ -41,7 +40,7 @@ module.exports.init = function init() {
 
 var facadeSegment = function facadeSegment() {
   var segment = new Segment('facade');
-  var whitelistFcn = ['addNewSubsegment', 'addSubsegment', 'removeSubsegment', 'toString'];
+  var whitelistFcn = ['addNewSubsegment', 'addSubsegment', 'removeSubsegment', 'toString', 'addSubsegmentWithoutSampling', 'addNewSubsegmentWithoutSampling'];
   var silentFcn = ['incrementCounter', 'decrementCounter', 'isClosed', 'close', 'format', 'flush'];
   var xAmznTraceId = process.env._X_AMZN_TRACE_ID;
 
@@ -80,7 +79,10 @@ var facadeSegment = function facadeSegment() {
   };
 
   segment.resolveLambdaTraceData = function resolveLambdaTraceData() {
-    var xAmznLambda = process.env._X_AMZN_TRACE_ID;
+    const invokeStore = globalThis.awslambda?.InvokeStore;
+    const traceIdFromInvokeStore = invokeStore?.getXRayTraceId();
+    const traceIdFromEnv = process.env._X_AMZN_TRACE_ID;
+    var xAmznLambda = traceIdFromInvokeStore ?? traceIdFromEnv;
 
     if (xAmznLambda) {
 

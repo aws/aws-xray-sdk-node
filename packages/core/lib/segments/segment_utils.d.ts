@@ -17,3 +17,5 @@ export function setStreamingThreshold(threshold: number): void;
 export function getStreamingThreshold(): number;
 
 export function getHttpResponseData(res: http.ServerResponse): object;
+
+export function getJsonStringifyReplacer(): (key: string, value: any) => any;

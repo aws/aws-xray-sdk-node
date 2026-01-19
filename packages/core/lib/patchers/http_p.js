@@ -116,7 +116,13 @@ function enableCapture(module, downstreamXRayEnabled, subsegmentCallback) {
       return baseFunc(...args);
     }
 
-    const subsegment = parent.addNewSubsegment(hostname);
+    let subsegment;
+    if (parent.notTraced) {
+      subsegment = parent.addNewSubsegmentWithoutSampling(hostname);
+    } else {
+      subsegment = parent.addNewSubsegment(hostname);
+    }
+
     const root = parent.segment ? parent.segment : parent;
     subsegment.namespace = 'remote';
 
@@ -124,8 +130,10 @@ function enableCapture(module, downstreamXRayEnabled, subsegmentCallback) {
       options.headers = {};
     }
 
-    options.headers['X-Amzn-Trace-Id'] = 'Root=' + root.trace_id + ';Parent=' + subsegment.id +
-      ';Sampled=' + (!root.notTraced ? '1' : '0');
+    if (!parent.noOp) {
+      options.headers['X-Amzn-Trace-Id'] = 'Root=' + root.trace_id + ';Parent=' + subsegment.id +
+        ';Sampled=' + (subsegment.notTraced ? '0' : '1');
+    }
 
     const errorCapturer = function errorCapturer(e) {
       if (subsegmentCallback) {
@@ -142,15 +150,6 @@ function enableCapture(module, downstreamXRayEnabled, subsegmentCallback) {
 
         subsegment.addRemoteRequestData(this, null, madeItToDownstream && downstreamXRayEnabled);
         subsegment.close(e);
-      }
-
-      // Only need to remove our listener & re-emit if we're not listening using the errorMonitor,
-      // e.g. the app is running on Node 10. Otherwise the errorMonitor will re-emit automatically.
-      // See: https://github.com/aws/aws-xray-sdk-node/issues/318
-      // TODO: Remove this logic once node 12 support is deprecated
-      if (!events.errorMonitor && this.listenerCount('error') <= 1) {
-        this.removeListener('error', errorCapturer);
-        this.emit('error', e);
       }
     };
 

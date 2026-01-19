@@ -44,4 +44,12 @@ describe('TraceID', function() {
     var traceId = TraceID.FromString(traceStr);
     assert.equal(traceId.toString(), traceStr);
   });
+
+  it('should keep leading 0\'s for trace ID from given string', function() {
+    const traceStr = '1-00fbe041-2c7ad569f5d6ff149137be86';
+    var traceId = TraceID.FromString(traceStr);
+    assert.equal(traceId.version, 1);
+    assert.equal(traceId.timestamp, '00fbe041');
+    assert.equal(traceId.id, '2c7ad569f5d6ff149137be86');
+  });
 });

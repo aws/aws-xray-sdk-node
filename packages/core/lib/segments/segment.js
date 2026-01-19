@@ -82,8 +82,14 @@ Segment.prototype.addIncomingRequestData = function addIncomingRequestData(data)
 
 Segment.prototype.addAnnotation = function addAnnotation(key, value) {
   if (typeof value !== 'boolean' && typeof value !== 'string' && !isFinite(value)) {
-    logger.getLogger().error('Add annotation key: ' + key + ' value: ' + value + ' failed.' +
-      ' Annotations must be of type string, number or boolean.');
+    logger.getLogger().error('Failed to add annotation key: ' + key + ' value: ' + value + ' to subsegment ' +
+      this.name + '. Value must be of type string, number or boolean.');
+    return;
+  }
+
+  if (typeof key !== 'string') {
+    logger.getLogger().error('Failed to add annotation key: ' + key + ' value: ' + value + ' to subsegment ' +
+      this.name + '. Key must be of type string.');
     return;
   }
 
@@ -116,11 +122,15 @@ Segment.prototype.setUser = function (user) {
 
 Segment.prototype.addMetadata = function(key, value, namespace) {
   if (typeof key !== 'string') {
-    throw new Error('Failed to add annotation key: ' + key + ' value: ' + value + ' to subsegment ' +
+    logger.getLogger().error('Failed to add metadata key: ' + key + ' value: ' + value + ' to segment ' +
       this.name + '. Key must be of type string.');
-  } else if (namespace && typeof namespace !== 'string') {
-    throw new Error('Failed to add annotation key: ' + key + ' value: ' + value + 'namespace: ' + namespace + ' to subsegment ' +
+    return;
+  }
+
+  if (namespace && typeof namespace !== 'string') {
+    logger.getLogger().error('Failed to add metadata key: ' + key + ' value: ' + value + ' to segment ' +
       this.name + '. Namespace must be of type string.');
+    return;
   }
 
   var ns = namespace || 'default';
@@ -133,7 +143,9 @@ Segment.prototype.addMetadata = function(key, value, namespace) {
     this.metadata[ns] = {};
   }
 
-  this.metadata[ns][key] = value;
+  if (ns !== '__proto__') {
+    this.metadata[ns][key] = value !== null && value !== undefined ? value : '';
+  }
 };
 
 /**
@@ -205,6 +217,19 @@ Segment.prototype.addNewSubsegment = function addNewSubsegment(name) {
   return subsegment;
 };
 
+Segment.prototype.addSubsegmentWithoutSampling = function addSubsegmentWithoutSampling(subsegment) {
+  this.addSubsegment(subsegment);
+  subsegment.notTraced = true;
+
+};
+
+Segment.prototype.addNewSubsegmentWithoutSampling = function addNewSubsegmentWithoutSampling(name) {
+  const subsegment = new Subsegment(name);
+  this.addSubsegment(subsegment);
+  subsegment.notTraced = true;
+  return subsegment;
+};
+
 /**
  * Adds a subsegment to the array of subsegments.
  * @param {Subsegment} subsegment - The subsegment to append.
@@ -221,12 +246,17 @@ Segment.prototype.addSubsegment = function addSubsegment(subsegment) {
 
   subsegment.segment = this;
   subsegment.parent = this;
+
+  subsegment.notTraced = subsegment.parent.notTraced;
+  subsegment.noOp = subsegment.parent.noOp;
   this.subsegments.push(subsegment);
 
   if (!subsegment.end_time) {
     this.incrementCounter(subsegment.counter);
   }
 };
+
+
 
 /**
  * Removes the subsegment from the subsegments array, used in subsegment streaming.
@@ -255,8 +285,9 @@ Segment.prototype.removeSubsegment = function removeSubsegment(subsegment) {
 
 Segment.prototype.addError = function addError(err, remote) {
   if (err == null || typeof err !== 'object' && typeof(err) !== 'string') {
-    throw new Error('Failed to add error:' + err + ' to subsegment "' + this.name +
-      '".  Not an object or string literal.');
+    logger.getLogger().error('Failed to add error:' + err + ' to subsegment "' + this.name +
+    '".  Not an object or string literal.');
+    return;
   }
 
   this.addFaultFlag();
@@ -401,11 +432,18 @@ Segment.prototype.format = function format() {
     false
   );
 
-  return JSON.stringify(thisCopy);
+  return this.serialize(thisCopy);
 };
 
 Segment.prototype.toString = function toString() {
-  return JSON.stringify(this);
+  return this.serialize();
+};
+
+Segment.prototype.serialize = function serialize(object) {
+  return JSON.stringify(
+    object ?? this,
+    SegmentUtils.getJsonStringifyReplacer()
+  );
 };
 
 module.exports = Segment;

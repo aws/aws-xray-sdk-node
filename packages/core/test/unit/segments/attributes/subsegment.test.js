@@ -6,6 +6,7 @@ var sinonChai = require('sinon-chai');
 var CapturedException = require('../../../../lib/segments/attributes/captured_exception');
 var SegmentUtils = require('../../../../lib/segments/segment_utils');
 var Subsegment = require('../../../../lib/segments/attributes/subsegment');
+var logger = require('../../../../lib/logger');
 
 chai.should();
 chai.use(sinonChai);
@@ -45,6 +46,12 @@ describe('Subsegment', function() {
       var namespace = 'hello';
       subsegment.addMetadata(key, value, 'hello');
       assert.propertyVal(subsegment.metadata[namespace], key, value);
+    });
+
+    it('should not add key value pair to metadata[namespace] if a namespace is "__proto__"', function () {
+      let namespace = '__proto__';
+      subsegment.addMetadata(key, value, namespace);
+      assert.notProperty(subsegment.metadata[namespace], key);
     });
   });
 
@@ -96,6 +103,36 @@ describe('Subsegment', function() {
     });
   });
 
+  describe('#addSubsegmentWithoutSampling', function () {
+    it('should have notTraced flag set to true', function() {
+      const subsegment = new Subsegment('test');
+      const child = new Subsegment('child');
+      subsegment.addSubsegmentWithoutSampling(child);
+
+      assert.equal(subsegment.notTraced, false);
+      assert.equal(child.notTraced, true);
+    });
+
+    it('should have notTraced flag set to true for new unsampled subsegment', function() {
+      const subsegment = new Subsegment('test');
+      const child = subsegment.addNewSubsegmentWithoutSampling('child');
+
+      assert.equal(subsegment.notTraced, false);
+      assert.equal(child.notTraced, true);
+    });
+
+    it('should respect the direct parent’s sampling decision', function() {
+      const subsegment = new Subsegment('test');
+      const child = new Subsegment('child');
+      subsegment.addSubsegmentWithoutSampling(child);
+      const child2 = child.addNewSubsegment('child2');
+
+      assert.equal(subsegment.notTraced, false);
+      assert.equal(child.notTraced, true);
+      assert.equal(child2.notTraced, true);
+    });
+  });
+
   describe('#addError', function() {
     var err, exceptionStub, sandbox, subsegment;
 
@@ -117,10 +154,12 @@ describe('Subsegment', function() {
       assert.equal(subsegment.cause.exceptions.length, 2);
     });
 
-    it('should throw an error on other types', function() {
-      assert.throws(function() {
-        subsegment.addError(3);
-      });
+    it('should accept invalid types and log an error', function() {
+      const loggerMock = sandbox.mock(logger.getLogger());
+      loggerMock.expects('error').once();
+      subsegment.addError(3);
+      loggerMock.verify();
+      assert.notEqual(subsegment.fault, true);
     });
 
     it('should set fault to true by default', function() {
@@ -136,6 +175,13 @@ describe('Subsegment', function() {
     it('should add a new captured exception', function() {
       subsegment.addError(err, true);
       exceptionStub.should.have.been.calledWithExactly(err, true);
+    });
+    it('should initialise exceptions if matching errors are passed consecutively', function () {
+      subsegment.segment = { trace_id: '1-58c835af-cf6bfe9f8f2c5b84a6d1f50c', parent_id: '12345abc3456def' };
+      subsegment.addError(err);
+      subsegment.addError(err);
+      assert.equal(subsegment.cause.exceptions.length, 0);
+      assert.notEqual(subsegment.cause.exceptions, undefined);
     });
   });
 
@@ -229,7 +275,7 @@ describe('Subsegment', function() {
   });
 
   describe('#flush', function() {
-    var child, emitStub, parent, sandbox, segment;
+    var child, emitStub, parent, sandbox, segment, unsampledChild;
     // Since SegmentEmitter is reused across tests, we need the emitStub
     // to also persist across tests
     emitStub = sinon.stub();
@@ -246,7 +292,9 @@ describe('Subsegment', function() {
       });
 
       child = parent.addNewSubsegment('child');
+      unsampledChild = parent.addNewSubsegmentWithoutSampling('unsampled-child-segment');
       child.segment = segment;
+      unsampledChild.segment = segment;
     });
 
     afterEach(function() {
@@ -254,18 +302,12 @@ describe('Subsegment', function() {
       emitStub.reset();
     });
 
-    it('should throw an error if the subsegment has no parent', function() {
+    it('should not throw an error when subsegment flushes', function() {
       delete child.parent;
-      assert.throws( function() {
-        child.flush();
-      }, Error);
-    });
-
-    it('should throw an error if the subsegment has no segment', function() {
-      delete child.segment;
-      assert.throws( function() {
-        child.flush();
-      }, Error);
+      const loggerMock = sandbox.mock(logger.getLogger());
+      loggerMock.expects('error').once();
+      child.flush();
+      loggerMock.verify();
     });
 
     it('should set the parent_id, trace_id and type properties', function() {
@@ -281,9 +323,20 @@ describe('Subsegment', function() {
       emitStub.should.have.not.been.called;
     });
 
+    it('should not send if the notTraced property evaluates to true', function() {
+      unsampledChild.flush();
+      emitStub.should.have.not.been.called;
+    });
+
     it('should send if the notTraced property evaluates to false', function() {
       child.flush();
       emitStub.should.have.been.called;
+    });
+
+    it('should stringify bigint objects correctly', function() {
+      child.addMetadata('key', BigInt(9007199254740991));
+      child.flush();
+      emitStub.should.have.been.calledOnce;
     });
   });
 

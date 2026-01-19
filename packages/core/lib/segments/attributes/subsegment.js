@@ -28,6 +28,7 @@ Subsegment.prototype.init = function init(name) {
   this.start_time = SegmentUtils.getCurrentTime();
   this.in_progress = true;
   this.counter = 0;
+  this.notTraced = false;
 };
 
 /**
@@ -37,8 +38,20 @@ Subsegment.prototype.init = function init(name) {
  */
 
 Subsegment.prototype.addNewSubsegment = function addNewSubsegment(name) {
-  var subsegment = new Subsegment(name);
+  const subsegment = new Subsegment(name);
   this.addSubsegment(subsegment);
+  return subsegment;
+};
+
+Subsegment.prototype.addSubsegmentWithoutSampling = function addSubsegmentWithoutSampling(subsegment) {
+  this.addSubsegment(subsegment);
+  subsegment.notTraced = true;
+};
+
+Subsegment.prototype.addNewSubsegmentWithoutSampling = function addNewSubsegmentWithoutSampling(name) {
+  const subsegment = new Subsegment(name);
+  this.addSubsegment(subsegment);
+  subsegment.notTraced = true;
   return subsegment;
 };
 
@@ -60,11 +73,14 @@ Subsegment.prototype.addSubsegment = function(subsegment) {
   subsegment.segment = this.segment;
   subsegment.parent = this;
 
+  subsegment.notTraced = subsegment.parent.notTraced;
+  subsegment.noOp = subsegment.parent.noOp;
+
   if (subsegment.end_time === undefined) {
     this.incrementCounter(subsegment.counter);
   }
-
   this.subsegments.push(subsegment);
+
 };
 
 /**
@@ -122,12 +138,16 @@ Subsegment.prototype.addPrecursorId = function(id) {
  */
 
 Subsegment.prototype.addAnnotation = function(key, value) {
-  if (!(typeof value === 'boolean' || typeof value === 'string' || (typeof value === 'number' && isFinite(value)))) {
-    throw new Error('Failed to add annotation key: ' + key + ' value: ' + value + ' to subsegment ' +
+  if (typeof value !== 'boolean' && typeof value !== 'string' && !isFinite(value)) {
+    logger.getLogger().error('Failed to add annotation key: ' + key + ' value: ' + value + ' to subsegment ' +
       this.name + '. Value must be of type string, number or boolean.');
-  } else if (typeof key !== 'string') {
-    throw new Error('Failed to add annotation key: ' + key + ' value: ' + value + ' to subsegment ' +
+    return;
+  }
+
+  if (typeof key !== 'string') {
+    logger.getLogger().error('Failed to add annotation key: ' + key + ' value: ' + value + ' to subsegment ' +
       this.name + '. Key must be of type string.');
+    return;
   }
 
   if (this.annotations === undefined) {
@@ -147,11 +167,15 @@ Subsegment.prototype.addAnnotation = function(key, value) {
 
 Subsegment.prototype.addMetadata = function(key, value, namespace) {
   if (typeof key !== 'string') {
-    throw new Error('Failed to add annotation key: ' + key + ' value: ' + value + ' to subsegment ' +
+    logger.getLogger().error('Failed to add metadata key: ' + key + ' value: ' + value + ' to subsegment ' +
       this.name + '. Key must be of type string.');
-  } else if (namespace && typeof namespace !== 'string') {
-    throw new Error('Failed to add annotation key: ' + key + ' value: ' + value + 'namespace: ' + namespace + ' to subsegment ' +
+    return;
+  }
+
+  if (namespace && typeof namespace !== 'string') {
+    logger.getLogger().error('Failed to add metadata key: ' + key + ' value: ' + value + ' to subsegment ' +
       this.name + '. Namespace must be of type string.');
+    return;
   }
 
   var ns = namespace || 'default';
@@ -164,7 +188,9 @@ Subsegment.prototype.addMetadata = function(key, value, namespace) {
     this.metadata[ns] = {};
   }
 
-  this.metadata[ns][key] = value;
+  if (ns !== '__proto__') {
+    this.metadata[ns][key] = value !== null && value !== undefined ? value : '';
+  }
 };
 
 Subsegment.prototype.addSqlData = function addSqlData(sqlData) {
@@ -182,8 +208,9 @@ Subsegment.prototype.addSqlData = function addSqlData(sqlData) {
 
 Subsegment.prototype.addError = function addError(err, remote) {
   if (err == null || typeof err !== 'object' && typeof(err) !== 'string') {
-    throw new Error('Failed to add error:' + err + ' to subsegment "' + this.name +
-      '".  Not an object or string literal.');
+    logger.getLogger().error('Failed to add error:' + err + ' to subsegment "' + this.name +
+    '".  Not an object or string literal.');
+    return;
   }
 
   this.addFaultFlag();
@@ -191,7 +218,7 @@ Subsegment.prototype.addError = function addError(err, remote) {
   if (this.segment && this.segment.exception) {
     if (err === this.segment.exception.ex) {
       this.fault = true;
-      this.cause = { id: this.segment.exception.cause };
+      this.cause = { id: this.segment.exception.cause, exceptions: [] };
       return;
     }
     delete this.segment.exception;
@@ -323,12 +350,13 @@ Subsegment.prototype.isClosed = function isClosed() {
 
 Subsegment.prototype.flush = function flush() {
   if (!this.parent || !this.segment) {
-    throw new Error('Failed to flush subsegment: ' + this.name + '. Subsegment must be added ' +
+    logger.getLogger().error('Failed to flush subsegment: ' + this.name + '. Subsegment must be added ' +
       'to a segment chain to flush.');
+    return;
   }
 
   if (this.segment.trace_id) {
-    if (this.segment.notTraced !== true) {
+    if (this.segment.notTraced !== true && !this.notTraced) {
       SegmentEmitter.send(this);
     } else {
       logger.getLogger().debug('Ignoring flush on subsegment ' + this.id + '. Associated segment is marked as not sampled.');
@@ -374,7 +402,7 @@ Subsegment.prototype.format = function format() {
     this.trace_id = this.segment.trace_id;
   }
 
-  return JSON.stringify(this);
+  return this.serialize();
 };
 
 /**
@@ -382,7 +410,7 @@ Subsegment.prototype.format = function format() {
  */
 
 Subsegment.prototype.toString = function toString() {
-  return JSON.stringify(this);
+  return this.serialize();
 };
 
 Subsegment.prototype.toJSON = function toJSON() {
@@ -399,6 +427,16 @@ Subsegment.prototype.toJSON = function toJSON() {
   );
 
   return thisCopy;
+};
+
+/**
+ * Returns the serialized subsegment JSON string, replacing any BigInts with strings.
+ */
+Subsegment.prototype.serialize = function serialize(object) {
+  return JSON.stringify(
+    object ?? this,
+    SegmentUtils.getJsonStringifyReplacer()
+  );
 };
 
 module.exports = Subsegment;

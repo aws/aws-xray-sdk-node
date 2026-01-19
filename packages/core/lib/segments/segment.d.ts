@@ -13,6 +13,8 @@ declare class Segment {
   subsegments?: Array<Subsegment>;
   notTraced?: boolean;
 
+  additionalTraceData?: object
+
   constructor(name: string, rootId?: string | null, parentId?: string | null);
 
   addIncomingRequestData(data: IncomingRequestData): void;
@@ -34,6 +36,10 @@ declare class Segment {
   addNewSubsegment(name: string): Subsegment;
 
   addSubsegment(subsegment: Subsegment): void;
+
+  addSubsegmentWithoutSampling(subsegment: Subsegment): void;
+
+  addNewSubsegmentWithoutSampling(name: string): Subsegment
 
   removeSubsegment(subsegment: Subsegment): void;
 
@@ -58,6 +64,8 @@ declare class Segment {
   format(): string;
 
   toString(): string;
+
+  serialize(segment?: Segment): string;
 }
 
 export = Segment;

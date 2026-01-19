@@ -13,7 +13,7 @@ EC2, ECS, and Elastic Beanstalk metadata (via plugins). Currently, [Express](htt
 applications are supported for automatic capturing via middleware. AWS Lambda functions can also be instrumented.
 
 The SDK exposes the Segment and Subsegment objects so you can create your own capturing
-mechanisms, but a few are supplied. See Capturing Function Calls below.
+mechanisms, but a few are supplied. See [Capturing Function Calls](https://github.com/aws/aws-xray-sdk-node/tree/master/packages/core#capturing-function-calls) below.
 
 ## Setup
 
@@ -22,9 +22,17 @@ mechanisms, but a few are supplied. See Capturing Function Calls below.
 The AWS X-Ray SDK has two modes: `manual` and `automatic`.
 By default, the SDK is in automatic mode. You can flip the mode of the SDK using the following:
 
-    AWSXRay.enableManualMode();
+```js
+AWSXRay.enableAutomaticMode();
 
-    AWSXRay.enableAutomaticMode();
+AWSXRay.enableManualMode();
+
+/* see https://github.com/aws/aws-xray-sdk-node/pull/595
+ for details on using this environment variable
+ to prevent memory leaks when using manual mode
+ */
+process.env.AWS_XRAY_MANUAL_MODE = 'true';
+```
 
 #### Automatic mode
 
@@ -54,12 +62,13 @@ section for different usages.
 **Environment variables always override values set in code.**
 
     AWS_XRAY_DEBUG_MODE              Enables logging of debug messages to console output. Logging to a file is no longer built in. See 'configure logging' below.
+    AWS_XRAY_MANUAL_MODE             For overriding the default automatic mode. See 'Automatic mode'.
     AWS_XRAY_TRACING_NAME            For overriding the default segment name to use
     with the middleware. See 'dynamic and fixed naming modes'.
     AWS_XRAY_DAEMON_ADDRESS          For setting the daemon address and port.
-    AWS_XRAY_CONTEXT_MISSING         For setting the SDK behavior when trace context is missing. Valid values are 'RUNTIME_ERROR', 'IGNORE_ERROR' or 'LOG_ERROR'. The SDK's default behavior is 'RUNTIME_ERROR'.
+    AWS_XRAY_CONTEXT_MISSING         For setting the SDK behavior when trace context is missing. Valid values are 'RUNTIME_ERROR', 'IGNORE_ERROR' or 'LOG_ERROR'. The SDK's default behavior is 'LOG_ERROR'.
     AWS_XRAY_LOG_LEVEL               Sets a log level for the SDK built in logger. This value is ignored if AWS_XRAY_DEBUG_MODE is set.
-    AWS_XRAY_COLLECT_SQL_QUERIES     Enables SQL query capture (currently only Postgres supported)
+    AWS_XRAY_COLLECT_SQL_QUERIES     Enables SQL query capture (currently only Postgres and MySQL supported)
 
 ### Daemon configuration
 
@@ -399,6 +408,70 @@ var newSubseg = new Subsegment(name);
 subsegment.addSubsegment(newSubseg);
 // Do something
 newSubseg.close();
+```
+
+### Oversampling Mitigation 
+To modify the sampling decision at the subsegment level, subsegments that inherit the decision of their direct parent (segment or subsegment) can be created using the `addNewSubsegment` and `addSubsegment` APIs, and unsampled subsegments can be created using the `addNewSubsegmentWithoutSampling` and `addSubsegmentWithoutSampling` APIs. 
+
+The code snippet below demonstrates creating a sampled or unsampled subsegment based on the sampling decision of each SQS message processed by Lambda.
+
+```js
+exports.handler = async function(event, context) { 
+    event.Records.forEach(message => {
+
+        const { attributes } = message;
+        let facade = xrayContext.getSegment();
+
+        if(SqsMessageHelper.isSampled(message)){
+          
+          let sampledSubsegment = facade.addNewSubsegment('sqs-subsegment-sampled');
+          xrayContext.setSegment(sampledSubsegment);
+          console.log("processing SQS message - sampled");
+          sampledSubsegment.close();
+
+        } else {
+          let unsampledSubsegment = facade.addNewSubsegmentWithoutSampling('sqs-subsegment-unsampled');
+          xrayContext.setSegment(unsampledSubsegment);
+          console.log("processing SQS message - unsampled");
+          unsampledSubsegment.close();
+        }
+
+        xrayContext.setSegment(facade);
+    });
+
+    return 'Success';
+}
+```
+
+The code snippet below demonstrates wrapping a downstream AWS SDK request with an unsampled subsegment.
+```js
+const { Segment } = require('aws-xray-sdk');
+const xray = require('aws-xray-sdk');
+ 
+// Instrument AWS SDK Clients
+const AWS = xray.captureAWS(require('aws-sdk'));
+ 
+exports.handler = async (event, context) => {
+  const facade = xray.getSegment();
+ 
+  // Create a not-sampled subsegment, which will coerce the downstream request to be unsampled
+  const unsampled = facade.addNewSubsegmentWithoutSampling('sqs-subsegment-unsampled');
+ 
+  // Set unsampled subsegment in context
+  xray.setSegment(unsampled);
+ 
+  try {
+    const sqs = new AWS.SQS();
+    const data = await sqs.listQueues().promise();
+    console.log(data);
+  } catch (error) {
+    console.log("retrieveFromSqs error:", error);
+    throw error;
+  }
+  unsampled.close();
+  return 'Success';
+}
+
 ```
 
 ## Automatic Mode Examples

@@ -111,12 +111,6 @@ function captureQuery() {
 
       var errorCapturer = function (err) {
         subsegment.close(err);
-
-        // TODO: Remove this logic once Node 10 is deprecated
-        if (!events.errorMonitor && this.listenerCount('error') <= 1) {
-          this.removeListener('error', errorCapturer);
-          this.emit('error', err);
-        }
       };
 
       query.on(events.errorMonitor || 'error', errorCapturer);
@@ -132,7 +126,7 @@ function createSqlData(connParams, query) {
   var queryType = query.name ? PREPARED : undefined;
 
   var data = new SqlData(DATABASE_VERS, DRIVER_VERS, connParams.user,
-    connParams.host + ':' + connParams.port + '/' + connParams.database,
+    'postgresql://' + connParams.host + ':' + connParams.port + '/' + connParams.database,
     queryType);
   if (process.env.AWS_XRAY_COLLECT_SQL_QUERIES) {
     data.sanitized_query = query.text;

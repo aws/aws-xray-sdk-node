@@ -4,6 +4,7 @@ var sinon = require('sinon');
 var sinonChai = require('sinon-chai');
 
 var AWSXRay = require('aws-xray-sdk-core');
+var EventEmitter = require('events').EventEmitter;
 
 var captureMySQL = require('../../lib/mysql_p');
 var Segment = AWSXRay.Segment;
@@ -33,6 +34,55 @@ describe('captureMySQL', function() {
       assert.equal(patched.createConnection.name, 'patchedCreateConnection');
       assert.equal(patched.createPool.name, 'patchedCreatePool');
       assert.equal(patched.createPoolCluster.name, 'patchedCreatePoolCluster');
+    });
+
+    describe('handles mysql2 quirks', function() {
+      var conn, connectionObj, mysql,  sandbox, segment;
+
+      // See https://github.com/sidorares/node-mysql2/blob/dbb344e89a1cc8bb457b24e67b07cdb3013fe844/lib/commands/query.js#L38-L44
+      class Query extends EventEmitter {
+        then() {
+          throw new Error('You have tried to call .then(), .catch(), or invoked await on the result of query that is not a promise [...]');
+        }
+      }
+
+      before(function() {
+        conn = {
+          config: {
+            user: 'mcmuls',
+            host: 'database.location',
+            port: '8080',
+            database: 'myTestDb'
+          },
+          query: function() {
+            return new Query();
+          }
+        };
+
+        mysql = { createConnection: function() {
+          return conn;
+        } };
+        mysql = captureMySQL(mysql);
+        connectionObj = mysql.createConnection();
+      });
+
+      beforeEach(function() {
+        sandbox = sinon.createSandbox();
+        segment = new Segment('test');
+        segment.addNewSubsegment('testSub');
+
+        sandbox = sinon.createSandbox();
+        sandbox.stub(AWSXRay, 'getSegment').returns(segment);
+        sandbox.stub(AWSXRay, 'isAutomaticMode').returns(true);
+      });
+
+      afterEach(function() {
+        sandbox.restore();
+      });
+
+      it('should not call fake .then() on mysql2 Query class', function() {
+        (() => connectionObj.query()).should.not.throw();
+      });
     });
   });
 
@@ -91,10 +141,10 @@ describe('captureMySQL', function() {
         var stubDataInit = sandbox.stub(SqlData.prototype, 'init');
         var config = conn.config;
 
-        query.call(connectionObj, 'sql here');
+        query.call(connectionObj, 'sql here', [1]);
 
         stubDataInit.should.have.been.calledWithExactly(undefined, undefined, config.user,
-          config.host + ':' + config.port + '/' + config.database, 'statement');
+          'mysql://' + config.host + ':' + config.port + '/' + config.database, 'statement');
         stubAddSql.should.have.been.calledWithExactly(sinon.match.instanceOf(SqlData));
       });
 
@@ -197,6 +247,34 @@ describe('captureMySQL', function() {
           done();
         }, 50);
       });
+      it('should add query to the subsegments sql data when AWS_XRAY_COLLECT_SQL_QUERIES is truthy', function () {
+        sandbox.stub(process, 'env').value({ ...AWSXRay, 'AWS_XRAY_COLLECT_SQL_QUERIES': true });
+        var stubAddSql = sandbox.stub(subsegment, 'addSqlData');
+        var stubDataInit = sandbox.stub(SqlData.prototype, 'init');
+        var conParam = connectionObj.config;
+
+        query.call(connectionObj, 'sql here', [1]);
+
+        stubDataInit.should.have.been.calledWithExactly(process.env.MYSQL_DATABASE_VERSION, process.env.MYSQL_DRIVER_VERSION,
+          conParam.user, 'mysql://' + conParam.host + ':' + conParam.port + '/' + conParam.database, 'statement');
+        stubAddSql.should.have.been.calledWithExactly(sinon.match.instanceOf(SqlData));
+        stubAddSql.should.have.been.calledWithExactly(sinon.match.has('sanitized_query', 'sql here'));
+      });
+      it('should NOT add query to the subsegments sql data when AWS_XRAY_COLLECT_SQL_QUERIES is not set', function () {
+        sandbox.stub(process, 'env').value({ ...AWSXRay, 'AWS_XRAY_COLLECT_SQL_QUERIES': undefined });
+        var stubAddSql = sandbox.stub(subsegment, 'addSqlData');
+        var stubDataInit = sandbox.stub(SqlData.prototype, 'init');
+        var conParam = connectionObj.config;
+
+        query.call(connectionObj, 'sql here', [1]);
+
+        stubDataInit.should.have.been.calledWithExactly(process.env.MYSQL_DATABASE_VERSION, process.env.MYSQL_DRIVER_VERSION,
+          conParam.user, 'mysql://' + conParam.host + ':' + conParam.port + '/' + conParam.database, 'statement');
+        stubAddSql.should.have.been.calledWithExactly(sinon.match.instanceOf(SqlData));
+        sinon.assert.match(sinon.match, {
+          'sanitized_query': undefined
+        });
+      });
     });
   });
 
@@ -271,7 +349,7 @@ describe('captureMySQL', function() {
 
         resolvedConn.query('sql here').then(function() {
           stubDataInit.should.have.been.calledWithExactly(undefined, undefined, config.user,
-            config.host + ':' + config.port + '/' + config.database, 'statement');
+            'mysql://' + config.host + ':' + config.port + '/' + config.database, 'statement');
           stubAddSql.should.have.been.calledWithExactly(sinon.match.instanceOf(SqlData));
         });
       });
@@ -294,7 +372,6 @@ describe('captureMySQL', function() {
           stubClose.should.have.been.calledWithExactly(err);
         });
       });
-
     });
   });
 
@@ -380,10 +457,10 @@ describe('captureMySQL', function() {
         var stubDataInit = sandbox.stub(SqlData.prototype, 'init');
         var config = conn.config;
 
-        query.call(connectionObj, 'sql here');
+        query.call(connectionObj, 'sql here', [1]);
 
         stubDataInit.should.have.been.calledWithExactly(undefined, undefined, config.user,
-          config.host + ':' + config.port + '/' + config.database, 'statement');
+          'mysql://' + config.host + ':' + config.port + '/' + config.database, 'statement');
         stubAddSql.should.have.been.calledWithExactly(sinon.match.instanceOf(SqlData));
       });
 
@@ -476,10 +553,10 @@ describe('captureMySQL', function() {
         var stubDataInit = sandbox.stub(SqlData.prototype, 'init');
         var config = conn.config;
 
-        query.call(connectionObj, 'sql here');
+        query.call(connectionObj, 'sql here', [1]);
 
         stubDataInit.should.have.been.calledWithExactly(undefined, undefined, config.user,
-          config.host + ':' + config.port + '/' + config.database, 'statement');
+          'mysql://' + config.host + ':' + config.port + '/' + config.database, 'statement');
         stubAddSql.should.have.been.calledWithExactly(sinon.match.instanceOf(SqlData));
       });
 
@@ -623,10 +700,10 @@ describe('captureMySQL', function() {
         var stubDataInit = sandbox.stub(SqlData.prototype, 'init');
         var config = conn.config;
 
-        query.call(connectionObj, 'sql here');
+        query.call(connectionObj, 'sql here', [1]);
 
         stubDataInit.should.have.been.calledWithExactly(undefined, undefined, config.user,
-          config.host + ':' + config.port + '/' + config.database, 'statement');
+          'mysql://' + config.host + ':' + config.port + '/' + config.database, 'statement');
         stubAddSql.should.have.been.calledWithExactly(sinon.match.instanceOf(SqlData));
       });
 

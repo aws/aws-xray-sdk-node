@@ -6,6 +6,8 @@ export function getNamespace(): Namespace;
 
 export function resolveSegment(segment?: Segment | Subsegment | null): Segment | Subsegment | undefined;
 
+export function resolveManualSegmentParams(segment?: Segment | Subsegment | null): Segment | Subsegment | undefined;
+
 export function getSegment(): Segment | Subsegment | undefined;
 
 export function setSegment(segment: Segment | Subsegment): void;

@@ -124,6 +124,7 @@ describe('AWS patcher', function() {
       awsRequest.emitter = new MyEmitter();
 
       segment = new Segment('testSegment', traceId);
+      segment.additionalTraceData = {'Foo': 'bar'};
       sub = segment.addNewSubsegment('subseg');
 
       stubResolveManual = sandbox.stub(contextUtils, 'resolveManualSegmentParams');
@@ -161,7 +162,7 @@ describe('AWS patcher', function() {
       awsRequest.emitter.emit('build');
 
       setTimeout(function() {
-        var expected = new RegExp('^Root=' + traceId + ';Parent=' + sub.id + ';Sampled=1$');
+        var expected = new RegExp('^Root=' + traceId + ';Parent=' + sub.id + ';Sampled=1' + ';Foo=bar$');
         assert.match(awsRequest.httpRequest.headers['X-Amzn-Trace-Id'], expected);
         done();
       }, 50);
@@ -258,5 +259,181 @@ describe('AWS patcher', function() {
         done();
       }, 50);
     });
+  });
+
+
+  describe('#captureAWSRequest-Unsampled', function() {
+    var awsClient, awsRequest, MyEmitter, sandbox, segment, stubResolve, addNewSubsegmentStub, sub, addNewServiceSubsegmentStub, service;
+
+    before(function() {
+      MyEmitter = function() {
+        EventEmitter.call(this);
+      };
+
+      awsClient = {
+        customizeRequests: function customizeRequests(captureAWSRequest) {
+          this.call = captureAWSRequest;
+        },
+        throttledError: function throttledError() {}
+      };
+      awsClient = awsPatcher.captureAWSClient(awsClient);
+
+      util.inherits(MyEmitter, EventEmitter);
+    });
+
+    beforeEach(function() {
+      sandbox = sinon.createSandbox();
+
+      awsRequest = {
+        httpRequest: {
+          method: 'GET',
+          url: '/',
+          connection: {
+            remoteAddress: 'localhost'
+          },
+          headers: {}
+        },
+        response: {}
+      };
+
+      awsRequest.on = function(event, fcn) {
+        if (event === 'complete') {
+          this.emitter.on(event, fcn.bind(this, this.response));
+        } else {
+          this.emitter.on(event, fcn.bind(this, this));
+        }
+        return this;
+      };
+
+      awsRequest.emitter = new MyEmitter();
+
+      segment = new Segment('testSegment', traceId);
+      segment.additionalTraceData = {'Foo': 'bar'};
+      sub = segment.addNewSubsegmentWithoutSampling('subseg');
+      service = sub.addNewSubsegmentWithoutSampling('service');
+
+      stubResolve = sandbox.stub(contextUtils, 'resolveSegment').returns(sub);
+      addNewSubsegmentStub = sandbox.stub(segment, 'addNewSubsegmentWithoutSampling').returns(sub);
+      addNewServiceSubsegmentStub = sandbox.stub(sub, 'addNewSubsegmentWithoutSampling').returns(service);
+    });
+
+    afterEach(function() {
+      sandbox.restore();
+    });
+
+    it('should log an info statement and exit if parent is not found on the context or on the call params', function(done) {
+      stubResolve.returns();
+      var logStub = sandbox.stub(logger, 'info');
+
+      awsClient.call(awsRequest);
+
+      setTimeout(function() {
+        logStub.should.have.been.calledOnce;
+        done();
+      }, 50);
+    });
+
+    it('should inject the tracing headers', function(done) {
+      sandbox.stub(contextUtils, 'isAutomaticMode').returns(true);
+
+      awsClient.call(awsRequest);
+
+      awsRequest.emitter.emit('build');
+
+      setTimeout(function() {
+        var expected = new RegExp('^Root=' + traceId + ';Parent=' + service.id + ';Sampled=0' + ';Foo=bar$');
+        assert.match(awsRequest.httpRequest.headers['X-Amzn-Trace-Id'], expected);
+        done();
+      }, 50);
+    });
+
+  });
+
+
+  describe('#captureAWSRequest-PassThrough-Header', function() {
+    var awsClient, awsRequest, MyEmitter, sandbox, segment, stubResolve, addNewSubsegmentStub, sub, addNewServiceSubsegmentStub, service;
+
+    before(function() {
+      MyEmitter = function() {
+        EventEmitter.call(this);
+      };
+
+      awsClient = {
+        customizeRequests: function customizeRequests(captureAWSRequest) {
+          this.call = captureAWSRequest;
+        },
+        throttledError: function throttledError() {}
+      };
+      awsClient = awsPatcher.captureAWSClient(awsClient);
+
+      util.inherits(MyEmitter, EventEmitter);
+    });
+
+    beforeEach(function() {
+      sandbox = sinon.createSandbox();
+
+      awsRequest = {
+        httpRequest: {
+          method: 'GET',
+          url: '/',
+          connection: {
+            remoteAddress: 'localhost'
+          },
+          headers: {}
+        },
+        response: {}
+      };
+
+      awsRequest.on = function(event, fcn) {
+        if (event === 'complete') {
+          this.emitter.on(event, fcn.bind(this, this.response));
+        } else {
+          this.emitter.on(event, fcn.bind(this, this));
+        }
+        return this;
+      };
+
+      awsRequest.emitter = new MyEmitter();
+
+      segment = new Segment('testSegment', traceId);
+      segment.noOp = true; // enforce passthrough behaviour
+      segment.additionalTraceData = {'Foo': 'bar'};
+      sub = segment.addNewSubsegmentWithoutSampling('subseg');
+      service = sub.addNewSubsegmentWithoutSampling('service');
+
+      stubResolve = sandbox.stub(contextUtils, 'resolveSegment').returns(sub);
+      addNewSubsegmentStub = sandbox.stub(segment, 'addNewSubsegmentWithoutSampling').returns(sub);
+      addNewServiceSubsegmentStub = sandbox.stub(sub, 'addNewSubsegmentWithoutSampling').returns(service);
+    });
+
+    afterEach(function() {
+      sandbox.restore();
+    });
+
+    it('should log an info statement and exit if parent is not found on the context or on the call params', function(done) {
+      stubResolve.returns();
+      var logStub = sandbox.stub(logger, 'info');
+
+      awsClient.call(awsRequest);
+
+      setTimeout(function() {
+        logStub.should.have.been.calledOnce;
+        done();
+      }, 50);
+    });
+
+    it('should not inject the tracing headers if passthrough mode', function(done) {
+      sandbox.stub(contextUtils, 'isAutomaticMode').returns(true);
+
+      awsClient.call(awsRequest);
+
+      awsRequest.emitter.emit('build');
+
+      setTimeout(function() {
+        assert.equal(awsRequest.httpRequest.headers['X-Amzn-Trace-Id'], undefined);
+        done();
+      }, 50);
+    });
+
   });
 });

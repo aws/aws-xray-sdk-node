@@ -106,8 +106,8 @@ var utils = {
       }
     }
 
-    if (amznTraceHeader.sampled === '?') {
-      res.header[XRAY_HEADER] = 'Root=' + amznTraceHeader.root + ';Sampled=' + (isSampled ? '1' : '0');
+    if (amznTraceHeader.sampled === '?' && res.header) {
+      res.header(XRAY_HEADER, 'Root=' + amznTraceHeader.root + ';Sampled=' + (isSampled ? '1' : '0'));
     }
 
     if (!isSampled) {
@@ -172,8 +172,10 @@ var utils = {
     var name = this.resolveName(req.headers.host);
     var segment = new Segment(name, amznTraceHeader.root, amznTraceHeader.parent);
 
-    var responseWithEmbeddedRequest = Object.assign({}, res, { req: req });
-    this.resolveSampling(amznTraceHeader, segment, responseWithEmbeddedRequest);
+    if (!res.req) {
+      res.req = req;
+    }
+    this.resolveSampling(amznTraceHeader, segment, res);
 
     segment.addIncomingRequestData(new IncomingRequestData(req));
 

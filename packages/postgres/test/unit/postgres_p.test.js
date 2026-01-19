@@ -86,7 +86,7 @@ describe('capturePostgres', function() {
       query.call(postgres, 'sql here');
 
       stubDataInit.should.have.been.calledWithExactly(undefined, undefined, conParam.user,
-        conParam.host + ':' + conParam.port + '/' + conParam.database, undefined);
+        'postgresql://' + conParam.host + ':' + conParam.port + '/' + conParam.database, undefined);
       stubAddSql.should.have.been.calledWithExactly(sinon.match.instanceOf(SqlData));
     });
 
@@ -100,7 +100,7 @@ describe('capturePostgres', function() {
       query.call(postgres, 'sql here');
 
       stubDataInit.should.have.been.calledWithExactly(undefined, undefined, conParam.user,
-        conParam.host + ':' + conParam.port + '/' + conParam.database, undefined);
+        'postgresql://' + conParam.host + ':' + conParam.port + '/' + conParam.database, undefined);
       stubAddSql.should.have.been.calledWithExactly(sinon.match.instanceOf(SqlData));
       stubAddSql.should.have.been.calledWithExactly(sinon.match.has('sanitized_query', 'sql statement here'));
     });
@@ -227,7 +227,7 @@ describe('capturePostgres', function() {
       query.call(postgres, 'sql here');
 
       stubDataInit.should.have.been.calledWithExactly(undefined, undefined, conParam.user,
-        conParam.host + ':' + conParam.port + '/' + conParam.database, undefined);
+        'postgresql://' + conParam.host + ':' + conParam.port + '/' + conParam.database, undefined);
       stubAddSql.should.have.been.calledWithExactly(sinon.match.instanceOf(SqlData));
     });
 

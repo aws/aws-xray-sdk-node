@@ -33,13 +33,26 @@ module.exports = function captureMySQL(mysql) {
   return mysql;
 };
 
+function isPromise(maybePromise) {
+  if (maybePromise != null && maybePromise.then instanceof Function) {
+    // mysql2 has a `Query` class with a `then` method which always throws an error when called.
+    // We want to avoid calling this, so we need to check for more than just the presence of a `then` method.
+    // See https://github.com/sidorares/node-mysql2/blob/dbb344e89a1cc8bb457b24e67b07cdb3013fe844/lib/commands/query.js#L38-L44
+    // Since it's highly unlikely that any Promise implementation would name their class `Query`,
+    // we can safely use this to determine whether or not this is actually a Promise.
+    const constructorName = maybePromise.constructor != null ? maybePromise.constructor.name : undefined;
+    return constructorName !== 'Query';
+  }
+  return false;
+}
+
 function patchCreateConnection(mysql) {
   var baseFcn = '__createConnection';
   mysql[baseFcn] = mysql['createConnection'];
 
   mysql['createConnection'] = function patchedCreateConnection() {
     var connection = mysql[baseFcn].apply(connection, arguments);
-    if (connection && connection.then instanceof Function) {
+    if (isPromise(connection)) {
       connection = connection.then((result) => {
         patchObject(result.connection);
         return result;
@@ -57,7 +70,7 @@ function patchCreatePool(mysql) {
 
   mysql['createPool'] = function patchedCreatePool() {
     var pool = mysql[baseFcn].apply(pool, arguments);
-    if (pool && pool.then instanceof Function) {
+    if (isPromise(pool)) {
       pool = pool.then((result) => {
         patchObject(result.pool);
         return result;
@@ -112,7 +125,7 @@ function patchGetConnection(pool) {
     }
 
     var result = pool[baseFcn].apply(pool, args);
-    if (result && result.then instanceof Function) {
+    if (isPromise(result)) {
       return result.then(patchObject);
     } else {
       return result;
@@ -224,20 +237,12 @@ function captureOperation(name) {
     if (!args.callback) {
       var errorCapturer = function (err) {
         subsegment.close(err);
-
-        // TODO: Remove this logic once Node 10 is deprecated
-        if (!events.errorMonitor && this.listenerCount('error') <= 1) {
-          this.removeListener('error', errorCapturer);
-          this.emit('error', err);
-        }
       };
 
-      if (command.then instanceof Function) {
+      if (isPromise(command)) {
         command.then(() => {
           subsegment.close();
-        });
-
-        command.catch(errorCapturer);
+        }).catch (errorCapturer);
       } else {
         command.on('end', function() {
           subsegment.close();
@@ -247,19 +252,32 @@ function captureOperation(name) {
       }
     }
 
-    subsegment.addSqlData(createSqlData(config, command));
+    subsegment.addSqlData(createSqlData(config, args.values, args.sql));
     subsegment.namespace = 'remote';
 
     return command;
   };
 }
 
-function createSqlData(config, command) {
-  var commandType = command.values ? PREPARED : null;
-
+/**
+ * Generate a SQL data object.  Note that this implementation differs from
+ * that in postgres_p.js because the posgres client structures commands
+ * and prepared statements differently than mysql/mysql2.
+ *
+ * @param {object} config
+ * @param {any} values
+ * @param {string} sql
+ * @returns SQL data object
+ */
+function createSqlData(config, values, sql) {
+  var commandType = values ? PREPARED : null;
   var data = new SqlData(DATABASE_VERS, DRIVER_VERS, config.user,
-    config.host + ':' + config.port + '/' + config.database,
+    'mysql://' + config.host + ':' + config.port + '/' + config.database,
     commandType);
+
+  if (process.env.AWS_XRAY_COLLECT_SQL_QUERIES && sql) {
+    data.sanitized_query = sql;
+  }
 
   return data;
 }

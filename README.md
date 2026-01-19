@@ -2,11 +2,30 @@
 
 # AWS X-Ray SDK for Node.js
 
+## :mega: Upcoming Maintenance Mode on February 25, 2026
+
+[The AWS X-Ray SDKs will enter maintenance mode on **`February 25, 2026`**][xray-sdk-daemon-timeline]. During maintenance mode, the X-Ray SDKs and Daemon will only receive critical bug fixes and security updates, and will not be updated to support new features.
+
+We recommend that you migrate to [AWS Distro for OpenTelemetry (ADOT) or OpenTelemetry Instrumentation][xray-otel-migration-docs] to generate traces (through manual or zero-code instrumentation) from your application and send them to AWS X-Ray. OpenTelemetry is the industry-wide standard for tracing instrumentation and observability. It has a large open-source community for support and provides more instrumentations and updates. By adopting an OpenTelemetry solution, developers can leverage the latest services and innovations from AWS CloudWatch.
+
+[xray-otel-migration-docs]: https://docs.aws.amazon.com/xray/latest/devguide/xray-sdk-migration.html
+[xray-sdk-daemon-timeline]: https://docs.aws.amazon.com/xray/latest/devguide/xray-daemon-eos.html
+
+-------------------------------------
+
+### OpenTelemetry JavaScript with AWS X-Ray
+
+AWS X-Ray supports using OpenTelemetry JavaScript and the AWS Distro for OpenTelemetry (ADOT) Collector to instrument your application and send trace data to X-Ray. The OpenTelemetry SDKs are an industry-wide standard for tracing instrumentation. They provide more instrumentations and have a larger community for support, but may not have complete feature parity with the X-Ray SDKs. See [choosing between the ADOT and X-Ray SDKs](https://docs.aws.amazon.com/xray/latest/devguide/xray-instrumenting-your-app.html#xray-instrumenting-choosing) for more help with choosing between the two.
+
+If you want additional features when tracing your Node.js applications, please [open an issue on the OpenTelemetry JS Instrumentation repository](https://github.com/open-telemetry/opentelemetry-js-contrib/issues/new?labels=enhancement&template=feature_request.md&title=X-Ray%20Compatible%20Feature%20Request).
+
+-------------------------------------
+
 ![Screenshot of the AWS X-Ray console](/images/example_servicemap.png?raw=true)
 
 ## Installing
 
-The AWS X-Ray SDK for Node.js is compatible with Node.js version 10.x and later.
+The AWS X-Ray SDK for Node.js is compatible with Node.js version 14.x and later.
 There may be issues when running on the latest odd-numbered release of Node.js.
 
 The latest stable version of the SDK is available from NPM. For local development, install the SDK in your project directory with npm.
@@ -89,7 +108,7 @@ AWS will not:
 
 ## Testing from Source
 
-This repo uses [Lerna](https://lernajs.io) to manage multiple packages. To install Lerna as a CLI:
+This repo uses [Lerna](https://lerna.js.org) (use v6 or lower) to manage multiple packages. To install Lerna as a CLI:
 ```
 npm install -g lerna
 ```

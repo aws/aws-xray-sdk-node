@@ -67,6 +67,14 @@ var utils = {
       ret.content_length = safeParseInt(res.headers['content-length']);
     }
     return ret;
+  },
+
+  getJsonStringifyReplacer: () => (_, value) => {
+    if (typeof value === 'bigint') {
+      return value.toString();
+    }
+
+    return value;
   }
 };
 
