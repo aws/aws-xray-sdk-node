@@ -9,7 +9,7 @@
     }
   },
   "devDependencies": {
-    "@hapi/hapi": "^20.0.0",
+    "@hapi/hapi": "^21.4.8",
     "@smithy/config-resolver": "^3.0.5",
     "@smithy/middleware-stack": "^3.0.3",
     "@smithy/node-config-provider": "^3.1.4",
