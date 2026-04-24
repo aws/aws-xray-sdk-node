@@ -22,44 +22,47 @@ Manual mode requires that you pass around the segment reference. See the example
 ### Lambda Example
 
 ```js
-var AWSXRay = require('aws-xray-sdk');
-var pg = AWSXRay.capturePostgres(require('pg'));
+import AWSXRay from 'aws-xray-sdk';
+import pg from 'pg';
+
+const tracedPg = AWSXRay.capturePostgres(pg);
 
 ...
 
-exports.handler = function (event, context, callback) {
+export const handler = async (event, context) => {
+  const client = new tracedPg.Client();
   // Make postgres queries normally
-}
+};
 ```
 
 ### Automatic mode example
 
 ```js
-var AWSXRay = require('aws-xray-sdk-core');
-var capturePostgres = require('aws-xray-sdk-postgres');
+import capturePostgres from 'aws-xray-sdk-postgres';
+import pg from 'pg';
 
-var pg = capturePostgres(require('pg'));
+const tracedPg = capturePostgres(pg);
 
 ...
 
-var client = new pg.Client();
+const client = new tracedPg.Client();
 
 client.connect(function (err) {
   ...
 
-  client.query({name: 'moop', text: 'SELECT $1::text as name'}, ['brianc'], function (err, result) {
+  client.query({name: 'get-name', text: 'SELECT $1::text as name'}, ['example'], function (err, result) {
     //Automatically captures query information and errors (if any)
   });
 });
 
 ...
 
-var pool = new pg.Pool(config);
+const pool = new tracedPg.Pool(config);
 pool.connect(function(err, client, done) {
   if(err) {
     return console.error('error fetching client from pool', err);
   }
-  var query = client.query('SELECT * FROM mytable', function(err, result) {
+  const query = client.query('SELECT * FROM mytable', function(err, result) {
     //Automatically captures query information and errors (if any)
   });
 });
@@ -68,32 +71,64 @@ pool.connect(function(err, client, done) {
 ### Manual mode example
 
 ```js
-var AWSXRay = require('aws-xray-sdk-core');
-var capturePostgres = require('aws-xray-sdk-postgres');
+import AWSXRay from 'aws-xray-sdk-core';
+import capturePostgres from 'aws-xray-sdk-postgres';
+import pg from 'pg';
 
-var pg = capturePostgres(require('pg'));
+const tracedPg = capturePostgres(pg);
 
 ...
 
-var client = new pg.Client();
+const segment = AWSXRay.getSegment();
+const client = new tracedPg.Client();
 
 client.connect(function (err) {
   ...
 
-  client.query({name: 'moop', text: 'SELECT $1::text as name'}, ['mcmuls'], function (err, result) {
-    //Automatically captures query information and errors (if any)
-  });
+  client.query(
+    {name: 'get-name', text: 'SELECT $1::text as name'},
+    ['example'],
+    function (err, result) {
+      //Captures query information and errors (if any) on the provided segment
+    },
+    segment
+  );
 });
 
 ...
 
-var pool = new pg.Pool(config);
+const pool = new tracedPg.Pool(config);
 pool.connect(function(err, client, done) {
   if(err) {
     return console.error('error fetching client from pool', err);
   }
-  var query = client.query('SELECT * FROM mytable', function(err, result) {
-    //Automatically captures query information and errors (if any)
-  }, segment));
-};
+  const query = client.query('SELECT * FROM mytable', function(err, result) {
+    //Captures query information and errors (if any) on the provided segment
+  }, segment);
+});
+```
+
+### TypeScript example
+
+```ts
+import * as AWSXRay from 'aws-xray-sdk-core';
+import * as PG from 'pg';
+import { capturePostgres } from 'aws-xray-sdk-postgres';
+
+const pg = capturePostgres(PG);
+const segment = AWSXRay.getSegment();
+const client = new pg.Client();
+
+client.connect((err: Error) => {
+  ...
+
+  client.query(
+    { name: 'get-name', text: 'SELECT $1::text as name' },
+    ['example'],
+    (err: Error, result: PG.QueryResult) => {
+      //Captures query information and errors (if any)
+    },
+    segment
+  );
+});
 ```
