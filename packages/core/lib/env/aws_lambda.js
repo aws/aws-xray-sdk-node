@@ -11,7 +11,44 @@ const TraceID = require('../segments/attributes/trace_id');
  * @namespace
  * @ignore
  */
-var xAmznTraceIdPrev = null;
+// Weak keys let completed invocations (and their tracing state) be collected.
+var invocationContexts = new WeakMap();
+
+module.exports.getInvocationContext = function getInvocationContext() {
+  var invokeStore = globalThis.awslambda?.InvokeStore;
+  var invocation = invokeStore?.getContext?.();
+  if (!invocation) {
+    return;
+  }
+
+  var context = invocationContexts.get(invocation);
+  if (!context) {
+    var segment = facadeSegment(invokeStore.getXRayTraceId() ?? process.env._X_AMZN_TRACE_ID);
+    var segments = new WeakMap();
+    context = {
+      getSegment: function(active) {
+        // CLS child contexts inherit their parent's segment. Keep those slots
+        // inside the invocation, including the shared Lambda bootstrap context.
+        while (active) {
+          if (segments.has(active)) {
+            return segments.get(active);
+          }
+          active = Object.getPrototypeOf(active);
+        }
+        return segment;
+      },
+      setSegment: function(active, current) {
+        if (active) {
+          segments.set(active, current);
+        } else {
+          segment = current;
+        }
+      }
+    };
+    invocationContexts.set(invocation, context);
+  }
+  return context;
+};
 
 /**
 * Used to initialize segments on AWS Lambda with extra data from the context.
@@ -35,14 +72,16 @@ module.exports.init = function init() {
 
   var namespace = contextUtils.getNamespace();
   namespace.enter(namespace.createContext());
-  contextUtils.setSegment(facadeSegment());
+  // Initialize only the legacy slot, even if the SDK is loaded in a handler.
+  // Invocation state is created lazily from InvokeStore by get/setSegment.
+  namespace.set('segment', facadeSegment(process.env._X_AMZN_TRACE_ID));
 };
 
-var facadeSegment = function facadeSegment() {
+var facadeSegment = function facadeSegment(xAmznTraceId) {
   var segment = new Segment('facade');
   var whitelistFcn = ['addNewSubsegment', 'addSubsegment', 'removeSubsegment', 'toString', 'addSubsegmentWithoutSampling', 'addNewSubsegmentWithoutSampling'];
   var silentFcn = ['incrementCounter', 'decrementCounter', 'isClosed', 'close', 'format', 'flush'];
-  var xAmznTraceId = process.env._X_AMZN_TRACE_ID;
+  var xAmznTraceIdPrev = null;
 
   for (var key in segment) {
     if (typeof segment[key] === 'function' && whitelistFcn.indexOf(key) === -1) {

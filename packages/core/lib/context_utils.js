@@ -95,7 +95,9 @@ var contextUtils = {
 
   getSegment: function getSegment() {
     if (cls_mode) {
-      var segment = contextUtils.getNamespace(NAMESPACE).get(SEGMENT);
+      var namespace = contextUtils.getNamespace(NAMESPACE);
+      var invocation = process.env.LAMBDA_TASK_ROOT && require('./env/aws_lambda').getInvocationContext();
+      var segment = invocation ? invocation.getSegment(namespace.active) : namespace.get(SEGMENT);
 
       if (!segment) {
         contextUtils.contextMissingStrategy.contextMissing('Failed to get the current sub/segment from the context.');
@@ -118,7 +120,11 @@ var contextUtils = {
 
   setSegment: function setSegment(segment) {
     if (cls_mode) {
-      if (!contextUtils.getNamespace(NAMESPACE).set(SEGMENT, segment)) {
+      var namespace = contextUtils.getNamespace(NAMESPACE);
+      var invocation = process.env.LAMBDA_TASK_ROOT && require('./env/aws_lambda').getInvocationContext();
+      if (invocation) {
+        invocation.setSegment(namespace.active, segment);
+      } else if (!namespace.set(SEGMENT, segment)) {
         logger.getLogger().warn('Failed to set the current sub/segment on the context.');
       }
     } else {

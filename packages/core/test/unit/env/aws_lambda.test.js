@@ -44,7 +44,8 @@ describe('AWSLambda', function () {
     sandbox = sinon.createSandbox();
     sandbox.stub(contextUtils, 'getNamespace').returns({
       enter: function () { },
-      createContext: function () { }
+      createContext: function () { },
+      set: function () { }
     });
   });
 
@@ -61,7 +62,7 @@ describe('AWSLambda', function () {
       disableCentralizedSamplingStub = sandbox.stub(mwUtils, 'disableCentralizedSampling');
       validateStub = sandbox.stub(LambdaUtils, 'validTraceData').returns(true);
       populateStub = sandbox.stub(LambdaUtils, 'populateTraceData').returns(true);
-      setSegmentStub = sandbox.stub(contextUtils, 'setSegment');
+      setSegmentStub = sandbox.stub(contextUtils.getNamespace(), 'set');
     });
 
     afterEach(function () {
@@ -86,9 +87,9 @@ describe('AWSLambda', function () {
     it('should set a facade segment on the context', function () {
       Lambda.init();
       setSegmentStub.should.have.been.calledOnce;
-      setSegmentStub.should.have.been.calledWith(sinon.match.instanceOf(Segment));
+      setSegmentStub.should.have.been.calledWith('segment', sinon.match.instanceOf(Segment));
 
-      var facade = setSegmentStub.args[0][0];
+      var facade = setSegmentStub.args[0][1];
       assert.equal(facade.name, 'facade');
       assert.equal(facade.trace_id, TraceID.Invalid().toString());
     });
@@ -130,7 +131,7 @@ describe('AWSLambda', function () {
 
       sandbox.stub(LambdaUtils, 'validTraceData').returns(true);
       populateStub = sandbox.stub(LambdaUtils, 'populateTraceData').returns(true);
-      setSegmentStub = sandbox.stub(contextUtils, 'setSegment');
+      setSegmentStub = sandbox.stub(contextUtils.getNamespace(), 'set');
     });
 
     afterEach(function () {
@@ -141,7 +142,7 @@ describe('AWSLambda', function () {
       it('should check reset the facade', function () {
         Lambda.init();
 
-        var facade = setSegmentStub.args[0][0];
+        var facade = setSegmentStub.args[0][1];
         facade.trace_id = 'traceIdHere';
         facade.id = 'parentIdHere';
         facade.subsegments = [{ subsegment: 'here' }];
@@ -172,7 +173,7 @@ describe('AWSLambda', function () {
         Lambda.init();
         populateStub.reset();
 
-        var facade = setSegmentStub.args[0][0];
+        var facade = setSegmentStub.args[0][1];
         assert.throws(facade.resolveLambdaTraceData);
         populateStub.should.have.not.been.called;
       });
@@ -182,7 +183,7 @@ describe('AWSLambda', function () {
         Lambda.init();
         process.env._X_AMZN_TRACE_ID = 'xAmznTraceId2';
         populateStub.reset();
-        var facade = setSegmentStub.args[0][0];
+        var facade = setSegmentStub.args[0][1];
         facade.resolveLambdaTraceData();
 
         populateStub.should.have.been.calledOnce;
@@ -192,7 +193,7 @@ describe('AWSLambda', function () {
         process.env._X_AMZN_TRACE_ID = traceId;
         Lambda.init();
         process.env._X_AMZN_TRACE_ID = 'xAmznTraceId2';
-        var facade = setSegmentStub.args[0][0];
+        var facade = setSegmentStub.args[0][1];
         var resetStub = sandbox.stub(facade, 'reset');
 
         facade.resolveLambdaTraceData();
@@ -204,7 +205,7 @@ describe('AWSLambda', function () {
         Lambda.init();
         populateStub.reset();
 
-        var facade = setSegmentStub.args[0][0];
+        var facade = setSegmentStub.args[0][1];
         facade.resolveLambdaTraceData();
         populateStub.should.have.not.been.called;
       });
@@ -220,7 +221,7 @@ describe('AWSLambda', function () {
 
         populateStub.reset();
 
-        var facade = setSegmentStub.args[0][0];
+        var facade = setSegmentStub.args[0][1];
         facade.resolveLambdaTraceData();
 
         getXRayTraceIdStub.should.have.been.calledOnce;
@@ -237,7 +238,7 @@ describe('AWSLambda', function () {
 
         populateStub.reset();
 
-        var facade = setSegmentStub.args[0][0];
+        var facade = setSegmentStub.args[0][1];
         facade.resolveLambdaTraceData();
 
         getXRayTraceIdStub.should.have.been.calledOnce;
@@ -257,7 +258,7 @@ describe('AWSLambda', function () {
 
         populateStub.reset();
 
-        var facade = setSegmentStub.args[0][0];
+        var facade = setSegmentStub.args[0][1];
         facade.resolveLambdaTraceData();
 
         getXRayTraceIdStub.should.have.been.calledOnce;
@@ -274,7 +275,7 @@ describe('AWSLambda', function () {
       sandbox.stub(SegmentEmitter, 'disableReusableSocket');
       sandbox.stub(LambdaUtils, 'validTraceData').returns(true);
 
-      setSegmentStub = sandbox.stub(contextUtils, 'setSegment');
+      setSegmentStub = sandbox.stub(contextUtils.getNamespace(), 'set');
     });
 
     afterEach(function () {
@@ -288,7 +289,7 @@ describe('AWSLambda', function () {
       Lambda.init();
       await setupInvokeStore();
 
-      var facade = setSegmentStub.args[0][0];
+      var facade = setSegmentStub.args[0][1];
       facade.resolveLambdaTraceData();
       var additionalTraceData = facade.additionalTraceData;
       assert.equal(additionalTraceData['Lineage'], '1234abcd:4|3456abcd:6');
