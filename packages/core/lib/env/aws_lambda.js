@@ -38,11 +38,11 @@ module.exports.getInvocationContext = function getInvocationContext() {
         return segment;
       },
       setSegment: function(active, current) {
-        if (active) {
-          segments.set(active, current);
-        } else {
-          segment = current;
+        if (!active) {
+          return false;
         }
+        segments.set(active, current);
+        return true;
       }
     };
     invocationContexts.set(invocation, context);

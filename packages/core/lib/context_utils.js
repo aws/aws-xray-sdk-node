@@ -11,8 +11,18 @@ var Subsegment = require('./segments/attributes/subsegment');
 var cls_mode = true;
 var NAMESPACE ='AWSXRay';
 var SEGMENT = 'segment';
+var isLambda = !!process.env.LAMBDA_TASK_ROOT;
+var lambdaEnv;
 
 var contextOverride = false;
+
+function getLambdaInvocationContext() {
+  // The Lambda module also imports contextUtils, so load it on first use.
+  if (!lambdaEnv) {
+    lambdaEnv = require('./env/aws_lambda');
+  }
+  return lambdaEnv.getInvocationContext();
+}
 
 var contextUtils = {
   CONTEXT_MISSING_STRATEGY: {
@@ -96,12 +106,12 @@ var contextUtils = {
   getSegment: function getSegment() {
     if (cls_mode) {
       var namespace = contextUtils.getNamespace(NAMESPACE);
-      var invocation = process.env.LAMBDA_TASK_ROOT && require('./env/aws_lambda').getInvocationContext();
+      var invocation = isLambda && getLambdaInvocationContext();
       var segment = invocation ? invocation.getSegment(namespace.active) : namespace.get(SEGMENT);
 
       if (!segment) {
         contextUtils.contextMissingStrategy.contextMissing('Failed to get the current sub/segment from the context.');
-      } else if (segment instanceof Segment && process.env.LAMBDA_TASK_ROOT && segment.facade == true) {
+      } else if (segment instanceof Segment && isLambda && segment.facade == true) {
         segment.resolveLambdaTraceData();
       }
 
@@ -121,10 +131,9 @@ var contextUtils = {
   setSegment: function setSegment(segment) {
     if (cls_mode) {
       var namespace = contextUtils.getNamespace(NAMESPACE);
-      var invocation = process.env.LAMBDA_TASK_ROOT && require('./env/aws_lambda').getInvocationContext();
-      if (invocation) {
-        invocation.setSegment(namespace.active, segment);
-      } else if (!namespace.set(SEGMENT, segment)) {
+      var invocation = isLambda && getLambdaInvocationContext();
+      var segmentSet = invocation ? invocation.setSegment(namespace.active, segment) : namespace.set(SEGMENT, segment);
+      if (!segmentSet) {
         logger.getLogger().warn('Failed to set the current sub/segment on the context.');
       }
     } else {

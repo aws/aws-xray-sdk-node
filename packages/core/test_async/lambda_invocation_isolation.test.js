@@ -1,11 +1,5 @@
 var assert = require('chai').assert;
 var sinon = require('sinon');
-var AWSXRay = require('../lib');
-var contextUtils = require('../lib/context_utils');
-var Lambda = require('../lib/env/aws_lambda');
-var mwUtils = require('../lib/middleware/mw_utils');
-var SegmentEmitter = require('../lib/segment_emitter');
-var SegmentUtils = require('../lib/segments/segment_utils');
 
 var ROOT_A = '1-5f0000aa-0000000000000000000000aa';
 var ROOT_B = '1-5f0000bb-0000000000000000000000bb';
@@ -34,7 +28,8 @@ function nextTurn() {
 }
 
 describe('Lambda invocation isolation', function() {
-  var sandbox, invokeStore, protectedKeys, namespace, lambdaContext, legacyFacade;
+  var AWSXRay, contextUtils, Lambda, SegmentUtils;
+  var sandbox, storeModule, invokeStore, protectedKeys, namespace, lambdaContext, legacyFacade;
   var documents, previousGlobal, previousManualMode, previousThreshold;
   var previousEnv = {};
   var envNames = ['LAMBDA_TASK_ROOT', '_X_AMZN_TRACE_ID', 'AWS_LAMBDA_BENCHMARK_MODE', 'AWS_LAMBDA_MAX_CONCURRENCY'];
@@ -44,14 +39,20 @@ describe('Lambda invocation isolation', function() {
       previousEnv[name] = process.env[name];
     });
     previousGlobal = globalThis.awslambda;
-    previousManualMode = contextUtils.enableManualMode;
-    previousThreshold = SegmentUtils.getStreamingThreshold();
     process.env.LAMBDA_TASK_ROOT = '/var/task';
     process.env.AWS_LAMBDA_BENCHMARK_MODE = '1';
     process.env.AWS_LAMBDA_MAX_CONCURRENCY = '2';
     delete process.env._X_AMZN_TRACE_ID;
 
-    var storeModule = await import('@aws/lambda-invoke-store');
+    contextUtils = require('../lib/context_utils');
+    Lambda = require('../lib/env/aws_lambda');
+    var mwUtils = require('../lib/middleware/mw_utils');
+    var SegmentEmitter = require('../lib/segment_emitter');
+    SegmentUtils = require('../lib/segments/segment_utils');
+    previousManualMode = contextUtils.enableManualMode;
+    previousThreshold = SegmentUtils.getStreamingThreshold();
+
+    storeModule = await import('@aws/lambda-invoke-store');
     storeModule.InvokeStore._testing.reset();
     invokeStore = await storeModule.InvokeStore.getInstanceAsync();
     protectedKeys = storeModule.InvokeStoreBase.PROTECTED_KEYS;
@@ -62,9 +63,10 @@ describe('Lambda invocation isolation', function() {
     sandbox.stub(SegmentEmitter, 'send').callsFake(function(segment) {
       documents.push(JSON.parse(segment.format()));
     });
+    // Load the SDK only after setting up the Lambda environment so its startup initializes CLS.
+    AWSXRay = require('../lib');
     AWSXRay.enableAutomaticMode();
     namespace = AWSXRay.getNamespace();
-    Lambda.init();
     lambdaContext = namespace.active;
     legacyFacade = namespace.get('segment');
   });
@@ -256,6 +258,54 @@ describe('Lambda invocation isolation', function() {
     assert.isUndefined(invokeStore.getContext());
   });
 
+  it('starts a fresh facade for each classic Lambda invocation even when the store retains the previous context', async function() {
+    var previousConcurrency = process.env.AWS_LAMBDA_MAX_CONCURRENCY;
+    delete process.env.AWS_LAMBDA_MAX_CONCURRENCY;
+    storeModule.InvokeStore._testing.reset();
+    try {
+      var singleStore = await storeModule.InvokeStore.getInstanceAsync();
+      var firstContext = { [protectedKeys.X_RAY_TRACE_ID]: TRACE_A };
+      var firstFacade;
+      await singleStore.run(firstContext, async function() {
+        firstFacade = AWSXRay.getSegment();
+        assert.equal(firstFacade.trace_id, ROOT_A);
+        var unfinished = firstFacade.addNewSubsegment('unfinished-classic');
+        AWSXRay.setSegment(unfinished);
+        await nextTurn();
+        assert.strictEqual(AWSXRay.getSegment(), unfinished);
+      });
+      assert.strictEqual(singleStore.getContext(), firstContext);
+
+      var nextContext = { [protectedKeys.X_RAY_TRACE_ID]: TRACE_B };
+      await singleStore.run(nextContext, async function() {
+        var facade = AWSXRay.getSegment();
+        assert.isTrue(facade.facade);
+        assert.notStrictEqual(facade, firstFacade);
+        assert.equal(facade.trace_id, ROOT_B);
+        assert.equal(facade.id, '00000000000000bb');
+        assert.isUndefined(facade.subsegments);
+        assert.deepEqual(facade.additionalTraceData, {});
+
+        await nextTurn();
+        assert.strictEqual(AWSXRay.getSegment(), facade);
+        AWSXRay.captureFunc('classic-second', function(work) {
+          assert.strictEqual(work.parent, facade);
+          assert.strictEqual(AWSXRay.getSegment(), work);
+        });
+        assert.strictEqual(AWSXRay.getSegment(), facade);
+      });
+      assert.strictEqual(singleStore.getContext(), nextContext);
+      assert.equal(firstFacade.trace_id, ROOT_A);
+      assert.lengthOf(documents, 1);
+      assert.equal(documents[0].trace_id, ROOT_B);
+      assert.equal(documents[0].parent_id, '00000000000000bb');
+    } finally {
+      process.env.AWS_LAMBDA_MAX_CONCURRENCY = previousConcurrency;
+      storeModule.InvokeStore._testing.reset();
+      invokeStore = await storeModule.InvokeStore.getInstanceAsync();
+    }
+  });
+
   it('restores capture context after a thrown exception without leaking it into a peer invocation', async function() {
     var overlap = barrier(2);
     await Promise.all([TRACE_A, TRACE_B].map(function(trace) {
@@ -308,31 +358,28 @@ describe('Lambda invocation isolation', function() {
     });
   });
 
-  it('stores invocation segments even when the calling async resource has no active CLS context', function() {
+  it('warns and preserves the invocation facade when setting a segment without an active CLS context', function() {
     var active = namespace.active;
+    var warn = sandbox.stub(AWSXRay.getLogger(), 'warn');
     namespace.active = null;
     try {
-      var facades = [TRACE_A, TRACE_B].map(function(trace) {
-        return invocation(trace, function() {
-          var facade = AWSXRay.getSegment();
-          var work = facade.addNewSubsegment('without-cls');
-          AWSXRay.setSegment(work);
-          assert.strictEqual(AWSXRay.getSegment(), work);
-          AWSXRay.captureFunc('captured', function(current) {
-            assert.strictEqual(current.parent, work);
-            assert.strictEqual(AWSXRay.getSegment(), current);
-          });
-          assert.strictEqual(AWSXRay.getSegment(), work);
-          work.close();
-          AWSXRay.setSegment(facade);
-          return facade;
+      invocation(TRACE_A, function() {
+        var facade = AWSXRay.getSegment();
+        var work = facade.addNewSubsegment('without-cls');
+        AWSXRay.setSegment(work);
+        assert.strictEqual(AWSXRay.getSegment(), facade);
+
+        AWSXRay.captureFunc('captured', function(current) {
+          assert.strictEqual(current.parent, facade);
+          assert.strictEqual(AWSXRay.getSegment(), current);
         });
+        assert.strictEqual(AWSXRay.getSegment(), facade);
+        sinon.assert.calledOnceWithExactly(warn, 'Failed to set the current sub/segment on the context.');
+        work.close();
       });
-      assert.notStrictEqual(facades[0], facades[1]);
-      assert.equal(facades[0].trace_id, ROOT_A);
-      assert.equal(facades[1].trace_id, ROOT_B);
     } finally {
       namespace.active = active;
+      warn.restore();
     }
   });
 
