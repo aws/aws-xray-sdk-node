@@ -31,7 +31,7 @@
     "semver": "^7.5.3"
   },
   "devDependencies": {
-    "@aws/lambda-invoke-store": "^0.2.0"
+    "@aws/lambda-invoke-store": "^0.2.2"
   },
   "scripts": {
     "prepare": "npm run compile",
@@ -40,12 +40,13 @@
     "copy-test": "find test -name '*.json' | xargs -I % ../../scripts/cp-with-structure.sh % dist",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "test": "npm run compile && mocha --recursive ./dist/test/ -R spec && tsd && mocha --recursive ./dist/test_async/ -R spec",
+    "test": "npm run compile && mocha --recursive ./dist/test/ -R spec && tsd && npm run test-async:run",
     "test-d": "tsd",
-    "test-async": "npm run compile && mocha --recursive ./dist/test_async/ -R spec",
+    "test-async": "npm run compile && npm run test-async:run",
     "clean": "rm -rf dist && rm -rf node_modules",
     "testcov": "nyc npm run test",
-    "reportcov": "nyc report --reporter=text-lcov > coverage.lcov"
+    "reportcov": "nyc report --reporter=text-lcov > coverage.lcov",
+    "test-async:run": "mocha --recursive ./dist/test_async/ --exclude dist/test_async/lambda_invocation_isolation.test.js -R spec && mocha ./dist/test_async/lambda_invocation_isolation.test.js -R spec"
   },
   "keywords": [
     "amazon",

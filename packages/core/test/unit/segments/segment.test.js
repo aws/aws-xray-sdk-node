@@ -269,7 +269,7 @@ describe('Segment', function() {
 
     beforeEach(function() {
       sandbox = sinon.createSandbox();
-      setSegmentStub = sandbox.stub(Context, 'setSegment');
+      setSegmentStub = sandbox.stub(Context.getNamespace(), 'set');
     });
 
     afterEach(function() {
@@ -283,7 +283,7 @@ describe('Segment', function() {
 
       setSegmentStub.should.have.been.calledOnce;
 
-      let facade = setSegmentStub.args[0][0];
+      let facade = setSegmentStub.args[0][1];
       let unsampledSegment = facade.addNewSubsegmentWithoutSampling('unsampled-subsegment');
       assert.equal(unsampledSegment.notTraced, true);
     });
@@ -294,7 +294,7 @@ describe('Segment', function() {
 
       setSegmentStub.should.have.been.calledOnce;
 
-      let facade = setSegmentStub.args[0][0];
+      let facade = setSegmentStub.args[0][1];
       let sampledSubsegment = facade.addNewSubsegment('sampled-subsegment');
       assert.equal(sampledSubsegment.notTraced, undefined);
     });
